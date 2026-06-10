@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EJ Studio — Performance Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #f5f0ea;
@@ -2466,6 +2467,7 @@ body.manager-view .owner-only { display: none !important; }
     <div id="sidebar-studio-list"></div>
     <button class="sidebar-add-studio" onclick="showAddStudioModal()">+ Add Studio</button>
   </div>
+  <div id="cloud-bar" style="padding:10px 16px;border-top:1px solid var(--border)"></div>
   <div id="pin-mgmt-bar" style="padding:12px 16px;border-top:1px solid var(--border)">
     <button class="btn btn-ghost" style="width:100%;font-size:12px;margin-bottom:6px" onclick="showPage('pinmgmt')">🔐 Manage PINs</button>
     <button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="pinLockNow()">🔒 Log Out</button>
@@ -3140,16 +3142,16 @@ body.manager-view .owner-only { display: none !important; }
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
         <div class="page-title">Client Service Log</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:2px">New client checklist — consult form, photos, notes, rebook, product</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">Clients awaiting rebooking — tick <strong style="color:var(--green)">Rebooked</strong> to clear them off the list. (Will auto-feed from Timely later.)</div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <select class="compare-select" id="cl-stylist" onchange="renderClientLog()" style="min-width:130px">
         </select>
         <input class="biz-input" id="cl-search" placeholder="Search client..." oninput="renderClientLog()" style="width:180px;padding:7px 12px;font-size:13px">
         <select class="compare-select" id="cl-filter" onchange="renderClientLog()" style="min-width:140px">
-          <option value="all">All Clients</option>
+          <option value="not-rebooked" selected>Awaiting Rebook</option>
           <option value="rebooked">Rebooked ✓</option>
-          <option value="not-rebooked">Not Rebooked</option>
+          <option value="all">All Clients</option>
           <option value="product">Sold Product</option>
           <option value="no-consult">Missing Consult</option>
         </select>
@@ -3768,153 +3770,11 @@ function removeStylistPhoto(name) {
 }
 
 // Real data from spreadsheet — daily entries
-const RAW_DATA = [
-  // Format: {date, retClient, retRebook, retNotRebook, newClient, newRebook, newNotRebook, productDollar, productQty, service, dailyTotal, stylists, notes, stylistData}
-  // JANUARY
-  { date:'2026-01-27', ret:11, retR:7, retNR:4, newC:4, newR:0, newNR:4, prod:0, prodQty:0, svc:1910, total:1910, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-01-28', ret:15, retR:7, retNR:8, newC:7, newR:1, newNR:6, prod:111, prodQty:4, svc:2620, total:2731, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-01-29', ret:29, retR:20, retNR:9, newC:3, newR:1, newNR:1, prod:51, prodQty:3, svc:3235, total:3286, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-01-30', ret:19, retR:12, retNR:7, newC:2, newR:1, newNR:1, prod:80, prodQty:2, svc:2520, total:2600, stylists:3, notes:'EJ 9-3 for Angel sick',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-01-31', ret:4, retR:1, retNR:3, newC:2, newR:1, newNR:1, prod:0, prodQty:0, svc:790, total:790, stylists:1, notes:'Angel sick',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-
-  // FEBRUARY
-  { date:'2026-02-03', ret:18, retR:10, retNR:8, newC:2, newR:0, newNR:2, prod:102, prodQty:3, svc:1980, total:2082, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-04', ret:18, retR:12, retNR:6, newC:5, newR:2, newNR:3, prod:57, prodQty:2, svc:2282, total:2339, stylists:3, notes:"Ruby's content day",
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-05', ret:32, retR:21, retNR:11, newC:4, newR:1, newNR:3, prod:34, prodQty:2, svc:3360, total:3394, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-06', ret:25, retR:16, retNR:7, newC:2, newR:1, newNR:1, prod:40, prodQty:1, svc:2790, total:2830, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-07', ret:8, retR:7, retNR:1, newC:1, newR:1, newNR:0, prod:0, prodQty:0, svc:900, total:900, stylists:1, notes:'No manager starting',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-10', ret:17, retR:12, retNR:5, newC:5, newR:2, newNR:3, prod:80, prodQty:3, svc:2350, total:2430, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-11', ret:24, retR:14, retNR:10, newC:4, newR:1, newNR:3, prod:195, prodQty:5, svc:2800, total:2995, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-12', ret:28, retR:16, retNR:12, newC:6, newR:2, newNR:4, prod:240, prodQty:7, svc:3190, total:3430, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-13', ret:22, retR:14, retNR:8, newC:4, newR:1, newNR:3, prod:120, prodQty:4, svc:2640, total:2760, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-14', ret:14, retR:10, retNR:4, newC:3, newR:1, newNR:2, prod:85, prodQty:3, svc:1760, total:1845, stylists:2, notes:'Valentines Day',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-17', ret:20, retR:11, retNR:9, newC:5, newR:1, newNR:4, prod:110, prodQty:3, svc:2450, total:2560, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-18', ret:30, retR:18, retNR:12, newC:5, newR:2, newNR:3, prod:180, prodQty:6, svc:3500, total:3680, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-19', ret:26, retR:17, retNR:9, newC:4, newR:1, newNR:3, prod:95, prodQty:3, svc:3100, total:3195, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-20', ret:18, retR:12, retNR:6, newC:4, newR:1, newNR:3, prod:75, prodQty:2, svc:2200, total:2275, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-21', ret:10, retR:7, retNR:3, newC:2, newR:1, newNR:1, prod:45, prodQty:1, svc:1230, total:1275, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-24', ret:16, retR:10, retNR:6, newC:4, newR:1, newNR:3, prod:70, prodQty:2, svc:2050, total:2120, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-25', ret:24, retR:14, retNR:10, newC:5, newR:2, newNR:3, prod:155, prodQty:5, svc:2990, total:3145, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-26', ret:28, retR:16, retNR:12, newC:5, newR:1, newNR:4, prod:200, prodQty:6, svc:3380, total:3580, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-27', ret:21, retR:14, retNR:7, newC:4, newR:2, newNR:2, prod:90, prodQty:3, svc:2570, total:2660, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-02-28', ret:12, retR:8, retNR:4, newC:3, newR:1, newNR:2, prod:60, prodQty:2, svc:1480, total:1540, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-
-  // MARCH
-  { date:'2026-03-03', ret:14, retR:9, retNR:5, newC:4, newR:2, newNR:2, prod:79, prodQty:3, svc:1790, total:1869, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-04', ret:18, retR:11, retNR:7, newC:1, newR:1, newNR:0, prod:142, prodQty:4, svc:1900, total:2042, stylists:2, notes:'Content day Saskia at Thic W/H',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-05', ret:31, retR:22, retNR:9, newC:5, newR:3, newNR:2, prod:237, prodQty:6, svc:3195, total:3432, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-06', ret:20, retR:12, retNR:8, newC:6, newR:3, newNR:3, prod:152, prodQty:4, svc:3130, total:3282, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-07', ret:13, retR:10, retNR:3, newC:2, newR:0, newNR:2, prod:180, prodQty:6, svc:1655, total:1835, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-10', ret:19, retR:13, retNR:6, newC:5, newR:2, newNR:3, prod:120, prodQty:4, svc:2340, total:2460, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-11', ret:28, retR:18, retNR:10, newC:6, newR:3, newNR:3, prod:310, prodQty:9, svc:3400, total:3710, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-12', ret:30, retR:19, retNR:11, newC:7, newR:4, newNR:3, prod:260, prodQty:7, svc:3780, total:4040, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-13', ret:24, retR:15, retNR:9, newC:5, newR:2, newNR:3, prod:180, prodQty:5, svc:3100, total:3280, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-14', ret:16, retR:10, retNR:6, newC:3, newR:1, newNR:2, prod:100, prodQty:3, svc:2000, total:2100, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-17', ret:20, retR:13, retNR:7, newC:5, newR:2, newNR:3, prod:145, prodQty:4, svc:2550, total:2695, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-18', ret:27, retR:16, retNR:11, newC:6, newR:3, newNR:3, prod:220, prodQty:6, svc:3300, total:3520, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-19', ret:31, retR:20, retNR:11, newC:7, newR:4, newNR:3, prod:295, prodQty:8, svc:3900, total:4195, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-20', ret:22, retR:14, retNR:8, newC:4, newR:2, newNR:2, prod:160, prodQty:5, svc:2760, total:2920, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-21', ret:15, retR:9, retNR:6, newC:4, newR:1, newNR:3, prod:75, prodQty:2, svc:1850, total:1925, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-24', ret:18, retR:11, retNR:7, newC:5, newR:2, newNR:3, prod:130, prodQty:4, svc:2280, total:2410, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-25', ret:25, retR:16, retNR:9, newC:5, newR:2, newNR:3, prod:180, prodQty:5, svc:3080, total:3260, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-26', ret:27, retR:17, retNR:10, newC:6, newR:3, newNR:3, prod:230, prodQty:7, svc:3450, total:3680, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-27', ret:21, retR:13, retNR:8, newC:5, newR:2, newNR:3, prod:165, prodQty:5, svc:2640, total:2805, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-03-28', ret:12, retR:8, retNR:4, newC:3, newR:1, newNR:2, prod:90, prodQty:3, svc:1560, total:1650, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-
-  // APRIL
-  { date:'2026-03-31', ret:15, retR:9, retNR:6, newC:7, newR:1, newNR:6, prod:79, prodQty:3, svc:2540, total:2619, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-01', ret:25, retR:20, retNR:5, newC:4, newR:1, newNR:3, prod:17, prodQty:1, svc:3095, total:3112, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-02', ret:22, retR:18, retNR:4, newC:1, newR:0, newNR:0, prod:205, prodQty:5, svc:2705, total:2910, stylists:2, notes:'Ruby AL',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-07', ret:24, retR:16, retNR:8, newC:5, newR:2, newNR:3, prod:180, prodQty:5, svc:3100, total:3280, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-08', ret:30, retR:19, retNR:11, newC:6, newR:2, newNR:4, prod:290, prodQty:8, svc:3800, total:4090, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-09', ret:28, retR:17, retNR:11, newC:5, newR:2, newNR:3, prod:240, prodQty:7, svc:3510, total:3750, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-10', ret:21, retR:14, retNR:7, newC:4, newR:1, newNR:3, prod:160, prodQty:5, svc:2640, total:2800, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-11', ret:14, retR:9, retNR:5, newC:3, newR:1, newNR:2, prod:90, prodQty:3, svc:1750, total:1840, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-14', ret:22, retR:15, retNR:7, newC:5, newR:2, newNR:3, prod:175, prodQty:5, svc:2830, total:3005, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-15', ret:29, retR:18, retNR:11, newC:6, newR:2, newNR:4, prod:260, prodQty:7, svc:3650, total:3910, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-16', ret:26, retR:16, retNR:10, newC:5, newR:1, newNR:4, prod:215, prodQty:6, svc:3280, total:3495, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-17', ret:18, retR:11, retNR:7, newC:4, newR:1, newNR:3, prod:135, prodQty:4, svc:2260, total:2395, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-22', ret:24, retR:14, retNR:10, newC:5, newR:2, newNR:3, prod:200, prodQty:6, svc:3100, total:3300, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-23', ret:31, retR:19, retNR:12, newC:6, newR:2, newNR:4, prod:275, prodQty:8, svc:3900, total:4175, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-24', ret:27, retR:16, retNR:11, newC:5, newR:2, newNR:3, prod:230, prodQty:7, svc:3400, total:3630, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-25', ret:19, retR:12, retNR:7, newC:4, newR:1, newNR:3, prod:145, prodQty:4, svc:2390, total:2535, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-28', ret:19, retR:8, retNR:11, newC:5, newR:0, newNR:5, prod:413, prodQty:12, svc:3035, total:3448, stylists:2, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-29', ret:27, retR:19, retNR:8, newC:1, newR:0, newNR:1, prod:213, prodQty:5, svc:2985, total:3198, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-  { date:'2026-04-30', ret:32, retR:16, retNR:16, newC:5, newR:1, newNR:4, prod:130, prodQty:3, svc:3360, total:3490, stylists:3, notes:'',
-    sd:{Elyshia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Angel:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Ruby:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}, Saskia:{c:0,rr:0,rnr:0,nr:0,nrr:0,nnr:0,svc:0,prod:0,tot:0,shifts:0}}},
-];
+const RAW_DATA = [];
 
 // Monthly summary (from spreadsheet Dashboard tab — exact figures)
 // Base monthly data (Jan–Apr 2026 from spreadsheet)
-const BASE_MONTHLY = {
-  Jan: { ret:371, retR:263, retNR:112, newC:78, newR:21, newNR:30, prod:1127, svc:45110, total:46237, stylists:50 },
-  Feb: { ret:353, retR:209, retNR:142, newC:73, newR:20, newNR:48, prod:2428, svc:43117, total:45505, stylists:47 },
-  Mar: { ret:356, retR:220, retNR:136, newC:94, newR:37, newNR:57, prod:3186, svc:47375, total:50561, stylists:50 },
-  Apr: { ret:415, retR:250, retNR:165, newC:73, newR:12, newNR:57, prod:3340, svc:53300, total:56640, stylists:51 },
-};
+const BASE_MONTHLY = {};
 
 // MONTHLY is now a live computed proxy — always reflects base data + user entries
 // Any month with user entries automatically appears
@@ -3966,7 +3826,7 @@ let STUDIOS = (() => {
   } catch { return [...DEFAULT_STUDIOS]; }
 })();
 let activeStudio = STUDIOS[0].id;
-function saveStudios() { localStorage.setItem('ejStudios', JSON.stringify(STUDIOS)); }
+function saveStudios() { localStorage.setItem('ejStudios', JSON.stringify(STUDIOS)); if (typeof cloudSyncOut === 'function') cloudSyncOut('studios'); }
 
 // ── Studio-scoped storage key helper ──────────────────────────────────────
 function studioKey(base) { return base + '_' + activeStudio; }
@@ -3975,7 +3835,7 @@ function studioKey(base) { return base + '_' + activeStudio; }
 function loadStorage() {
   try { return JSON.parse(localStorage.getItem(studioKey('ejEntries')) || '[]'); } catch { return []; }
 }
-function saveStorage(d) { localStorage.setItem(studioKey('ejEntries'), JSON.stringify(d)); }
+function saveStorage(d) { localStorage.setItem(studioKey('ejEntries'), JSON.stringify(d)); if (typeof cloudSyncOut === 'function') cloudSyncOut('entries'); }
 
 let userEntries = loadStorage();
 let activeFilter = 'all';
@@ -3991,7 +3851,7 @@ let STYLISTS = (() => {
     return s;
   } catch { return activeStudio === 'ej' ? DEFAULT_STYLISTS.map(x=>({...x})) : []; }
 })();
-function saveStylists() { localStorage.setItem(studioKey('ejStylists'), JSON.stringify(STYLISTS)); }
+function saveStylists() { localStorage.setItem(studioKey('ejStylists'), JSON.stringify(STYLISTS)); if (typeof cloudSyncOut === 'function') cloudSyncOut('stylists'); }
 function stylistNames() { return STYLISTS.map(s => s.name); }
 function contractorStylists() { return STYLISTS.filter(s => s.isContractor); }
 
@@ -4702,12 +4562,7 @@ function renderWeekly() {
 // 2026 base data is seeded from MONTHLY. Future/other years come from userEntries + savedYearData.
 
 const BASE_YEAR = 2026;
-const BASE_YEAR_DATA = {
-  Jan: { ret:371, retR:263, retNR:112, newC:78, newR:21, newNR:30, prod:1127, svc:45110, total:46237, stylists:50 },
-  Feb: { ret:353, retR:209, retNR:142, newC:73, newR:20, newNR:48, prod:2428, svc:43117, total:45505, stylists:47 },
-  Mar: { ret:356, retR:220, retNR:136, newC:94, newR:37, newNR:57, prod:3186, svc:47375, total:50561, stylists:50 },
-  Apr: { ret:415, retR:250, retNR:165, newC:73, newR:12, newNR:57, prod:3340, svc:53300, total:56640, stylists:51 },
-};
+const BASE_YEAR_DATA = {};
 
 let activeYear = BASE_YEAR;
 let selectedYears = new Set([BASE_YEAR]); // for multi-year compare
@@ -5264,32 +5119,7 @@ function clearEntry() {
 // ===================== STYLIST PAGE =====================
 
 // Global stylist monthly data — used by both renderStylistPage and renderStylistPerf
-const STYLIST_MONTHLY = {
-  Jan: {
-    Elyshia: {c:57, retR:51, retNR:8, newR:2, newNR:4, svc:5765, prod:255, prodQty:8, revenue:6020, shifts:8},
-    Angel:   {c:68, retR:52, retNR:16, newR:8, newNR:12, svc:8005, prod:252, prodQty:7, revenue:8257, shifts:12},
-    Ruby:    {c:109, retR:58, retNR:37, newR:17, newNR:24, svc:13670, prod:388, prodQty:12, revenue:14058, shifts:17},
-    Saskia:  {c:115, retR:68, retNR:28, newR:18, newNR:21, svc:14695, prod:312, prodQty:10, revenue:15007, shifts:19},
-  },
-  Feb: {
-    Elyshia: {c:62, retR:50, retNR:12, newR:5, newNR:8, svc:5680, prod:285, prodQty:9, revenue:5965, shifts:9},
-    Angel:   {c:76, retR:63, retNR:13, newR:10, newNR:9, svc:8960, prod:320, prodQty:10, revenue:9280, shifts:13},
-    Ruby:    {c:98, retR:52, retNR:46, newR:12, newNR:22, svc:12350, prod:490, prodQty:15, revenue:12840, shifts:14},
-    Saskia:  {c:117, retR:75, retNR:42, newR:18, newNR:27, svc:15590, prod:680, prodQty:21, revenue:16270, shifts:16},
-  },
-  Mar: {
-    Elyshia: {c:67, retR:58, retNR:9, newR:0, newNR:7, svc:6260, prod:320, prodQty:10, revenue:6580, shifts:9},
-    Angel:   {c:82, retR:65, retNR:17, newR:10, newNR:10, svc:10300, prod:470, prodQty:14, revenue:10770, shifts:13},
-    Ruby:    {c:110, retR:62, retNR:48, newR:25, newNR:30, svc:15650, prod:680, prodQty:20, revenue:16330, shifts:16},
-    Saskia:  {c:127, retR:81, retNR:46, newR:30, newNR:40, svc:17480, prod:780, prodQty:24, revenue:18260, shifts:18},
-  },
-  Apr: {
-    Elyshia: {c:57, retR:53, retNR:4, newR:0, newNR:4, svc:5390, prod:380, prodQty:12, revenue:5770, shifts:8},
-    Angel:   {c:67, retR:59, retNR:8, newR:3, newNR:4, svc:8720, prod:355, prodQty:11, revenue:9075, shifts:11},
-    Ruby:    {c:138, retR:72, retNR:66, newR:15, newNR:40, svc:19665, prod:1040, prodQty:32, revenue:20705, shifts:19},
-    Saskia:  {c:161, retR:82, retNR:79, newR:18, newNR:55, svc:22600, prod:1215, prodQty:38, revenue:23815, shifts:19},
-  }
-};
+const STYLIST_MONTHLY = {};
 
 // Stylists-page time window — independent of the Leaderboard, persisted per studio
 function getStylistPagePeriod() {
@@ -5563,240 +5393,8 @@ function loadClientLog() {
   } catch {}
   // Only seed the original studio with xlsx data — new studios start blank
   if (activeStudio !== 'ej') return {};
-  // Seed data from xlsx (original Elyshia Jones Studio only)
-  return {
-    Saskia: [
-      {name:'Danya Coyle-LAMI',consult:true,before:false,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Taylah Doolan-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Eliza Moir-DYE',consult:true,before:false,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Kayla Humphies-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has products at home'},
-      {name:'Claudia Taylor-DYE/LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online needs to check roster - nurse'},
-      {name:'Yashika Mali-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Claire du Plessis-WAX',consult:true,before:false,after:true,notes:false,rebook:false,product:false,memo:''},
-      {name:'Tess Hawkins-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'has products'},
-      {name:'Elizabeth Martin-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'nurse just came off night shift - referred'},
-      {name:'Phoenix Cumming-DYE',consult:true,before:false,after:true,notes:true,rebook:true,product:false,memo:'product card given'},
-      {name:'Tiana Baxter-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'product card given'},
-      {name:'Tori Faulkner-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Samah Fower-LL',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Amy Ben-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Tamzyn-Rose Tamariki-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Annie Kennedy-LL/LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Shanae Gibson-DYE',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'photo card given'},
-      {name:'Merryl Macey-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Cristina Mocan-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Tae McDonald-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'just moved from Melb will book online'},
-      {name:'Megan Russell',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:'going back home UK'},
-      {name:'Natalie Aarons-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'going to LA'},
-      {name:'Jack Jordan',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'gf suggested occasions only'},
-      {name:'Emma Cameron',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'no show invoiced'},
-      {name:'Belinda Derdowski-DYE',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'will get powder when refill needed'},
-      {name:'Jasper Berry-DYE',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Emmerson Lee-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'lives in Wynnum, will book herself'},
-      {name:'Kayla Carnell-TINT',consult:true,before:true,after:true,notes:false,rebook:false,product:false,memo:'last min booking'},
-      {name:'Katie Smith-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'travelling and working'},
-      {name:'Jess Gudmunson-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'brought in behind Mr Bake will book online'},
-      {name:'Aoife Carry',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Vanessa Hatherley-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online'},
-      {name:'Georgia Gering-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Sasha Joyner',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Victoria Gering-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'looked so good will book online'},
-      {name:'Melissa Fitzgerald-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Sophie Suto-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'visiting from rural central'},
-      {name:'Angela Argent-DYE/TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'lives at Paradise Pt'},
-      {name:'Heart Labial-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'holiday and bday brows'},
-      {name:'Chloe Marshall',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'holiday lashes for Japan, will book online'},
-      {name:'Holly McGhee',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Taylar Dureau-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Kristy Nelder-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Jailah Moa-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'18th birthday event'},
-      {name:'Sally Bowler-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'ibrow client busy mum will book online'},
-      {name:'Jessica Ward-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'will book online busy calendar'},
-      {name:'Bree Brunsden-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Ashlyn Schweiger-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Nicole Bodea-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Samantha Geogeson-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Melanie Freeman-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'older lady short lashes will book online going on holidays'},
-      {name:'Macey Low-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'just moved from NZ'},
-      {name:'Bella Coyle-DYE',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Saun McGrath-mens wax',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Xiomara Salazar-DUO',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Monica Williams-LAMI',consult:true,before:false,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Yani Hethorn-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'bridesmaid weekend brows in Melb'},
-      {name:'Indi Watkins-DYE',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Kavanna Trewaves',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Ashleigh Ancypa-DUO',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Phoebe Murray',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Sofia Bostock',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Janelle Aupau-WAX',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Emily Bishop-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'moving to Adelaide phorest client'},
-      {name:'Ashlee Stages-TINT',consult:true,before:true,after:false,notes:true,rebook:false,product:false,memo:'event only'},
-      {name:'Abby Siganto',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'wedding South Africa'},
-      {name:'Stella White-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Natasha McInnes-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Bec Warren-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Sophia Miccio-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Tracey Roach-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Kat Gaudin-TINT',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'cancelled'},
-      {name:'Emma Turner-DYE LASH TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Nikita Gill-LAMI',consult:true,before:true,after:true,notes:false,rebook:false,product:false,memo:'holiday brows'},
-      {name:'Elise Pereira-DYE',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Tia McKernan-TINT',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'no show rebooked with Ruby'},
-      {name:'Madison Godfrey-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online busy with work'},
-      {name:'Talisha Herden-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Jade Williams-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Jade Abbey-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'wedding brows'},
-      {name:'Willa Roberts-TINT',consult:false,before:true,after:true,notes:true,rebook:true,product:false,memo:'ibrow client'},
-      {name:'Morgan Kirkwood-TINT',consult:false,before:true,after:true,notes:true,rebook:false,product:false,memo:'happy to book online'},
-      {name:'Kate Waller-DUO',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Elise McManus-DUO',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Renee Wills-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Kirsty Allen-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Ashleigh Young-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Pela Skrzeczek-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Jess Whitty-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Jayda Pollard-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Olivia Ostle-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Haruka Fukuda-WAX',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'Japanese poor communication'},
-      {name:'Jessica Casben-DUO',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Chailee Weik-LL',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Maggie Roberts-TINT',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Jessica Mahoney-TINT',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:'referred'},
-      {name:'Melissa Breuss-LL',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Kirra Heath-LAMI',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-    ],
-    Angel: [
-      {name:'Tara Ross-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'booked online'},
-      {name:'Zoe Jones-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Garden Hur-LAMI/LL',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Kelly-Ann Green-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'booked online'},
-      {name:'Melissa Olson-LAMI/LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has products & last minute booking'},
-      {name:'Kelly Granville-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'has products'},
-      {name:'Jaimee Tessmann-WAX',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Pam Sibandra-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:'lives across the road'},
-      {name:'Matilda Vial-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Jessica Zorko-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Ryan Mayes-WAX',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Lara Vassallo-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Samantha McClung-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Suzzie Hartery-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Jazmyn Moodley-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Ashleigh Brown-WAX',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Jo Brady-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Monet Kazcos-LAMI',consult:true,before:true,after:true,notes:false,rebook:false,product:false,memo:''},
-      {name:'Maddie Rallings-DYE LASH TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Kara Abell-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'teacher happy to book herself'},
-      {name:'Paige Robinson-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Tanay Heron-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has product will book online'},
-      {name:'Caitlin Brown-LAMI',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'friends'},
-      {name:'Tia Fearon-LAMI',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:'friends'},
-      {name:'Bronte Langebroek-LL',consult:true,before:true,after:true,notes:false,rebook:false,product:false,memo:'sea fm radio host special occasions only'},
-      {name:'Sara D\'Andrea-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Lucy Knight',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'has product already'},
-      {name:'Riddhi Kothari-WAX',consult:true,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Emma Paamara-TINT',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Monique Williams-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Kasey Bristow-DUO',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:''},
-      {name:'Jess Crew-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:'Holly\'s neighbor'},
-      {name:'Elif Edmondson-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Tania Alloway-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'pregnant 2 days to go'},
-      {name:'Natalee Checker-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'damaged brows will rebook soon'},
-      {name:'Sok Aitkin-LL',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Alexandra Hargrave-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'special occasions'},
-      {name:'Laney Bell-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:'older lady - referred'},
-      {name:'Lexie Aguayo-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'going away for 3mths'},
-      {name:'Georgia Fahey-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Sophie Castles-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'only for special events - wedding'},
-    ],
-    Ruby: [
-      {name:'Georgia Hardy-LL',consult:true,before:false,after:false,notes:true,rebook:false,product:false,memo:''},
-      {name:'Jessica Rychlewska-LAMI',consult:true,before:false,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Caitlyn AH Fook-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'going to Bali will rebook once back'},
-      {name:'Davena Butterworth',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Courtney Ikin',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'already has product at home'},
-      {name:'Bridget Latcham',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'will book online, hectic work schedule'},
-      {name:'Jemma Neylan-TINT',consult:true,before:false,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Vicki Murchie-TINT',consult:false,before:true,after:true,notes:true,rebook:false,product:false,memo:'older lady took card to rebook'},
-      {name:'Elissa Wyeth',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online - booked online'},
-      {name:'Megan Hunter-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Reece Castles',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Abby McMullen-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book herself when ready, young, budget conscious'},
-      {name:'Bridgett Kukulies-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Harriett Grant-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online'},
-      {name:'Brook Coady-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has product just moved here'},
-      {name:'Lily Carter-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Chloe Holzwart-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'little toddler will book online'},
-      {name:'Teresa Badalttie-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'special event Millas grandma'},
-      {name:'Bec Daws-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Greta Otley-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'just moved here will book online'},
-      {name:'Sarah Frankson-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'pregnant lives close will book online'},
-      {name:'Gabby R-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'nurse will book online'},
-      {name:'Kayla Robran-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'just moved here, will rebook online'},
-      {name:'Safiyya Kirstin-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Teagan Gorman-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'special events only'},
-      {name:'Rebecca Newman',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Kate Mason',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:'lives around the corner'},
-      {name:'Summer Sweeney',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Cara Kelly',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Melissa Bond',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Libbee Hanrahan',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'hectic calendar will book online'},
-      {name:'Georgia Stockman',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Jane Youngberry-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'visiting from Canberra'},
-      {name:'Ella Graham-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has product will book for brows'},
-      {name:'Isabella Clan-DYE',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Biancia McCormick',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Hannah Flagan',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'existing client name change updated'},
-      {name:'Hope Flannery',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'will book online'},
-      {name:'Eliza Smith-DYE',consult:true,before:true,after:true,notes:false,rebook:false,product:false,memo:''},
-      {name:'Ann Larter-TINT',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'older lady walk in from Sydney, doesn\'t like photo taken'},
-      {name:'Brooke Giggins',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has products, will book online'},
-      {name:'Ginky Medal-THREADING',consult:false,before:false,after:false,notes:false,rebook:false,product:false,memo:'walk in - advised to call when wanting to book'},
-      {name:'Brudgette Shambrook-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'on holidays from Melb'},
-      {name:'Lauren Smith-LASH TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'doctors works crazy hours'},
-      {name:'Alex Cardamore-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'ibrow client booking every two weeks'},
-      {name:'Rulan Grasser-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'Milla\'s Grandma'},
-      {name:'Sasha Pine-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Millie Burns-DYE',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Julia Collins-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Alexie Cribbin-LAMI',consult:true,before:true,after:true,notes:false,rebook:false,product:true,memo:'getting married on 27th March'},
-      {name:'Lilly Green-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Laura Corcoran-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Georgie Throne-DUO',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'will book online dermatologist has products'},
-      {name:'Marina Medina-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Alicia Fairbank-LAMI',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Ninah Waters-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'will book online'},
-      {name:'Scarlett Belton-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'here on holidays from UK'},
-      {name:'Michelle Jack',consult:true,before:true,after:true,notes:false,rebook:false,product:false,memo:'older lady will book online'},
-      {name:'Sonya Hong',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'friends with Millie Burns, found studio on insta'},
-      {name:'Mia Studeman',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'Claudia\'s sister'},
-      {name:'Elyse Williamson-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'GC Hospital nurse will book online'},
-      {name:'Ashleigh Cherry-DUO',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-      {name:'Mia Cartledge-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'April Myer-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:''},
-      {name:'Emily Rezai-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'has product will book online'},
-      {name:'Rachel Sando-LAMI',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:''},
-      {name:'Brooke Loads-LL',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:'special events only - birthday'},
-      {name:'Teagan Harrison-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online, was on medication'},
-      {name:'Fiona Clarke-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'wore big black glasses, asked for music to change'},
-      {name:'Lauren Ferguson-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'holidaying from Noosa'},
-      {name:'Lorielle Scholz-LL',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:'16 years old, comes in school holidays'},
-      {name:'Claudia Cavanough-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:true,memo:'here on holidays'},
-      {name:'Lisa Jonas-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'pregnant, special events only'},
-      {name:'Gemma Laan-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online and get product next time'},
-      {name:'Emelia Henn-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'from Brisbane, comes here for appointments'},
-      {name:'Caroline Gaderer-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'will book online, got powder'},
-      {name:'Isabella Pearson-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'new mum'},
-      {name:'Stella Lee-TINT',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'never professionally done before, referred by Crystal Huang'},
-      {name:'Steph Howes-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'going on holidays'},
-      {name:'Mae Le-DYE',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'works hectic schedule will book online'},
-      {name:'Sarah Leeman-LL',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'from Germany, here on holidays'},
-      {name:'Renee Dennis-TINT',consult:true,before:true,after:true,notes:true,rebook:true,product:false,memo:''},
-      {name:'Ruby Thompson-WAX',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'happy young girl will book online'},
-      {name:'Libby Britnell-DUO',consult:true,before:true,after:true,notes:true,rebook:false,product:false,memo:'special occasions'},
-      {name:'Caitlin Pritchard-DUO',consult:true,before:true,after:true,notes:true,rebook:true,product:true,memo:''},
-    ],
-    Elyshia: []
-  };
+  // Client log starts empty — fed from Timely API later
+  return {};
 }
 
 function saveClientLog(data) {
@@ -5807,8 +5405,20 @@ function toggleClientLogField(stylist, idx, field) {
   const data = loadClientLog();
   if (data[stylist] && data[stylist][idx]) {
     data[stylist][idx][field] = !data[stylist][idx][field];
+    const nowOn = data[stylist][idx][field];
+    const cname = (data[stylist][idx].name || 'Client').split('-')[0].trim();
     saveClientLog(data);
     renderClientLog();
+    if (field === 'rebook') {
+      const t = document.getElementById('toast');
+      if (t) {
+        const prev = t.textContent;
+        t.textContent = nowOn ? ('✓ ' + cname + ' rebooked — cleared from follow-up') : (cname + ' back on follow-up');
+        t.style.background = nowOn ? 'var(--green)' : 'var(--accent)';
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; t.textContent = prev || 'Day saved ✓'; t.style.background = 'var(--green)'; }, 2400);
+      }
+    }
   }
 }
 
@@ -5958,10 +5568,11 @@ function renderClientLog() {
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px">${label}</div>
         <div style="font-size:20px;font-weight:700;color:${col}">${val}</div>
       </div>`;
+    const awaiting = total - rebooked;
     statsEl.innerHTML =
-      stat('Total Clients', total) +
-      stat('Rebooked', `${rebooked} (${rebookPct}%)`, rebooked/total >= 0.6 ? 'var(--green)' : rebooked/total >= 0.4 ? '#e2a043' : 'var(--red)') +
-      stat('Product Sold', withProduct, 'var(--accent)') +
+      stat('Awaiting Rebook', awaiting, awaiting > 0 ? 'var(--red)' : 'var(--green)') +
+      stat('Rebooked ✓', `${rebooked} (${rebookPct}%)`, total > 0 && rebooked/total >= 0.6 ? 'var(--green)' : total > 0 && rebooked/total >= 0.4 ? '#e2a043' : 'var(--muted)') +
+      stat('Sold Product', withProduct, 'var(--accent)') +
       stat('Missing Consult', missingConsult, missingConsult > 0 ? 'var(--red)' : 'var(--green)');
   }
 
@@ -6000,8 +5611,11 @@ function renderClientLog() {
 
   const headerCols = cols.map((c,i) => `<th style="padding:8px 6px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:${colColors[i]};white-space:nowrap">${c}</th>`).join('');
 
+  const emptyMsg = filter === 'not-rebooked'
+    ? '🎉 No clients awaiting a rebook — all caught up!'
+    : 'No clients match the current filter.';
   document.getElementById('cl-output').innerHTML = clients.length === 0
-    ? `<div style="color:var(--muted);font-size:14px;padding:24px 0;text-align:center">No clients match the current filter.</div>`
+    ? `<div style="color:var(--muted);font-size:14px;padding:24px 0;text-align:center">${emptyMsg}</div>`
     : `<div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
           <thead style="background:var(--surface2)">
@@ -8391,12 +8005,7 @@ function exportYearlyPDF() {
 
 const STYLIST_HEADERS = ['Stylist','Total Clients','Ret.Rebooked','Ret.Not Rebooked','Ret.Rebook%','New Clients','New Rebooked','New Rebook%','Revenue','Shifts','Avg/Shift'];
 function getStylistRows(yr) {
-  const STYLIST_MONTHLY_DATA = {
-    Jan:{Elyshia:{c:57,retR:51,retNR:8,newR:2,newNR:4,revenue:6020,shifts:8},Angel:{c:68,retR:52,retNR:16,newR:8,newNR:12,revenue:8257,shifts:12},Ruby:{c:109,retR:58,retNR:37,newR:17,newNR:24,revenue:14058,shifts:17},Saskia:{c:115,retR:68,retNR:28,newR:18,newNR:21,revenue:15007,shifts:19}},
-    Feb:{Elyshia:{c:62,retR:50,retNR:12,newR:5,newNR:8,revenue:5965,shifts:9},Angel:{c:76,retR:63,retNR:13,newR:10,newNR:9,revenue:9280,shifts:13},Ruby:{c:98,retR:52,retNR:46,newR:12,newNR:22,revenue:12840,shifts:14},Saskia:{c:117,retR:75,retNR:42,newR:18,newNR:27,revenue:16270,shifts:16}},
-    Mar:{Elyshia:{c:67,retR:58,retNR:9,newR:0,newNR:7,revenue:6580,shifts:9},Angel:{c:82,retR:65,retNR:17,newR:10,newNR:10,revenue:10770,shifts:13},Ruby:{c:110,retR:62,retNR:48,newR:25,newNR:30,revenue:16330,shifts:16},Saskia:{c:127,retR:81,retNR:46,newR:30,newNR:40,revenue:18260,shifts:18}},
-    Apr:{Elyshia:{c:57,retR:53,retNR:4,newR:0,newNR:4,revenue:5770,shifts:8},Angel:{c:67,retR:59,retNR:8,newR:3,newNR:4,revenue:9075,shifts:11},Ruby:{c:138,retR:72,retNR:66,newR:15,newNR:40,revenue:20705,shifts:19},Saskia:{c:161,retR:82,retNR:79,newR:18,newNR:55,revenue:23815,shifts:19}},
-  };
+  const STYLIST_MONTHLY_DATA = {};
   const stats = {};
   STYLISTS.forEach(st => { stats[st.name]={clients:0,retR:0,retNR:0,newR:0,newNR:0,revenue:0,shifts:0}; });
   STYLISTS.forEach(st => {
@@ -11050,8 +10659,334 @@ function exportStockCSV() {
 }
 
 
+// ===================== SUPABASE CLOUD SYNC (local-first) =====================
+const SB_URL = 'https://eyfgzzpusgdqhhypcaoz.supabase.co';
+const SB_KEY = 'sb_publishable_nNkUb72YURbfysUbgzNvAQ_sYi6C7F0';
+let sbClient = null;
+let cloudReady = false;     // signed in & syncing
+let cloudApplying = false;  // true while applying a pull (suppresses push)
+let _cloudTimers = {};
+
+// ── row mappers (local entry object <-> daily_entries row) ──
+function entryToRow(studioId, e) {
+  return {
+    studio_id: studioId, entry_date: e.date,
+    ret: e.ret||0, ret_r: e.retR||0, ret_nr: e.retNR||0,
+    new_c: e.newC||0, new_r: e.newR||0, new_nr: e.newNR||0,
+    prod: e.prod||0, prod_qty: e.prodQty||0, svc: e.svc||0, total: e.total||0,
+    stylists: e.stylists||0, notes: e.notes||'',
+    sd: e.sd||null, contractor: e.contractor||null,
+    updated_at: new Date().toISOString()
+  };
+}
+function rowToEntry(r) {
+  return {
+    date: r.entry_date,
+    ret: r.ret||0, retR: r.ret_r||0, retNR: r.ret_nr||0,
+    newC: r.new_c||0, newR: r.new_r||0, newNR: r.new_nr||0,
+    prod: r.prod||0, prodQty: r.prod_qty||0, svc: r.svc||0, total: r.total||0,
+    stylists: r.stylists||0, notes: r.notes||'',
+    sd: r.sd||undefined, contractor: r.contractor||null
+  };
+}
+
+function cloudInit() {
+  cloudPatchLocalStorage();
+  try {
+    if (!window.supabase || !window.supabase.createClient) { cloudUpdateStatus(); return; }
+    sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+    sbClient.auth.getSession().then(({ data }) => {
+      if (data && data.session) { cloudReady = true; cloudUpdateStatus(); cloudPullAll().then(cloudStamp); cloudStartRealtime(); }
+      else cloudUpdateStatus();
+    }).catch(() => cloudUpdateStatus());
+  } catch (e) { console.warn('cloud init', e); cloudUpdateStatus(); }
+}
+
+// ── Live sync via Supabase Realtime — changes on other devices appear automatically ──
+let _rtChannel = null;
+let _rtTimer = null;
+let _cloudLastPush = 0;   // timestamp of our own last push, to ignore its echo
+function cloudStartRealtime() {
+  if (!sbClient || !cloudReady) return;
+  try {
+    if (_rtChannel) { sbClient.removeChannel(_rtChannel); _rtChannel = null; }
+    let ch = sbClient.channel('studio-sync');
+    ['studios', 'stylists', 'daily_entries', 'app_state'].forEach(t => {
+      ch = ch.on('postgres_changes', { event: '*', schema: 'public', table: t }, cloudOnRemoteChange);
+    });
+    ch.subscribe();
+    _rtChannel = ch;
+  } catch (e) { console.warn('realtime start failed', e); }
+}
+function cloudStopRealtime() {
+  if (_rtChannel && sbClient) { try { sbClient.removeChannel(_rtChannel); } catch (e) {} }
+  _rtChannel = null;
+}
+function cloudOnRemoteChange() {
+  if (Date.now() - _cloudLastPush < 4000) return;   // ignore the echo of our own recent save
+  clearTimeout(_rtTimer);
+  _rtTimer = setTimeout(() => {
+    if (cloudReady && !cloudApplying) cloudPullAll().then(() => cloudToast('Updated from another device ✓'));
+  }, 1200);   // debounce bursts into a single pull
+}
+
+// Debounced push on save
+function cloudSyncOut(kind) {
+  if (!cloudReady || cloudApplying || !sbClient) return;
+  clearTimeout(_cloudTimers[kind]);
+  _cloudTimers[kind] = setTimeout(() => cloudPushKind(kind), 600);
+}
+async function cloudPushKind(kind) {
+  if (!cloudReady || !sbClient) return;
+  try {
+    if (kind === 'studios') {
+      await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
+    } else if (kind === 'stylists') {
+      const rows = STYLISTS.map((x, i) => ({ studio_id: activeStudio, name: x.name, is_contractor: !!x.isContractor, sort_order: i }));
+      if (rows.length) await sbClient.from('stylists').upsert(rows, { onConflict: 'studio_id,name' });
+    } else if (kind === 'entries') {
+      const rows = userEntries.map(e => entryToRow(activeStudio, e));
+      if (rows.length) await sbClient.from('daily_entries').upsert(rows, { onConflict: 'studio_id,entry_date' });
+    }
+    _cloudLastPush = Date.now();
+    cloudStamp();
+  } catch (e) { console.warn('cloud push failed', kind, e); }
+}
+
+// ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
+const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs'];
+const CLOUD_STUDIO_BASES = [
+  'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff',
+  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
+  'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
+  'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
+  'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB'
+];
+function cloudIsStateKey(k) {
+  if (!k) return false;
+  if (CLOUD_GLOBAL_KEYS.indexOf(k) !== -1) return true;
+  return CLOUD_STUDIO_BASES.some(base => k.indexOf(base + '_') === 0);
+}
+// Auto-sync: wrap localStorage.setItem so any settings/data save pushes to the cloud
+let _ejLSPatched = false;
+function cloudPatchLocalStorage() {
+  if (_ejLSPatched) return;
+  _ejLSPatched = true;
+  const orig = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function (k, v) {
+    orig(k, v);
+    try {
+      if (cloudReady && !cloudApplying && cloudIsStateKey(k)) {
+        clearTimeout(_cloudTimers.state);
+        _cloudTimers.state = setTimeout(() => cloudPushState(false), 800);
+      }
+    } catch (e) {}
+  };
+}
+async function cloudPushState(includePhotos) {
+  if (!cloudReady || !sbClient) return { error: 'Not connected' };
+  try {
+    const now = new Date().toISOString();
+    const rows = [];
+    CLOUD_GLOBAL_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) rows.push({ studio_id: '__global__', k: k, value: v, updated_at: now }); });
+    STUDIOS.forEach(st => {
+      CLOUD_STUDIO_BASES.forEach(base => {
+        const v = localStorage.getItem(base + '_' + st.id);
+        if (v !== null) rows.push({ studio_id: st.id, k: base, value: v, updated_at: now });
+      });
+    });
+    if (includePhotos) {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || key.indexOf('ejPhoto_') !== 0) continue;
+        const st = STUDIOS.find(s => key.length > s.id.length + 1 && key.slice(-(s.id.length + 1)) === '_' + s.id);
+        if (st) rows.push({ studio_id: st.id, k: key.slice(0, key.length - (st.id.length + 1)), value: localStorage.getItem(key), updated_at: now });
+      }
+    }
+    if (!rows.length) return { ok: true };
+    for (let i = 0; i < rows.length; i += 100) {
+      const { error } = await sbClient.from('app_state').upsert(rows.slice(i, i + 100), { onConflict: 'studio_id,k' });
+      if (error) return { error: 'app_state — ' + error.message };
+    }
+    _cloudLastPush = Date.now();
+    cloudStamp();
+    return { ok: true };
+  } catch (e) { return { error: String((e && e.message) || e) }; }
+}
+async function cloudPullState() {
+  if (!cloudReady || !sbClient) return;
+  try {
+    const { data, error } = await sbClient.from('app_state').select('*');
+    if (error || !data) return;
+    data.forEach(r => {
+      const lsKey = (r.studio_id === '__global__') ? r.k : (r.k + '_' + r.studio_id);
+      if (r.value != null) localStorage.setItem(lsKey, r.value);
+    });
+  } catch (e) { console.warn('state pull failed', e); }
+}
+
+// Upload everything currently in localStorage (all studios) to the cloud
+async function cloudMigrateAll() {
+  if (!cloudReady || !sbClient) return { error: 'Not connected — click Connect Cloud first.' };
+  try {
+    let r = await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
+    if (r.error) return { error: 'studios — ' + r.error.message };
+    for (const st of STUDIOS) {
+      let sty = []; try { sty = JSON.parse(localStorage.getItem('ejStylists_' + st.id) || '[]'); } catch {}
+      sty = Array.isArray(sty) ? sty : [];
+      if (sty.length) {
+        const rows = sty.map((x, i) => ({ studio_id: st.id, name: (typeof x === 'string' ? x : x.name), is_contractor: (typeof x === 'object' && !!x.isContractor), sort_order: i }));
+        r = await sbClient.from('stylists').upsert(rows, { onConflict: 'studio_id,name' });
+        if (r.error) return { error: 'stylists — ' + r.error.message };
+      }
+      let ent = []; try { ent = JSON.parse(localStorage.getItem('ejEntries_' + st.id) || '[]'); } catch {}
+      ent = Array.isArray(ent) ? ent : [];
+      for (let i = 0; i < ent.length; i += 200) {
+        r = await sbClient.from('daily_entries').upsert(ent.slice(i, i + 200).map(e => entryToRow(st.id, e)), { onConflict: 'studio_id,entry_date' });
+        if (r.error) return { error: 'daily_entries — ' + r.error.message };
+      }
+    }
+    const sres = await cloudPushState(true);   // settings/data + photos
+    if (sres && sres.error) return sres;
+    return { ok: true };
+  } catch (e) { return { error: String((e && e.message) || e) }; }
+}
+
+// Pull cloud data down into localStorage, then refresh the screen
+async function cloudPullAll() {
+  if (!cloudReady || !sbClient) return;
+  cloudApplying = true;
+  try {
+    const { data: studs } = await sbClient.from('studios').select('*');
+    if (studs && studs.length) {
+      STUDIOS = studs.map(s => ({ id: s.id, name: s.name, color: s.color || STUDIO_COLORS[0] }));
+      localStorage.setItem('ejStudios', JSON.stringify(STUDIOS));
+    }
+    const list = (studs && studs.length) ? studs : STUDIOS;
+    for (const st of list) {
+      const sid = st.id;
+      const { data: sty } = await sbClient.from('stylists').select('*').eq('studio_id', sid).order('sort_order', { ascending: true });
+      if (sty) localStorage.setItem('ejStylists_' + sid, JSON.stringify(sty.map(x => ({ name: x.name, isContractor: !!x.is_contractor }))));
+      const { data: ent } = await sbClient.from('daily_entries').select('*').eq('studio_id', sid);
+      if (ent) localStorage.setItem('ejEntries_' + sid, JSON.stringify(ent.map(rowToEntry)));
+    }
+    await cloudPullState();
+    reloadActiveStudioData();
+  } catch (e) { console.warn('cloud pull failed', e); }
+  cloudApplying = false;
+}
+
+function reloadActiveStudioData() {
+  userEntries = loadStorage();
+  try {
+    const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
+    if (Array.isArray(s) && s.length) STYLISTS = (typeof s[0] === 'string') ? s.map(n => ({ name: n, isContractor: false })) : s;
+    else STYLISTS = activeStudio === 'ej' ? DEFAULT_STYLISTS.map(x => ({ ...x })) : [];
+  } catch { STYLISTS = activeStudio === 'ej' ? DEFAULT_STYLISTS.map(x => ({ ...x })) : []; }
+  renderSidebarStudios();
+  const ap = document.querySelector('.page.active');
+  const pid = ap ? ap.id.replace('page-', '') : 'dashboard';
+  try { showPage(pid); } catch {}
+}
+
+// ── Connect UI ──
+function cloudConnectPrompt() {
+  if (!sbClient) { alert('Cloud library not loaded — check your internet connection and reload.'); return; }
+  const ov = document.createElement('div');
+  ov.id = 'cloud-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 28px;width:340px;max-width:95vw">' +
+    '<div style="font-family:var(--serif);font-size:19px;font-style:italic;color:var(--accent);margin-bottom:6px">Connect to Cloud</div>' +
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5">Sign in with your studio account to sync this device. You only need to do this once per device.</div>' +
+    '<input id="cloud-email" type="email" placeholder="Studio email" autocomplete="username" value="nicholas@thicbrow.com" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--text);outline:none;margin-bottom:10px">' +
+    '<input id="cloud-pass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--text);outline:none;margin-bottom:8px">' +
+    '<div id="cloud-err" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px"></div>' +
+    '<div style="display:flex;gap:10px">' +
+      '<button class="btn btn-primary" style="flex:1" onclick="cloudDoSignIn()">Connect</button>' +
+      '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'cloud-modal\').remove()">Cancel</button>' +
+    '</div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+  setTimeout(() => document.getElementById('cloud-email') && document.getElementById('cloud-email').focus(), 50);
+}
+async function cloudDoSignIn() {
+  const email = (document.getElementById('cloud-email').value || '').trim();
+  const pass = document.getElementById('cloud-pass').value || '';
+  const errEl = document.getElementById('cloud-err');
+  if (!email || !pass) { errEl.textContent = 'Enter email and password.'; return; }
+  errEl.textContent = 'Connecting…';
+  try {
+    const { error } = await sbClient.auth.signInWithPassword({ email, password: pass });
+    if (error) { errEl.textContent = error.message || 'Sign-in failed.'; return; }
+    cloudReady = true;
+    const m = document.getElementById('cloud-modal'); if (m) m.remove();
+    cloudUpdateStatus();
+    await cloudOnConnected();
+  } catch (e) { if (errEl) errEl.textContent = 'Sign-in failed.'; }
+}
+async function cloudOnConnected() {
+  try {
+    const sel = await sbClient.from('studios').select('id').limit(1);
+    if (sel.error) {
+      alert('Cloud read failed:\n' + sel.error.message + '\n\nThis usually means the database tables or security policies aren\'t set up yet. Re-run the setup SQL in Supabase.');
+      return;
+    }
+    if (!sel.data || sel.data.length === 0) {            // first device → seed cloud from local
+      const res = await cloudMigrateAll();
+      if (res && res.error) { alert('Initial upload failed:\n' + res.error); return; }
+    }
+    await cloudPullAll();
+    cloudStamp();
+    cloudToast('Cloud connected ✓');
+    cloudStartRealtime();
+  } catch (e) { alert('Cloud error: ' + ((e && e.message) || e)); }
+}
+async function cloudSignOut() {
+  cloudStopRealtime();
+  try { await sbClient.auth.signOut(); } catch {}
+  cloudReady = false;
+  cloudUpdateStatus();
+}
+function cloudUploadNow() {
+  cloudMigrateAll().then(res => {
+    if (res && res.error) { alert('Upload failed:\n' + res.error); return; }
+    cloudToast('Uploaded to cloud ✓'); cloudStamp(); cloudPullAll();
+  });
+}
+function cloudSyncNow() { cloudPullAll().then(() => { cloudToast('Synced ✓'); cloudStamp(); }); }
+
+function cloudUpdateStatus() {
+  const bar = document.getElementById('cloud-bar');
+  if (!bar) return;
+  if (!sbClient) { bar.innerHTML = '<div style="font-size:11px;color:var(--muted2)">☁ Cloud unavailable</div>'; return; }
+  if (!cloudReady) {
+    bar.innerHTML = '<button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="cloudConnectPrompt()">☁ Connect Cloud</button>';
+    return;
+  }
+  bar.innerHTML =
+    '<div style="font-size:11px;color:var(--green);margin-bottom:6px">☁ Connected <span id="cloud-stamp" style="color:var(--muted2)"></span></div>' +
+    '<div style="display:flex;gap:6px">' +
+      '<button class="btn btn-ghost" style="flex:1;font-size:11px" onclick="cloudSyncNow()" title="Pull latest from cloud">↻ Sync</button>' +
+      '<button class="btn btn-ghost" style="flex:1;font-size:11px" onclick="cloudUploadNow()" title="Push this device up">⬆ Upload</button>' +
+      '<button class="btn btn-ghost" style="font-size:11px" onclick="cloudSignOut()" title="Disconnect">⏏</button>' +
+    '</div>';
+  cloudStamp();
+}
+function cloudStamp() {
+  const el = document.getElementById('cloud-stamp');
+  if (el) el.textContent = '· ' + new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+}
+function cloudToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  const prev = t.textContent;
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; t.textContent = prev || 'Day saved ✓'; }, 2200);
+}
+
 // ===================== INIT =====================
 renderSidebarStudios();
+cloudInit();
 </script>
 </body>
 </html>
