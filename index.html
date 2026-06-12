@@ -9121,6 +9121,7 @@ function pinLoginSuccess(who) {
     showPage('leaderboard');
     renderLeaderboard(who);
   }
+  autoLockResetTimer();   // start the inactivity timer for this session
 }
 
 function pinLockNow() {
@@ -9137,7 +9138,37 @@ function pinLockNow() {
   document.getElementById('pin-error').textContent = '';
   const screen = document.getElementById('pin-lock-screen');
   if (screen) screen.style.display = 'flex';
+  clearTimeout(_autoLockTimer);
 }
+
+// ===================== AUTO-LOCK (PIN re-prompt after inactivity) =====================
+let _autoLockTimer = null;
+function getAutoLockMins() {
+  try { const v = parseFloat(localStorage.getItem('ejAutoLockMins')); return (isFinite(v) && v >= 0) ? v : 5; } catch { return 5; }
+}
+function setAutoLockMins(m) {
+  const n = isFinite(m) && m >= 0 ? m : 0;
+  try { localStorage.setItem('ejAutoLockMins', String(n)); } catch {}
+  autoLockResetTimer();
+}
+function autoLockIsLocked() {
+  const ls = document.getElementById('pin-lock-screen');
+  if (!ls) return true;
+  const d = ls.style.display || getComputedStyle(ls).display;
+  return d === 'none' ? false : true;
+}
+function autoLockResetTimer() {
+  clearTimeout(_autoLockTimer);
+  if (autoLockIsLocked()) return;   // PIN screen already showing — nothing to lock
+  const mins = getAutoLockMins();
+  if (mins <= 0) return;             // 0 = off
+  _autoLockTimer = setTimeout(() => {
+    if (!autoLockIsLocked()) pinLockNow();
+  }, mins * 60 * 1000);
+}
+['mousemove','mousedown','keydown','touchstart','scroll'].forEach(ev => {
+  document.addEventListener(ev, autoLockResetTimer, { passive: true });
+});
 
 // ===================== PIN MANAGEMENT (Admin only) =====================
 function renderPINManagement() {
@@ -9158,6 +9189,23 @@ function renderPINManagement() {
         <button class="btn btn-ghost" style="font-size:12px" onclick="saveAdminPINFromInput()">Save</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:5px">Full access. Default is 0000 — change it now if you haven't already.</div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Auto-lock</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:13px;color:var(--text)">Return to PIN screen after</span>
+          <select id="auto-lock-select" onchange="setAutoLockMins(parseFloat(this.value))" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:13px;color:var(--text);outline:none">
+            <option value="0" ${getAutoLockMins()===0?'selected':''}>Off</option>
+            <option value="1" ${getAutoLockMins()===1?'selected':''}>1 minute</option>
+            <option value="2" ${getAutoLockMins()===2?'selected':''}>2 minutes</option>
+            <option value="5" ${getAutoLockMins()===5?'selected':''}>5 minutes</option>
+            <option value="10" ${getAutoLockMins()===10?'selected':''}>10 minutes</option>
+            <option value="15" ${getAutoLockMins()===15?'selected':''}>15 minutes</option>
+            <option value="30" ${getAutoLockMins()===30?'selected':''}>30 minutes</option>
+          </select>
+          <span style="font-size:13px;color:var(--text)">of inactivity</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5">Resets on any mouse, key, or touch activity. Cloud connection stays — they just re-enter their PIN. Applies across all devices.</div>
+      </div>
       <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
         <button class="btn btn-ghost" style="font-size:12px;color:var(--red);border-color:rgba(158,74,58,.35)" onclick="cloudRevokeAll()">🔒 Revoke all device access</button>
         <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">Signs every device out of the cloud and rotates the studio password. Use if a device is lost or someone leaves.</div>
@@ -10903,7 +10951,7 @@ async function cloudPushKind(kind) {
 }
 
 // ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
-const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs'];
+const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff',
   'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
