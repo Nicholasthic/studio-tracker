@@ -4993,7 +4993,7 @@ function showEntryForm(iso, dayIdx) {
     document.getElementById(id).value = '';
   });
   STYLISTS.forEach(st => {
-    ['ret','retR','retNR','new','newR','svc'].forEach(f => {
+    ['ret','retR','retNR','new','newR','svc','prod','prodQty'].forEach(f => {
       const el = document.getElementById('s_'+st.name+'_'+f);
       if (el) el.value = '';
     });
@@ -5033,6 +5033,8 @@ function showEntryForm(iso, dayIdx) {
     const vNew  = sd ? (sd.nr||'')  : '';
     const vNewR = sd ? (sd.nrr||'') : '';
     const vSvc  = sd ? (sd.svc||'') : '';
+    const vProd = sd ? (sd.prod||'') : '';
+    const vProdQty = sd ? (sd.prodQty||'') : '';
     return `<div class="stylist-block">
       <div class="stylist-name">${s}</div>
       <div class="stylist-inputs">
@@ -5042,6 +5044,8 @@ function showEntryForm(iso, dayIdx) {
         <div class="mini-group"><div class="mini-label">New Clients</div><input class="mini-input" id="s_${s}_new" type="number" min="0" placeholder="0" value="${vNew}"></div>
         <div class="mini-group"><div class="mini-label">New Rebook</div><input class="mini-input" id="s_${s}_newR" type="number" min="0" placeholder="0" value="${vNewR}"></div>
         <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" id="s_${s}_svc" type="number" min="0" placeholder="0" value="${vSvc}"></div>
+        <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" id="s_${s}_prod" type="number" min="0" placeholder="0" value="${vProd}"></div>
+        <div class="mini-group"><div class="mini-label">Product Qty</div><input class="mini-input" id="s_${s}_prodQty" type="number" min="0" placeholder="0" value="${vProdQty}"></div>
       </div>
     </div>`;
   }).join('');
@@ -5124,9 +5128,11 @@ function saveEntry() {
     const ret = v(`s_${s}_ret`), retR = v(`s_${s}_retR`), retNR = v(`s_${s}_retNR`);
     const newC = v(`s_${s}_new`), newR = v(`s_${s}_newR`);
     const svc = v(`s_${s}_svc`);
+    const stProd = v(`s_${s}_prod`);
+    const stProdQty = v(`s_${s}_prodQty`);
     totalRet += ret; totalRetR += retR; totalRetNR += retNR;
     totalNew += newC; totalNewR += newR;
-    sd[s] = { c:ret+newC, rr:retR, rnr:retNR, nr:newC, nrr:newR, nnr:newC-newR, svc, prod:0, tot:svc, shifts:ret+newC>0?1:0 };
+    sd[s] = { c:ret+newC, rr:retR, rnr:retNR, nr:newC, nrr:newR, nnr:newC-newR, svc, prod:stProd, prodQty:stProdQty, tot:svc+stProd, shifts:ret+newC>0?1:0 };
   });
 
   const prod = v('entry-product');
@@ -5168,7 +5174,7 @@ function clearEntry() {
     if (el) el.value = '';
   });
   STYLISTS.forEach(st => {
-    ['ret','retR','retNR','new','newR','svc'].forEach(f => {
+    ['ret','retR','retNR','new','newR','svc','prod','prodQty'].forEach(f => {
       const el = document.getElementById('s_'+st.name+'_'+f);
       if (el) el.value = '';
     });
@@ -5331,6 +5337,30 @@ function renderStylistPerf() {
       stats[st.name].newNR    += d.newNR;
       stats[st.name].prod     += d.prod || 0;
       stats[st.name].prodQty  += d.prodQty || 0;
+    });
+  });
+
+  // Layer in user-entered daily data (filter by selected month if any)
+  const spMonthMatch = (date) => {
+    if (selectedMonth === 'all') return true;
+    const dt = new Date(date + 'T00:00:00');
+    return MONTH_NAMES[dt.getMonth()] === selectedMonth;
+  };
+  allEntries().forEach(e => {
+    if (!e.sd || !spMonthMatch(e.date)) return;
+    STYLISTS.forEach(st => {
+      const sd = e.sd[st.name];
+      if (!sd) return;
+      const visits = sd.c || 0;
+      if (visits === 0 && !sd.svc && !sd.prod && !sd.rr && !sd.rnr && !sd.nr) return;
+      stats[st.name].hasData = true;
+      stats[st.name].clients += visits;
+      stats[st.name].retR    += sd.rr || 0;
+      stats[st.name].retNR   += sd.rnr || 0;
+      stats[st.name].newR    += sd.nrr || 0;
+      stats[st.name].newNR   += sd.nnr || 0;
+      stats[st.name].prod    += sd.prod || 0;
+      stats[st.name].prodQty += sd.prodQty || 0;
     });
   });
 
@@ -9184,11 +9214,13 @@ function clearStaffPIN(name) {
 // ===================== LEADERBOARD =====================
 // What "winning" is based on — Owner/Manager configurable, persisted per studio
 const LEADERBOARD_METRICS = {
-  rebook:   { label: 'Rebook Rate',      key: 'rebookPct', fmt: v => v + '% rebook' },
-  clients:  { label: 'Total Clients',    key: 'clients',   fmt: v => v + ' clients' },
-  revenue:  { label: 'Revenue',          key: 'revenue',   fmt: v => '$' + (v || 0).toLocaleString() },
-  shifts:   { label: 'Shifts Worked',    key: 'shifts',    fmt: v => v + ' shifts' },
-  rebooked: { label: 'Clients Rebooked', key: 'retR',      fmt: v => v + ' rebooked' },
+  rebook:     { label: 'Rebook Rate',      key: 'rebookPct', fmt: v => v + '% rebook' },
+  clients:    { label: 'Total Clients',    key: 'clients',   fmt: v => v + ' clients' },
+  revenue:    { label: 'Revenue',          key: 'revenue',   fmt: v => '$' + (v || 0).toLocaleString() },
+  shifts:     { label: 'Shifts Worked',    key: 'shifts',    fmt: v => v + ' shifts' },
+  rebooked:   { label: 'Clients Rebooked', key: 'retR',      fmt: v => v + ' rebooked' },
+  productRev: { label: 'Product Revenue',  key: 'prod',      fmt: v => '$' + (v || 0).toLocaleString() },
+  productQty: { label: 'Product Units',    key: 'prodQty',   fmt: v => v + ' units' },
 };
 function getLeaderboardMetric() {
   try { return localStorage.getItem(studioKey('ejLeaderboardMetric')) || 'rebook'; } catch { return 'rebook'; }
@@ -9341,7 +9373,7 @@ function renderLeaderboard(activeStaff) {
   const isAdmin = pinSessionUser === 'admin' || pinSessionUser === 'manager';
   const statsMap = {};
   STYLISTS.forEach((st, i) => {
-    statsMap[st.name] = { name: st.name, colorIdx: i, clients: 0, retR: 0, ret: 0, newC: 0, newR: 0, revenue: 0, shifts: 0 };
+    statsMap[st.name] = { name: st.name, colorIdx: i, clients: 0, retR: 0, ret: 0, newC: 0, newR: 0, revenue: 0, prod: 0, prodQty: 0, shifts: 0 };
   });
 
   // ── Period filter — rankings reflect the chosen window ──
@@ -9368,6 +9400,8 @@ function renderLeaderboard(activeStaff) {
       statsMap[name].newC += (d.newR || 0) + (d.newNR || 0);
       statsMap[name].newR += d.newR || 0;
       statsMap[name].revenue += (d.svc || 0) + (d.prod || 0);
+      statsMap[name].prod += d.prod || 0;
+      statsMap[name].prodQty += d.prodQty || 0;
       statsMap[name].shifts += d.shifts || 0;
     });
   });
@@ -9384,6 +9418,8 @@ function renderLeaderboard(activeStaff) {
       statsMap[name].newC += sd.nr || 0;
       statsMap[name].newR += sd.nrr || 0;
       statsMap[name].revenue += (sd.svc || 0) + (sd.prod || 0);
+      statsMap[name].prod += sd.prod || 0;
+      statsMap[name].prodQty += sd.prodQty || 0;
       if ((sd.c || 0) > 0) statsMap[name].shifts++;
     });
   });
@@ -9400,7 +9436,7 @@ function renderLeaderboard(activeStaff) {
   );
   // Podium sub-stat — reflects the ranking metric, hides $ from stylists
   const lbStatText = (s) => {
-    const primaryIsClients = (lbMetric === 'clients') || (lbCfg.key === 'revenue' && !isAdmin);
+    const primaryIsClients = (lbMetric === 'clients') || ((lbCfg.key === 'revenue' || lbCfg.key === 'prod') && !isAdmin);
     const primary = primaryIsClients ? (s.clients + ' clients') : lbCfg.fmt(s[lbCfg.key]);
     const secondary = primaryIsClients ? (s.rebookPct + '% rebook') : (s.clients + ' clients');
     return primary + ' · ' + secondary;
@@ -9460,21 +9496,23 @@ function renderLeaderboard(activeStaff) {
       '</td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:13px">' + s.clients + '</td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:13px">' + s.shifts + '</td>' +
+      '<td style="padding:12px 14px;font-family:var(--mono);font-size:13px">' + (s.prodQty || 0) + '</td>' +
       (isAdmin ? '<td style="padding:12px 14px;font-family:var(--mono);font-size:13px;color:var(--green)">$' + s.revenue.toLocaleString() + '</td>' : '') +
       '</tr>';
   }).join('');
 
   // Ranking control — Owner/Manager can change the basis; stylists see it read-only
-  const lbHeaderMap = { rebook:'Rebook Rate', rebooked:'Rebook Rate', clients:'Clients', shifts:'Shifts', revenue:'Revenue' };
+  const lbHeaderMap = { rebook:'Rebook Rate', rebooked:'Rebook Rate', clients:'Clients', shifts:'Shifts', revenue:'Revenue', productRev:'Revenue', productQty:'Product Sold' };
   const lbActiveHeader = lbHeaderMap[lbMetric];
   const lbTh = (label) => '<th' + (label === lbActiveHeader ? ' style="color:var(--accent)"' : '') + '>' + label + (label === lbActiveHeader ? ' ▾' : '') + '</th>';
   // Staff cannot rank by Revenue (they can't see the figures)
   let lbOptions = Object.keys(LEADERBOARD_METRICS)
-    .filter(k => isAdmin || k !== 'revenue')
+    .filter(k => isAdmin || (k !== 'revenue' && k !== 'productRev'))
     .map(k => '<option value="' + k + '"' + (k === lbMetric ? ' selected' : '') + '>' + LEADERBOARD_METRICS[k].label + '</option>').join('');
-  // If a manager set the board to Revenue, show staff that state read-only (they still can't pick it)
-  if (!isAdmin && lbMetric === 'revenue') {
-    lbOptions = '<option value="revenue" selected disabled>Revenue (manager set)</option>' + lbOptions;
+  // If a manager set the board to a money metric, show staff that state read-only (they still can't pick it)
+  if (!isAdmin && (lbMetric === 'revenue' || lbMetric === 'productRev')) {
+    const _moneyLbl = lbMetric === 'productRev' ? 'Product Revenue' : 'Revenue';
+    lbOptions = '<option value="' + lbMetric + '" selected disabled>' + _moneyLbl + ' (manager set)</option>' + lbOptions;
   }
   const lbPeriodLabel = LEADERBOARD_PERIODS[lbPeriod] || 'This Month';
   const lbPeriodOptions = Object.keys(LEADERBOARD_PERIODS).map(k =>
@@ -9495,7 +9533,7 @@ function renderLeaderboard(activeStaff) {
     <div class="perf-table-wrap">
       <table class="data-table">
         <thead><tr>
-          <th>#</th><th>Stylist</th>${lbTh('Rebook Rate')}${lbTh('Clients')}${lbTh('Shifts')}
+          <th>#</th><th>Stylist</th>${lbTh('Rebook Rate')}${lbTh('Clients')}${lbTh('Shifts')}${lbTh('Product Sold')}
           ${isAdmin ? lbTh('Revenue') : ''}
         </tr></thead>
         <tbody>${tableRows}</tbody>
