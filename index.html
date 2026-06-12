@@ -2414,9 +2414,9 @@ body.manager-view .owner-only { display: none !important; }
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M2 12 L5 7 L8 9 L11 4 L14 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Stylist Performance
     </button>
-    <button class="nav-item" onclick="showPage('clientlog')">
+    <button class="nav-item staff-allowed" onclick="showPage('clientlog')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="2" y="1" width="12" height="14" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M11 12h2M12 11v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Client Service Log
+      New Client Service Log
     </button>
     <div class="nav-section-label">Growth</div>
     <button class="nav-item" onclick="showPage('goals')">
@@ -3142,7 +3142,7 @@ body.manager-view .owner-only { display: none !important; }
   <div class="page" id="page-clientlog">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
-        <div class="page-title">Client Service Log</div>
+        <div class="page-title">New Client Service Log</div>
         <div style="font-size:13px;color:var(--muted);margin-top:2px">Clients awaiting rebooking — tick <strong style="color:var(--green)">Rebooked</strong> to clear them off the list. (Will auto-feed from Timely later.)</div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -4001,7 +4001,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'Client Service Log', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'PIN Management', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Service Log', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'PIN Management', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -9704,15 +9704,15 @@ function renderMyStats(name, statsMap) {
   const st = STYLISTS.find(x => x.name === name);
   if (!st) return '';
   const idx = STYLISTS.indexOf(st);
-  // Derive non-rebooked counts from totals (statsMap stores ret=total returning, retR=rebooked, newC=total new, newR=new rebooked)
+  // Same shape as the Stylist Performance page: derive retNR/newNR from totals
   const retTotal = s.ret || 0;
-  const retNR = Math.max(0, retTotal - (s.retR || 0));
+  const retNR    = Math.max(0, retTotal - (s.retR || 0));
   const newTotal = s.newC || 0;
-  const newNR = Math.max(0, newTotal - (s.newR || 0));
-  const retPct  = retTotal > 0 ? (s.retR  / retTotal * 100).toFixed(1) : '-';
-  const retNRPct = retTotal > 0 ? (retNR  / retTotal * 100).toFixed(1) : '-';
-  const newPct  = newTotal > 0 ? (s.newR  / newTotal * 100).toFixed(1) : '-';
-  const newNRPct = newTotal > 0 ? (newNR  / newTotal * 100).toFixed(1) : '-';
+  const newNR    = Math.max(0, newTotal - (s.newR || 0));
+  const retPct   = retTotal > 0 ? (s.retR  / retTotal * 100).toFixed(1) : '-';
+  const retNRPct = retTotal > 0 ? (retNR   / retTotal * 100).toFixed(1) : '-';
+  const newPct   = newTotal > 0 ? (s.newR  / newTotal * 100).toFixed(1) : '-';
+  const newNRPct = newTotal > 0 ? (newNR   / newTotal * 100).toFixed(1) : '-';
   const badge = (pct, type) => {
     if (pct === '-') return `<span class="badge badge-amber">—</span>`;
     const n = parseFloat(pct);
@@ -9721,66 +9721,64 @@ function renderMyStats(name, statsMap) {
       : (n >= 40 ? 'badge-green' : n >= 25 ? 'badge-amber' : 'badge-red');
     return `<span class="badge ${cls}">${pct}%</span>`;
   };
-  const bar = (pct, isPositive = true) => {
+  const bar = (pct) => {
     if (pct === '-') return '';
     const n = Math.min(parseFloat(pct), 100);
-    const col = isPositive
-      ? (n >= 70 ? 'var(--green)' : n >= 55 ? '#e2a043' : 'var(--red)')
-      : 'var(--red)';
+    const col = n >= 70 ? 'var(--green)' : n >= 55 ? '#e2a043' : 'var(--red)';
     return `<div class="rebook-bar" style="margin-top:5px"><div class="rebook-fill" style="width:${n}%;background:${col}"></div></div>`;
   };
   return `
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:16px;margin-top:20px">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:10px">
           ${avatarHTML(st, idx, 40, false)}
-          <div>
-            <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Your Performance</div>
-            <div style="font-size:17px;font-weight:600;color:var(--text)">${name}</div>
-          </div>
+          <div style="font-size:16px;font-weight:600;color:var(--text)">${name}</div>
         </div>
-        <div style="text-align:right">
-          <div style="font-size:24px;font-weight:700;color:var(--accent);line-height:1">${s.clients || 0}</div>
-          <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">clients</div>
-        </div>
+        <div style="font-size:22px;font-weight:700;color:var(--accent)">${s.clients || 0} <span style="font-size:12px;font-weight:400;color:var(--muted)">clients</span></div>
       </div>
 
+      <!-- Returning rebook -->
       <div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
           <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Returning — Rebook</span>
           ${badge(retPct, 'ret')}
         </div>
-        ${bar(retPct, true)}
+        ${bar(retPct)}
         <div style="font-size:11px;color:var(--muted);margin-top:4px">${s.retR || 0} of ${retTotal} returning clients rebooked</div>
       </div>
 
+      <!-- Returning not rebooked -->
       <div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
           <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Returning — Not Rebooked</span>
           <span class="badge badge-red">${retNRPct}%</span>
         </div>
-        ${bar(retNRPct, false)}
+        <div class="rebook-bar" style="margin-top:5px"><div class="rebook-fill" style="width:${retNRPct === '-' ? 0 : Math.min(parseFloat(retNRPct),100)}%;background:var(--red)"></div></div>
         <div style="font-size:11px;color:var(--muted);margin-top:4px">${retNR} returning clients left without rebooking</div>
       </div>
 
+      <!-- New client rebook -->
       <div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
           <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">New Client — Rebook</span>
           ${badge(newPct, 'new')}
         </div>
-        ${bar(newPct, true)}
+        ${bar(newPct)}
         <div style="font-size:11px;color:var(--muted);margin-top:4px">${s.newR || 0} of ${newTotal} new clients rebooked</div>
       </div>
 
+      <!-- New client not rebooked -->
       <div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
           <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">New Client — Not Rebooked</span>
           <span class="badge badge-red">${newNRPct}%</span>
         </div>
-        ${bar(newNRPct, false)}
+        <div class="rebook-bar" style="margin-top:5px"><div class="rebook-fill" style="width:${newNRPct === '-' ? 0 : Math.min(parseFloat(newNRPct),100)}%;background:var(--red)"></div></div>
         <div style="font-size:11px;color:var(--muted);margin-top:4px">${newNR} new clients left without rebooking</div>
       </div>
 
+      <!-- Product -->
       <div style="display:flex;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
         <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Product Sales</div>
@@ -9789,10 +9787,6 @@ function renderMyStats(name, statsMap) {
         <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Units Sold</div>
           <div style="font-size:18px;font-weight:700;color:var(--text)">${s.prodQty || 0}</div>
-        </div>
-        <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Shifts</div>
-          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.shifts || 0}</div>
         </div>
       </div>
     </div>`;
