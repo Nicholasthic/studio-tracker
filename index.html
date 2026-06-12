@@ -2379,6 +2379,10 @@ body.manager-view .owner-only { display: none !important; }
     <div class="logo-sub">Studio Tracker</div>
   </div>
   <nav class="sidebar-nav">
+    <button class="nav-item staff-allowed" onclick="showPage('help')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 6.5C6 5.5 6.8 5 8 5s2 .8 2 1.8c0 1.1-1.5 1.4-1.5 2.5M8 11.2v.05" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Help &amp; Setup
+    </button>
     <div class="nav-section-label">Views</div>
     <button class="nav-item active" onclick="showPage('dashboard')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -3603,6 +3607,66 @@ body.manager-view .owner-only { display: none !important; }
   </div>
 
   <!-- ======================== LEADERBOARD ======================== -->
+  <!-- ======================== HELP & SETUP ======================== -->
+  <div class="page" id="page-help">
+    <div style="max-width:760px">
+      <div class="form-section">
+        <div class="form-section-title">Welcome 👋</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          New here? This page walks you through setting up the app on your phone, tablet, or computer in about a minute.
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">1. Connect this device to the cloud</div>
+        <div style="font-size:13px;line-height:1.7">
+          <p style="margin-bottom:8px">The first time you open the app on any device, you'll connect it to the studio's cloud so your changes sync everywhere.</p>
+          <ol style="margin-left:22px">
+            <li>Look at the <strong style="color:var(--accent)">bottom of the sidebar</strong> for the <strong>☁ Connect Cloud</strong> button.</li>
+            <li>Click it and sign in with the <strong>studio email and password</strong> the owner gave you.</li>
+            <li>You only need to do this <em>once per device</em> — it'll remember you after.</li>
+          </ol>
+          <p style="margin-top:10px;font-size:12px;color:var(--muted)">If you see <strong>☁ Connected ✓</strong> already, you're set.</p>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">2. Sign in with your PIN</div>
+        <div style="font-size:13px;line-height:1.7">
+          <ol style="margin-left:22px">
+            <li>On the PIN screen, tap <strong>your name</strong> (or <strong>Owner</strong> / <strong>Manager</strong> if that's you).</li>
+            <li><strong>First time?</strong> Whatever 4-digit code you type becomes your PIN — write it down somewhere safe.</li>
+            <li><strong>Already set?</strong> Just enter your PIN.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">3. What you can see depends on your role</div>
+        <div style="font-size:13px;line-height:1.7">
+          <ul style="margin-left:22px;list-style:none;padding:0">
+            <li style="margin-bottom:10px"><strong style="color:var(--accent)">🏆 Stylists</strong> — see the <strong>Leaderboard</strong> with the team rankings and your own stats. You can toggle whether your stats card shows.</li>
+            <li style="margin-bottom:10px"><strong style="color:var(--accent)">👤 Manager</strong> — full app access, <em>except</em> P&amp;L and Tax &amp; BAS (financials stay with the owner).</li>
+            <li><strong style="color:var(--accent)">👑 Owner</strong> — everything, including financials, PIN management, and cloud controls.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">4. Switching user or logging out</div>
+        <div style="font-size:13px;line-height:1.7">
+          Bottom of the sidebar there's a <strong>🔒 Log Out</strong> button (or <strong>Switch User</strong> for stylists). Tap it to return to the PIN screen and let someone else sign in on the same device.
+        </div>
+      </div>
+
+      <div class="form-section" style="border-color:rgba(139,108,79,.3);background:rgba(139,108,79,.04)">
+        <div style="font-size:13px;line-height:1.7">
+          <strong>Need help?</strong> Talk to your studio owner — they can reset your PIN, give you access, or sort out cloud login issues.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-leaderboard">
     <div id="leaderboard-output"></div>
   </div>
@@ -3930,7 +3994,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'Client Service Log', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'PIN Management' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'Client Service Log', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'PIN Management', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -9035,6 +9099,10 @@ function renderPINManagement() {
         <button class="btn btn-ghost" style="font-size:12px" onclick="saveAdminPINFromInput()">Save</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:5px">Full access. Default is 0000 — change it now if you haven't already.</div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <button class="btn btn-ghost" style="font-size:12px;color:var(--red);border-color:rgba(158,74,58,.35)" onclick="cloudRevokeAll()">🔒 Revoke all device access</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">Signs every device out of the cloud and rotates the studio password. Use if a device is lost or someone leaves.</div>
+      </div>
     </div>`;
   el.innerHTML = `
     ${ownerPinBlock}
@@ -10742,9 +10810,23 @@ async function cloudPushKind(kind) {
     if (kind === 'studios') {
       await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
     } else if (kind === 'stylists') {
+      // Diff sync — delete cloud rows that no longer exist locally, then upsert the rest
+      const localNames = new Set(STYLISTS.map(s => s.name));
+      const sel = await sbClient.from('stylists').select('name').eq('studio_id', activeStudio);
+      if (!sel.error && sel.data) {
+        const toDel = sel.data.filter(c => !localNames.has(c.name)).map(c => c.name);
+        if (toDel.length) await sbClient.from('stylists').delete().eq('studio_id', activeStudio).in('name', toDel);
+      }
       const rows = STYLISTS.map((x, i) => ({ studio_id: activeStudio, name: x.name, is_contractor: !!x.isContractor, sort_order: i }));
       if (rows.length) await sbClient.from('stylists').upsert(rows, { onConflict: 'studio_id,name' });
     } else if (kind === 'entries') {
+      // Diff sync — delete cloud entries whose date is no longer present locally, then upsert
+      const localDates = new Set(userEntries.map(e => e.date));
+      const sel = await sbClient.from('daily_entries').select('entry_date').eq('studio_id', activeStudio);
+      if (!sel.error && sel.data) {
+        const toDel = sel.data.filter(c => !localDates.has(c.entry_date)).map(c => c.entry_date);
+        if (toDel.length) await sbClient.from('daily_entries').delete().eq('studio_id', activeStudio).in('entry_date', toDel);
+      }
       const rows = userEntries.map(e => entryToRow(activeStudio, e));
       if (rows.length) await sbClient.from('daily_entries').upsert(rows, { onConflict: 'studio_id,entry_date' });
     }
@@ -10834,6 +10916,13 @@ async function cloudMigrateAll() {
     for (const st of STUDIOS) {
       let sty = []; try { sty = JSON.parse(localStorage.getItem('ejStylists_' + st.id) || '[]'); } catch {}
       sty = Array.isArray(sty) ? sty : [];
+      // Stylists diff — delete cloud rows that no longer exist locally
+      const localStyNames = new Set(sty.map(x => typeof x === 'string' ? x : x.name));
+      const selS = await sbClient.from('stylists').select('name').eq('studio_id', st.id);
+      if (!selS.error && selS.data) {
+        const toDel = selS.data.filter(c => !localStyNames.has(c.name)).map(c => c.name);
+        if (toDel.length) await sbClient.from('stylists').delete().eq('studio_id', st.id).in('name', toDel);
+      }
       if (sty.length) {
         const rows = sty.map((x, i) => ({ studio_id: st.id, name: (typeof x === 'string' ? x : x.name), is_contractor: (typeof x === 'object' && !!x.isContractor), sort_order: i }));
         r = await sbClient.from('stylists').upsert(rows, { onConflict: 'studio_id,name' });
@@ -10841,6 +10930,13 @@ async function cloudMigrateAll() {
       }
       let ent = []; try { ent = JSON.parse(localStorage.getItem('ejEntries_' + st.id) || '[]'); } catch {}
       ent = Array.isArray(ent) ? ent : [];
+      // Entries diff — delete cloud entries for dates no longer present locally
+      const localEntDates = new Set(ent.map(e => e.date));
+      const selE = await sbClient.from('daily_entries').select('entry_date').eq('studio_id', st.id);
+      if (!selE.error && selE.data) {
+        const toDel = selE.data.filter(c => !localEntDates.has(c.entry_date)).map(c => c.entry_date);
+        if (toDel.length) await sbClient.from('daily_entries').delete().eq('studio_id', st.id).in('entry_date', toDel);
+      }
       for (let i = 0; i < ent.length; i += 200) {
         r = await sbClient.from('daily_entries').upsert(ent.slice(i, i + 200).map(e => entryToRow(st.id, e)), { onConflict: 'studio_id,entry_date' });
         if (r.error) return { error: 'daily_entries — ' + r.error.message };
@@ -10946,6 +11042,25 @@ async function cloudSignOut() {
   try { await sbClient.auth.signOut(); } catch {}
   cloudReady = false;
   cloudUpdateStatus();
+}
+
+// Owner-only — rotates the studio password and signs every device out of the cloud
+async function cloudRevokeAll() {
+  if (!sbClient) { alert('Cloud library not loaded.'); return; }
+  if (!cloudReady) { alert('Connect to the cloud first.'); return; }
+  if (!confirm('This will sign EVERY device (including this one) out of the cloud and force a new password.\n\nAnyone who should keep access will need the new password.\n\nContinue?')) return;
+  const newPass = prompt('Enter a NEW studio password (minimum 8 characters).\nWrite it down — you\'ll need to share it with anyone you want to keep access.');
+  if (newPass === null) return;
+  if (!newPass || newPass.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  try {
+    const { error: upErr } = await sbClient.auth.updateUser({ password: newPass });
+    if (upErr) { alert('Failed to update password: ' + upErr.message); return; }
+    try { await sbClient.auth.signOut({ scope: 'global' }); } catch (e) {}
+    cloudStopRealtime();
+    cloudReady = false;
+    cloudUpdateStatus();
+    alert('✓ Done.\n\nThe new password is set and every device has been signed out of the cloud.\n\nNow share the new password ONLY with people you want to keep access.');
+  } catch (e) { alert('Error: ' + ((e && e.message) || e)); }
 }
 function cloudUploadNow() {
   cloudMigrateAll().then(res => {
