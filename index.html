@@ -299,7 +299,7 @@ body {
   justify-content: space-between;
 }
 .week-title { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; }
-.week-stats { display: flex; gap: 20px; }
+.week-stats { display: flex; gap: 16px 20px; flex-wrap: wrap; justify-content: flex-end; max-width: 60%; }
 .week-stat { font-size: 12px; color: var(--muted); }
 .week-stat span { color: var(--text); font-weight: 500; }
 
@@ -2609,12 +2609,12 @@ body.manager-view .owner-only { display: none !important; }
     <div class="day-toggle-row" id="day-toggle-row">
       <span class="day-toggle-label">Show days:</span>
       <label class="day-toggle weekend" id="dt-0"><input type="checkbox" onchange="toggleDay(0,this)"><span class="day-toggle-inner">Sun</span></label>
-      <label class="day-toggle active" id="dt-1"><input type="checkbox" checked onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
+      <label class="day-toggle" id="dt-1"><input type="checkbox" onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
       <label class="day-toggle active" id="dt-2"><input type="checkbox" checked onchange="toggleDay(2,this)"><span class="day-toggle-inner">Tue</span></label>
       <label class="day-toggle active" id="dt-3"><input type="checkbox" checked onchange="toggleDay(3,this)"><span class="day-toggle-inner">Wed</span></label>
       <label class="day-toggle active" id="dt-4"><input type="checkbox" checked onchange="toggleDay(4,this)"><span class="day-toggle-inner">Thu</span></label>
       <label class="day-toggle active" id="dt-5"><input type="checkbox" checked onchange="toggleDay(5,this)"><span class="day-toggle-inner">Fri</span></label>
-      <label class="day-toggle weekend" id="dt-6"><input type="checkbox" onchange="toggleDay(6,this)"><span class="day-toggle-inner">Sat</span></label>
+      <label class="day-toggle active" id="dt-6"><input type="checkbox" checked onchange="toggleDay(6,this)"><span class="day-toggle-inner">Sat</span></label>
     </div>
     <div id="weekly-content"></div>
   </div>
@@ -3954,6 +3954,16 @@ function filteredEntries(filter) {
   const today = new Date();
   const yr = today.getFullYear();
 
+  // This Week / Last Week — Monday to Sunday
+  if (filter === 'thisweek' || filter === 'lastweek') {
+    const mon = getMondayOfWeek(today.toISOString().split('T')[0]);
+    if (filter === 'lastweek') mon.setDate(mon.getDate() - 7);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const startISO = mon.toISOString().split('T')[0];
+    const endISO   = sun.toISOString().split('T')[0];
+    return all.filter(e => e.date >= startISO && e.date <= endISO);
+  }
+
   // Year to date — 1 Jan this year to today
   if (filter === 'ytd') {
     const start = `${yr}-01-01`;
@@ -4036,7 +4046,7 @@ function setFilter(f, btn) {
 }
 
 function filterLabel(filter) {
-  const labels = { all:'All Year', ytd:'YTD', fy:'Fin. Year', q1:'Q1 Jul–Sep', q2:'Q2 Oct–Dec', q3:'Q3 Jan–Mar', q4:'Q4 Apr–Jun' };
+  const labels = { all:'All Year', thisweek:'This Week', lastweek:'Last Week', ytd:'YTD', fy:'Fin. Year', q1:'Q1 Jul–Sep', q2:'Q2 Oct–Dec', q3:'Q3 Jan–Mar', q4:'Q4 Apr–Jun' };
   return labels[filter] || filter;
 }
 
@@ -4051,6 +4061,9 @@ function renderDashboard() {
     const periodFilters = ['ytd','fy','q1','q2','q3','q4'];
     dashFilterEl.innerHTML =
       `<button class="filter-btn ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all',this)">All</button>` +
+      `<button class="filter-btn ${activeFilter === 'thisweek' ? 'active' : ''}" onclick="setFilter('thisweek',this)">This Week</button>` +
+      `<button class="filter-btn ${activeFilter === 'lastweek' ? 'active' : ''}" onclick="setFilter('lastweek',this)">Last Week</button>` +
+      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
       `<button class="filter-btn ${activeFilter === 'ytd' ? 'active' : ''}" onclick="setFilter('ytd',this)">YTD</button>` +
       `<button class="filter-btn ${activeFilter === 'fy' ? 'active' : ''}" onclick="setFilter('fy',this)">Fin. Year</button>` +
       `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
@@ -4069,6 +4082,8 @@ function renderDashboard() {
   const totalNew = entries.reduce((s,e) => s + (e.newC||0), 0);
   const totalRetR = entries.reduce((s,e) => s + (e.retR||0), 0);
   const totalRevenue = entries.reduce((s,e) => s + (e.total||0), 0);
+  const totalProd    = entries.reduce((s,e) => s + (e.prod||0), 0);
+  const totalProdQty = entries.reduce((s,e) => s + (e.prodQty||0), 0);
   const retRebook = totalRet > 0 ? (totalRetR / totalRet * 100) : 0;
   const activeDays = entries.filter(e => (e.total||0) > 0).length;
 
@@ -4116,6 +4131,11 @@ function renderDashboard() {
       <div class="kpi-label">Avg Daily Revenue</div>
       <div class="kpi-value">$${Math.round(avgDay).toLocaleString()}</div>
       <div class="kpi-sub">${activeDays} trading days</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Product Sales</div>
+      <div class="kpi-value">$${totalProd.toLocaleString()}</div>
+      <div class="kpi-sub">${totalProdQty.toLocaleString()} unit${totalProdQty === 1 ? '' : 's'} sold</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Returning Clients</div>
@@ -4260,7 +4280,7 @@ function setWeeklyFilter(f) {
 }
 
 // ===================== WEEK DAYS STATE =====================
-let activeDays = new Set([1,2,3,4,5]); // Mon–Fri checked by default
+let activeDays = new Set([2,3,4,5,6]); // Tue–Sat checked by default
 
 function toggleDay(dayIdx, cb) {
   const label = document.getElementById('dt-' + dayIdx);
@@ -4545,6 +4565,16 @@ function renderWeekly() {
     const studioRate = getStudioRate() / 100;
     const totalContractorGross = es.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
     const totalContractor = totalContractorGross * studioRate; // studio's 30% invoice amount
+    // Extra weekly totals
+    const totalRetW    = es.reduce((s,e) => s + (e.ret  || 0), 0);
+    const totalNewW    = es.reduce((s,e) => s + (e.newC || 0), 0);
+    const totalRetRW   = es.reduce((s,e) => s + (e.retR || 0), 0);
+    const totalNewRW   = es.reduce((s,e) => s + (e.newR || 0), 0);
+    const totalSvcW    = es.reduce((s,e) => s + Math.max(0, (e.svc  || 0) - (e.contractor ? (e.contractor.svc  || 0) : 0)), 0);
+    const totalProdW   = es.reduce((s,e) => s + Math.max(0, (e.prod || 0) - (e.contractor ? (e.contractor.prod || 0) : 0)), 0);
+    const totalProdQtyW = es.reduce((s,e) => s + (e.prodQty || 0), 0);
+    const retPctW = totalRetW > 0 ? (totalRetRW / totalRetW * 100).toFixed(0) : null;
+    const newPctW = totalNewW > 0 ? (totalNewRW / totalNewW * 100).toFixed(0) : null;
 
     const weekStart = monday.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
     const weekEnd = new Date(monday.getTime() + 6*86400000).toLocaleDateString('en-AU', {day:'numeric', month:'short'});
@@ -4611,6 +4641,13 @@ function renderWeekly() {
         </div>
         <div class="week-stats">
           <div class="week-stat">Clients: <span>${totalC}</span></div>
+          <div class="week-stat">Returning: <span>${totalRetW}</span></div>
+          <div class="week-stat">New: <span>${totalNewW}</span></div>
+          <div class="week-stat">Ret. Rebook %: <span>${retPctW !== null ? retPctW + '%' : '—'}</span></div>
+          <div class="week-stat">New Rebook %: <span>${newPctW !== null ? newPctW + '%' : '—'}</span></div>
+          <div class="week-stat">Service $: <span>$${totalSvcW.toLocaleString()}</span></div>
+          <div class="week-stat">Product $: <span>$${totalProdW.toLocaleString()}</span></div>
+          <div class="week-stat">Product Units: <span>${totalProdQtyW}</span></div>
           <div class="week-stat">Studio Revenue: <span>$${totalR.toLocaleString()}</span></div>
           <div class="week-stat">Commission: <span style="color:var(--accent)">$${totalContractor.toFixed(2)}</span></div>
           <div class="week-stat">Total: <span style="color:var(--green)">$${(totalR + totalContractor).toFixed(2)}</span></div>
