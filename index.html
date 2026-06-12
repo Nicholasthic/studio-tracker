@@ -2738,9 +2738,10 @@ body.manager-view .owner-only { display: none !important; }
       </div>
     </div>
 
-    <div id="entry-actions" style="display:none;gap:10px">
+    <div id="entry-actions" style="display:none;gap:10px;align-items:center">
       <button class="btn btn-primary" onclick="saveEntry()">Save Day</button>
       <button class="btn btn-ghost" onclick="clearEntry()">Clear</button>
+      <span id="entry-auto-saved" style="font-size:12px;color:var(--muted);opacity:0;transition:opacity .25s ease;margin-left:6px"></span>
     </div>
     <input type="hidden" id="entry-date">
   </div>
@@ -5117,9 +5118,10 @@ function renderEntry() {
 function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
 function sv(id) { return document.getElementById(id)?.value || ''; }
 
-function saveEntry() {
+// Build + persist the entry. Returns true on success, false if no date selected. No UI side effects.
+function saveEntryData() {
   const date = sv('entry-date');
-  if (!date) { alert('Please select a date.'); return; }
+  if (!date) return false;
 
   let totalRet = 0, totalRetR = 0, totalRetNR = 0, totalNew = 0, totalNewR = 0, totalNewNR = 0;
   const sd = {};
@@ -5161,12 +5163,39 @@ function saveEntry() {
   userEntries = userEntries.filter(e => e.date !== date);
   userEntries.push(entry);
   saveStorage(userEntries);
+  return true;
+}
 
+function saveEntry() {
+  if (!saveEntryData()) { alert('Please select a date.'); return; }
   const toast = document.getElementById('toast');
   toast.style.display = 'block';
   setTimeout(() => { toast.style.display = 'none'; }, 2500);
   clearEntry();
 }
+
+// ── Auto-save as you type — debounced ──
+let _entryAutoSaveTimer = null;
+function entryAutoSaveTrigger() {
+  if (!sv('entry-date')) return;   // nothing to save to
+  clearTimeout(_entryAutoSaveTimer);
+  _entryAutoSaveTimer = setTimeout(entryAutoSave, 900);
+}
+function entryAutoSave() {
+  if (!saveEntryData()) return;
+  const el = document.getElementById('entry-auto-saved');
+  if (!el) return;
+  const t = new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+  el.textContent = '✓ Auto-saved · ' + t;
+  el.style.opacity = '1';
+  clearTimeout(el._fadeT);
+  el._fadeT = setTimeout(() => { el.style.opacity = '0.55'; }, 1800);
+}
+document.addEventListener('input', (e) => {
+  const pageEntry = document.getElementById('page-entry');
+  if (!pageEntry || !pageEntry.classList.contains('active')) return;
+  if (e.target && e.target.closest && e.target.closest('#page-entry')) entryAutoSaveTrigger();
+});
 
 function clearEntry() {
   ['entry-date','entry-product','entry-product-qty','entry-service','entry-stylists','entry-notes','c_clients','c_svc','c_prod','c_cash','c_name'].forEach(id => {
