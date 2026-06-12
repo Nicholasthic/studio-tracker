@@ -3656,6 +3656,16 @@ body.manager-view .owner-only { display: none !important; }
         </div>
       </div>
 
+      <div class="form-section">
+        <div class="form-section-title">Preferences (this device)</div>
+        <div style="font-size:13px;line-height:1.7">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none">
+            <input type="checkbox" id="click-sound-toggle" onchange="setClickSoundEnabled(this.checked);if(this.checked)playClickSound();" style="accent-color:var(--accent);width:16px;height:16px">
+            <span><strong>Click sound on save</strong> — soft tick when changes save. <span style="color:var(--muted)">(Just this device.)</span></span>
+          </label>
+        </div>
+      </div>
+
       <div class="form-section" style="border-color:rgba(139,108,79,.3);background:rgba(139,108,79,.04)">
         <div style="font-size:13px;line-height:1.7">
           <strong>Need help?</strong> Talk to your studio owner — they can reset your PIN, give you access, or sort out cloud login issues.
@@ -4013,6 +4023,7 @@ function showPage(id) {
   if (id === 'roster') { rosterInitStaff(); rosterRenderAll(); }
   if (id === 'leaderboard') renderLeaderboard(pinSessionUser);
   if (id === 'pinmgmt') renderPINManagement();
+  if (id === 'help') { const _cb = document.getElementById('click-sound-toggle'); if (_cb) _cb.checked = clickSoundEnabled(); }
 
 }
 
@@ -9367,6 +9378,36 @@ function setLeaderboardPeriod(p) {
 let lbLastWinner = null; // name of the current #1 — confetti only fires when this changes
 let lbAudioCtx = null;
 
+// Soft synthesised "tick" for save events. Respects the per-device mute flag.
+let _clickDebounce = null;
+function clickSoundEnabled() {
+  try { return (localStorage.getItem('ejClickSound') || 'on') !== 'off'; } catch { return true; }
+}
+function setClickSoundEnabled(on) {
+  try { localStorage.setItem('ejClickSound', on ? 'on' : 'off'); } catch {}
+}
+function playClickSound() {
+  if (!clickSoundEnabled()) return;
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!lbAudioCtx) lbAudioCtx = new AC();
+    const ctx = lbAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 1800;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.07, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now); o.stop(now + 0.06);
+  } catch (e) {}
+}
+
 // Synthesised celebration chime — no external audio files, plays for every role
 function playCelebrationSound() {
   try {
@@ -9660,16 +9701,99 @@ function renderLeaderboard(activeStaff) {
 function renderMyStats(name, statsMap) {
   const s = statsMap[name];
   if (!s) return '';
-  const COLORS = ['#8b6c4f','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a','#378add','#ba7517'];
-  const color = COLORS[s.colorIdx % COLORS.length];
+  const st = STYLISTS.find(x => x.name === name);
+  if (!st) return '';
+  const idx = STYLISTS.indexOf(st);
+  // Derive non-rebooked counts from totals (statsMap stores ret=total returning, retR=rebooked, newC=total new, newR=new rebooked)
+  const retTotal = s.ret || 0;
+  const retNR = Math.max(0, retTotal - (s.retR || 0));
+  const newTotal = s.newC || 0;
+  const newNR = Math.max(0, newTotal - (s.newR || 0));
+  const retPct  = retTotal > 0 ? (s.retR  / retTotal * 100).toFixed(1) : '-';
+  const retNRPct = retTotal > 0 ? (retNR  / retTotal * 100).toFixed(1) : '-';
+  const newPct  = newTotal > 0 ? (s.newR  / newTotal * 100).toFixed(1) : '-';
+  const newNRPct = newTotal > 0 ? (newNR  / newTotal * 100).toFixed(1) : '-';
+  const badge = (pct, type) => {
+    if (pct === '-') return `<span class="badge badge-amber">—</span>`;
+    const n = parseFloat(pct);
+    const cls = type === 'ret'
+      ? (n >= 70 ? 'badge-green' : n >= 55 ? 'badge-amber' : 'badge-red')
+      : (n >= 40 ? 'badge-green' : n >= 25 ? 'badge-amber' : 'badge-red');
+    return `<span class="badge ${cls}">${pct}%</span>`;
+  };
+  const bar = (pct, isPositive = true) => {
+    if (pct === '-') return '';
+    const n = Math.min(parseFloat(pct), 100);
+    const col = isPositive
+      ? (n >= 70 ? 'var(--green)' : n >= 55 ? '#e2a043' : 'var(--red)')
+      : 'var(--red)';
+    return `<div class="rebook-bar" style="margin-top:5px"><div class="rebook-fill" style="width:${n}%;background:${col}"></div></div>`;
+  };
   return `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:20px">
-      <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Your Stats — ${name}</div>
-      <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Clients</div><div class="kpi-value">${s.clients}</div></div>
-        <div class="kpi-card"><div class="kpi-label">Rebook Rate</div><div class="kpi-value" style="color:${s.rebookPct >= 65 ? 'var(--green)' : 'var(--red)'}">${s.rebookPct}%</div><div class="kpi-sub kpi-trend ${s.rebookPct >= 65 ? 'up' : 'down'}">${s.rebookPct >= 65 ? '▲ On target' : '▼ Below 65%'}</div></div>
-        <div class="kpi-card"><div class="kpi-label">Shifts Worked</div><div class="kpi-value">${s.shifts}</div></div>
-        <div class="kpi-card"><div class="kpi-label">Clients Rebooked</div><div class="kpi-value">${s.retR}</div><div class="kpi-sub">of ${s.ret} returning</div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:16px;margin-top:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          ${avatarHTML(st, idx, 40, false)}
+          <div>
+            <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Your Performance</div>
+            <div style="font-size:17px;font-weight:600;color:var(--text)">${name}</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:24px;font-weight:700;color:var(--accent);line-height:1">${s.clients || 0}</div>
+          <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">clients</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Returning — Rebook</span>
+          ${badge(retPct, 'ret')}
+        </div>
+        ${bar(retPct, true)}
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${s.retR || 0} of ${retTotal} returning clients rebooked</div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Returning — Not Rebooked</span>
+          <span class="badge badge-red">${retNRPct}%</span>
+        </div>
+        ${bar(retNRPct, false)}
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${retNR} returning clients left without rebooking</div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">New Client — Rebook</span>
+          ${badge(newPct, 'new')}
+        </div>
+        ${bar(newPct, true)}
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${s.newR || 0} of ${newTotal} new clients rebooked</div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">New Client — Not Rebooked</span>
+          <span class="badge badge-red">${newNRPct}%</span>
+        </div>
+        ${bar(newNRPct, false)}
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${newNR} new clients left without rebooking</div>
+      </div>
+
+      <div style="display:flex;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
+        <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Product Sales</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">$${(s.prod || 0).toLocaleString()}</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Units Sold</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.prodQty || 0}</div>
+        </div>
+        <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Shifts</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${s.shifts || 0}</div>
+        </div>
       </div>
     </div>`;
 }
@@ -10988,6 +11112,11 @@ function cloudPatchLocalStorage() {
   localStorage.setItem = function (k, v) {
     orig(k, v);
     try {
+      // Subtle click tick on any app save (debounced so per-keystroke saves don't chatter)
+      if (k && typeof k === 'string' && k.indexOf('ej') === 0 && !cloudApplying) {
+        clearTimeout(_clickDebounce);
+        _clickDebounce = setTimeout(playClickSound, 280);
+      }
       if (cloudReady && !cloudApplying && cloudIsStateKey(k)) {
         clearTimeout(_cloudTimers.state);
         _cloudTimers.state = setTimeout(() => cloudPushState(false), 800);
