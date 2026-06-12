@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EJ Studio — Performance Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238b6c4f'/%3E%3Ctext x='32' y='44' fill='%23faf7f3' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='30' text-anchor='middle'%3EEJ%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -2947,11 +2948,6 @@ body.manager-view .owner-only { display: none !important; }
         </select>
         <select class="compare-select" id="sp-month" onchange="renderStylistPerf()" style="min-width:130px">
           <option value="all">All Months</option>
-          <option value="Jan">January</option>
-          <option value="Feb">February</option>
-          <option value="Mar">March</option>
-          <option value="Apr">April</option>
-          <option value="May">May</option>
         </select>
       </div>
     </div>
@@ -5332,6 +5328,25 @@ function renderStylistPage() {
 // ===================== COMPARE =====================
 // ===================== STYLIST PERFORMANCE =====================
 function renderStylistPerf() {
+  // Populate month dropdown from real entries (months that actually have data)
+  const monthSel = document.getElementById('sp-month');
+  if (monthSel) {
+    const prev = monthSel.value || 'all';
+    const monthsWith = new Set();
+    allEntries().forEach(e => {
+      if (!e.date) return;
+      const m = MONTH_NAMES[new Date(e.date + 'T00:00:00').getMonth()];
+      if (m) monthsWith.add(m);
+    });
+    const ordered = MONTH_NAMES.filter(m => monthsWith.has(m));
+    let html = '<option value="all">All Months</option>';
+    ordered.forEach(m => {
+      const full = MONTH_FULL[MONTH_NAMES.indexOf(m)] || m;
+      html += '<option value="' + m + '">' + full + '</option>';
+    });
+    monthSel.innerHTML = html;
+    monthSel.value = (prev === 'all' || ordered.includes(prev)) ? prev : 'all';
+  }
   const selectedMonth = document.getElementById('sp-month')?.value || 'all';
   const selectedStylist = document.getElementById('sp-stylist')?.value || 'all';
   const months = selectedMonth === 'all' ? Object.keys(activeStudio === 'ej' ? STYLIST_MONTHLY : {}) : [selectedMonth];
