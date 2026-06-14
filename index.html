@@ -3956,18 +3956,18 @@ function filteredEntries(filter) {
 
   // This Week / Last Week — Monday to Sunday
   if (filter === 'thisweek' || filter === 'lastweek') {
-    const mon = getMondayOfWeek(today.toISOString().split('T')[0]);
+    const mon = getMondayOfWeek(toLocalISO(today));
     if (filter === 'lastweek') mon.setDate(mon.getDate() - 7);
     const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-    const startISO = mon.toISOString().split('T')[0];
-    const endISO   = sun.toISOString().split('T')[0];
+    const startISO = toLocalISO(mon);
+    const endISO   = toLocalISO(sun);
     return all.filter(e => e.date >= startISO && e.date <= endISO);
   }
 
   // Year to date — 1 Jan this year to today
   if (filter === 'ytd') {
     const start = `${yr}-01-01`;
-    const end = today.toISOString().slice(0,10);
+    const end = toLocalISO(today);
     return all.filter(e => e.date >= start && e.date <= end);
   }
 
@@ -4296,6 +4296,16 @@ function toggleDay(dayIdx, cb) {
   renderWeekly();
 }
 
+// Local-timezone safe date → 'YYYY-MM-DD'. NEVER use d.toISOString() for date storage —
+// it converts to UTC, which silently shifts the day for any timezone ahead of UTC (eg. AU).
+function toLocalISO(d) {
+  const dt = (d instanceof Date) ? d : new Date(d);
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const day = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function getWeekKey(date) {
   const d = new Date(date + 'T00:00:00');
   // Week starts Monday (ISO-ish)
@@ -4549,7 +4559,7 @@ function renderWeekly() {
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const iso = d.toISOString().split('T')[0];
+      const iso = toLocalISO(d);
       const dayIdx = d.getDay();
       const isActive = activeDays.has(dayIdx);
       const entry = w.allEntries.find(e => e.date === iso);
@@ -5017,6 +5027,15 @@ function entryNavWeek(dir) {
 function selectEntryDay(iso, dayIdx) {
   // Don't allow selecting unchecked days (but allow if user has enabled them via weekly toggle)
   // For entry, we use a local day-enabled set
+
+  // If there's a pending auto-save for the CURRENT day, flush it now (with the old date)
+  // so the user's in-progress typing isn't dropped or saved under the new date.
+  if (_entryAutoSaveTimer) {
+    clearTimeout(_entryAutoSaveTimer);
+    _entryAutoSaveTimer = null;
+    try { saveEntryData(); } catch (e) {}
+  }
+
   document.getElementById('entry-date').value = iso;
   renderEntryWeekGrid();
   showEntryForm(iso, dayIdx);
@@ -5034,8 +5053,9 @@ function showEntryForm(iso, dayIdx) {
 
   // Pre-fill if existing entry
   const existing = allEntries().find(e => e.date === iso);
-  ['entry-stylists','entry-notes','entry-product','entry-product-qty','entry-service'].forEach(id => {
-    document.getElementById(id).value = '';
+  ['entry-stylists','entry-notes','entry-product','entry-product-qty','entry-service','c_clients','c_svc','c_prod','c_cash'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
   STYLISTS.forEach(st => {
     ['ret','retR','retNR','new','newR','svc','prod','prodQty'].forEach(f => {
@@ -5119,13 +5139,13 @@ function renderEntryWeekGrid() {
 
   const grid = document.getElementById('entry-week-grid');
   grid.innerHTML = days.map(d => {
-    const iso = d.toISOString().split('T')[0];
+    const iso = toLocalISO(d);
     const dayIdx = d.getDay();
     const isWeekend = dayIdx === 0 || dayIdx === 6;
     const isEnabled = entryEnabledDays.has(dayIdx);
     const hasData = allEnt.some(e => e.date === iso && (e.total||0) > 0);
     const isSelected = iso === selectedDate;
-    const isToday = iso === new Date().toISOString().split('T')[0];
+    const isToday = iso === toLocalISO(new Date());
 
     let cls = 'week-day-cell';
     if (isWeekend && !isEnabled) cls += ' weekend';
@@ -6535,7 +6555,7 @@ function exportInvoiceFromPage() {
   const rate = getStudioRate();
   const rows = getInvoiceRows(period, contractorFilter, rate);
   const totalInvoice = rows.reduce((s,r)=>s+(parseFloat(String(r[6]).replace('$',''))||0),0);
-  downloadCSV(`contractor-invoice-${period}-${new Date().toISOString().split('T')[0]}.csv`,
+  downloadCSV(`contractor-invoice-${period}-${toLocalISO(new Date())}.csv`,
     [INVOICE_EXPORT_HEADERS, ...rows, ['','','','','','','COMMISSION DUE',`$${totalInvoice.toFixed(2)}`]]);
 }
 
@@ -6578,7 +6598,7 @@ function saveTSData(data) { localStorage.setItem(studioKey('ejTimesheets'), JSON
 
 function tsCycleKey(offset) {
   const start = getTsCycleStart(offset);
-  return start.toISOString().split('T')[0]; // key by cycle start date
+  return toLocalISO(start); // key by cycle start date
 }
 
 function parseTime(str) {
@@ -6632,7 +6652,7 @@ function saveTSEntry(staffName, dateISO, field, value, hoursSpan, totalSpan, day
   const freshData = loadTSData();
   let weekTotal = 0; let weekDays = 0;
   days.forEach(function(d) {
-    const ek = tsKey(staffName, d.toISOString().split('T')[0]);
+    const ek = tsKey(staffName, toLocalISO(d));
     const e = freshData[ek];
     if (e && e.start && e.end) {
       const eh = calcHours(e.start, e.end, parseFloat(e.break) || 0);
@@ -6661,7 +6681,7 @@ function updateTSStaffTotal(staffName) {
   const { days } = getTsCycleDays(tsWeekOffset);
   let totalH = 0;
   days.forEach(d => {
-    const k = tsKey(staffName, d.toISOString().split('T')[0]);
+    const k = tsKey(staffName, toLocalISO(d));
     const e = data[k];
     if (e && e.start && e.end) {
       const h = calcHours(e.start, e.end, e.break || 0);
@@ -6673,7 +6693,7 @@ function updateTSStaffTotal(staffName) {
   const daysEl = document.getElementById(`ts-days-${staffName.replace(/\s/g,'_')}`);
   if (daysEl) {
     const workedDays = days.filter(d => {
-      const k = tsKey(staffName, d.toISOString().split('T')[0]);
+      const k = tsKey(staffName, toLocalISO(d));
       const e = data[k];
       if (!e || !e.start || !e.end) return false;
       return (calcHours(e.start, e.end, e.break || 0) || 0) > 0;
@@ -6691,7 +6711,7 @@ function updateTSSummary() {
     const s = st.name;
     let totalH = 0;
     days.forEach(d => {
-      const k = tsKey(s, d.toISOString().split('T')[0]);
+      const k = tsKey(s, toLocalISO(d));
       const e = data[k];
       if (e && e.start && e.end) {
         const h = calcHours(e.start, e.end, e.break || 0);
@@ -6699,7 +6719,7 @@ function updateTSSummary() {
       }
     });
     const workedDays = days.filter(d => {
-      const k = tsKey(s, d.toISOString().split('T')[0]);
+      const k = tsKey(s, toLocalISO(d));
       const e = data[k];
       if (!e || !e.start || !e.end) return false;
       return (calcHours(e.start, e.end, e.break || 0) || 0) > 0;
@@ -6840,7 +6860,7 @@ function getPrevWeekEntry(staffName, dayOfWeek) {
   const data = loadTSData();
   const matchDay = prevDays.find(d => d.getDay() === dayOfWeek);
   if (!matchDay) return null;
-  const k = tsKey(staffName, matchDay.toISOString().split('T')[0]);
+  const k = tsKey(staffName, toLocalISO(matchDay));
   const e = data[k];
   // Only return if it has actual time data
   if (e && (e.start || e.end)) return e;
@@ -6873,12 +6893,12 @@ function prefillFromLastWeek() {
 
   STYLISTS.forEach(st => {
     days.forEach((d, i) => {
-      const iso = d.toISOString().split('T')[0];
+      const iso = toLocalISO(d);
       const k = tsKey(st.name, iso);
       // Only prefill if this day has no data yet
       if (data[k] && (data[k].start || data[k].end)) return;
       const prevDay = prevDays[i];
-      const pk = tsKey(st.name, prevDay.toISOString().split('T')[0]);
+      const pk = tsKey(st.name, toLocalISO(prevDay));
       const prev = data[pk];
       if (prev && (prev.start || prev.end)) {
         data[k] = { start: prev.start||'', end: prev.end||'', break: prev.break||'', notes: '' };
@@ -6925,7 +6945,7 @@ function tsSave(staffName, dateISO, field, value) {
   const freshData = loadTSData();
   let tot = 0;
   days.forEach(function(d) {
-    const dk = staffName + '__' + d.toISOString().split('T')[0];
+    const dk = staffName + '__' + toLocalISO(d);
     const de = freshData[dk];
     if (de && de.start && de.end) {
       const dh = calcHours(de.start, de.end, parseFloat(de.break) || 0);
@@ -6968,7 +6988,7 @@ function tsBlur(el) {
   var freshData = loadTSData();
   var tot = 0;
   for (var i = 0; i < days.length; i++) {
-    var dk = name + '__' + days[i].toISOString().split('T')[0];
+    var dk = name + '__' + toLocalISO(days[i]);
     var de = freshData[dk] || {};
     if (de['start'] && de['end']) {
       var dh = calcHours(de['start'], de['end'], parseFloat(de['break']) || 0);
@@ -6993,7 +7013,7 @@ function calcAllHours() {
     var name = staff[si].name;
     var safeN = name.replace(/ /g, '_');
     for (var di = 0; di < days.length; di++) {
-      var iso = days[di].toISOString().split('T')[0];
+      var iso = toLocalISO(days[di]);
       var k = name + '__' + iso;
 
       // Try to read from DOM inputs using data attributes
@@ -7025,7 +7045,7 @@ function calcAllHours() {
     // Update weekly total
     var tot = 0;
     for (var di2 = 0; di2 < days.length; di2++) {
-      var dk = name + '__' + days[di2].toISOString().split('T')[0];
+      var dk = name + '__' + toLocalISO(days[di2]);
       if (data[dk] && data[dk]['start'] && data[dk]['end']) {
         var dh = calcHours(data[dk]['start'], data[dk]['end'], parseFloat(data[dk]['break']) || 0);
         if (dh > 0) tot += dh;
@@ -7054,7 +7074,7 @@ function renderTimesheets() {
   const fmt = d => d.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
   if (lbl) lbl.textContent = `${fmt(days[0])} — ${fmt(days[6])}`;
 
-  const todayISO = new Date().toISOString().split('T')[0];
+  const todayISO = toLocalISO(new Date());
   const stored = loadTSData();
   const grid = document.getElementById('ts-grid');
   if (!grid) return;
@@ -7069,7 +7089,7 @@ function renderTimesheets() {
     let rows = '';
 
     days.forEach(d => {
-      const iso = d.toISOString().split('T')[0];
+      const iso = toLocalISO(d);
       const isToday = iso === todayISO;
       const isWknd = d.getDay() === 0 || d.getDay() === 6;
       const k = `${name}__${iso}`;
@@ -7199,7 +7219,7 @@ function tsLiveCalc(el) {
   const freshData = loadTSData();
   let tot = 0;
   days.forEach(function(d) {
-    const dk = name + '__' + d.toISOString().split('T')[0];
+    const dk = name + '__' + toLocalISO(d);
     const de = freshData[dk] || {};
     if (de.start && de.end) {
       const dh = calcHours(de.start, de.end, parseFloat(de.break) || 0);
@@ -7272,7 +7292,7 @@ function tsPoll() {
       const { days } = getTsCycleDays(tsWeekOffset);
       let tot = 0;
       days.forEach(function(d) {
-        const dk = name + '__' + d.toISOString().split('T')[0];
+        const dk = name + '__' + toLocalISO(d);
         const de = (data[dk]) || {};
         if (de.start && de.end) {
           const dh = calcHours(de.start, de.end, parseFloat(de.break) || 0);
@@ -7293,7 +7313,7 @@ function exportTimesheetCSV() {
   const rows = [['Staff', 'Date', 'Day', 'Start', 'Finish', 'Break (min)', 'Hours Worked', 'Notes']];
   getAllTSStaff().forEach(st => {
     days.forEach(d => {
-      const iso = d.toISOString().split('T')[0];
+      const iso = toLocalISO(d);
       const dayFmt = d.toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'short'});
       const k = tsKey(st.name, iso);
       const e = data[k] || {};
@@ -7322,7 +7342,7 @@ function exportUpSheetsCSV() {
     const lastName = nameParts.slice(1).join(' ') || '';
 
     days.forEach(d => {
-      const iso = d.toISOString().split('T')[0];
+      const iso = toLocalISO(d);
       const k = tsKey(st.name, iso);
       const e = data[k] || {};
       // Only include days where hours are actually recorded
@@ -7395,7 +7415,7 @@ function printTimesheet() {
 
   getAllTSStaff().forEach(st => {
     let totalH = 0;
-    days.forEach(d => { const k=tsKey(st.name,d.toISOString().split('T')[0]); if(data[k]?.hours) totalH+=data[k].hours; });
+    days.forEach(d => { const k=tsKey(st.name,toLocalISO(d)); if(data[k]?.hours) totalH+=data[k].hours; });
     w.document.write(`<div class="sum-card"><div class="sum-name">${st.name}</div><div class="sum-hrs">${fmtHours(totalH)}</div></div>`);
   });
 
@@ -7404,7 +7424,7 @@ function printTimesheet() {
   getAllTSStaff().forEach(st => {
     let totalH = 0;
     const rowsHTML = days.map(d => {
-      const iso = d.toISOString().split('T')[0];
+      const iso = toLocalISO(d);
       const dayFmt = d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
       const k = tsKey(st.name, iso);
       const e = data[k] || {};
@@ -8090,7 +8110,7 @@ function getDailyRows(filter) {
 }
 function exportDailyCSV() {
   const filter = document.getElementById('exp-daily-filter')?.value||'all';
-  downloadCSV(`daily-log-${filter}-${new Date().toISOString().split('T')[0]}.csv`, [DAILY_HEADERS, ...getDailyRows(filter)]);
+  downloadCSV(`daily-log-${filter}-${toLocalISO(new Date())}.csv`, [DAILY_HEADERS, ...getDailyRows(filter)]);
 }
 function exportDailyPDF() {
   const filter = document.getElementById('exp-daily-filter')?.value||'all';
@@ -8128,7 +8148,7 @@ function getWeeklyRows(filter) {
 }
 function exportWeeklyCSV() {
   const filter = document.getElementById('exp-weekly-filter')?.value||'all';
-  downloadCSV(`weekly-summary-${filter}-${new Date().toISOString().split('T')[0]}.csv`, [WEEKLY_HEADERS, ...getWeeklyRows(filter)]);
+  downloadCSV(`weekly-summary-${filter}-${toLocalISO(new Date())}.csv`, [WEEKLY_HEADERS, ...getWeeklyRows(filter)]);
 }
 function exportWeeklyPDF() {
   const filter = document.getElementById('exp-weekly-filter')?.value||'all';
@@ -8150,7 +8170,7 @@ function getMonthlyRows(yr) {
 }
 function exportMonthlyCSV() {
   const yr = document.getElementById('exp-monthly-year')?.value||'2026';
-  downloadCSV(`monthly-summary-${yr}-${new Date().toISOString().split('T')[0]}.csv`, [MONTHLY_HEADERS, ...getMonthlyRows(yr)]);
+  downloadCSV(`monthly-summary-${yr}-${toLocalISO(new Date())}.csv`, [MONTHLY_HEADERS, ...getMonthlyRows(yr)]);
 }
 function exportMonthlyPDF() {
   const yr = document.getElementById('exp-monthly-year')?.value||'2026';
@@ -8181,7 +8201,7 @@ function getYearlyRows(yr) {
 function exportYearlyCSV() {
   const yr = document.getElementById('exp-yearly-year')?.value||'2026';
   const {monthRows,summary} = getYearlyRows(yr);
-  downloadCSV(`yearly-overview-${yr}-${new Date().toISOString().split('T')[0]}.csv`, [YEARLY_HEADERS, ...monthRows, [''],['SUMMARY',''], ...summary.map(r=>[r[0],r[1]])]);
+  downloadCSV(`yearly-overview-${yr}-${toLocalISO(new Date())}.csv`, [YEARLY_HEADERS, ...monthRows, [''],['SUMMARY',''], ...summary.map(r=>[r[0],r[1]])]);
 }
 function exportYearlyPDF() {
   const yr = document.getElementById('exp-yearly-year')?.value||'2026';
@@ -8212,7 +8232,7 @@ function getStylistRows(yr) {
 }
 function exportStylistCSV() {
   const yr = document.getElementById('exp-stylist-year')?.value||'2026';
-  downloadCSV(`stylist-performance-${yr}-${new Date().toISOString().split('T')[0]}.csv`, [STYLIST_HEADERS, ...getStylistRows(yr)]);
+  downloadCSV(`stylist-performance-${yr}-${toLocalISO(new Date())}.csv`, [STYLIST_HEADERS, ...getStylistRows(yr)]);
 }
 function exportStylistPDF() {
   const yr = document.getElementById('exp-stylist-year')?.value||'2026';
@@ -8241,7 +8261,7 @@ function exportInvoiceCSV() {
   const rate=getStudioRate();
   const rows=getInvoiceRows(period,cFilter,rate);
   const totalInvoice=rows.reduce((s,r)=>s+(parseFloat(String(r[6]).replace('$',''))||0),0);
-  downloadCSV(`contractor-invoice-${period}-${new Date().toISOString().split('T')[0]}.csv`, [INVOICE_EXPORT_HEADERS,...rows,['','','','','','','TOTAL DUE',`$${totalInvoice.toFixed(2)}`]]);
+  downloadCSV(`contractor-invoice-${period}-${toLocalISO(new Date())}.csv`, [INVOICE_EXPORT_HEADERS,...rows,['','','','','','','TOTAL DUE',`$${totalInvoice.toFixed(2)}`]]);
 }
 function exportInvoicePDF() {
   const period=document.getElementById('exp-inv-period')?.value||'thisweek';
@@ -9383,11 +9403,11 @@ function lbPeriodResolve(period) {
   const baseAvailable = curYear === BASE_YEAR; // STYLIST_MONTHLY is BASE_YEAR data
   let range = null;
   if (period === 'week') {
-    const mon = getMondayOfWeek(today.toISOString().split('T')[0]);
+    const mon = getMondayOfWeek(toLocalISO(today));
     const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
     range = { start: mon, end: sun };
   } else if (period === 'lastweek') {
-    const mon = getMondayOfWeek(today.toISOString().split('T')[0]);
+    const mon = getMondayOfWeek(toLocalISO(today));
     const lm = new Date(mon); lm.setDate(mon.getDate() - 7);
     const ls = new Date(lm); ls.setDate(lm.getDate() + 6);
     range = { start: lm, end: ls };
@@ -9858,7 +9878,7 @@ const TAXBAS_DEFAULTS = {
 function getAuQuarters() {
   const all = allEntries();
   const today = new Date();
-  const todayISO = today.toISOString().split('T')[0];
+  const todayISO = toLocalISO(today);
   let minYr = today.getFullYear();
   let maxYr = today.getFullYear() + 1;
   if (all.length) {
@@ -10685,7 +10705,7 @@ function renderLapsed() {
 function markClientContacted(stylist, idx) {
   const log = loadClientLog();
   if (!log[stylist] || !log[stylist][idx]) return;
-  const today = new Date().toISOString().split('T')[0];
+  const today = toLocalISO(new Date());
   log[stylist][idx].lastVisit = today;
   saveClientLog(log);
   renderLapsed();
@@ -10779,7 +10799,7 @@ function confirmStockProduct(existingId) {
     stock: parseInt(document.getElementById('sk-stock')?.value) || 0,
     reorder: parseInt(document.getElementById('sk-reorder')?.value) || 3,
     reorderQty: parseInt(document.getElementById('sk-reorderQty')?.value) || 12,
-    addedDate: existingId ? undefined : new Date().toISOString().split('T')[0],
+    addedDate: existingId ? undefined : toLocalISO(new Date()),
   };
 
   const stock = loadStock();
@@ -10816,7 +10836,7 @@ function recordStockMovement(id, type) {
   if (isNaN(qty) || qty < 0) { alert('Invalid quantity.'); return; }
 
   const moves = loadStockMovements();
-  const today = new Date().toISOString().split('T')[0];
+  const today = toLocalISO(new Date());
 
   if (type === 'sale') {
     if (qty > product.stock) {
@@ -10843,7 +10863,7 @@ function getStockVelocity(productId) {
   const moves = loadStockMovements();
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 28);
-  const cutoffISO = cutoff.toISOString().split('T')[0];
+  const cutoffISO = toLocalISO(cutoff);
   const sales = moves.filter(m => m.productId === productId && m.type === 'sale' && m.date >= cutoffISO);
   const unitsSold = sales.reduce((s, m) => s + m.qty, 0);
   return unitsSold / 4; // units per week
@@ -11006,7 +11026,7 @@ function exportStockCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'stock-' + activeStudio + '-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.download = 'stock-' + activeStudio + '-' + toLocalISO(new Date()) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
