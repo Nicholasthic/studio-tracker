@@ -9085,9 +9085,9 @@ function pinRenderWhoGrid() {
   const stylists = (() => {
     try {
       const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
-      if (Array.isArray(s) && s.length) return s;
+      if (Array.isArray(s)) return s;
     } catch {}
-    return [{name:'Elyshia'},{name:'Angel'},{name:'Ruby'},{name:'Saskia'}];
+    return [];
   })();
 
   const people = [
