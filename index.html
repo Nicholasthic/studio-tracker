@@ -2362,7 +2362,7 @@ body.manager-view .owner-only { display: none !important; }
 <!-- ===================== PIN LOCK SCREEN ===================== -->
 <div id="pin-lock-screen">
   <div class="pin-lock-card">
-    <div class="pin-lock-logo">Elyshia Jones</div>
+    <div class="pin-lock-logo" id="pin-lock-logo">Elyshia Jones</div>
     <div class="pin-lock-sub">Studio Tracker</div>
 
     <!-- Step 1: Who are you? -->
@@ -2404,7 +2404,7 @@ body.manager-view .owner-only { display: none !important; }
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-name">Elyshia Jones</div>
+    <div class="logo-name" id="sidebar-logo-name">Elyshia Jones</div>
     <div class="logo-sub">Studio Tracker</div>
   </div>
   <nav class="sidebar-nav">
@@ -11368,11 +11368,23 @@ async function cloudPullAll() {
   cloudApplying = false;
 }
 
+function updateBrandingFromStudio() {
+  try {
+    const st = (Array.isArray(STUDIOS) ? STUDIOS.find(s => s.id === activeStudio) : null) || (STUDIOS && STUDIOS[0]);
+    if (!st) return;
+    const name = st.name || 'Studio';
+    const pinLogo = document.getElementById('pin-lock-logo'); if (pinLogo) pinLogo.textContent = name;
+    const sideLogo = document.getElementById('sidebar-logo-name'); if (sideLogo) sideLogo.textContent = name;
+    const topbar = document.getElementById('topbar-studio-name'); if (topbar) topbar.textContent = name;
+  } catch (e) {}
+}
 function reloadActiveStudioData() {
   if (Array.isArray(STUDIOS) && STUDIOS.length && !STUDIOS.find(s => s.id === activeStudio)) {
     activeStudio = STUDIOS[0].id;
     try { localStorage.setItem('ejActiveStudio', activeStudio); } catch (e) {}
   }
+  updateBrandingFromStudio();
+  try { if (typeof pinRenderWhoGrid === 'function') pinRenderWhoGrid(); } catch (e) {}
   userEntries = loadStorage();
   try {
     const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
