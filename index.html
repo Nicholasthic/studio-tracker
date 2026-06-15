@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EJ Studio — Performance Tracker</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238b6c4f'/%3E%3Ctext x='32' y='44' fill='%23faf7f3' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='30' text-anchor='middle'%3EEJ%3C/text%3E%3C/svg%3E">
+<title>Vellum</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23faf7f3' stroke='%238b6c4f' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%238b6c4f' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -2334,7 +2334,13 @@ body.manager-view .owner-only { display: none !important; }
 <!-- ===================== LANDING OVERLAY ===================== -->
 <div id="landing-overlay" style="position:fixed;inset:0;z-index:100000;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:center;justify-content:center;padding:60px 24px;font-family:var(--font);color:var(--text)">
   <div style="max-width:1080px;width:100%;text-align:center">
-    <div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:64px;letter-spacing:0.5px">Studio Tracker</div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
+      <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+        <circle cx="28" cy="28" r="25" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="28" y="40" fill="var(--accent)" font-family="Lora, Georgia, serif" font-style="italic" font-weight="500" font-size="30" text-anchor="middle">V</text>
+      </svg>
+      <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">Vellum</div>
+    </div>
     <h1 style="font-family:var(--serif);font-style:italic;font-size:48px;color:var(--text);margin:0 0 20px;line-height:1.15;font-weight:400">Know your studio's numbers,<br>without spreadsheets.</h1>
     <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 44px;line-height:1.6">A daily performance tracker built for brow, lash, and beauty studios. Track revenue, stylists, and clients in one quiet, beautiful dashboard.</p>
     <div style="display:flex;gap:14px;justify-content:center;margin-bottom:88px;flex-wrap:wrap">
@@ -2363,7 +2369,7 @@ body.manager-view .owner-only { display: none !important; }
 <div id="pin-lock-screen">
   <div class="pin-lock-card">
     <div class="pin-lock-logo" id="pin-lock-logo">Elyshia Jones</div>
-    <div class="pin-lock-sub">Studio Tracker</div>
+    <div class="pin-lock-sub">Vellum</div>
 
     <!-- Step 1: Who are you? -->
     <div id="pin-step-who">
@@ -2405,7 +2411,7 @@ body.manager-view .owner-only { display: none !important; }
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-name" id="sidebar-logo-name">Elyshia Jones</div>
-    <div class="logo-sub">Studio Tracker</div>
+    <div class="logo-sub">Vellum</div>
   </div>
   <nav class="sidebar-nav">
     <button class="nav-item staff-allowed" onclick="showPage('help')">
@@ -3023,7 +3029,7 @@ body.manager-view .owner-only { display: none !important; }
           </div>
           <div class="biz-field">
             <div class="biz-label">Account Name</div>
-            <input class="biz-input" id="biz-account-name" placeholder="EJ Studio Pty Ltd" oninput="saveBizDetails()">
+            <input class="biz-input" id="biz-account-name" placeholder="Your Studio Pty Ltd" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
             <div class="biz-label">BSB</div>
@@ -3635,57 +3641,70 @@ body.manager-view .owner-only { display: none !important; }
   <!-- ======================== HELP & SETUP ======================== -->
   <div class="page" id="page-help">
     <div style="max-width:760px">
+      <div class="form-section" style="text-align:center;border:none;background:transparent;padding-bottom:0">
+        <div style="font-family:var(--serif);font-style:italic;font-size:32px;color:var(--accent);margin-bottom:8px">Welcome to Vellum</div>
+        <div style="font-size:15px;color:var(--muted);line-height:1.7;max-width:560px;margin:0 auto">Your studio's daily journal. Track revenue, stylists, clients, and growth — quietly and beautifully.</div>
+      </div>
+
       <div class="form-section">
-        <div class="form-section-title">Welcome 👋</div>
+        <div class="form-section-title">Getting started — for studio owners</div>
         <div style="font-size:15px;color:var(--text);line-height:1.7">
-          New here? This page walks you through setting up the app on your phone, tablet, or computer in about a minute.
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">1. Connect this device to the cloud</div>
-        <div style="font-size:15px;line-height:1.7">
-          <p style="margin-bottom:8px">The first time you open the app on any device, you'll connect it to the studio's cloud so your changes sync everywhere.</p>
+          <p style="margin-bottom:10px">Here's the quickest path to your first useful weekly report:</p>
           <ol style="margin-left:22px">
-            <li>Look at the <strong style="color:var(--accent)">bottom of the sidebar</strong> for the <strong>☁ Connect Cloud</strong> button.</li>
-            <li>Click it and sign in with the <strong>studio email and password</strong> the owner gave you.</li>
-            <li>You only need to do this <em>once per device</em> — it'll remember you after.</li>
-          </ol>
-          <p style="margin-top:10px;font-size:14px;color:var(--muted)">If you see <strong>☁ Connected ✓</strong> already, you're set.</p>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">2. Sign in with your PIN</div>
-        <div style="font-size:15px;line-height:1.7">
-          <ol style="margin-left:22px">
-            <li>On the PIN screen, tap <strong>your name</strong> (or <strong>Owner</strong> / <strong>Manager</strong> if that's you).</li>
-            <li><strong>First time?</strong> Whatever 4-digit code you type becomes your PIN — write it down somewhere safe.</li>
-            <li><strong>Already set?</strong> Just enter your PIN.</li>
+            <li style="margin-bottom:8px"><strong>Add your stylists</strong> — head to <strong style="color:var(--accent)">Settings → Stylists</strong> and add each person on your team. You can mark contractors separately so their invoicing works.</li>
+            <li style="margin-bottom:8px"><strong>Record today's numbers</strong> — click <strong style="color:var(--accent)">Add Entry</strong> in the sidebar, pick today, and fill in revenue, products, clients, and retention. Auto-saves as you go.</li>
+            <li style="margin-bottom:8px"><strong>Check the Dashboard</strong> — your daily entry instantly rolls up into weekly and yearly views.</li>
+            <li><strong>Set staff PINs (optional)</strong> — <strong style="color:var(--accent)">Settings → PINs</strong> lets each stylist have their own PIN so they can sign in and only see what they're meant to see.</li>
           </ol>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">3. What you can see depends on your role</div>
+        <div class="form-section-title">Adding more devices</div>
+        <div style="font-size:15px;line-height:1.7">
+          <p style="margin-bottom:10px">Vellum syncs across every device. To use it on your phone, tablet, or the studio iPad:</p>
+          <ol style="margin-left:22px">
+            <li>Open the same Vellum URL on the other device.</li>
+            <li>On the landing page, click <strong style="color:var(--accent)">Log In</strong>.</li>
+            <li>Enter the same email + password you signed up with.</li>
+            <li>Sign in with your Owner PIN.</li>
+          </ol>
+          <p style="margin-top:10px;font-size:14px;color:var(--muted)">You only do this once per device — Vellum remembers you after.</p>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Roles &amp; what each person sees</div>
         <div style="font-size:15px;line-height:1.7">
           <ul style="margin-left:22px;list-style:none;padding:0">
-            <li style="margin-bottom:10px"><strong style="color:var(--accent)">🏆 Stylists</strong> — see the <strong>Leaderboard</strong> with the team rankings and your own stats. You can toggle whether your stats card shows.</li>
-            <li style="margin-bottom:10px"><strong style="color:var(--accent)">👤 Manager</strong> — full app access, <em>except</em> P&amp;L and Tax &amp; BAS (financials stay with the owner).</li>
-            <li><strong style="color:var(--accent)">👑 Owner</strong> — everything, including financials, PIN management, and cloud controls.</li>
+            <li style="margin-bottom:10px"><strong style="color:var(--accent)">Owner</strong> — everything. Financials, P&amp;L, Tax &amp; BAS, PIN management, cloud controls.</li>
+            <li style="margin-bottom:10px"><strong style="color:var(--accent)">Manager</strong> — full app, <em>except</em> P&amp;L and Tax &amp; BAS (financials stay with the owner).</li>
+            <li><strong style="color:var(--accent)">Stylist</strong> — Leaderboard with team rankings and their own stats only. They can't see the team's totals or financials.</li>
           </ul>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">4. Switching user or logging out</div>
+        <div class="form-section-title">For staff joining an existing studio</div>
         <div style="font-size:15px;line-height:1.7">
-          Bottom of the sidebar there's a <strong>🔒 Log Out</strong> button (or <strong>Switch User</strong> for stylists). Tap it to return to the PIN screen and let someone else sign in on the same device.
+          <ol style="margin-left:22px">
+            <li>The owner shares the Vellum URL with you.</li>
+            <li>Open it on your device → click <strong style="color:var(--accent)">Log In</strong> on the landing → enter the studio email + password the owner gave you.</li>
+            <li>On the PIN screen, tap <strong>your name</strong> and enter the PIN the owner set for you (or, if you're first in, whatever 4-digit code you type becomes your PIN).</li>
+          </ol>
+          <p style="margin-top:10px;font-size:14px;color:var(--muted)">Lost your PIN? The owner can reset it from <strong>Settings → PINs</strong>.</p>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">Preferences (this device)</div>
+        <div class="form-section-title">Switching user or logging out</div>
+        <div style="font-size:15px;line-height:1.7">
+          Bottom of the sidebar there's a <strong>Log Out</strong> button (or <strong>Switch User</strong> for stylists). Tap it to return to the PIN screen.
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Preferences — this device</div>
         <div style="font-size:15px;line-height:1.7">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none">
             <input type="checkbox" id="click-sound-toggle" onchange="setClickSoundEnabled(this.checked);if(this.checked)playClickSound();" style="accent-color:var(--accent);width:16px;height:16px">
@@ -3696,7 +3715,7 @@ body.manager-view .owner-only { display: none !important; }
 
       <div class="form-section" style="border-color:rgba(139,108,79,.3);background:rgba(139,108,79,.04)">
         <div style="font-size:15px;line-height:1.7">
-          <strong>Need help?</strong> Talk to your studio owner — they can reset your PIN, give you access, or sort out cloud login issues.
+          <strong>Need a hand?</strong> Email <a href="mailto:hello@vellum.studio" style="color:var(--accent);text-decoration:none">hello@vellum.studio</a> and we'll get back to you within a day.
         </div>
       </div>
     </div>
@@ -6497,7 +6516,7 @@ function buildInvoiceHTML(forPrint) {
   const gstMode = biz['biz-gst'] || 'no';
   const gstAmount = gstMode==='add' ? totalInvoice*0.1 : 0;
   const grandTotal = totalInvoice + gstAmount;
-  const fromName = biz['biz-name'] || 'EJ Studio';
+  const fromName = biz['biz-name'] || (STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Your Studio';
   const cDisplayName = contractorFilter==='all' ? 'All Contractors' : contractorFilter;
   const billToName = (biz['biz-bill-to']||'').trim() || cDisplayName;
   const invDescription = (biz['biz-description']||'').trim();
@@ -7870,7 +7889,7 @@ function printInvoice() {
   const gstMode = biz['biz-gst'] || 'no';
   const gstAmount = gstMode === 'add' ? totalInvoice * 0.1 : 0;
   const grandTotal = totalInvoice + gstAmount;
-  const fromName = biz['biz-name'] || 'EJ Studio';
+  const fromName = biz['biz-name'] || (STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Your Studio';
   const cDisplayName = contractorFilter === 'all' ? 'All Contractors' : contractorFilter;
   const billToName = (biz['biz-bill-to']||'').trim() || cDisplayName;
   const invDescription = (biz['biz-description']||'').trim();
@@ -8109,7 +8128,7 @@ tr:hover td{background:#fafafa}
 <h1>${title}</h1><div class="sub">${subtitle} · Generated ${now}</div>
 <table><thead><tr>${tableHeaders.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHTML}</tbody></table>
 ${sumHTML ? `<table class="sum-table"><tbody>${sumHTML}</tbody></table>` : ''}
-<div class="footer">EJ Studio Performance Tracker · ${now}</div></body></html>`);
+<div class="footer">Vellum · ${(STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Studio'} · ${now}</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(), 400);
 }
@@ -11413,7 +11432,7 @@ function cloudConnectPrompt() {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px';
   ov.innerHTML =
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 28px;width:380px;max-width:95vw">' +
-      '<div style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--accent);margin-bottom:14px">Studio Tracker</div>' +
+      '<div style="font-family:var(--serif);font-size:24px;font-style:italic;color:var(--accent);margin-bottom:14px">Vellum</div>' +
       '<div style="display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:18px">' +
         '<button id="cloud-tab-signin" onclick="cloudSetMode(\'signin\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:var(--surface);color:var(--text)">Log In</button>' +
         '<button id="cloud-tab-signup" onclick="cloudSetMode(\'signup\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:transparent;color:var(--muted)">Sign Up</button>' +
