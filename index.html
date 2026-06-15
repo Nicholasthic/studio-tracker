@@ -11384,13 +11384,13 @@ function reloadActiveStudioData() {
     try { localStorage.setItem('ejActiveStudio', activeStudio); } catch (e) {}
   }
   updateBrandingFromStudio();
-  try { if (typeof pinRenderWhoGrid === 'function') pinRenderWhoGrid(); } catch (e) {}
   userEntries = loadStorage();
   try {
     const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
     if (Array.isArray(s) && s.length) STYLISTS = (typeof s[0] === 'string') ? s.map(n => ({ name: n, isContractor: false })) : s;
     else STYLISTS = activeStudio === 'ej' ? DEFAULT_STYLISTS.map(x => ({ ...x })) : [];
   } catch { STYLISTS = activeStudio === 'ej' ? DEFAULT_STYLISTS.map(x => ({ ...x })) : []; }
+  try { if (typeof pinRenderWhoGrid === 'function') pinRenderWhoGrid(); } catch (e) {}
   renderSidebarStudios();
   const ap = document.querySelector('.page.active');
   const pid = ap ? ap.id.replace('page-', '') : 'dashboard';
