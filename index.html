@@ -11145,17 +11145,17 @@ function cloudPromptNewStudio() {
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px 30px;width:420px;max-width:95vw">' +
       '<div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--accent);margin-bottom:8px">Welcome</div>' +
       '<div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5">Email confirmed. What would you like to call your studio?</div>' +
-      '<input id="new-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
-      '<div id="new-studio-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>' +
+      '<input id="cloud-new-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" onkeydown="if(event.key===\'Enter\')cloudNewStudioSubmit()" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<div id="cloud-new-studio-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>' +
       '<button class="btn btn-primary" style="width:100%" onclick="cloudNewStudioSubmit()">Create Studio</button>' +
     '</div>';
   document.body.appendChild(ov);
-  setTimeout(() => { const i = document.getElementById('new-studio-name'); if (i) i.focus(); }, 50);
+  setTimeout(() => { const i = document.getElementById('cloud-new-studio-name'); if (i) i.focus(); }, 50);
 }
 function cloudNewStudioSubmit() {
-  const nameEl = document.getElementById('new-studio-name');
+  const nameEl = document.getElementById('cloud-new-studio-name');
   const name = ((nameEl && nameEl.value) || '').trim();
-  const errEl = document.getElementById('new-studio-err');
+  const errEl = document.getElementById('cloud-new-studio-err');
   if (!name) { errEl.textContent = 'Enter a studio name.'; return; }
   const m = document.getElementById('new-studio-modal'); if (m) m.remove();
   cloudFirstTimeSetup(name);
