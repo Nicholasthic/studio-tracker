@@ -2331,6 +2331,34 @@ body.manager-view .owner-only { display: none !important; }
 </head>
 <body>
 
+<!-- ===================== LANDING OVERLAY ===================== -->
+<div id="landing-overlay" style="position:fixed;inset:0;z-index:99998;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:center;justify-content:center;padding:60px 24px;font-family:var(--font);color:var(--text)">
+  <div style="max-width:1080px;width:100%;text-align:center">
+    <div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:64px;letter-spacing:0.5px">Studio Tracker</div>
+    <h1 style="font-family:var(--serif);font-style:italic;font-size:48px;color:var(--text);margin:0 0 20px;line-height:1.15;font-weight:400">Know your studio's numbers,<br>without spreadsheets.</h1>
+    <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 44px;line-height:1.6">A daily performance tracker built for brow, lash, and beauty studios. Track revenue, stylists, and clients in one quiet, beautiful dashboard.</p>
+    <div style="display:flex;gap:14px;justify-content:center;margin-bottom:88px;flex-wrap:wrap">
+      <button class="btn btn-primary" style="padding:14px 32px;font-size:16px" onclick="landingOpenAuth('signup')">Get Started Free</button>
+      <button class="btn btn-ghost" style="padding:14px 32px;font-size:16px" onclick="landingOpenAuth('signin')">Log In</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:36px;margin-bottom:64px;text-align:left">
+      <div>
+        <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Daily entries</div>
+        <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">Log the day's revenue, products, and clients in seconds. Auto-saves as you go, splits per-stylist, and rolls up to weekly &amp; yearly views.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Stylist performance</div>
+        <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">See every stylist's revenue, retention, new clients, and product sales — leaderboards, individual pages, and contractor invoices included.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Live cloud sync</div>
+        <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">Your data syncs across every device the moment you save. Work from the front desk, the office, or your phone — and never lose a number.</p>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--muted2);padding-top:24px;border-top:1px solid var(--border)">Made for studios that care about their numbers.</div>
+  </div>
+</div>
+
 <!-- ===================== PIN LOCK SCREEN ===================== -->
 <div id="pin-lock-screen">
   <div class="pin-lock-card">
@@ -8596,7 +8624,10 @@ function addStudio(name) {
   if (!n) { const inp = document.getElementById('new-studio-name'); if (inp) inp.focus(); return; }
   if (STUDIOS.find(s => s.name.toLowerCase() === n.toLowerCase())) { alert('A studio with that name already exists.'); return; }
   const colorIdx = STUDIOS.length % STUDIO_COLORS.length;
-  const newId = 'studio_' + Date.now();
+  // Use a real UUID so studios from different tenants can never collide
+  const newId = (window.crypto && window.crypto.randomUUID)
+    ? window.crypto.randomUUID()
+    : ('studio_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10));
   STUDIOS.push({ id: newId, name: n, color: STUDIO_COLORS[colorIdx] });
   saveStudios();
   const inp = document.getElementById('new-studio-name');
@@ -11077,6 +11108,11 @@ function rowToEntry(r) {
 function cloudInit() {
   cloudPatchLocalStorage();
   try {
+    const projRef = SB_URL.replace(/^https?:\/\//, '').split('.')[0];
+    const tokenKey = 'sb-' + projRef + '-auth-token';
+    if (localStorage.getItem(tokenKey)) landingHide();
+  } catch (e) {}
+  try {
     if (!window.supabase || !window.supabase.createClient) { cloudUpdateStatus(); return; }
     sbClient = window.supabase.createClient(SB_URL, SB_KEY);
     sbClient.auth.getSession().then(({ data }) => {
@@ -11294,6 +11330,10 @@ async function cloudPullAll() {
 }
 
 function reloadActiveStudioData() {
+  if (Array.isArray(STUDIOS) && STUDIOS.length && !STUDIOS.find(s => s.id === activeStudio)) {
+    activeStudio = STUDIOS[0].id;
+    try { localStorage.setItem('ejActiveStudio', activeStudio); } catch (e) {}
+  }
   userEntries = loadStorage();
   try {
     const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
@@ -11307,24 +11347,86 @@ function reloadActiveStudioData() {
 }
 
 // ── Connect UI ──
+let _cloudAuthMode = 'signin';
+function landingOpenAuth(mode) {
+  cloudConnectPrompt();
+  setTimeout(() => { if (typeof cloudSetMode === 'function') cloudSetMode(mode || 'signin'); }, 30);
+}
+function landingShow() { const el = document.getElementById('landing-overlay'); if (el) el.style.display = 'flex'; }
+function landingHide() { const el = document.getElementById('landing-overlay'); if (el) el.style.display = 'none'; }
 function cloudConnectPrompt() {
   if (!sbClient) { alert('Cloud library not loaded — check your internet connection and reload.'); return; }
+  _cloudAuthMode = 'signin';
   const ov = document.createElement('div');
   ov.id = 'cloud-modal';
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px';
-  ov.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 28px;width:340px;max-width:95vw">' +
-    '<div style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--accent);margin-bottom:6px">Connect to Cloud</div>' +
-    '<div style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.5">Sign in with your studio account to sync this device. You only need to do this once per device.</div>' +
-    '<input id="cloud-email" type="email" placeholder="Studio email" autocomplete="username" value="nicholas@thicbrow.com" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
-    '<input id="cloud-pass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:8px">' +
-    '<div id="cloud-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:8px"></div>' +
-    '<div style="display:flex;gap:10px">' +
-      '<button class="btn btn-primary" style="flex:1" onclick="cloudDoSignIn()">Connect</button>' +
-      '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'cloud-modal\').remove()">Cancel</button>' +
-    '</div></div>';
+  ov.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 28px;width:380px;max-width:95vw">' +
+      '<div style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--accent);margin-bottom:14px">Studio Tracker</div>' +
+      '<div style="display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:18px">' +
+        '<button id="cloud-tab-signin" onclick="cloudSetMode(\'signin\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:var(--surface);color:var(--text)">Log In</button>' +
+        '<button id="cloud-tab-signup" onclick="cloudSetMode(\'signup\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:transparent;color:var(--muted)">Sign Up</button>' +
+      '</div>' +
+      '<div id="cloud-mode-msg" style="font-size:14px;color:var(--muted);margin-bottom:12px;line-height:1.5">Sign in to your studio account.</div>' +
+      '<input id="cloud-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<input id="cloud-pass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<div id="cloud-signup-fields" style="display:none">' +
+        '<input id="cloud-pass2" type="password" placeholder="Confirm password" autocomplete="new-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+        '<input id="cloud-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '</div>' +
+      '<div id="cloud-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:8px"></div>' +
+      '<div style="display:flex;gap:10px;margin-bottom:10px">' +
+        '<button id="cloud-submit-btn" class="btn btn-primary" style="flex:1" onclick="cloudSubmitAuth()">Log In</button>' +
+        '<button class="btn btn-ghost" style="flex:1" onclick="document.getElementById(\'cloud-modal\').remove()">Cancel</button>' +
+      '</div>' +
+      '<div id="cloud-forgot" style="font-size:13px;color:var(--muted);text-align:center"><a href="#" onclick="event.preventDefault();cloudForgotPassword()" style="color:var(--accent);text-decoration:none">Forgot password?</a></div>' +
+    '</div>';
   document.body.appendChild(ov);
   ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   setTimeout(() => document.getElementById('cloud-email') && document.getElementById('cloud-email').focus(), 50);
+}
+function cloudSetMode(mode) {
+  _cloudAuthMode = mode;
+  const tabSignin = document.getElementById('cloud-tab-signin');
+  const tabSignup = document.getElementById('cloud-tab-signup');
+  const signupFields = document.getElementById('cloud-signup-fields');
+  const msg = document.getElementById('cloud-mode-msg');
+  const submitBtn = document.getElementById('cloud-submit-btn');
+  const forgot = document.getElementById('cloud-forgot');
+  const passInput = document.getElementById('cloud-pass');
+  if (mode === 'signup') {
+    if (tabSignin) { tabSignin.style.background = 'transparent'; tabSignin.style.color = 'var(--muted)'; }
+    if (tabSignup) { tabSignup.style.background = 'var(--surface)'; tabSignup.style.color = 'var(--text)'; }
+    if (signupFields) signupFields.style.display = 'block';
+    if (msg) msg.textContent = 'Create a new studio account.';
+    if (submitBtn) submitBtn.textContent = 'Sign Up';
+    if (forgot) forgot.style.display = 'none';
+    if (passInput) { passInput.setAttribute('autocomplete', 'new-password'); passInput.placeholder = 'Password (min 8 chars)'; }
+  } else {
+    if (tabSignin) { tabSignin.style.background = 'var(--surface)'; tabSignin.style.color = 'var(--text)'; }
+    if (tabSignup) { tabSignup.style.background = 'transparent'; tabSignup.style.color = 'var(--muted)'; }
+    if (signupFields) signupFields.style.display = 'none';
+    if (msg) msg.textContent = 'Sign in to your studio account.';
+    if (submitBtn) submitBtn.textContent = 'Log In';
+    if (forgot) forgot.style.display = '';
+    if (passInput) { passInput.setAttribute('autocomplete', 'current-password'); passInput.placeholder = 'Password'; }
+  }
+  const errEl = document.getElementById('cloud-err'); if (errEl) { errEl.textContent = ''; errEl.style.color = 'var(--red)'; }
+}
+async function cloudSubmitAuth() {
+  if (_cloudAuthMode === 'signup') return cloudDoSignUp();
+  return cloudDoSignIn();
+}
+async function cloudForgotPassword() {
+  const email = (document.getElementById('cloud-email').value || '').trim();
+  const errEl = document.getElementById('cloud-err');
+  if (!email) { errEl.textContent = 'Enter your email above first.'; return; }
+  try {
+    const { error } = await sbClient.auth.resetPasswordForEmail(email);
+    if (error) { errEl.textContent = error.message || 'Failed to send.'; return; }
+    errEl.style.color = 'var(--green)';
+    errEl.textContent = 'Reset link sent to ' + email;
+  } catch (e) { errEl.textContent = 'Failed to send reset.'; }
 }
 async function cloudDoSignIn() {
   const email = (document.getElementById('cloud-email').value || '').trim();
@@ -11338,8 +11440,111 @@ async function cloudDoSignIn() {
     cloudReady = true;
     const m = document.getElementById('cloud-modal'); if (m) m.remove();
     cloudUpdateStatus();
-    await cloudOnConnected();
+    const pendingName = localStorage.getItem('ejPendingStudioName');
+    if (pendingName) {
+      await cloudFirstTimeSetup(pendingName);
+    } else {
+      await cloudOnConnected();
+    }
   } catch (e) { if (errEl) errEl.textContent = 'Sign-in failed.'; }
+}
+async function cloudDoSignUp() {
+  const email = (document.getElementById('cloud-email').value || '').trim();
+  const pass = document.getElementById('cloud-pass').value || '';
+  const pass2 = (document.getElementById('cloud-pass2') && document.getElementById('cloud-pass2').value) || '';
+  const nameEl = document.getElementById('cloud-studio-name');
+  const studioName = ((nameEl && nameEl.value) || '').trim();
+  const errEl = document.getElementById('cloud-err');
+  if (errEl) errEl.style.color = 'var(--red)';
+  if (!email || !pass) { errEl.textContent = 'Enter email and password.'; return; }
+  if (pass.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; return; }
+  if (pass !== pass2) { errEl.textContent = 'Passwords don\'t match.'; return; }
+  if (!studioName) { errEl.textContent = 'Enter a studio name.'; return; }
+  errEl.textContent = 'Creating your account…';
+  try {
+    const { data, error } = await sbClient.auth.signUp({ email, password: pass });
+    if (error) { errEl.textContent = error.message || 'Sign-up failed.'; return; }
+    localStorage.setItem('ejPendingStudioName', studioName);
+    if (data && data.session) {
+      cloudReady = true;
+      const m = document.getElementById('cloud-modal'); if (m) m.remove();
+      cloudUpdateStatus();
+      await cloudFirstTimeSetup(studioName);
+    } else {
+      const m = document.getElementById('cloud-modal'); if (m) m.remove();
+      alert('Account created.\n\nWe sent a confirmation email to:\n' + email + '\n\nClick the link in the email, then come back to this app and Log In with the same details.');
+    }
+  } catch (e) { if (errEl) errEl.textContent = 'Sign-up failed.'; }
+}
+async function cloudFirstTimeSetup(studioName) {
+  const KEEP = new Set(['ejClickSound', 'ejAutoLockMins']);
+  const toRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.indexOf('ej') === 0 && !KEEP.has(k)) toRemove.push(k);
+  }
+  cloudApplying = true;
+  try {
+    toRemove.forEach(k => localStorage.removeItem(k));
+    const newId = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : ('studio_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10));
+    const color = (typeof STUDIO_COLORS !== 'undefined' && STUDIO_COLORS.length) ? STUDIO_COLORS[0] : '#b8967a';
+    STUDIOS = [{ id: newId, name: studioName, color: color }];
+    activeStudio = newId;
+    STYLISTS = [];
+    userEntries = [];
+    localStorage.setItem('ejStudios', JSON.stringify(STUDIOS));
+    localStorage.setItem('ejActiveStudio', newId);
+  } finally {
+    cloudApplying = false;
+  }
+  try {
+    const r = await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
+    if (r && r.error) alert('Failed to create studio in cloud: ' + r.error.message);
+  } catch (e) {}
+  try { await cloudPullAll(); } catch (e) {}
+  cloudStamp();
+  cloudToast('Welcome to ' + studioName + ' ✓');
+  cloudStartRealtime();
+  localStorage.removeItem('ejPendingStudioName');
+  try {
+    if (typeof renderSidebarStudios === 'function') renderSidebarStudios();
+    const ap = document.querySelector('.page.active');
+    const pid = ap ? ap.id.replace('page-', '') : 'dashboard';
+    if (typeof showPage === 'function') showPage(pid);
+  } catch (e) {}
+  setTimeout(() => cloudFirstRunWizard(studioName), 400);
+}
+function cloudFirstRunWizard(studioName) {
+  if (document.getElementById('first-run-modal')) return;
+  const ov = document.createElement('div');
+  ov.id = 'first-run-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100001;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px 30px;width:420px;max-width:95vw">' +
+      '<div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--accent);margin-bottom:6px">Welcome to ' + (studioName || 'your studio').replace(/</g,'&lt;') + '</div>' +
+      '<div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5">Set your <b>Owner PIN</b>. This is what you and only you will use to unlock owner-only screens (P&amp;L, Tax &amp; BAS, PIN settings). You can add a Manager PIN and Stylist PINs later from Settings.</div>' +
+      '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">Owner PIN (4–8 digits)</div>' +
+      '<input id="first-run-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:18px;letter-spacing:6px;text-align:center;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">Confirm PIN</div>' +
+      '<input id="first-run-pin2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:18px;letter-spacing:6px;text-align:center;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<div id="first-run-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>' +
+      '<button class="btn btn-primary" style="width:100%" onclick="cloudFirstRunSave()">Save &amp; Continue</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  setTimeout(() => { const p = document.getElementById('first-run-pin'); if (p) p.focus(); }, 50);
+}
+function cloudFirstRunSave() {
+  const p1 = (document.getElementById('first-run-pin').value || '').trim();
+  const p2 = (document.getElementById('first-run-pin2').value || '').trim();
+  const errEl = document.getElementById('first-run-err');
+  if (!/^\d{4,8}$/.test(p1)) { errEl.textContent = 'PIN must be 4–8 digits.'; return; }
+  if (p1 !== p2) { errEl.textContent = 'PINs don\'t match.'; return; }
+  if (p1 === '0000' || p1 === '1234') { errEl.textContent = 'Please pick a less guessable PIN.'; return; }
+  try {
+    localStorage.setItem(ADMIN_PIN_KEY, p1);
+    const m = document.getElementById('first-run-modal'); if (m) m.remove();
+    cloudToast('Owner PIN saved ✓');
+  } catch (e) { errEl.textContent = 'Failed to save PIN.'; }
 }
 async function cloudOnConnected() {
   try {
@@ -11392,6 +11597,7 @@ function cloudUploadNow() {
 function cloudSyncNow() { cloudPullAll().then(() => { cloudToast('Synced ✓'); cloudStamp(); }); }
 
 function cloudUpdateStatus() {
+  if (cloudReady) landingHide(); else landingShow();
   const bar = document.getElementById('cloud-bar');
   if (!bar) return;
   if (!sbClient) { bar.innerHTML = '<div style="font-size:13px;color:var(--muted2)">☁ Cloud unavailable</div>'; return; }
