@@ -11115,11 +11115,50 @@ function cloudInit() {
   try {
     if (!window.supabase || !window.supabase.createClient) { cloudUpdateStatus(); return; }
     sbClient = window.supabase.createClient(SB_URL, SB_KEY);
-    sbClient.auth.getSession().then(({ data }) => {
-      if (data && data.session) { cloudReady = true; cloudUpdateStatus(); cloudPullAll().then(cloudStamp); cloudStartRealtime(); }
-      else cloudUpdateStatus();
+    sbClient.auth.getSession().then(async ({ data }) => {
+      if (data && data.session) {
+        cloudReady = true;
+        cloudUpdateStatus();
+        try {
+          const { count } = await sbClient.from('studios').select('id', { count: 'exact', head: true });
+          if (count === 0) {
+            const pending = localStorage.getItem('ejPendingStudioName');
+            if (pending) await cloudFirstTimeSetup(pending);
+            else cloudPromptNewStudio();
+            return;
+          }
+        } catch (e) {}
+        cloudPullAll().then(cloudStamp);
+        cloudStartRealtime();
+      } else {
+        cloudUpdateStatus();
+      }
     }).catch(() => cloudUpdateStatus());
   } catch (e) { console.warn('cloud init', e); cloudUpdateStatus(); }
+}
+function cloudPromptNewStudio() {
+  if (document.getElementById('new-studio-modal')) return;
+  const ov = document.createElement('div');
+  ov.id = 'new-studio-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100001;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px 30px;width:420px;max-width:95vw">' +
+      '<div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--accent);margin-bottom:8px">Welcome</div>' +
+      '<div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5">Email confirmed. What would you like to call your studio?</div>' +
+      '<input id="new-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<div id="new-studio-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>' +
+      '<button class="btn btn-primary" style="width:100%" onclick="cloudNewStudioSubmit()">Create Studio</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  setTimeout(() => { const i = document.getElementById('new-studio-name'); if (i) i.focus(); }, 50);
+}
+function cloudNewStudioSubmit() {
+  const nameEl = document.getElementById('new-studio-name');
+  const name = ((nameEl && nameEl.value) || '').trim();
+  const errEl = document.getElementById('new-studio-err');
+  if (!name) { errEl.textContent = 'Enter a studio name.'; return; }
+  const m = document.getElementById('new-studio-modal'); if (m) m.remove();
+  cloudFirstTimeSetup(name);
 }
 
 // ── Live sync via Supabase Realtime — changes on other devices appear automatically ──
@@ -11544,6 +11583,8 @@ function cloudFirstRunSave() {
     localStorage.setItem(ADMIN_PIN_KEY, p1);
     const m = document.getElementById('first-run-modal'); if (m) m.remove();
     cloudToast('Owner PIN saved ✓');
+    try { if (typeof pinLoginSuccess === 'function') pinLoginSuccess('admin'); } catch (e) {}
+    setTimeout(() => { try { if (typeof showPage === 'function') showPage('help'); } catch (e) {} }, 60);
   } catch (e) { errEl.textContent = 'Failed to save PIN.'; }
 }
 async function cloudOnConnected() {
