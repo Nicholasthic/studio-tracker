@@ -4003,6 +4003,12 @@ function filteredEntries(filter) {
 
 // ===================== PAGES =====================
 function showPage(id) {
+  // Flush any pending Add Entry auto-save before navigating, so the next page sees the latest data
+  if (typeof _entryAutoSaveTimer !== 'undefined' && _entryAutoSaveTimer) {
+    clearTimeout(_entryAutoSaveTimer);
+    _entryAutoSaveTimer = null;
+    try { if (typeof saveEntryData === 'function') saveEntryData(); } catch (e) {}
+  }
   // Owner-only pages — Manager and Stylist roles get bounced to the dashboard
   if ((id === 'pl' || id === 'taxbas') && pinSessionUser !== 'admin') id = 'dashboard';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -5201,9 +5207,14 @@ function saveEntryData() {
     sd[s] = { c:ret+newC, rr:retR, rnr:retNR, nr:newC, nrr:newR, nnr:newC-newR, svc, prod:stProd, prodQty:stProdQty, tot:svc+stProd, shifts:ret+newC>0?1:0 };
   });
 
-  const prod = v('entry-product');
-  const prodQty = v('entry-product-qty');
-  const svcTotal = v('entry-service');
+  // Auto-aggregate per-stylist totals so the store-level fields always reflect what stylists entered.
+  // Top-level field is used as a floor — if a user typed a higher store total, we keep that.
+  const stylistProdSum    = Object.values(sd).reduce((acc, x) => acc + (x.prod || 0), 0);
+  const stylistProdQtySum = Object.values(sd).reduce((acc, x) => acc + (x.prodQty || 0), 0);
+  const stylistSvcSum     = Object.values(sd).reduce((acc, x) => acc + (x.svc || 0), 0);
+  const prod     = Math.max(v('entry-product'),     stylistProdSum);
+  const prodQty  = Math.max(v('entry-product-qty'), stylistProdQtySum);
+  const svcTotal = Math.max(v('entry-service'),     stylistSvcSum);
   const stylists = v('entry-stylists');
   const notes = sv('entry-notes');
   const total = prod + svcTotal;
