@@ -2361,7 +2361,20 @@ body.manager-view .owner-only { display: none !important; }
         <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">Your data syncs across every device the moment you save. Work from the front desk, the office, or your phone — and never lose a number.</p>
       </div>
     </div>
-    <div style="font-size:13px;color:var(--muted2);padding-top:24px;border-top:1px solid var(--border)">Made for studios that care about their numbers.</div>
+    <div style="background:rgba(139,108,79,.06);border:1px solid rgba(139,108,79,.18);border-radius:12px;padding:22px 26px;margin-bottom:60px;text-align:left">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-family:var(--serif);font-style:italic;font-size:18px;color:var(--accent)">Booking integrations</div>
+        <div style="background:var(--accent-light);color:var(--accent);font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;text-transform:uppercase">Coming soon</div>
+      </div>
+      <p style="color:var(--muted);line-height:1.6;margin:0;font-size:14px">Auto-sync with Timely, Fresha, Phorest and more. Your daily entries flow in automatically — no manual entry, no missed clients.</p>
+    </div>
+    <div style="padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="font-size:13px;color:var(--muted2)">Made for studios that care about their numbers.</div>
+      <div style="font-size:13px;color:var(--muted2)">
+        <a href="#" onclick="event.preventDefault();showLegalDoc('tos')" style="color:var(--muted);text-decoration:none;margin-right:14px">Terms</a>
+        <a href="#" onclick="event.preventDefault();showLegalDoc('privacy')" style="color:var(--muted);text-decoration:none">Privacy</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3646,6 +3659,8 @@ body.manager-view .owner-only { display: none !important; }
         <div style="font-size:15px;color:var(--muted);line-height:1.7;max-width:560px;margin:0 auto">Your studio's daily journal. Track revenue, stylists, clients, and growth — quietly and beautifully.</div>
       </div>
 
+      <div id="billing-section"></div>
+
       <div class="form-section">
         <div class="form-section-title">Getting started — for studio owners</div>
         <div style="font-size:15px;color:var(--text);line-height:1.7">
@@ -3717,6 +3732,11 @@ body.manager-view .owner-only { display: none !important; }
         <div style="font-size:15px;line-height:1.7">
           <strong>Need a hand?</strong> Email <a href="mailto:hello@vellum.studio" style="color:var(--accent);text-decoration:none">hello@vellum.studio</a> and we'll get back to you within a day.
         </div>
+      </div>
+
+      <div style="text-align:center;font-size:13px;color:var(--muted2);padding-top:8px">
+        <a href="#" onclick="event.preventDefault();showLegalDoc('tos')" style="color:var(--muted);text-decoration:none;margin-right:14px">Terms of Service</a>
+        <a href="#" onclick="event.preventDefault();showLegalDoc('privacy')" style="color:var(--muted);text-decoration:none">Privacy Policy</a>
       </div>
     </div>
   </div>
@@ -4058,6 +4078,15 @@ function showPage(id) {
   }
   // Owner-only pages — Manager and Stylist roles get bounced to the dashboard
   if ((id === 'pl' || id === 'taxbas') && pinSessionUser !== 'admin') id = 'dashboard';
+  // Tier soft gates — Solo plan blocks team-only pages with an upgrade prompt
+  if (id === 'leaderboard' && typeof canUseLeaderboard === 'function' && !canUseLeaderboard()) {
+    showPricingModal('The Leaderboard ranks your whole team — upgrade to Studio to unlock it, plus unlimited stylists, contractor invoicing, and more.');
+    return;
+  }
+  if (id === 'invoice' && typeof canUseContractorInvoicing === 'function' && !canUseContractorInvoicing()) {
+    showPricingModal('Contractor invoicing auto-generates from your daily entries — upgrade to Studio to unlock it.');
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
@@ -6343,6 +6372,10 @@ function confirmRename(idx) {
 }
 
 function addStylist() {
+  if (typeof canAddStylist === 'function' && !canAddStylist()) {
+    showPricingModal('You\'re on the Solo plan, which is for solo artists. Upgrade to Studio to add more stylists, plus contractor invoicing, leaderboard, and more.');
+    return;
+  }
   const inp = document.getElementById('new-stylist-name');
   const name = inp.value.trim();
   if (!name) { inp.focus(); return; }
@@ -11138,6 +11171,7 @@ function cloudInit() {
       if (data && data.session) {
         cloudReady = true;
         cloudUpdateStatus();
+        fetchSubscription();
         try {
           const { count } = await sbClient.from('studios').select('id', { count: 'exact', head: true });
           if (count === 0) {
@@ -11443,6 +11477,21 @@ function cloudConnectPrompt() {
       '<div id="cloud-signup-fields" style="display:none">' +
         '<input id="cloud-pass2" type="password" placeholder="Confirm password" autocomplete="new-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
         '<input id="cloud-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+        '<select id="cloud-booking-system" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);outline:none;margin-bottom:10px;font-family:var(--font)">' +
+          '<option value="">Which booking system do you use? (optional)</option>' +
+          '<option value="timely">Timely</option>' +
+          '<option value="fresha">Fresha</option>' +
+          '<option value="phorest">Phorest</option>' +
+          '<option value="mindbody">Mindbody / Booker</option>' +
+          '<option value="vagaro">Vagaro</option>' +
+          '<option value="square">Square Appointments</option>' +
+          '<option value="booksy">Booksy</option>' +
+          '<option value="glossgenius">GlossGenius</option>' +
+          '<option value="acuity">Acuity Scheduling</option>' +
+          '<option value="other">Other</option>' +
+          '<option value="none">Not using one</option>' +
+        '</select>' +
+        '<div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px">By signing up you agree to our <a href="#" onclick="event.preventDefault();showLegalDoc(\'tos\')" style="color:var(--accent);text-decoration:none">Terms</a> and <a href="#" onclick="event.preventDefault();showLegalDoc(\'privacy\')" style="color:var(--accent);text-decoration:none">Privacy Policy</a>.</div>' +
       '</div>' +
       '<div id="cloud-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:8px"></div>' +
       '<div style="display:flex;gap:10px;margin-bottom:10px">' +
@@ -11510,6 +11559,7 @@ async function cloudDoSignIn() {
     cloudReady = true;
     const m = document.getElementById('cloud-modal'); if (m) m.remove();
     cloudUpdateStatus();
+    fetchSubscription();
     const pendingName = localStorage.getItem('ejPendingStudioName');
     if (pendingName) {
       await cloudFirstTimeSetup(pendingName);
@@ -11524,6 +11574,8 @@ async function cloudDoSignUp() {
   const pass2 = (document.getElementById('cloud-pass2') && document.getElementById('cloud-pass2').value) || '';
   const nameEl = document.getElementById('cloud-studio-name');
   const studioName = ((nameEl && nameEl.value) || '').trim();
+  const bsEl = document.getElementById('cloud-booking-system');
+  const bookingSystem = ((bsEl && bsEl.value) || '').trim();
   const errEl = document.getElementById('cloud-err');
   if (errEl) errEl.style.color = 'var(--red)';
   if (!email || !pass) { errEl.textContent = 'Enter email and password.'; return; }
@@ -11535,6 +11587,7 @@ async function cloudDoSignUp() {
     const { data, error } = await sbClient.auth.signUp({ email, password: pass });
     if (error) { errEl.textContent = error.message || 'Sign-up failed.'; return; }
     localStorage.setItem('ejPendingStudioName', studioName);
+    if (bookingSystem) localStorage.setItem('ejPendingBookingSystem', bookingSystem);
     if (data && data.session) {
       cloudReady = true;
       const m = document.getElementById('cloud-modal'); if (m) m.remove();
@@ -11553,6 +11606,7 @@ async function cloudFirstTimeSetup(studioName) {
     const k = localStorage.key(i);
     if (k && k.indexOf('ej') === 0 && !KEEP.has(k)) toRemove.push(k);
   }
+  const pendingBookingSystem = (localStorage.getItem('ejPendingBookingSystem') || '').trim();
   cloudApplying = true;
   try {
     toRemove.forEach(k => localStorage.removeItem(k));
@@ -11568,9 +11622,12 @@ async function cloudFirstTimeSetup(studioName) {
     cloudApplying = false;
   }
   try {
-    const r = await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
+    const row = { id: STUDIOS[0].id, name: STUDIOS[0].name, color: STUDIOS[0].color };
+    if (pendingBookingSystem) row.booking_system = pendingBookingSystem;
+    const r = await sbClient.from('studios').upsert([row]);
     if (r && r.error) alert('Failed to create studio in cloud: ' + r.error.message);
   } catch (e) {}
+  localStorage.removeItem('ejPendingBookingSystem');
   try { await cloudPullAll(); } catch (e) {}
   cloudStamp();
   cloudToast('Welcome to ' + studioName + ' ✓');
@@ -11582,6 +11639,7 @@ async function cloudFirstTimeSetup(studioName) {
     const pid = ap ? ap.id.replace('page-', '') : 'dashboard';
     if (typeof showPage === 'function') showPage(pid);
   } catch (e) {}
+  fetchSubscription();
   setTimeout(() => cloudFirstRunWizard(studioName), 400);
 }
 function cloudFirstRunWizard(studioName) {
@@ -11602,6 +11660,316 @@ function cloudFirstRunWizard(studioName) {
     '</div>';
   document.body.appendChild(ov);
   setTimeout(() => { const p = document.getElementById('first-run-pin'); if (p) p.focus(); }, 50);
+}
+// ── Subscription / billing (Stripe) ──
+let userSubscription = null;
+const VELLUM_TIERS = [
+  {
+    id: 'solo', name: 'Solo', tagline: 'For solo brow & lash artists',
+    monthly: 19, annual: 190,
+    features: ['1 stylist (you)', 'Dashboard, daily entries, weekly & yearly views', 'Per-stylist performance for yourself', 'P&L, Tax & BAS, Timesheets', 'Goals, lapsed clients, stock', 'Cloud sync across all your devices']
+  },
+  {
+    id: 'studio', name: 'Studio', tagline: 'For boutique beauty studios', recommended: true,
+    monthly: 39, annual: 390,
+    features: ['Unlimited stylists', 'Contractor invoicing', 'Team leaderboard with celebrations', 'Per-stylist performance pages', 'Roster planner', 'Manager + stylist PINs', 'Everything in Solo']
+  }
+];
+async function fetchSubscription() {
+  if (!cloudReady || !sbClient) return null;
+  try {
+    const { data, error } = await sbClient.from('subscriptions').select('*').maybeSingle();
+    if (error) { console.warn('subscription fetch', error); return null; }
+    userSubscription = data;
+    updateBillingBadge();
+    renderBillingSection();
+    maybeShowPaywall();
+    return data;
+  } catch (e) { console.warn('sub fetch err', e); return null; }
+}
+function isTrialing() {
+  if (!userSubscription || userSubscription.status !== 'trialing') return false;
+  if (!userSubscription.trial_ends_at) return false;
+  return new Date(userSubscription.trial_ends_at) > new Date();
+}
+function isSubscribed() {
+  return userSubscription && ['active', 'past_due'].includes(userSubscription.status);
+}
+function hasAccess() { return isTrialing() || isSubscribed(); }
+function daysLeftInTrial() {
+  if (!userSubscription || !userSubscription.trial_ends_at) return 0;
+  const ms = new Date(userSubscription.trial_ends_at).getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / 86400000));
+}
+function currentTier() { return (userSubscription && userSubscription.tier) || 'studio'; }
+function canAddStylist() {
+  if (currentTier() !== 'solo') return true;
+  const count = (typeof STYLISTS !== 'undefined' && Array.isArray(STYLISTS)) ? STYLISTS.length : 0;
+  return count < 1;
+}
+function canUseLeaderboard() { return currentTier() !== 'solo'; }
+function canUseContractorInvoicing() { return currentTier() !== 'solo'; }
+async function startCheckout(tier, period) {
+  if (!sbClient || !cloudReady) { alert('Please connect to the cloud first.'); return; }
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    const token = session && session.access_token;
+    if (!token) { alert('Session expired — please sign in again.'); return; }
+    const res = await fetch(SB_URL + '/functions/v1/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'apikey': SB_KEY },
+      body: JSON.stringify({ tier: tier, period: period })
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; return; }
+    alert('Checkout failed: ' + (data.error || 'Unknown error'));
+  } catch (e) { alert('Checkout failed: ' + (e.message || e)); }
+}
+async function openCustomerPortal() {
+  if (!sbClient || !cloudReady) return;
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    const token = session && session.access_token;
+    if (!token) return;
+    const res = await fetch(SB_URL + '/functions/v1/create-portal-session', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'apikey': SB_KEY }
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; return; }
+    alert('Portal failed: ' + (data.error || 'Unknown error'));
+  } catch (e) { alert('Portal failed: ' + (e.message || e)); }
+}
+function pricingTilesHTML(highlightTier) {
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">' +
+    VELLUM_TIERS.map(t => {
+      const isCurrent = highlightTier === t.id;
+      const ring = (t.recommended || isCurrent) ? 'border:2px solid var(--accent)' : 'border:1px solid var(--border2)';
+      return '<div style="background:var(--surface2);' + ring + ';border-radius:14px;padding:22px;position:relative">' +
+        (t.recommended ? '<div style="position:absolute;top:-11px;left:22px;background:var(--accent);color:#fff;font-size:11px;letter-spacing:1px;padding:4px 10px;border-radius:20px;text-transform:uppercase">Most popular</div>' : '') +
+        '<div style="font-family:var(--serif);font-style:italic;font-size:22px;color:var(--accent);margin-bottom:4px">' + t.name + '</div>' +
+        '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">' + t.tagline + '</div>' +
+        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px"><span style="font-size:32px;font-weight:500;color:var(--text)">$' + t.monthly + '</span><span style="font-size:14px;color:var(--muted)">AUD / month</span></div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">or $' + t.annual + ' / year (save ~17%)</div>' +
+        '<ul style="margin:0 0 18px 0;padding:0;list-style:none;font-size:13px;color:var(--text);line-height:1.7">' +
+          t.features.map(f => '<li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">✓</span>' + f + '</li>').join('') +
+        '</ul>' +
+        '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Subscribe — $' + t.monthly + '/mo</button>' +
+        '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Or annual — $' + t.annual + '/yr</button>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+function showPricingModal(intro) {
+  const existing = document.getElementById('pricing-modal'); if (existing) existing.remove();
+  const ov = document.createElement('div');
+  ov.id = 'pricing-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100002;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
+  ov.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;width:760px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:30px 32px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">' +
+        '<div>' +
+          '<div style="font-family:var(--serif);font-style:italic;font-size:24px;color:var(--accent)">Choose a plan</div>' +
+          (intro ? '<div style="font-size:14px;color:var(--muted);margin-top:6px;max-width:520px;line-height:1.5">' + intro + '</div>' : '') +
+        '</div>' +
+        '<button onclick="document.getElementById(\'pricing-modal\').remove()" style="background:transparent;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:0;line-height:1" aria-label="Close">✕</button>' +
+      '</div>' +
+      pricingTilesHTML(currentTier()) +
+      '<div style="font-size:12px;color:var(--muted2);margin-top:18px;text-align:center">Cancel anytime · Secure checkout via Stripe · You can switch plans later.</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+}
+function maybeShowPaywall() {
+  const existing = document.getElementById('paywall-overlay');
+  if (hasAccess()) { if (existing) existing.remove(); return; }
+  if (!userSubscription) return;
+  if (existing) return;
+  const ov = document.createElement('div');
+  ov.id = 'paywall-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:100001;overflow-y:auto;padding:60px 24px;font-family:var(--font)';
+  ov.innerHTML =
+    '<div style="max-width:880px;margin:0 auto;text-align:center">' +
+      '<div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:8px">Your trial has ended</div>' +
+      '<div style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.6">Pick a plan to keep your studio data flowing. Your data is safe — nothing is lost, you just need an active subscription to keep using Vellum.</div>' +
+      pricingTilesHTML(currentTier()) +
+      '<div style="margin-top:24px;font-size:13px;color:var(--muted2)">Already paid? <a href="#" onclick="event.preventDefault();fetchSubscription();" style="color:var(--accent);text-decoration:none">Refresh</a> · Need help? <a href="mailto:hello@vellum.studio" style="color:var(--accent);text-decoration:none">hello@vellum.studio</a></div>' +
+    '</div>';
+  document.body.appendChild(ov);
+}
+function updateBillingBadge() {
+  const bar = document.getElementById('cloud-bar');
+  if (!bar) return;
+  let badge = document.getElementById('billing-badge');
+  if (!userSubscription || !cloudReady) { if (badge) badge.remove(); return; }
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'billing-badge';
+    badge.style.cssText = 'font-size:12px;color:var(--muted);margin-top:8px;cursor:pointer;text-align:center';
+    badge.onclick = function () { try { showPage('help'); } catch (e) {} };
+    bar.appendChild(badge);
+  }
+  if (isTrialing()) {
+    const d = daysLeftInTrial();
+    badge.innerHTML = '<span style="color:var(--accent)">Trial</span> · ' + d + ' day' + (d === 1 ? '' : 's') + ' left';
+  } else if (isSubscribed()) {
+    const t = VELLUM_TIERS.find(x => x.id === currentTier()) || { name: 'Studio' };
+    badge.innerHTML = '<span style="color:var(--green)">' + t.name + '</span> · active';
+  } else if (userSubscription.status === 'canceled') {
+    badge.innerHTML = '<span style="color:var(--red)">Subscription ended</span>';
+  } else {
+    badge.innerHTML = '<span style="color:var(--muted)">' + (userSubscription.status || 'No plan') + '</span>';
+  }
+}
+function renderBillingSection() {
+  const el = document.getElementById('billing-section');
+  if (!el) return;
+  if (!userSubscription) { el.innerHTML = ''; return; }
+  const tier = VELLUM_TIERS.find(x => x.id === currentTier()) || { name: 'Studio', monthly: 39 };
+  let statusLine = '';
+  if (isTrialing()) {
+    statusLine = '<div style="color:var(--accent);font-weight:500">Trial — ' + daysLeftInTrial() + ' day' + (daysLeftInTrial() === 1 ? '' : 's') + ' left</div>';
+  } else if (isSubscribed()) {
+    statusLine = '<div style="color:var(--green);font-weight:500">Active</div>';
+    if (userSubscription.cancel_at_period_end) {
+      statusLine += '<div style="font-size:13px;color:var(--muted);margin-top:4px">Will cancel at end of current period</div>';
+    }
+  } else if (userSubscription.status === 'canceled') {
+    statusLine = '<div style="color:var(--red);font-weight:500">Canceled</div>';
+  } else if (userSubscription.status === 'past_due') {
+    statusLine = '<div style="color:var(--red);font-weight:500">Payment failed — please update your card</div>';
+  } else {
+    statusLine = '<div style="color:var(--muted)">' + userSubscription.status + '</div>';
+  }
+  let actions = '';
+  if (isSubscribed() || userSubscription.status === 'past_due') {
+    actions = '<button class="btn btn-ghost" onclick="openCustomerPortal()" style="margin-right:8px">Manage subscription</button>' +
+              '<button class="btn btn-ghost" onclick="showPricingModal(\'Switch your plan — change takes effect immediately, with proration.\')">Switch plan</button>';
+  } else {
+    actions = '<button class="btn btn-primary" onclick="showPricingModal(\'Pick a plan to keep using Vellum.\')">Choose a plan</button>';
+  }
+  el.innerHTML =
+    '<div class="form-section">' +
+      '<div class="form-section-title">Your subscription</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px">' +
+        '<div>' +
+          '<div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent)">Vellum ' + tier.name + '</div>' +
+          statusLine +
+        '</div>' +
+        '<div>' + actions + '</div>' +
+      '</div>' +
+    '</div>';
+}
+function handleStripeReturn() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('subscribed') === '1') {
+      cloudToast('Subscription active — welcome to Vellum ✓');
+      setTimeout(fetchSubscription, 1500);
+      setTimeout(fetchSubscription, 5000);
+      const url = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', url);
+    } else if (params.get('subscribed') === '0') {
+      cloudToast('Checkout cancelled — no charge made');
+      const url = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', url);
+    }
+  } catch (e) {}
+}
+
+const LEGAL_DOCS = {
+  tos: {
+    title: 'Terms of Service',
+    updated: '15 June 2026',
+    body:
+      '<p style="margin:0 0 14px"><strong>Important:</strong> Vellum is a software service for tracking studio performance. It is not a tax, accounting, legal, or financial advice tool. Decisions you make based on data in Vellum are your own responsibility.</p>' +
+      '<p style="margin:0 0 14px">Welcome to Vellum (vellum.studio, operated by [Business Name], ABN [TBA], "we", "us"). By creating an account, accessing, or using Vellum you ("you", "Customer") agree to these Terms of Service.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">1. The service</h3>' +
+      '<p style="margin:0 0 14px">Vellum is a cloud-based studio performance tracker accessible via web browser. We may add, modify, or remove features at any time. Beta features may behave unexpectedly.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">2. Your account</h3>' +
+      '<p style="margin:0 0 14px">You are responsible for keeping your login credentials and PINs secure. You must not share your account with anyone outside your studio team. You are responsible for everything that happens under your account.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">3. Your data</h3>' +
+      '<p style="margin:0 0 14px">You own all data you enter into Vellum (revenue figures, stylist names, client information, business details). We process this data only to provide the service to you. You grant us a non-exclusive license to store, process, and display your data for the purpose of running Vellum.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">4. Subscription &amp; billing</h3>' +
+      '<p style="margin:0 0 14px">Vellum is provided on a subscription basis. Pricing is shown at signup. We bill monthly or annually in advance. You can cancel at any time; cancellations take effect at the end of the current billing period. We do not refund partial periods.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">5. Free trial</h3>' +
+      '<p style="margin:0 0 14px">New accounts may receive a free trial. We may end the trial early, change its terms, or limit functionality. If you do not subscribe by the end of the trial, your account may be suspended.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">6. Acceptable use</h3>' +
+      '<p style="margin:0 0 14px">You agree not to: (a) reverse engineer, copy, or resell Vellum; (b) use Vellum for unlawful purposes; (c) attempt to access other customers\' data; (d) overload our infrastructure; (e) upload malicious code.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">7. Service availability</h3>' +
+      '<p style="margin:0 0 14px">We aim for high availability but do not guarantee uninterrupted service. We may perform maintenance from time to time. We are not liable for downtime caused by your internet, browser, or our infrastructure providers.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">8. Data export &amp; deletion</h3>' +
+      '<p style="margin:0 0 14px">You can export your data at any time from within Vellum. If you cancel, your data is retained for 60 days then permanently deleted. You can request immediate deletion by emailing us.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">9. Termination</h3>' +
+      '<p style="margin:0 0 14px">You can cancel any time. We can suspend or terminate accounts that breach these terms, with notice where reasonable. On termination, your right to use Vellum ends.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">10. Disclaimer &amp; liability</h3>' +
+      '<p style="margin:0 0 14px">Nothing in these terms excludes consumer guarantees you may have under the Australian Consumer Law. Subject to those rights, Vellum is provided "as is" and we do not warrant it will be error-free or fit for any particular purpose. To the maximum extent permitted by law, our liability is limited to re-supplying the service or refunding fees paid in the last 3 months.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">11. Intellectual property</h3>' +
+      '<p style="margin:0 0 14px">Vellum (the software, design, brand) is our property. Your data is yours.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">12. Privacy</h3>' +
+      '<p style="margin:0 0 14px">Our handling of personal information is described in our Privacy Policy.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">13. Changes</h3>' +
+      '<p style="margin:0 0 14px">We may update these terms. Material changes will be notified by email or in-app at least 14 days before they take effect.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">14. Governing law</h3>' +
+      '<p style="margin:0 0 14px">These terms are governed by the laws of [State], Australia. Disputes will be resolved in the courts of [State].</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">15. Contact</h3>' +
+      '<p style="margin:0 0 14px">Email <a href="mailto:hello@vellum.studio" style="color:var(--accent)">hello@vellum.studio</a>.</p>'
+  },
+  privacy: {
+    title: 'Privacy Policy',
+    updated: '15 June 2026',
+    body:
+      '<p style="margin:0 0 14px">This Privacy Policy explains how Vellum (vellum.studio, operated by [Business Name], ABN [TBA]) handles personal information.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">1. What we collect</h3>' +
+      '<ul style="margin:0 0 14px 22px;padding:0"><li><strong>Account info:</strong> email, password (hashed), studio name.</li><li><strong>Business data:</strong> revenue figures, stylist names, client names you enter, P&amp;L entries, timesheets, daily entries.</li><li><strong>Usage data:</strong> sign-in times, pages viewed, device, browser.</li><li><strong>Payment info:</strong> when you subscribe, Stripe collects your card details on our behalf. We never see your card number.</li></ul>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">2. How we use it</h3>' +
+      '<ul style="margin:0 0 14px 22px;padding:0"><li>To provide and improve Vellum.</li><li>To bill you and process payments.</li><li>To send essential service emails (confirmation, billing, security alerts).</li><li>To send product updates if you have opted in.</li><li>To respond to support requests.</li></ul>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">3. Where it is stored</h3>' +
+      '<p style="margin:0 0 14px">Vellum uses Supabase (hosted on AWS) for data storage. We do not sell or rent your data.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">4. Who we share it with</h3>' +
+      '<ul style="margin:0 0 14px 22px;padding:0"><li><strong>Service providers:</strong> Supabase (database, auth), Stripe (payments), our email provider, error-monitoring tools — only what is needed to run the service.</li><li><strong>Legal:</strong> if required by law.</li><li><strong>No marketing partners or data brokers.</strong></li></ul>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">5. Client data in your studio</h3>' +
+      '<p style="margin:0 0 14px">If you enter your clients\' names into Vellum\'s Client Service Log, you are the data controller of that information. You are responsible for ensuring you have the right to record it (e.g. via your booking system\'s consent flow). Vellum is your processor.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">6. Your rights</h3>' +
+      '<p style="margin:0 0 8px">Under the Privacy Act 1988 (Cth) and where applicable the GDPR, you can:</p>' +
+      '<ul style="margin:0 0 14px 22px;padding:0"><li>Access the personal data we hold about you.</li><li>Correct inaccurate data (or do it yourself in the app).</li><li>Request deletion of your data.</li><li>Export your data.</li><li>Object to processing or withdraw consent for marketing emails.</li><li>Lodge a complaint with the Office of the Australian Information Commissioner.</li></ul>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">7. Cookies &amp; tracking</h3>' +
+      '<p style="margin:0 0 14px">Vellum uses cookies and localStorage to keep you signed in and remember preferences. We do not use third-party advertising cookies.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">8. Data security</h3>' +
+      '<p style="margin:0 0 14px">We use TLS in transit, hashed passwords (bcrypt), and row-level security so studios can only access their own data. No system is 100% secure but we follow industry standards.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">9. Children</h3>' +
+      '<p style="margin:0 0 14px">Vellum is not intended for under-16s. We do not knowingly collect data from minors.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">10. International users</h3>' +
+      '<p style="margin:0 0 14px">If you are outside Australia, your data may be transferred to Australia or the country where our service provider stores it (e.g. AWS regions). By using Vellum you consent to this transfer.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">11. Retention</h3>' +
+      '<p style="margin:0 0 14px">We keep your data while your account is active. After cancellation, data is retained for 60 days then permanently deleted unless you request immediate deletion.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">12. Changes</h3>' +
+      '<p style="margin:0 0 14px">We will notify you of material changes by email or in-app at least 14 days before they take effect.</p>' +
+      '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">13. Contact</h3>' +
+      '<p style="margin:0 0 14px">Email <a href="mailto:hello@vellum.studio" style="color:var(--accent)">hello@vellum.studio</a>.</p>'
+  }
+};
+function showLegalDoc(which) {
+  const doc = LEGAL_DOCS[which]; if (!doc) return;
+  const existing = document.getElementById('legal-modal'); if (existing) existing.remove();
+  const ov = document.createElement('div');
+  ov.id = 'legal-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100002;display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;width:680px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column">' +
+      '<div style="padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px">' +
+        '<div>' +
+          '<div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--accent)">' + doc.title + '</div>' +
+          '<div style="font-size:13px;color:var(--muted);margin-top:4px">Last updated: ' + doc.updated + '</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'legal-modal\').remove()" style="background:transparent;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:0;line-height:1" aria-label="Close">✕</button>' +
+      '</div>' +
+      '<div style="padding:22px 28px;overflow-y:auto;font-size:14px;line-height:1.65;color:var(--text)">' + doc.body + '</div>' +
+      '<div style="padding:16px 28px;border-top:1px solid var(--border);text-align:right">' +
+        '<button class="btn btn-primary" onclick="document.getElementById(\'legal-modal\').remove()">Close</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
 }
 function cloudFirstRunSave() {
   const p1 = (document.getElementById('first-run-pin').value || '').trim();
@@ -11701,6 +12069,7 @@ function cloudToast(msg) {
 // ===================== INIT =====================
 renderSidebarStudios();
 cloudInit();
+try { handleStripeReturn(); } catch (e) {}
 </script>
 </body>
 </html>
