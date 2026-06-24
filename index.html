@@ -9134,13 +9134,18 @@ function avatarColor(i) {
 function pinRenderWhoGrid() {
   const grid = document.getElementById('pin-who-grid');
   if (!grid) return;
-  const stylists = (() => {
-    try {
-      const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
-      if (Array.isArray(s)) return s;
-    } catch {}
-    return [];
-  })();
+  // Source staff from the in-memory STYLISTS roster — the SAME list Manage PINs
+  // uses — so the login grid always matches the studio's synced stylists. Fall
+  // back to the stored list only if STYLISTS isn't ready yet. Normalise legacy
+  // string entries and drop any without a name so a bad row can't throw and
+  // leave the grid stuck showing only Owner + Manager.
+  let stylists = (typeof STYLISTS !== 'undefined' && Array.isArray(STYLISTS)) ? STYLISTS : null;
+  if (!stylists) {
+    try { const s = JSON.parse(localStorage.getItem(studioKey('ejStylists'))); if (Array.isArray(s)) stylists = s; } catch {}
+  }
+  stylists = (stylists || [])
+    .map(s => (typeof s === 'string' ? { name: s } : s))
+    .filter(s => s && s.name);
 
   const people = [
     { id: 'admin', label: 'Owner', color: '#2c2118' },
@@ -11252,6 +11257,19 @@ async function cloudPushKind(kind) {
   if (!cloudReady || !sbClient) return;
   try {
     if (kind === 'studios') {
+      // Diff sync — delete cloud studios that no longer exist locally, then upsert the rest
+      const localIds = new Set(STUDIOS.map(s => s.id));
+      const sel = await sbClient.from('studios').select('id');
+      if (!sel.error && sel.data) {
+        const toDel = sel.data.filter(c => !localIds.has(c.id)).map(c => c.id);
+        if (toDel.length) {
+          // Remove the studio's child data first, then the studio row itself
+          await sbClient.from('stylists').delete().in('studio_id', toDel);
+          await sbClient.from('daily_entries').delete().in('studio_id', toDel);
+          await sbClient.from('app_state').delete().in('studio_id', toDel);
+          await sbClient.from('studios').delete().in('id', toDel);
+        }
+      }
       await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
     } else if (kind === 'stylists') {
       // Diff sync — delete cloud rows that no longer exist locally, then upsert the rest
