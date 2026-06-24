@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vellum</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23faf7f3' stroke='%238b6c4f' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%238b6c4f' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Schibsted+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
@@ -25,8 +25,8 @@
   --red: #9e4a3a;
   --blue: #4a6880;
   --purple: #6e5c7e;
-  --font: 'DM Sans', sans-serif;
-  --serif: 'Lora', serif;
+  --font: 'Schibsted Grotesk', sans-serif;
+  --serif: 'EB Garamond', serif;
   --mono: 'DM Mono', monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2337,7 +2337,7 @@ body.manager-view .owner-only { display: none !important; }
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
       <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
         <circle cx="28" cy="28" r="25" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
-        <text x="28" y="40" fill="var(--accent)" font-family="Lora, Georgia, serif" font-style="italic" font-weight="500" font-size="30" text-anchor="middle">V</text>
+        <text x="28" y="40" fill="var(--accent)" font-family="'EB Garamond', Georgia, serif" font-style="italic" font-weight="500" font-size="30" text-anchor="middle">V</text>
       </svg>
       <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">Vellum</div>
     </div>
@@ -2470,14 +2470,6 @@ body.manager-view .owner-only { display: none !important; }
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="1" fill="currentColor"/></svg>
       Goals &amp; Targets
     </button>
-    <button class="nav-item" onclick="showPage('lapsed')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 4v4l2.5 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Lapsed Clients
-    </button>
-    <button class="nav-item" onclick="showPage('stock')">
-      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M2 5l6-3 6 3v6l-6 3-6-3V5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M2 5l6 3 6-3M8 8v7" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-      Stock &amp; Retail
-    </button>
     <div class="nav-section-label">Staff</div>
     <button class="nav-item" onclick="showPage('timesheets')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 5h14" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -2513,6 +2505,11 @@ body.manager-view .owner-only { display: none !important; }
       </svg>
       Tax &amp; BAS
     </button>
+    <div class="nav-section-label">Settings</div>
+    <button class="nav-item" onclick="showPage('pinmgmt')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v1.7M8 12.8v1.7M14.5 8h-1.7M3.2 8H1.5M12.6 3.4l-1.2 1.2M4.6 11.4l-1.2 1.2M12.6 12.6l-1.2-1.2M4.6 4.6 3.4 3.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Manage PINs
+    </button>
   </nav>
   <div class="sidebar-studio">
     <div class="studio-label">Studios</div>
@@ -2520,13 +2517,6 @@ body.manager-view .owner-only { display: none !important; }
     <button class="sidebar-add-studio" onclick="showAddStudioModal()">+ Add Studio</button>
   </div>
   <div id="cloud-bar" style="padding:10px 16px;border-top:1px solid var(--border)"></div>
-  <div id="pin-mgmt-bar" style="padding:12px 16px;border-top:1px solid var(--border)">
-    <button class="btn btn-ghost" style="width:100%;font-size:14px;margin-bottom:6px" onclick="showPage('pinmgmt')">🔐 Manage PINs</button>
-    <button class="btn btn-ghost" style="width:100%;font-size:14px" onclick="pinLockNow()">🔒 Log Out</button>
-  </div>
-  <div id="staff-logout-bar" style="display:none;padding:12px 16px;border-top:1px solid var(--border)">
-    <button class="btn btn-ghost" style="width:100%;font-size:14px" onclick="pinLockNow()">🔒 Switch User</button>
-  </div>
 </aside>
 
 <!-- MAIN -->
@@ -2538,6 +2528,9 @@ body.manager-view .owner-only { display: none !important; }
       <span style="font-size:14px;color:var(--muted2)" id="topbar-dot">·</span>
       <span style="font-size:14px;color:var(--muted)" id="topbar-year">2026</span>
       <button class="btn btn-ghost" id="topbar-add-day" onclick="showPage('entry')">+ Add Day</button>
+      <button class="btn btn-ghost" id="topbar-lock" onclick="pinLockNow()" title="Lock &amp; log out" aria-label="Lock and log out" style="padding:7px 9px;display:inline-flex;align-items:center">
+        <svg width="15" height="15" fill="none" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3"/></svg>
+      </button>
     </div>
   </div>
 
@@ -3661,30 +3654,93 @@ body.manager-view .owner-only { display: none !important; }
 
       <div id="billing-section"></div>
 
+      <!-- GUIDED TOUR -->
       <div class="form-section">
-        <div class="form-section-title">Getting started — for studio owners</div>
-        <div style="font-size:15px;color:var(--text);line-height:1.7">
-          <p style="margin-bottom:10px">Here's the quickest path to your first useful weekly report:</p>
-          <ol style="margin-left:22px">
-            <li style="margin-bottom:8px"><strong>Add your stylists</strong> — head to <strong style="color:var(--accent)">Settings → Stylists</strong> and add each person on your team. You can mark contractors separately so their invoicing works.</li>
-            <li style="margin-bottom:8px"><strong>Record today's numbers</strong> — click <strong style="color:var(--accent)">Add Entry</strong> in the sidebar, pick today, and fill in revenue, products, clients, and retention. Auto-saves as you go.</li>
-            <li style="margin-bottom:8px"><strong>Check the Dashboard</strong> — your daily entry instantly rolls up into weekly and yearly views.</li>
-            <li><strong>Set staff PINs (optional)</strong> — <strong style="color:var(--accent)">Settings → PINs</strong> lets each stylist have their own PIN so they can sign in and only see what they're meant to see.</li>
-          </ol>
+        <div class="form-section-title">Take a guided tour</div>
+        <div style="font-size:15px;color:var(--text);line-height:1.7;margin-bottom:16px">A short walkthrough highlights each button on the screen and tells you what to tap — about two minutes. Press <strong>Skip</strong> or <strong>Esc</strong> to stop anytime.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="startTour('basics')">The basics</button>
+          <button class="btn btn-ghost" onclick="startTour('owner')">Full setup for owners</button>
         </div>
       </div>
 
+      <!-- STAFF GUIDE -->
       <div class="form-section">
-        <div class="form-section-title">Adding more devices</div>
-        <div style="font-size:15px;line-height:1.7">
-          <p style="margin-bottom:10px">Vellum syncs across every device. To use it on your phone, tablet, or the studio iPad:</p>
-          <ol style="margin-left:22px">
-            <li>Open the same Vellum URL on the other device.</li>
-            <li>On the landing page, click <strong style="color:var(--accent)">Log In</strong>.</li>
-            <li>Enter the same email + password you signed up with.</li>
-            <li>Sign in with your Owner PIN.</li>
+        <div class="form-section-title">For staff — your daily basics</div>
+        <div style="font-size:15px;color:var(--text);line-height:1.8">
+          <p style="margin-bottom:12px">Everything you need, step by step. Don't worry — you can't break anything.</p>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">1. Logging in</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>Open the link your manager gave you.</li>
+            <li>If a sign-in box appears, type the studio <strong>email and password</strong> the owner gave you, then press <strong>Log In</strong>. <span style="color:var(--muted)">(You only do this once on a new phone or computer.)</span></li>
+            <li>A screen with everyone's names appears. <strong>Tap your name.</strong></li>
+            <li>Type your <strong>4-digit PIN</strong>. Never logged in before? The first 4 numbers you type <em>become</em> your PIN — so pick something you'll remember.</li>
           </ol>
-          <p style="margin-top:10px;font-size:14px;color:var(--muted)">You only do this once per device — Vellum remembers you after.</p>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">2. Seeing your numbers</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>Look at the menu on the <strong>left side</strong> of the screen.</li>
+            <li>Tap <strong>Leaderboard</strong> to see how the team is doing and how you're tracking.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">3. Logging out when you're done</div>
+          <ol style="margin-left:22px">
+            <li>Tap the <strong>lock icon</strong> in the top-right corner of the screen.</li>
+            <li>That takes it back to the name screen, ready for the next person.</li>
+          </ol>
+          <p style="margin-top:12px;font-size:14px;color:var(--muted)">Forgot your PIN? Just ask the owner — they can reset it in a few seconds.</p>
+        </div>
+      </div>
+
+      <!-- OWNER GUIDE -->
+      <div class="form-section">
+        <div class="form-section-title">For owners — full setup</div>
+        <div style="font-size:15px;color:var(--text);line-height:1.8">
+          <p style="margin-bottom:12px">Do these in order the first time. After that, only <strong>Step 3</strong> (adding daily numbers) is a regular habit.</p>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">1. Add your team</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>In the left menu, under the <strong>Manage</strong> heading, tap <strong>Stylists</strong>.</li>
+            <li>Type a person's name and press <strong>+ Add</strong>. Repeat for everyone.</li>
+            <li>If someone is a contractor (you pay them by invoice), tick the <strong>contractor</strong> box next to their name.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">2. Give each person a PIN <span style="font-weight:400;color:var(--muted)">(recommended)</span></div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>In the left menu, under <strong>Settings</strong>, tap <strong>Manage PINs</strong>.</li>
+            <li>Set your own <strong>Owner PIN</strong> first — this protects your financial pages.</li>
+            <li>Set a PIN for each stylist, or leave it blank and let them pick their own the first time they log in.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">3. Add your daily numbers <span style="font-weight:400;color:var(--muted)">(the everyday habit)</span></div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>In the left menu under <strong>Manage</strong>, tap <strong>Add Entry</strong>.</li>
+            <li>Pick the date (it starts on today).</li>
+            <li>Fill in the boxes: revenue, retail/products, number of clients, new clients, and so on.</li>
+            <li>There's <strong>no save button</strong> — it saves by itself as you type. The little tick (✓) means it's saved.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">4. See how you're doing</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li><strong>Dashboard</strong> (top of the menu) — your week and year at a glance.</li>
+            <li><strong>Weekly</strong> — a week-by-week breakdown. You can also bulk-import past data from a spreadsheet here.</li>
+            <li><strong>Yearly</strong> — the big-picture trend over the year.</li>
+            <li><strong>Stylist Performance</strong> — see how each person is tracking.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">5. The money pages <span style="font-weight:400;color:var(--muted)">(owner only)</span></div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>Under the <strong>Finance</strong> heading: <strong>Contractor Invoice</strong>, <strong>P&amp;L</strong>, and <strong>Tax &amp; BAS</strong>.</li>
+            <li>Only the Owner can see these — your manager and stylists cannot.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">6. Use it on your phone or the salon iPad</div>
+          <ol style="margin-left:22px">
+            <li>Open the same link on the other device.</li>
+            <li>Tap <strong>Log In</strong> and enter the same studio email + password.</li>
+            <li>Everything you've entered appears automatically — it's all backed up and shared between devices.</li>
+          </ol>
         </div>
       </div>
 
@@ -3700,25 +3756,6 @@ body.manager-view .owner-only { display: none !important; }
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">For staff joining an existing studio</div>
-        <div style="font-size:15px;line-height:1.7">
-          <ol style="margin-left:22px">
-            <li>The owner shares the Vellum URL with you.</li>
-            <li>Open it on your device → click <strong style="color:var(--accent)">Log In</strong> on the landing → enter the studio email + password the owner gave you.</li>
-            <li>On the PIN screen, tap <strong>your name</strong> and enter the PIN the owner set for you (or, if you're first in, whatever 4-digit code you type becomes your PIN).</li>
-          </ol>
-          <p style="margin-top:10px;font-size:14px;color:var(--muted)">Lost your PIN? The owner can reset it from <strong>Settings → PINs</strong>.</p>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title">Switching user or logging out</div>
-        <div style="font-size:15px;line-height:1.7">
-          Bottom of the sidebar there's a <strong>Log Out</strong> button (or <strong>Switch User</strong> for stylists). Tap it to return to the PIN screen.
-        </div>
-      </div>
-
-      <div class="form-section">
         <div class="form-section-title">Preferences — this device</div>
         <div style="font-size:15px;line-height:1.7">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none">
@@ -3728,7 +3765,7 @@ body.manager-view .owner-only { display: none !important; }
         </div>
       </div>
 
-      <div class="form-section" style="border-color:rgba(139,108,79,.3);background:rgba(139,108,79,.04)">
+      <div class="form-section">
         <div style="font-size:15px;line-height:1.7">
           <strong>Need a hand?</strong> Email <a href="mailto:hello@vellum.studio" style="color:var(--accent);text-decoration:none">hello@vellum.studio</a> and we'll get back to you within a day.
         </div>
@@ -3849,8 +3886,18 @@ function avatarInitial(name) { return name.trim().charAt(0).toUpperCase(); }
 // Photo storage — keyed by studio + stylist name
 function getPhotoKey(name) { return studioKey('ejPhoto_' + name.replace(/\s+/g,'_')); }
 function loadStylistPhoto(name) { try { return localStorage.getItem(getPhotoKey(name)) || null; } catch { return null; } }
-function saveStylistPhoto(name, dataUrl) { try { localStorage.setItem(getPhotoKey(name), dataUrl); } catch {} }
-function deleteStylistPhoto(name) { try { localStorage.removeItem(getPhotoKey(name)); } catch {} }
+// Photos aren't in the per-keystroke auto-sync allowlist (they're big), so push
+// them on a short debounce whenever one is added/removed — keeps photo backup
+// automatic without needing a manual "Upload" click.
+function cloudPushPhotosSoon() {
+  try {
+    if (!cloudReady || cloudApplying) return;
+    clearTimeout(_cloudTimers.photos);
+    _cloudTimers.photos = setTimeout(() => { try { cloudPushState(true); } catch (e) {} }, 1500);
+  } catch (e) {}
+}
+function saveStylistPhoto(name, dataUrl) { try { localStorage.setItem(getPhotoKey(name), dataUrl); } catch {} cloudPushPhotosSoon(); }
+function deleteStylistPhoto(name) { try { localStorage.removeItem(getPhotoKey(name)); } catch {} cloudPushPhotosSoon(); }
 
 // Renders avatar — photo if available, otherwise coloured initial
 function avatarHTML(st, idx, size=34, editable=false) {
@@ -4093,7 +4140,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'PIN Management', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'Manage PINs', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -9389,7 +9436,7 @@ function renderPINManagement() {
         <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Resets on any mouse, key, or touch activity. Cloud connection stays — they just re-enter their PIN. Applies across all devices.</div>
       </div>
       <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-        <button class="btn btn-ghost" style="font-size:14px;color:var(--red);border-color:rgba(158,74,58,.35)" onclick="cloudRevokeAll()">🔒 Revoke all device access</button>
+        <button class="btn btn-ghost" style="font-size:14px;color:var(--red);border-color:rgba(158,74,58,.35)" onclick="cloudRevokeAll()">Revoke all device access</button>
         <div style="font-size:13px;color:var(--muted);margin-top:5px;line-height:1.5">Signs every device out of the cloud and rotates the studio password. Use if a device is lost or someone leaves.</div>
       </div>
     </div>`;
@@ -12058,17 +12105,21 @@ function cloudUpdateStatus() {
   if (cloudReady) landingHide(); else landingShow();
   const bar = document.getElementById('cloud-bar');
   if (!bar) return;
-  if (!sbClient) { bar.innerHTML = '<div style="font-size:13px;color:var(--muted2)">☁ Cloud unavailable</div>'; return; }
+  if (!sbClient) { bar.innerHTML = '<div style="font-size:13px;color:var(--muted2)">Cloud unavailable</div>'; return; }
   if (!cloudReady) {
-    bar.innerHTML = '<button class="btn btn-ghost" style="width:100%;font-size:14px" onclick="cloudConnectPrompt()">☁ Connect Cloud</button>';
+    bar.innerHTML = '<button class="btn btn-ghost" style="width:100%;font-size:14px" onclick="cloudConnectPrompt()">Connect to cloud</button>';
     return;
   }
   bar.innerHTML =
-    '<div style="font-size:13px;color:var(--green);margin-bottom:6px">☁ Connected <span id="cloud-stamp" style="color:var(--muted2)"></span></div>' +
-    '<div style="display:flex;gap:6px">' +
-      '<button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="cloudSyncNow()" title="Pull latest from cloud">↻ Sync</button>' +
-      '<button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="cloudUploadNow()" title="Push this device up">⬆ Upload</button>' +
-      '<button class="btn btn-ghost" style="font-size:13px" onclick="cloudSignOut()" title="Disconnect">⏏</button>' +
+    '<div style="display:flex;align-items:flex-start;gap:9px">' +
+      '<span style="width:7px;height:7px;border-radius:50%;background:var(--green);margin-top:6px;flex-shrink:0"></span>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text)">Connected</div>' +
+        '<div style="font-size:12px;color:var(--muted2);line-height:1.5">Backed up &amp; syncing automatically · last sync <span id="cloud-stamp"></span></div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-top:8px;text-align:right">' +
+      '<a href="#" onclick="event.preventDefault();cloudSignOut()" style="font-size:11px;color:var(--muted2);text-decoration:none">Disconnect this device</a>' +
     '</div>';
   cloudStamp();
 }
@@ -12082,6 +12133,132 @@ function cloudToast(msg) {
   const prev = t.textContent;
   t.textContent = msg; t.style.display = 'block';
   setTimeout(() => { t.style.display = 'none'; t.textContent = prev || 'Day saved ✓'; }, 2200);
+}
+
+// ===================== GUIDED TOUR (spotlight walkthrough) =====================
+// Highlights real buttons one at a time with a "click here next" bubble.
+// Steps target live elements by their onclick/ids; any step whose target is
+// hidden (e.g. owner-only pages for a stylist) is skipped automatically.
+const TOUR_BASICS = [
+  { sel: ".nav-item[onclick*=\"'help'\"]", title: "This is your Help page", body: "You're here right now. Whenever you're stuck, tap “Help & Setup” at the top of the menu to come back." },
+  { sel: ".nav-item[onclick*=\"'dashboard'\"]", page: "dashboard", title: "Your home screen", body: "The Dashboard shows how the studio is doing this week and this year, at a glance." },
+  { sel: ".nav-item[onclick*=\"'leaderboard'\"]", page: "leaderboard", title: "Leaderboard", body: "Tap here to see how the team is ranking and how you're tracking. Each stylist sees their own stats." },
+  { sel: ".nav-item[onclick*=\"'clientlog'\"]", page: "clientlog", title: "New Client Tracker", body: "Keep track of new clients and whether they came back for a second visit." },
+  { sel: "#topbar-lock", title: "Logging out", body: "When you're finished, tap the lock icon in the top-right corner to log out and return to the name screen." },
+  { sel: "#cloud-bar", title: "Your work is safe", body: "When this says “Connected”, everything you do is automatically saved to the cloud. You never have to press save." }
+];
+const TOUR_OWNER = [
+  { sel: ".nav-item[onclick*=\"'stylists'\"]", page: "stylists", title: "Step 1. Add your team", body: "Start here. Add everyone on your team. Tick “contractor” for anyone you pay by invoice." },
+  { sel: ".nav-item[onclick*=\"'pinmgmt'\"]", title: "Step 2. Set PINs", body: "Under Settings, open “Manage PINs” to set your Owner PIN and give each stylist their own code." },
+  { sel: ".nav-item[onclick*=\"'entry'\"]", page: "entry", title: "Step 3. Add daily numbers", body: "Each day, come here and fill in revenue, products and clients. It saves itself as you type, with no save button." },
+  { sel: ".nav-item[onclick*=\"'dashboard'\"]", page: "dashboard", title: "Step 4. Watch it add up", body: "Everything you enter rolls up here automatically, this week and this year." },
+  { sel: ".nav-item[onclick*=\"'weekly'\"]", page: "weekly", title: "Weekly view", body: "A week-by-week breakdown. You can also import a spreadsheet of past data from here." },
+  { sel: ".nav-item[onclick*=\"'goals'\"]", page: "goals", title: "Set goals", body: "Set targets for the studio and each stylist, then track progress against them." },
+  { sel: ".sidebar-add-studio", title: "More than one studio?", body: "Add another location here. Each studio keeps its own separate data." },
+  { sel: "#cloud-bar", title: "Backup and devices", body: "“Connected” means your data is safely in the cloud. Log in with the same email on your phone or iPad to see it all there too." }
+];
+let _tourSteps = [], _tourIdx = 0, _tourDir = 1, _tourKeyHandler = null;
+function startTour(which) {
+  _tourSteps = (which === 'owner') ? TOUR_OWNER : TOUR_BASICS;
+  _tourIdx = 0; _tourDir = 1;
+  _tourEnsureEls();
+  document.getElementById('tour-root').style.display = 'block';
+  _tourShow();
+}
+function _tourEnsureEls() {
+  if (document.getElementById('tour-root')) return;
+  const root = document.createElement('div');
+  root.id = 'tour-root';
+  root.style.cssText = 'position:fixed;inset:0;z-index:99999;display:none';
+  root.innerHTML =
+    '<div id="tour-spot" style="position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(20,16,12,.72);transition:all .25s ease;pointer-events:none"></div>' +
+    '<div id="tour-tip" style="position:fixed;max-width:300px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px 18px;box-shadow:0 10px 30px rgba(44,33,24,.16);transition:left .2s ease,top .2s ease">' +
+      '<div id="tour-title" style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px"></div>' +
+      '<div id="tour-body" style="font-size:14px;line-height:1.6;color:var(--muted);margin-bottom:14px"></div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span id="tour-count" style="font-size:12px;color:var(--muted2);flex:1"></span>' +
+        '<button onclick="endTour()" style="background:none;border:none;font-size:13px;color:var(--muted2);cursor:pointer">Skip</button>' +
+        '<button id="tour-back" onclick="tourMove(-1)" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;font-size:13px;color:var(--text);cursor:pointer">Back</button>' +
+        '<button id="tour-next" onclick="tourMove(1)" style="background:var(--accent);border:none;border-radius:7px;padding:6px 14px;font-size:13px;color:#fff;cursor:pointer">Next</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(root);
+  window.addEventListener('resize', () => { if (root.style.display !== 'none') _tourPosition(); });
+  _tourKeyHandler = function (e) { if (root.style.display !== 'none' && e.key === 'Escape') endTour(); };
+  document.addEventListener('keydown', _tourKeyHandler);
+}
+function _tourTarget(step) {
+  const els = document.querySelectorAll(step.sel);
+  for (let i = 0; i < els.length; i++) { if (els[i] && els[i].offsetParent !== null) return els[i]; }
+  return null;
+}
+function _tourShow() {
+  // Skip steps whose target isn't visible (e.g. owner-only items for staff)
+  let guard = 0;
+  while (_tourIdx >= 0 && _tourIdx < _tourSteps.length) {
+    const step = _tourSteps[_tourIdx];
+    if (step.page) { try { showPage(step.page); } catch (e) {} }
+    if (_tourTarget(step)) break;
+    _tourIdx += _tourDir;
+    if (++guard > 50) break;
+  }
+  if (_tourIdx < 0 || _tourIdx >= _tourSteps.length) { endTour(); return; }
+  const step = _tourSteps[_tourIdx];
+  document.getElementById('tour-title').textContent = step.title;
+  document.getElementById('tour-body').textContent = step.body;
+  document.getElementById('tour-count').textContent = (_tourIdx + 1) + ' of ' + _tourSteps.length;
+  document.getElementById('tour-back').style.visibility = (_tourIdx === 0) ? 'hidden' : 'visible';
+  document.getElementById('tour-next').textContent = (_tourIdx === _tourSteps.length - 1) ? 'Done' : 'Next';
+  // Position now and again shortly after, so a scroll/page-switch that shifts
+  // the target's position can't leave the spotlight stranded off-screen.
+  setTimeout(_tourPosition, 60);
+  setTimeout(_tourPosition, 320);
+}
+function _tourPosition() {
+  const step = _tourSteps[_tourIdx]; if (!step) return;
+  const el = _tourTarget(step); if (!el) return;
+  try { el.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (e) {}
+  const r = el.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight, pad = 6, gap = 14, margin = 8;
+  // Spotlight: clamp to the viewport so the highlight ring is ALWAYS visible,
+  // even for the bottom bar that can't be scrolled up to centre.
+  const sL = Math.max(2, r.left - pad), sT = Math.max(2, r.top - pad);
+  const sR = Math.min(vw - 2, r.right + pad), sB = Math.min(vh - 2, r.bottom + pad);
+  const spot = document.getElementById('tour-spot');
+  spot.style.left = sL + 'px';
+  spot.style.top = sT + 'px';
+  spot.style.width = Math.max(0, sR - sL) + 'px';
+  spot.style.height = Math.max(0, sB - sT) + 'px';
+  // Bubble: pick the first side with enough room (right → left → below → above),
+  // centre it on the target along the free axis, then clamp fully on-screen so it
+  // can never sit half off the edge or detach from the highlight.
+  const tip = document.getElementById('tour-tip');
+  const tw = tip.offsetWidth || 300, th = tip.offsetHeight || 170;
+  let left, top;
+  if (vw - r.right >= tw + gap + margin) {          // right
+    left = r.right + gap; top = r.top + r.height / 2 - th / 2;
+  } else if (r.left >= tw + gap + margin) {          // left
+    left = r.left - tw - gap; top = r.top + r.height / 2 - th / 2;
+  } else if (vh - r.bottom >= th + gap + margin) {    // below
+    left = r.left + r.width / 2 - tw / 2; top = r.bottom + gap;
+  } else {                                            // above
+    left = r.left + r.width / 2 - tw / 2; top = r.top - th - gap;
+  }
+  left = Math.min(Math.max(margin, left), vw - tw - margin);
+  top = Math.min(Math.max(margin, top), vh - th - margin);
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function tourMove(dir) {
+  _tourDir = dir;
+  _tourIdx += dir;
+  if (_tourIdx >= _tourSteps.length) { endTour(); return; }
+  if (_tourIdx < 0) { _tourIdx = 0; _tourDir = 1; }
+  _tourShow();
+}
+function endTour() {
+  const root = document.getElementById('tour-root');
+  if (root) root.style.display = 'none';
 }
 
 // ===================== INIT =====================
