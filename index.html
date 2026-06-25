@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vellum</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23faf7f3' stroke='%238b6c4f' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%238b6c4f' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Schibsted+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Lumen</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #f5f0ea;
-  --surface: #faf7f3;
-  --surface2: #f0ebe3;
-  --surface3: #e8e1d8;
-  --border: rgba(160,140,120,0.18);
-  --border2: rgba(140,118,95,0.28);
-  --text: #2c2118;
-  --muted: #8a7868;
-  --muted2: #b0a090;
-  --accent: #8b6c4f;
-  --accent2: #a07c5a;
-  --accent-light: rgba(139,108,79,0.10);
-  --green: #5a7f5e;
+  --bg: #e2dac9;
+  --surface: #ffffff;
+  --surface2: #f4efe6;
+  --surface3: #ebe4d6;
+  --border: rgba(0,0,0,0.12);
+  --border2: rgba(0,0,0,0.22);
+  --text: #000000;
+  --muted: #5f5a52;
+  --muted2: #8c8579;
+  --accent: #000000;
+  --accent2: #2b2b2b;
+  --accent-light: rgba(0,0,0,0.06);
+  --green: #4f7457;
   --red: #9e4a3a;
-  --blue: #4a6880;
+  --blue: #41607a;
   --purple: #6e5c7e;
-  --font: 'Schibsted Grotesk', sans-serif;
-  --serif: 'EB Garamond', serif;
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --serif: 'ALTA', 'EB Garamond', Georgia, serif;
   --mono: 'DM Mono', monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -153,7 +153,7 @@ body {
 }
 .btn-primary {
   background: var(--accent);
-  color: #faf7f3;
+  color: #ffffff;
   letter-spacing: 0.04em;
 }
 .btn-primary:hover { background: var(--accent2); }
@@ -279,7 +279,7 @@ body {
   font-weight: 500;
 }
 .badge-green { background: rgba(90,127,94,0.12); color: var(--green); }
-.badge-amber { background: rgba(139,108,79,0.12); color: var(--accent); }
+.badge-amber { background: rgba(0,0,0,0.12); color: var(--accent); }
 .badge-red { background: rgba(158,74,58,0.12); color: var(--red); }
 
 /* WEEKLY TABLE */
@@ -401,7 +401,7 @@ body {
   bottom: 24px;
   right: 24px;
   background: var(--green);
-  color: #faf7f3;
+  color: #ffffff;
   padding: 12px 20px;
   border-radius: 8px;
   font-size:15px;
@@ -787,7 +787,7 @@ body::before {
   color: var(--muted2); user-select: none; transition: all .15s; white-space: nowrap;
 }
 .lb-row-toggle input { display: none; }
-.lb-row-toggle.on { background: rgba(139,108,79,0.12); border-color: rgba(139,108,79,0.4); color: var(--accent); }
+.lb-row-toggle.on { background: rgba(0,0,0,0.12); border-color: rgba(0,0,0,0.4); color: var(--accent); }
 .icon-btn {
   width: 30px; height: 30px;
   border-radius: 6px;
@@ -1473,7 +1473,7 @@ tr:hover .row-actions { opacity: 1; }
 }
 .breakeven-status.over { background: rgba(90,127,94,0.12); color: var(--green); }
 .breakeven-status.under { background: rgba(158,74,58,0.12); color: var(--red); }
-.breakeven-status.close { background: rgba(139,108,79,0.12); color: var(--accent); }
+.breakeven-status.close { background: rgba(0,0,0,0.12); color: var(--accent); }
 .breakeven-track {
   height: 12px;
   background: var(--surface3);
@@ -2327,6 +2327,11 @@ body.manager-view .owner-only { display: none !important; }
   .podium-third .podium-avatar,
   .podium-sparkle { animation: none !important; opacity: 1; }
 }
+/* No italics anywhere (reads as cleaner, less generic) */
+*{font-style:normal!important}
+/* Headings: upright and bold (applies to ALTA and its fallback) */
+.logo-name,.topbar-title,.section-title,.chart-title,.week-title,.form-section-title,.month-name,.ts-staff-name,.stylist-name,.ts-summary-name,.pin-lock-logo{font-weight:700!important}
+[style*="--serif"][style*="italic"]{font-weight:700!important}
 </style>
 </head>
 <body>
@@ -2337,12 +2342,12 @@ body.manager-view .owner-only { display: none !important; }
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
       <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
         <circle cx="28" cy="28" r="25" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
-        <text x="28" y="40" fill="var(--accent)" font-family="'EB Garamond', Georgia, serif" font-style="italic" font-weight="500" font-size="30" text-anchor="middle">V</text>
+        <text x="28" y="40" fill="var(--accent)" font-family="'EB Garamond', Georgia, serif" font-style="italic" font-weight="500" font-size="30" text-anchor="middle">L</text>
       </svg>
-      <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">Vellum</div>
+      <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">Lumen</div>
     </div>
     <h1 style="font-family:var(--serif);font-style:italic;font-size:48px;color:var(--text);margin:0 0 20px;line-height:1.15;font-weight:400">Know your studio's numbers,<br>without spreadsheets.</h1>
-    <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 44px;line-height:1.6">A daily performance tracker built for brow, lash, and beauty studios. Track revenue, stylists, and clients in one quiet, beautiful dashboard.</p>
+    <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 44px;line-height:1.6">Clarity for you and your business. A daily performance tracker for brow, lash and beauty studios, with revenue, stylists and clients in one quiet, beautiful dashboard.</p>
     <div style="display:flex;gap:14px;justify-content:center;margin-bottom:88px;flex-wrap:wrap">
       <button class="btn btn-primary" style="padding:14px 32px;font-size:16px" onclick="landingOpenAuth('signup')">Get Started Free</button>
       <button class="btn btn-ghost" style="padding:14px 32px;font-size:16px" onclick="landingOpenAuth('signin')">Log In</button>
@@ -2361,7 +2366,7 @@ body.manager-view .owner-only { display: none !important; }
         <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">Your data syncs across every device the moment you save. Work from the front desk, the office, or your phone — and never lose a number.</p>
       </div>
     </div>
-    <div style="background:rgba(139,108,79,.06);border:1px solid rgba(139,108,79,.18);border-radius:12px;padding:22px 26px;margin-bottom:60px;text-align:left">
+    <div style="background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:22px 26px;margin-bottom:60px;text-align:left">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div style="font-family:var(--serif);font-style:italic;font-size:18px;color:var(--accent)">Booking integrations</div>
         <div style="background:var(--accent-light);color:var(--accent);font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;text-transform:uppercase">Coming soon</div>
@@ -2382,7 +2387,7 @@ body.manager-view .owner-only { display: none !important; }
 <div id="pin-lock-screen">
   <div class="pin-lock-card">
     <div class="pin-lock-logo" id="pin-lock-logo">Elyshia Jones</div>
-    <div class="pin-lock-sub">Vellum</div>
+    <div class="pin-lock-sub">Lumen</div>
 
     <!-- Step 1: Who are you? -->
     <div id="pin-step-who">
@@ -2424,7 +2429,7 @@ body.manager-view .owner-only { display: none !important; }
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-name" id="sidebar-logo-name">Elyshia Jones</div>
-    <div class="logo-sub">Vellum</div>
+    <div class="logo-sub">Lumen</div>
   </div>
   <nav class="sidebar-nav">
     <button class="nav-item staff-allowed" onclick="showPage('help')">
@@ -3451,7 +3456,7 @@ body.manager-view .owner-only { display: none !important; }
         <div class="kpi-value" id="tb-payg" style="color:var(--red)">$0</div>
         <div class="kpi-sub">From staff wages</div>
       </div>
-      <div class="kpi-card" style="border-color:rgba(139,108,79,0.4);background:rgba(139,108,79,0.05)">
+      <div class="kpi-card" style="border-color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05)">
         <div class="kpi-label" style="color:var(--accent)">Company Tax</div>
         <div class="kpi-value" id="tb-tax" style="color:var(--accent)">$0</div>
         <div class="kpi-sub" id="tb-tax-sub">25% of profit</div>
@@ -3648,8 +3653,8 @@ body.manager-view .owner-only { display: none !important; }
   <div class="page" id="page-help">
     <div style="max-width:760px">
       <div class="form-section" style="text-align:center;border:none;background:transparent;padding-bottom:0">
-        <div style="font-family:var(--serif);font-style:italic;font-size:32px;color:var(--accent);margin-bottom:8px">Welcome to Vellum</div>
-        <div style="font-size:15px;color:var(--muted);line-height:1.7;max-width:560px;margin:0 auto">Your studio's daily journal. Track revenue, stylists, clients, and growth — quietly and beautifully.</div>
+        <div style="font-family:var(--serif);font-style:italic;font-size:32px;color:var(--accent);margin-bottom:8px">Welcome to Lumen</div>
+        <div style="font-size:15px;color:var(--muted);line-height:1.7;max-width:560px;margin:0 auto">Clarity for you and your business. Track revenue, stylists, clients and growth, quietly and beautifully.</div>
       </div>
 
       <div id="billing-section"></div>
@@ -3739,7 +3744,44 @@ body.manager-view .owner-only { display: none !important; }
           <ol style="margin-left:22px">
             <li>Open the same link on the other device.</li>
             <li>Tap <strong>Log In</strong> and enter the same studio email + password.</li>
-            <li>Everything you've entered appears automatically — it's all backed up and shared between devices.</li>
+            <li>Everything you've entered appears automatically, all backed up and shared between devices.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- TIMESHEETS GUIDE -->
+      <div class="form-section">
+        <div class="form-section-title">Doing timesheets</div>
+        <div style="font-size:15px;color:var(--text);line-height:1.8">
+          <p style="margin-bottom:12px">Track staff hours each week and export them for payroll. Owners and managers only.</p>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">1. Open timesheets</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>In the left menu, under <strong>Staff</strong>, tap <strong>Timesheets</strong>.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">2. Add anyone who is not a stylist</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>Your stylists are already listed. For anyone else (front desk, cleaner, casual staff), tap the <strong>Timesheet staff</strong> bar at the top to open it, type their name, and press <strong>+ Add</strong>.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">3. Pick the week</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>Use <strong>Prev</strong> and <strong>Next</strong> to move between weeks. Each pay week runs <strong>Tuesday to Monday</strong>.</li>
+            <li>Tip: tap <strong>Copy Last Week</strong> to bring across last week's times, then just change whatever is different.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">4. Enter the hours</div>
+          <ol style="margin-left:22px;margin-bottom:8px">
+            <li>For each person, on each day they worked, type a <strong>Start</strong> time and an <strong>End</strong> time (for example 9:00 and 17:00), plus the <strong>Break</strong> in minutes.</li>
+            <li>The hours are worked out for you automatically. There is no save button, it saves as you type.</li>
+          </ol>
+
+          <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">5. Send it to payroll</div>
+          <ol style="margin-left:22px">
+            <li><strong>Export CSV</strong> gives a plain spreadsheet of the week.</li>
+            <li><strong>Xero Payroll CSV</strong> gives a file ready to import into Xero.</li>
+            <li><strong>Print</strong> makes a clean printout to keep or hand over.</li>
           </ol>
         </div>
       </div>
@@ -3767,7 +3809,7 @@ body.manager-view .owner-only { display: none !important; }
 
       <div class="form-section">
         <div style="font-size:15px;line-height:1.7">
-          <strong>Need a hand?</strong> Email <a href="mailto:hello@vellum.studio" style="color:var(--accent);text-decoration:none">hello@vellum.studio</a> and we'll get back to you within a day.
+          <strong>Need a hand?</strong> Email <a href="mailto:hello@lumen.studio" style="color:var(--accent);text-decoration:none">hello@lumen.studio</a> and we'll get back to you within a day.
         </div>
       </div>
 
@@ -3826,7 +3868,7 @@ body.manager-view .owner-only { display: none !important; }
     <!-- Staff management panel -->
     <div class="ts-manage-panel">
       <div class="ts-manage-header" onclick="toggleTSManage()">
-        <div class="ts-manage-title">⚙ Timesheet Staff — click to manage</div>
+        <div class="ts-manage-title">Timesheet staff (click to manage)</div>
         <svg fill="none" viewBox="0 0 16 16" width="14" height="14" id="ts-manage-chevron"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
       <div class="ts-manage-body" id="ts-manage-body">
@@ -6458,7 +6500,7 @@ function confirmDelete(name, idx) {
       : 'This stylist has no logged data. They will be removed immediately.'}</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('delete-overlay').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#faf7f3" onclick="deleteStylist('${name}', ${idx})">Remove</button>
+      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteStylist('${name}', ${idx})">Remove</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -7657,7 +7699,7 @@ function deleteEntryConfirm(date) {
     <p>This will permanently remove the data for <strong>${fmt}</strong>. This can't be undone.</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('delete-entry-overlay').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#faf7f3" onclick="deleteEntry('${date}')">Delete</button>
+      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteEntry('${date}')">Delete</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -8208,7 +8250,7 @@ tr:hover td{background:#fafafa}
 <h1>${title}</h1><div class="sub">${subtitle} · Generated ${now}</div>
 <table><thead><tr>${tableHeaders.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHTML}</tbody></table>
 ${sumHTML ? `<table class="sum-table"><tbody>${sumHTML}</tbody></table>` : ''}
-<div class="footer">Vellum · ${(STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Studio'} · ${now}</div></body></html>`);
+<div class="footer">Lumen · ${(STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Studio'} · ${now}</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(), 400);
 }
@@ -8783,7 +8825,7 @@ function confirmDeleteStudio(id) {
     <p style="color:var(--muted);font-size:15px">The studio will be removed from the list. Its data stays in local storage but won't be accessible unless you add it back with the same name.</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('studio-delete-modal').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#faf7f3" onclick="deleteStudio('${id}')">Delete Studio</button>
+      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteStudio('${id}')">Delete Studio</button>
     </div></div>`;
   document.body.appendChild(overlay);
 }
@@ -8845,7 +8887,7 @@ function deleteEntryConfirm(date) {
   overlay.innerHTML=`<div class="studio-modal"><h3>Delete entry?</h3><p>This will permanently remove the data for <strong>${fmt}</strong>. This can't be undone.</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('delete-entry-overlay').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#faf7f3" onclick="deleteEntry('${date}')">Delete</button>
+      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteEntry('${date}')">Delete</button>
     </div></div>`;
   document.body.appendChild(overlay);
 }
@@ -8919,7 +8961,7 @@ function saveContractorName(name) {
 // ===================== ROSTER PLANNER =====================
 const ROSTER_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat'];
 const ROSTER_ROOMS = ['Room 1','Room 2','Room 3','Room 4'];
-const ROSTER_COLORS = ['#8b6c4f','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a'];
+const ROSTER_COLORS = ['#000000','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a'];
 
 let rosterStaff = [];
 let rosterA = {};
@@ -9123,7 +9165,7 @@ function rosterToggleDiff() {
   if (btn) {
     btn.style.borderColor = rosterShowDiff ? 'var(--accent)' : 'var(--border2)';
     btn.style.color = rosterShowDiff ? 'var(--accent)' : 'var(--text)';
-    btn.style.background = rosterShowDiff ? 'rgba(139,108,79,0.08)' : 'var(--surface)';
+    btn.style.background = rosterShowDiff ? 'rgba(0,0,0,0.08)' : 'var(--surface)';
   }
   rosterRenderAll();
 }
@@ -9174,7 +9216,7 @@ function clearManagerPIN() {
 }
 
 function avatarColor(i) {
-  const COLORS = ['#8b6c4f','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a','#378add','#ba7517'];
+  const COLORS = ['#000000','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a','#378add','#ba7517'];
   return COLORS[i % COLORS.length];
 }
 
@@ -9195,7 +9237,7 @@ function pinRenderWhoGrid() {
     .filter(s => s && s.name);
 
   const people = [
-    { id: 'admin', label: 'Owner', color: '#2c2118' },
+    { id: 'admin', label: 'Owner', color: '#000000' },
     { id: 'manager', label: 'Manager', color: '#6e5c7e' },
     ...stylists.map((s, i) => ({ id: s.name, label: s.name, color: avatarColor(i) }))
   ];
@@ -9662,7 +9704,7 @@ function launchLeaderboardConfetti() {
   layer.className = 'lb-confetti-layer';
   document.body.appendChild(layer);
 
-  const colors = ['#c9a96e','#8b6c4f','#5a7f5e','#4a6880','#9e4a3a','#e8a06b','#6e5c7e','#f3e3bf'];
+  const colors = ['#c9a96e','#000000','#5a7f5e','#4a6880','#9e4a3a','#e8a06b','#6e5c7e','#f3e3bf'];
   const origins = [0.18, 0.5, 0.82]; // three crackers across the podium
 
   origins.forEach((ox, oi) => {
@@ -9778,7 +9820,7 @@ function renderLeaderboard(activeStaff) {
     return primary + ' · ' + secondary;
   };
 
-  const COLORS = ['#8b6c4f','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a','#378add','#ba7517'];
+  const COLORS = ['#000000','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a','#378add','#ba7517'];
 
   // Podium (top 3)
   const top3 = allStats.slice(0, 3);
@@ -9821,14 +9863,14 @@ function renderLeaderboard(activeStaff) {
     const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const isMe = s.name === activeStaff;
     const medalEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
-    return '<tr style="' + (isMe ? 'background:rgba(139,108,79,.07);' : '') + '">' +
+    return '<tr style="' + (isMe ? 'background:rgba(0,0,0,.07);' : '') + '">' +
       '<td style="padding:12px 14px;font-size:15px;font-weight:600;color:var(--muted)">' + (i+1) + '</td>' +
       '<td style="padding:12px 6px"><div style="display:flex;align-items:center;gap:9px">' +
         '<div style="width:30px;height:30px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">' + initials + '</div>' +
         '<span style="font-size:15px;font-weight:500">' + s.name + (isMe ? ' <span style="font-size:12px;color:var(--accent)">(you)</span>' : '') + ' ' + medalEmoji + '</span>' +
       '</div></td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:15px">' +
-        '<span style="background:' + (s.rebookPct >= 70 ? 'rgba(90,127,94,.12)' : s.rebookPct >= 55 ? 'rgba(139,108,79,.1)' : 'rgba(158,74,58,.1)') + ';color:' + (s.rebookPct >= 70 ? 'var(--green)' : s.rebookPct >= 55 ? 'var(--accent)' : 'var(--red)') + ';padding:3px 10px;border-radius:20px;font-size:14px;font-weight:600">' + s.rebookPct + '%</span>' +
+        '<span style="background:' + (s.rebookPct >= 70 ? 'rgba(90,127,94,.12)' : s.rebookPct >= 55 ? 'rgba(0,0,0,.1)' : 'rgba(158,74,58,.1)') + ';color:' + (s.rebookPct >= 70 ? 'var(--green)' : s.rebookPct >= 55 ? 'var(--accent)' : 'var(--red)') + ';padding:3px 10px;border-radius:20px;font-size:14px;font-weight:600">' + s.rebookPct + '%</span>' +
       '</td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:15px">' + s.clients + '</td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:15px">' + s.shifts + '</td>' +
@@ -10362,7 +10404,7 @@ function renderPLTaxBASCard() {
         <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--red)">PAYG</div>
         <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red);margin-top:3px">${TB_FMT(vals.payg)}</div>
       </div>
-      <div style="background:rgba(139,108,79,0.06);border:1px solid rgba(139,108,79,0.25);border-radius:8px;padding:10px 12px">
+      <div style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.25);border-radius:8px;padding:10px 12px">
         <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)">Co. Tax</div>
         <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--accent);margin-top:3px">${TB_FMT(calc.taxWithBuffer)}</div>
       </div>
@@ -10827,7 +10869,7 @@ function renderLapsed() {
         <div style="background:var(--surface);border:1px solid ${c.isCritical ? 'rgba(158,74,58,0.5)' : 'var(--border)'};border-left:3px solid ${c.isCritical ? 'var(--red)' : 'var(--accent)'};border-radius:10px;padding:14px 16px">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
             <div style="font-size:16px;font-weight:600">${c.name}</div>
-            <span style="font-size:12px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:10px;background:${c.isCritical ? 'rgba(158,74,58,0.15)' : 'rgba(139,108,79,0.12)'};color:${c.isCritical ? 'var(--red)' : 'var(--accent)'}">${c.service}</span>
+            <span style="font-size:12px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:10px;background:${c.isCritical ? 'rgba(158,74,58,0.15)' : 'rgba(0,0,0,0.12)'};color:${c.isCritical ? 'var(--red)' : 'var(--accent)'}">${c.service}</span>
           </div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:8px">${c.stylist}</div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);font-size:14px">
@@ -11049,7 +11091,7 @@ function renderStock() {
         <div class="kpi-value">$${Math.round(kpis.totalRetail).toLocaleString('en-AU')}</div>
         <div class="kpi-sub">Potential sales</div>
       </div>
-      <div class="kpi-card" style="${kpis.lowCount > 0 ? 'border-color:rgba(139,108,79,0.5);background:rgba(139,108,79,0.06)' : ''}">
+      <div class="kpi-card" style="${kpis.lowCount > 0 ? 'border-color:rgba(0,0,0,0.5);background:rgba(0,0,0,0.06)' : ''}">
         <div class="kpi-label" style="${kpis.lowCount > 0 ? 'color:var(--accent)' : ''}">Low Stock</div>
         <div class="kpi-value" style="${kpis.lowCount > 0 ? 'color:var(--accent)' : ''}">${kpis.lowCount}</div>
         <div class="kpi-sub">Reorder soon</div>
@@ -11531,7 +11573,7 @@ function cloudConnectPrompt() {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px';
   ov.innerHTML =
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 28px;width:380px;max-width:95vw">' +
-      '<div style="font-family:var(--serif);font-size:24px;font-style:italic;color:var(--accent);margin-bottom:14px">Vellum</div>' +
+      '<div style="font-family:var(--serif);font-size:24px;font-style:italic;color:var(--accent);margin-bottom:14px">Lumen</div>' +
       '<div style="display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:18px">' +
         '<button id="cloud-tab-signin" onclick="cloudSetMode(\'signin\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:var(--surface);color:var(--text)">Log In</button>' +
         '<button id="cloud-tab-signup" onclick="cloudSetMode(\'signup\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:transparent;color:var(--muted)">Sign Up</button>' +
@@ -11728,7 +11770,7 @@ function cloudFirstRunWizard(studioName) {
 }
 // ── Subscription / billing (Stripe) ──
 let userSubscription = null;
-const VELLUM_TIERS = [
+const LUMEN_TIERS = [
   {
     id: 'solo', name: 'Solo', tagline: 'For solo brow & lash artists',
     monthly: 19, annual: 190,
@@ -11807,7 +11849,7 @@ async function openCustomerPortal() {
 }
 function pricingTilesHTML(highlightTier) {
   return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">' +
-    VELLUM_TIERS.map(t => {
+    LUMEN_TIERS.map(t => {
       const isCurrent = highlightTier === t.id;
       const ring = (t.recommended || isCurrent) ? 'border:2px solid var(--accent)' : 'border:1px solid var(--border2)';
       return '<div style="background:var(--surface2);' + ring + ';border-radius:14px;padding:22px;position:relative">' +
@@ -11855,9 +11897,9 @@ function maybeShowPaywall() {
   ov.innerHTML =
     '<div style="max-width:880px;margin:0 auto;text-align:center">' +
       '<div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:8px">Your trial has ended</div>' +
-      '<div style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.6">Pick a plan to keep your studio data flowing. Your data is safe — nothing is lost, you just need an active subscription to keep using Vellum.</div>' +
+      '<div style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.6">Pick a plan to keep your studio data flowing. Your data is safe — nothing is lost, you just need an active subscription to keep using Lumen.</div>' +
       pricingTilesHTML(currentTier()) +
-      '<div style="margin-top:24px;font-size:13px;color:var(--muted2)">Already paid? <a href="#" onclick="event.preventDefault();fetchSubscription();" style="color:var(--accent);text-decoration:none">Refresh</a> · Need help? <a href="mailto:hello@vellum.studio" style="color:var(--accent);text-decoration:none">hello@vellum.studio</a></div>' +
+      '<div style="margin-top:24px;font-size:13px;color:var(--muted2)">Already paid? <a href="#" onclick="event.preventDefault();fetchSubscription();" style="color:var(--accent);text-decoration:none">Refresh</a> · Need help? <a href="mailto:hello@lumen.studio" style="color:var(--accent);text-decoration:none">hello@lumen.studio</a></div>' +
     '</div>';
   document.body.appendChild(ov);
 }
@@ -11877,7 +11919,7 @@ function updateBillingBadge() {
     const d = daysLeftInTrial();
     badge.innerHTML = '<span style="color:var(--accent)">Trial</span> · ' + d + ' day' + (d === 1 ? '' : 's') + ' left';
   } else if (isSubscribed()) {
-    const t = VELLUM_TIERS.find(x => x.id === currentTier()) || { name: 'Studio' };
+    const t = LUMEN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio' };
     badge.innerHTML = '<span style="color:var(--green)">' + t.name + '</span> · active';
   } else if (userSubscription.status === 'canceled') {
     badge.innerHTML = '<span style="color:var(--red)">Subscription ended</span>';
@@ -11889,7 +11931,7 @@ function renderBillingSection() {
   const el = document.getElementById('billing-section');
   if (!el) return;
   if (!userSubscription) { el.innerHTML = ''; return; }
-  const tier = VELLUM_TIERS.find(x => x.id === currentTier()) || { name: 'Studio', monthly: 39 };
+  const tier = LUMEN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio', monthly: 39 };
   let statusLine = '';
   if (isTrialing()) {
     statusLine = '<div style="color:var(--accent);font-weight:500">Trial — ' + daysLeftInTrial() + ' day' + (daysLeftInTrial() === 1 ? '' : 's') + ' left</div>';
@@ -11910,14 +11952,14 @@ function renderBillingSection() {
     actions = '<button class="btn btn-ghost" onclick="openCustomerPortal()" style="margin-right:8px">Manage subscription</button>' +
               '<button class="btn btn-ghost" onclick="showPricingModal(\'Switch your plan — change takes effect immediately, with proration.\')">Switch plan</button>';
   } else {
-    actions = '<button class="btn btn-primary" onclick="showPricingModal(\'Pick a plan to keep using Vellum.\')">Choose a plan</button>';
+    actions = '<button class="btn btn-primary" onclick="showPricingModal(\'Pick a plan to keep using Lumen.\')">Choose a plan</button>';
   }
   el.innerHTML =
     '<div class="form-section">' +
       '<div class="form-section-title">Your subscription</div>' +
       '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px">' +
         '<div>' +
-          '<div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent)">Vellum ' + tier.name + '</div>' +
+          '<div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent)">Lumen ' + tier.name + '</div>' +
           statusLine +
         '</div>' +
         '<div>' + actions + '</div>' +
@@ -11928,7 +11970,7 @@ function handleStripeReturn() {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscribed') === '1') {
-      cloudToast('Subscription active — welcome to Vellum ✓');
+      cloudToast('Subscription active — welcome to Lumen ✓');
       setTimeout(fetchSubscription, 1500);
       setTimeout(fetchSubscription, 5000);
       const url = window.location.pathname + window.location.hash;
@@ -11946,30 +11988,30 @@ const LEGAL_DOCS = {
     title: 'Terms of Service',
     updated: '15 June 2026',
     body:
-      '<p style="margin:0 0 14px"><strong>Important:</strong> Vellum is a software service for tracking studio performance. It is not a tax, accounting, legal, or financial advice tool. Decisions you make based on data in Vellum are your own responsibility.</p>' +
-      '<p style="margin:0 0 14px">Welcome to Vellum (vellum.studio, operated by [Business Name], ABN [TBA], "we", "us"). By creating an account, accessing, or using Vellum you ("you", "Customer") agree to these Terms of Service.</p>' +
+      '<p style="margin:0 0 14px"><strong>Important:</strong> Lumen is a software service for tracking studio performance. It is not a tax, accounting, legal, or financial advice tool. Decisions you make based on data in Lumen are your own responsibility.</p>' +
+      '<p style="margin:0 0 14px">Welcome to Lumen (lumen.studio, operated by [Business Name], ABN [TBA], "we", "us"). By creating an account, accessing, or using Lumen you ("you", "Customer") agree to these Terms of Service.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">1. The service</h3>' +
-      '<p style="margin:0 0 14px">Vellum is a cloud-based studio performance tracker accessible via web browser. We may add, modify, or remove features at any time. Beta features may behave unexpectedly.</p>' +
+      '<p style="margin:0 0 14px">Lumen is a cloud-based studio performance tracker accessible via web browser. We may add, modify, or remove features at any time. Beta features may behave unexpectedly.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">2. Your account</h3>' +
       '<p style="margin:0 0 14px">You are responsible for keeping your login credentials and PINs secure. You must not share your account with anyone outside your studio team. You are responsible for everything that happens under your account.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">3. Your data</h3>' +
-      '<p style="margin:0 0 14px">You own all data you enter into Vellum (revenue figures, stylist names, client information, business details). We process this data only to provide the service to you. You grant us a non-exclusive license to store, process, and display your data for the purpose of running Vellum.</p>' +
+      '<p style="margin:0 0 14px">You own all data you enter into Lumen (revenue figures, stylist names, client information, business details). We process this data only to provide the service to you. You grant us a non-exclusive license to store, process, and display your data for the purpose of running Lumen.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">4. Subscription &amp; billing</h3>' +
-      '<p style="margin:0 0 14px">Vellum is provided on a subscription basis. Pricing is shown at signup. We bill monthly or annually in advance. You can cancel at any time; cancellations take effect at the end of the current billing period. We do not refund partial periods.</p>' +
+      '<p style="margin:0 0 14px">Lumen is provided on a subscription basis. Pricing is shown at signup. We bill monthly or annually in advance. You can cancel at any time; cancellations take effect at the end of the current billing period. We do not refund partial periods.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">5. Free trial</h3>' +
       '<p style="margin:0 0 14px">New accounts may receive a free trial. We may end the trial early, change its terms, or limit functionality. If you do not subscribe by the end of the trial, your account may be suspended.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">6. Acceptable use</h3>' +
-      '<p style="margin:0 0 14px">You agree not to: (a) reverse engineer, copy, or resell Vellum; (b) use Vellum for unlawful purposes; (c) attempt to access other customers\' data; (d) overload our infrastructure; (e) upload malicious code.</p>' +
+      '<p style="margin:0 0 14px">You agree not to: (a) reverse engineer, copy, or resell Lumen; (b) use Lumen for unlawful purposes; (c) attempt to access other customers\' data; (d) overload our infrastructure; (e) upload malicious code.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">7. Service availability</h3>' +
       '<p style="margin:0 0 14px">We aim for high availability but do not guarantee uninterrupted service. We may perform maintenance from time to time. We are not liable for downtime caused by your internet, browser, or our infrastructure providers.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">8. Data export &amp; deletion</h3>' +
-      '<p style="margin:0 0 14px">You can export your data at any time from within Vellum. If you cancel, your data is retained for 60 days then permanently deleted. You can request immediate deletion by emailing us.</p>' +
+      '<p style="margin:0 0 14px">You can export your data at any time from within Lumen. If you cancel, your data is retained for 60 days then permanently deleted. You can request immediate deletion by emailing us.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">9. Termination</h3>' +
-      '<p style="margin:0 0 14px">You can cancel any time. We can suspend or terminate accounts that breach these terms, with notice where reasonable. On termination, your right to use Vellum ends.</p>' +
+      '<p style="margin:0 0 14px">You can cancel any time. We can suspend or terminate accounts that breach these terms, with notice where reasonable. On termination, your right to use Lumen ends.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">10. Disclaimer &amp; liability</h3>' +
-      '<p style="margin:0 0 14px">Nothing in these terms excludes consumer guarantees you may have under the Australian Consumer Law. Subject to those rights, Vellum is provided "as is" and we do not warrant it will be error-free or fit for any particular purpose. To the maximum extent permitted by law, our liability is limited to re-supplying the service or refunding fees paid in the last 3 months.</p>' +
+      '<p style="margin:0 0 14px">Nothing in these terms excludes consumer guarantees you may have under the Australian Consumer Law. Subject to those rights, Lumen is provided "as is" and we do not warrant it will be error-free or fit for any particular purpose. To the maximum extent permitted by law, our liability is limited to re-supplying the service or refunding fees paid in the last 3 months.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">11. Intellectual property</h3>' +
-      '<p style="margin:0 0 14px">Vellum (the software, design, brand) is our property. Your data is yours.</p>' +
+      '<p style="margin:0 0 14px">Lumen (the software, design, brand) is our property. Your data is yours.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">12. Privacy</h3>' +
       '<p style="margin:0 0 14px">Our handling of personal information is described in our Privacy Policy.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">13. Changes</h3>' +
@@ -11977,40 +12019,40 @@ const LEGAL_DOCS = {
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">14. Governing law</h3>' +
       '<p style="margin:0 0 14px">These terms are governed by the laws of [State], Australia. Disputes will be resolved in the courts of [State].</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">15. Contact</h3>' +
-      '<p style="margin:0 0 14px">Email <a href="mailto:hello@vellum.studio" style="color:var(--accent)">hello@vellum.studio</a>.</p>'
+      '<p style="margin:0 0 14px">Email <a href="mailto:hello@lumen.studio" style="color:var(--accent)">hello@lumen.studio</a>.</p>'
   },
   privacy: {
     title: 'Privacy Policy',
     updated: '15 June 2026',
     body:
-      '<p style="margin:0 0 14px">This Privacy Policy explains how Vellum (vellum.studio, operated by [Business Name], ABN [TBA]) handles personal information.</p>' +
+      '<p style="margin:0 0 14px">This Privacy Policy explains how Lumen (lumen.studio, operated by [Business Name], ABN [TBA]) handles personal information.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">1. What we collect</h3>' +
       '<ul style="margin:0 0 14px 22px;padding:0"><li><strong>Account info:</strong> email, password (hashed), studio name.</li><li><strong>Business data:</strong> revenue figures, stylist names, client names you enter, P&amp;L entries, timesheets, daily entries.</li><li><strong>Usage data:</strong> sign-in times, pages viewed, device, browser.</li><li><strong>Payment info:</strong> when you subscribe, Stripe collects your card details on our behalf. We never see your card number.</li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">2. How we use it</h3>' +
-      '<ul style="margin:0 0 14px 22px;padding:0"><li>To provide and improve Vellum.</li><li>To bill you and process payments.</li><li>To send essential service emails (confirmation, billing, security alerts).</li><li>To send product updates if you have opted in.</li><li>To respond to support requests.</li></ul>' +
+      '<ul style="margin:0 0 14px 22px;padding:0"><li>To provide and improve Lumen.</li><li>To bill you and process payments.</li><li>To send essential service emails (confirmation, billing, security alerts).</li><li>To send product updates if you have opted in.</li><li>To respond to support requests.</li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">3. Where it is stored</h3>' +
-      '<p style="margin:0 0 14px">Vellum uses Supabase (hosted on AWS) for data storage. We do not sell or rent your data.</p>' +
+      '<p style="margin:0 0 14px">Lumen uses Supabase (hosted on AWS) for data storage. We do not sell or rent your data.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">4. Who we share it with</h3>' +
       '<ul style="margin:0 0 14px 22px;padding:0"><li><strong>Service providers:</strong> Supabase (database, auth), Stripe (payments), our email provider, error-monitoring tools — only what is needed to run the service.</li><li><strong>Legal:</strong> if required by law.</li><li><strong>No marketing partners or data brokers.</strong></li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">5. Client data in your studio</h3>' +
-      '<p style="margin:0 0 14px">If you enter your clients\' names into Vellum\'s Client Service Log, you are the data controller of that information. You are responsible for ensuring you have the right to record it (e.g. via your booking system\'s consent flow). Vellum is your processor.</p>' +
+      '<p style="margin:0 0 14px">If you enter your clients\' names into Lumen\'s Client Service Log, you are the data controller of that information. You are responsible for ensuring you have the right to record it (e.g. via your booking system\'s consent flow). Lumen is your processor.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">6. Your rights</h3>' +
       '<p style="margin:0 0 8px">Under the Privacy Act 1988 (Cth) and where applicable the GDPR, you can:</p>' +
       '<ul style="margin:0 0 14px 22px;padding:0"><li>Access the personal data we hold about you.</li><li>Correct inaccurate data (or do it yourself in the app).</li><li>Request deletion of your data.</li><li>Export your data.</li><li>Object to processing or withdraw consent for marketing emails.</li><li>Lodge a complaint with the Office of the Australian Information Commissioner.</li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">7. Cookies &amp; tracking</h3>' +
-      '<p style="margin:0 0 14px">Vellum uses cookies and localStorage to keep you signed in and remember preferences. We do not use third-party advertising cookies.</p>' +
+      '<p style="margin:0 0 14px">Lumen uses cookies and localStorage to keep you signed in and remember preferences. We do not use third-party advertising cookies.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">8. Data security</h3>' +
       '<p style="margin:0 0 14px">We use TLS in transit, hashed passwords (bcrypt), and row-level security so studios can only access their own data. No system is 100% secure but we follow industry standards.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">9. Children</h3>' +
-      '<p style="margin:0 0 14px">Vellum is not intended for under-16s. We do not knowingly collect data from minors.</p>' +
+      '<p style="margin:0 0 14px">Lumen is not intended for under-16s. We do not knowingly collect data from minors.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">10. International users</h3>' +
-      '<p style="margin:0 0 14px">If you are outside Australia, your data may be transferred to Australia or the country where our service provider stores it (e.g. AWS regions). By using Vellum you consent to this transfer.</p>' +
+      '<p style="margin:0 0 14px">If you are outside Australia, your data may be transferred to Australia or the country where our service provider stores it (e.g. AWS regions). By using Lumen you consent to this transfer.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">11. Retention</h3>' +
       '<p style="margin:0 0 14px">We keep your data while your account is active. After cancellation, data is retained for 60 days then permanently deleted unless you request immediate deletion.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">12. Changes</h3>' +
       '<p style="margin:0 0 14px">We will notify you of material changes by email or in-app at least 14 days before they take effect.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">13. Contact</h3>' +
-      '<p style="margin:0 0 14px">Email <a href="mailto:hello@vellum.studio" style="color:var(--accent)">hello@vellum.studio</a>.</p>'
+      '<p style="margin:0 0 14px">Email <a href="mailto:hello@lumen.studio" style="color:var(--accent)">hello@lumen.studio</a>.</p>'
   }
 };
 function showLegalDoc(which) {
@@ -12154,6 +12196,7 @@ const TOUR_OWNER = [
   { sel: ".nav-item[onclick*=\"'dashboard'\"]", page: "dashboard", title: "Step 4. Watch it add up", body: "Everything you enter rolls up here automatically, this week and this year." },
   { sel: ".nav-item[onclick*=\"'weekly'\"]", page: "weekly", title: "Weekly view", body: "A week-by-week breakdown. You can also import a spreadsheet of past data from here." },
   { sel: ".nav-item[onclick*=\"'goals'\"]", page: "goals", title: "Set goals", body: "Set targets for the studio and each stylist, then track progress against them." },
+  { sel: ".nav-item[onclick*=\"'timesheets'\"]", page: "timesheets", title: "Timesheets", body: "Track staff hours each week here. Type a start and end time for each day and the hours add up automatically, ready to export for payroll." },
   { sel: ".sidebar-add-studio", title: "More than one studio?", body: "Add another location here. Each studio keeps its own separate data." },
   { sel: "#cloud-bar", title: "Backup and devices", body: "“Connected” means your data is safely in the cloud. Log in with the same email on your phone or iPad to see it all there too." }
 ];
