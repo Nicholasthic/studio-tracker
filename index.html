@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumen</title>
+<title>Lumin</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2344,7 +2344,7 @@ body.manager-view .owner-only { display: none !important; }
         <circle cx="28" cy="28" r="25" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
         <text x="28" y="40" fill="var(--accent)" font-family="'EB Garamond', Georgia, serif" font-style="italic" font-weight="500" font-size="30" text-anchor="middle">L</text>
       </svg>
-      <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">Lumen</div>
+      <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">Lumin</div>
     </div>
     <h1 style="font-family:var(--serif);font-style:italic;font-size:48px;color:var(--text);margin:0 0 20px;line-height:1.15;font-weight:400">Know your studio's numbers,<br>without spreadsheets.</h1>
     <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 44px;line-height:1.6">Clarity for you and your business. A daily performance tracker for brow, lash and beauty studios, with revenue, stylists and clients in one quiet, beautiful dashboard.</p>
@@ -2387,7 +2387,7 @@ body.manager-view .owner-only { display: none !important; }
 <div id="pin-lock-screen">
   <div class="pin-lock-card">
     <div class="pin-lock-logo" id="pin-lock-logo">Elyshia Jones</div>
-    <div class="pin-lock-sub">Lumen</div>
+    <div class="pin-lock-sub">Lumin</div>
 
     <!-- Step 1: Who are you? -->
     <div id="pin-step-who">
@@ -2429,7 +2429,7 @@ body.manager-view .owner-only { display: none !important; }
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-name" id="sidebar-logo-name">Elyshia Jones</div>
-    <div class="logo-sub">Lumen</div>
+    <div class="logo-sub">Lumin</div>
   </div>
   <nav class="sidebar-nav">
     <button class="nav-item staff-allowed" onclick="showPage('help')">
@@ -2513,7 +2513,7 @@ body.manager-view .owner-only { display: none !important; }
     <div class="nav-section-label">Settings</div>
     <button class="nav-item" onclick="showPage('pinmgmt')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v1.7M8 12.8v1.7M14.5 8h-1.7M3.2 8H1.5M12.6 3.4l-1.2 1.2M4.6 11.4l-1.2 1.2M12.6 12.6l-1.2-1.2M4.6 4.6 3.4 3.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Manage PINs
+      Account &amp; Settings
     </button>
   </nav>
   <div class="sidebar-studio">
@@ -3243,7 +3243,7 @@ body.manager-view .owner-only { display: none !important; }
           <div class="export-card-icon" style="background:rgba(107,156,232,0.12)">📅</div>
           <div class="export-card-title">Weekly Summary</div>
         </div>
-        <div class="export-card-desc">Week-by-week totals — gross, contractor deduction, net revenue, client counts.</div>
+        <div class="export-card-desc">Week-by-week totals: studio revenue, contractor commission, studio net, client counts.</div>
         <div class="export-card-controls">
           <select class="export-select" id="exp-weekly-filter">
             <option value="all">All time</option>
@@ -3639,10 +3639,9 @@ body.manager-view .owner-only { display: none !important; }
   <!-- ======================== PIN MANAGEMENT ======================== -->
   <div class="page" id="page-pinmgmt">
     <div class="form-section">
-      <div class="form-section-title">PIN Management</div>
+      <div class="form-section-title">Account &amp; Settings</div>
       <p style="font-size:15px;color:var(--muted);margin-bottom:20px;line-height:1.6">
-        Staff PINs are set the first time each person logs in — they choose their own 4-digit PIN.
-        You can override or reset any PIN here. Admin PIN protects full access.
+        Manage your account details, staff PINs, auto-lock and integrations. Owner only.
       </p>
       <div id="pin-mgmt-output"></div>
     </div>
@@ -3653,7 +3652,7 @@ body.manager-view .owner-only { display: none !important; }
   <div class="page" id="page-help">
     <div style="max-width:760px">
       <div class="form-section" style="text-align:center;border:none;background:transparent;padding-bottom:0">
-        <div style="font-family:var(--serif);font-style:italic;font-size:32px;color:var(--accent);margin-bottom:8px">Welcome to Lumen</div>
+        <div style="font-family:var(--serif);font-style:italic;font-size:32px;color:var(--accent);margin-bottom:8px">Welcome to Lumin</div>
         <div style="font-size:15px;color:var(--muted);line-height:1.7;max-width:560px;margin:0 auto">Clarity for you and your business. Track revenue, stylists, clients and growth, quietly and beautifully.</div>
       </div>
 
@@ -3713,7 +3712,7 @@ body.manager-view .owner-only { display: none !important; }
 
           <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:18px 0 7px">2. Give each person a PIN <span style="font-weight:400;color:var(--muted)">(recommended)</span></div>
           <ol style="margin-left:22px;margin-bottom:8px">
-            <li>In the left menu, under <strong>Settings</strong>, tap <strong>Manage PINs</strong>.</li>
+            <li>In the left menu, tap <strong>Account &amp; Settings</strong>.</li>
             <li>Set your own <strong>Owner PIN</strong> first — this protects your financial pages.</li>
             <li>Set a PIN for each stylist, or leave it blank and let them pick their own the first time they log in.</li>
           </ol>
@@ -3809,7 +3808,7 @@ body.manager-view .owner-only { display: none !important; }
 
       <div class="form-section">
         <div style="font-size:15px;line-height:1.7">
-          <strong>Need a hand?</strong> Email <a href="mailto:hello@lumen.studio" style="color:var(--accent);text-decoration:none">hello@lumen.studio</a> and we'll get back to you within a day.
+          <strong>Need a hand?</strong> Email <a href="mailto:hello@lumin.studio" style="color:var(--accent);text-decoration:none">hello@lumin.studio</a> and we'll get back to you within a day.
         </div>
       </div>
 
@@ -4176,13 +4175,17 @@ function showPage(id) {
     showPricingModal('Contractor invoicing auto-generates from your daily entries — upgrade to Studio to unlock it.');
     return;
   }
+  if (id === 'timesheets' && typeof canUseTimesheets === 'function' && !canUseTimesheets()) {
+    showPricingModal('Timesheets are part of the Studio plan. Upgrade to track staff hours and export them for payroll.');
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'Manage PINs', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -4311,12 +4314,12 @@ function renderDashboard() {
     <div class="kpi-card">
       <div class="kpi-label">Returning Clients</div>
       <div class="kpi-value">${totalRet.toLocaleString()}</div>
-      <div class="kpi-sub">${displayClients > 0 ? (totalRet/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
+      <div class="kpi-sub">${(totalRet+totalNew) > 0 ? (totalRet/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">New Clients</div>
       <div class="kpi-value">${totalNew.toLocaleString()}</div>
-      <div class="kpi-sub">${displayClients > 0 ? (totalNew/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
+      <div class="kpi-sub">${(totalRet+totalNew) > 0 ? (totalNew/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
     </div>
     ${hasCtr ? `
     <div class="kpi-card" style="border-color:rgba(201,169,110,0.25)">
@@ -4739,10 +4742,7 @@ function renderWeekly() {
 
     const es = w.entries; // filtered days only
     const totalC = es.reduce((s,e) => s + (e.ret||0) + (e.newC||0), 0);
-    const totalR = es.reduce((s,e) => {
-      const cg = e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0;
-      return s + Math.max(0, (e.total||0) - cg);
-    }, 0);
+    const totalR = es.reduce((s,e) => s + (e.total||0), 0);
     const studioRate = getStudioRate() / 100;
     const totalContractorGross = es.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
     const totalContractor = totalContractorGross * studioRate; // studio's 30% invoice amount
@@ -4751,8 +4751,8 @@ function renderWeekly() {
     const totalNewW    = es.reduce((s,e) => s + (e.newC || 0), 0);
     const totalRetRW   = es.reduce((s,e) => s + (e.retR || 0), 0);
     const totalNewRW   = es.reduce((s,e) => s + (e.newR || 0), 0);
-    const totalSvcW    = es.reduce((s,e) => s + Math.max(0, (e.svc  || 0) - (e.contractor ? (e.contractor.svc  || 0) : 0)), 0);
-    const totalProdW   = es.reduce((s,e) => s + Math.max(0, (e.prod || 0) - (e.contractor ? (e.contractor.prod || 0) : 0)), 0);
+    const totalSvcW    = es.reduce((s,e) => s + (e.svc  || 0), 0);
+    const totalProdW   = es.reduce((s,e) => s + (e.prod || 0), 0);
     const totalProdQtyW = es.reduce((s,e) => s + (e.prodQty || 0), 0);
     const retPctW = totalRetW > 0 ? (totalRetRW / totalRetW * 100).toFixed(0) : null;
     const newPctW = totalNewW > 0 ? (totalNewRW / totalNewW * 100).toFixed(0) : null;
@@ -4785,7 +4785,7 @@ function renderWeekly() {
       const dateStr = dateD.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
       const contractorGross = e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0;
       const contractorInvoice = contractorGross * (getStudioRate() / 100); // 30% due to studio
-      const studioOwn = Math.max(0,(e.total||0) - contractorGross);
+      const studioOwn = e.total||0;
       const netTotal = studioOwn + contractorInvoice; // studio own + contractor invoice due
       const hasContractor = contractorGross > 0;
       const rawDates = (activeStudio === 'ej' ? RAW_DATA : []).map(r => r.date);
@@ -4800,9 +4800,9 @@ function renderWeekly() {
           </div>
         </td>
         <td class="mono">${total}</td>
-        <td class="mono">$${Math.max(0,(e.prod||0)-(e.contractor?(e.contractor.prod||0):0)).toLocaleString()}</td>
-        <td class="mono">$${Math.max(0,(e.svc||0)-(e.contractor?(e.contractor.svc||0):0)).toLocaleString()}</td>
-        <td class="mono">$${Math.max(0,(e.total||0)-contractorGross).toLocaleString()}</td>
+        <td class="mono">$${(e.prod||0).toLocaleString()}</td>
+        <td class="mono">$${(e.svc||0).toLocaleString()}</td>
+        <td class="mono">$${(e.total||0).toLocaleString()}</td>
         <td style="padding:8px 12px">${hasContractor
           ? `<div style="font-size:14px;font-weight:500;color:var(--accent)">${e.contractor.name||'Contractor'}</div><div style="font-size:13px;color:var(--muted);font-family:var(--mono)">Invoice: $${contractorInvoice.toFixed(2)}</div>`
           : '<span style="color:var(--muted2)">—</span>'}</td>
@@ -6462,7 +6462,10 @@ function confirmRename(idx) {
 
 function addStylist() {
   if (typeof canAddStylist === 'function' && !canAddStylist()) {
-    showPricingModal('You\'re on the Solo plan, which is for solo artists. Upgrade to Studio to add more stylists, plus contractor invoicing, leaderboard, and more.');
+    const t = (typeof currentTier === 'function') ? currentTier() : 'studio';
+    showPricingModal(t === 'solo'
+      ? 'Solo includes one stylist. Upgrade to Studio for up to 5 stylists, or Salon for unlimited.'
+      : 'Studio includes up to 5 stylists. Upgrade to Salon for unlimited stylists, multiple venues, and automatic booking integration.');
     return;
   }
   const inp = document.getElementById('new-stylist-name');
@@ -8250,7 +8253,7 @@ tr:hover td{background:#fafafa}
 <h1>${title}</h1><div class="sub">${subtitle} · Generated ${now}</div>
 <table><thead><tr>${tableHeaders.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHTML}</tbody></table>
 ${sumHTML ? `<table class="sum-table"><tbody>${sumHTML}</tbody></table>` : ''}
-<div class="footer">Lumen · ${(STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Studio'} · ${now}</div></body></html>`);
+<div class="footer">Lumin · ${(STUDIOS.find(s => s.id === activeStudio) || {}).name || 'Studio'} · ${now}</div></body></html>`);
   w.document.close();
   setTimeout(()=>w.print(), 400);
 }
@@ -8283,8 +8286,8 @@ function getDailyRows(filter) {
     const cGross = e.contractor ? (e.contractor.svc||0)+(e.contractor.prod||0) : 0;
     const cInvoice = cGross * (getStudioRate()/100);
     const cName = e.contractor ? (e.contractor.name||'Contractor') : '';
-    const studioSvc = Math.max(0,(e.svc||0)-(e.contractor?(e.contractor.svc||0):0));
-    const studioTotal = Math.max(0,(e.total||0)-cGross);
+    const studioSvc = e.svc||0;
+    const studioTotal = e.total||0;
     return [fmt, e.ret||0, retPct, e.newC||0, newPct, total, `$${(e.prod||0).toFixed(2)}`, `$${studioSvc.toFixed(2)}`, `$${studioTotal.toFixed(2)}`, cName, cInvoice?`$${cInvoice.toFixed(2)}`:'', e.stylists||0, e.notes||''];
   });
 }
@@ -8316,9 +8319,9 @@ function getWeeklyRows(filter) {
     const clients = es.reduce((s,e)=>s+(e.ret||0)+(e.newC||0),0);
     const ctrGross = es.reduce((s,e)=>s+(e.contractor?(e.contractor.svc||0)+(e.contractor.prod||0):0),0);
     const ctrInvoice = ctrGross*(getStudioRate()/100);
-    const studioOwn = es.reduce((s,e)=>s+Math.max(0,(e.total||0)-(e.contractor?(e.contractor.svc||0)+(e.contractor.prod||0):0)),0);
+    const studioOwn = es.reduce((s,e)=>s+(e.total||0),0);
     const studioNet = studioOwn + ctrInvoice;
-    const svc = es.reduce((s,e)=>s+Math.max(0,(e.svc||0)-(e.contractor?(e.contractor.svc||0):0)),0);
+    const svc = es.reduce((s,e)=>s+(e.svc||0),0);
     const prod = es.reduce((s,e)=>s+(e.prod||0),0);
     const ret = es.reduce((s,e)=>s+(e.ret||0),0);
     const retR = es.reduce((s,e)=>s+(e.retR||0),0);
@@ -8489,10 +8492,11 @@ function saveVariableDefaultsStore(data) { localStorage.setItem(studioKey('ejVar
 function getMonthRevenue(month) {
   const yrData = getYearData(activeYear || BASE_YEAR);
   const d = yrData[month];
-  if (!d) return { service: 0, product: 0, gross: 0, net: 0, contractorDeduction: 0 };
+  if (!d) return { service: 0, product: 0, gross: 0, net: 0, contractorCommission: 0 };
   const entries = allEntries().filter(e => getMonth(e.date) === month);
   const contractorTotal = entries.reduce((s, e) => s + (e.contractor ? (e.contractor.svc||0)+(e.contractor.prod||0) : 0), 0);
-  return { service: d.svc||0, product: d.prod||0, gross: d.total||0, contractorDeduction: contractorTotal, net: (d.total||0) - contractorTotal };
+  const contractorCommission = contractorTotal * (getStudioRate() / 100);
+  return { service: d.svc||0, product: d.prod||0, gross: d.total||0, contractorCommission, net: (d.total||0) + contractorCommission };
 }
 
 function toggleExpenseSettings() {
@@ -8582,7 +8586,7 @@ function renderPLMonth(month) {
   if (revRows) revRows.innerHTML = [
     {label:'Service Revenue', value:rev.service, color:'var(--green)'},
     {label:'Product Revenue', value:rev.product, color:'var(--green)'},
-    {label:'Contractor Deduction', value:-rev.contractorDeduction, color:rev.contractorDeduction>0?'var(--red)':'var(--muted2)'},
+    {label:'Contractor Commission', value:rev.contractorCommission, color:rev.contractorCommission>0?'var(--green)':'var(--muted2)'},
   ].map(r=>`<div class="pl-row"><div class="pl-row-label">${r.label}</div><div class="pl-row-value" style="color:${r.color}">${r.value<0?'−':''}$${Math.abs(r.value).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>`).join('')+
   `<div class="pl-row" style="background:var(--surface2)"><div class="pl-row-label" style="font-weight:600">Net Revenue</div><div class="pl-row-value" style="color:var(--accent);font-weight:700">$${fmt(rev.net)}</div></div>`;
   if (revTotal) revTotal.textContent = '$'+fmt(rev.net);
@@ -8779,6 +8783,10 @@ function addStudio(name) {
 }
 
 function showAddStudioModal() {
+  if (typeof canAddVenue === 'function' && !canAddVenue()) {
+    showPricingModal('Multiple venues are part of the Salon plan. Upgrade to run more than one location, plus unlimited stylists and automatic booking integration.');
+    return;
+  }
   const overlay=document.createElement('div'); overlay.className='studio-modal-overlay'; overlay.id='studio-add-modal';
   overlay.innerHTML=`<div class="studio-modal"><h3>Add New Studio</h3><p>Enter the name of the new studio location.</p>
     <input id="modal-studio-name" placeholder="e.g. Fortitude Valley Studio" autofocus
@@ -9371,6 +9379,7 @@ function pinLoginSuccess(who) {
     if (staffLogout) staffLogout.style.display = 'none';
     renderSidebarStudios();
     renderDashboard();
+    try { maybeShowIntegrationSetup(); } catch (e) {}
   } else {
     document.body.classList.remove('manager-view');
     document.body.classList.add('staff-view');
@@ -9482,7 +9491,20 @@ function renderPINManagement() {
         <div style="font-size:13px;color:var(--muted);margin-top:5px;line-height:1.5">Signs every device out of the cloud and rotates the studio password. Use if a device is lost or someone leaves.</div>
       </div>
     </div>`;
+  const canIntegrate = (typeof canUseIntegrations === 'function') ? canUseIntegrations() : true;
+  const integrationsBlock = (isManager || !canIntegrate) ? '' : `
+    <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Integrations</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:12px">Connect your booking system (Timely, Fresha or Phorest) so new clients flow into the New Client Tracker automatically. Paste these two values into a Zap.</div>
+      <div id="integration-box" style="font-size:14px;color:var(--muted)">Loading...</div>
+    </div>`;
+  const accountBlock = isManager ? '' : `
+    <div style="margin-bottom:16px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Account</div>
+      <div id="account-box" style="font-size:14px;color:var(--muted)">Loading...</div>
+    </div>`;
   el.innerHTML = `
+    ${accountBlock}
     ${ownerPinBlock}
     <div style="margin-bottom:16px">
       <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Manager PIN</div>
@@ -9514,7 +9536,204 @@ function renderPINManagement() {
           ${hasPIN ? `<button class="btn btn-ghost" style="font-size:14px;padding:6px 12px;color:var(--red);border-color:rgba(158,74,58,.3)" onclick="clearStaffPIN('${st.name}')">Reset</button>` : ''}
         </div>`;
       }).join('')}
-    </div>`;
+    </div>
+    ${integrationsBlock}`;
+  renderAccountSection();
+  renderIntegrationKey();
+}
+
+async function renderAccountSection() {
+  const box = document.getElementById('account-box');
+  if (!box) return;
+  const st = Array.isArray(STUDIOS) ? STUDIOS.find(s => s.id === activeStudio) : null;
+  const studioName = (st && st.name) || '';
+  let ownerName = '';
+  try { ownerName = localStorage.getItem('ejOwnerName') || ''; } catch (e) {}
+  let email = '';
+  try {
+    if (cloudReady && sbClient) {
+      const { data } = await sbClient.auth.getSession();
+      email = (data && data.session && data.session.user && data.session.user.email) || '';
+    }
+  } catch (e) {}
+  const row = (label, valueHTML) =>
+    '<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
+      '<div style="font-size:13px;color:var(--muted2);width:120px;flex-shrink:0">' + label + '</div>' +
+      '<div style="flex:1;min-width:160px;font-size:15px;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + valueHTML + '</div>' +
+    '</div>';
+  const tier = (typeof LUMIN_TIERS !== 'undefined') ? (LUMIN_TIERS.find(t => t.id === currentTier()) || { name: 'Studio' }) : { name: 'Studio' };
+  const planHTML = (typeof userSubscription !== 'undefined' && userSubscription)
+    ? (tier.name + ' <span style="color:var(--muted2)">· ' + (userSubscription.status || '') + '</span> <button class="btn btn-ghost" style="font-size:13px;padding:5px 11px" onclick="openCustomerPortal()">Manage</button>')
+    : 'No active subscription';
+  box.innerHTML =
+    row('Your name',
+      '<input id="account-owner-name" value="' + String(ownerName).replace(/"/g, '&quot;') + '" placeholder="e.g. Elyshia" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
+      '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountSaveOwnerName()">Save</button>') +
+    row('Studio name',
+      '<input id="account-studio-name" value="' + String(studioName).replace(/"/g, '&quot;') + '" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
+      '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountSaveStudioName()">Save</button>') +
+    row('Login email',
+      (email ? '<span style="font-family:var(--mono);font-size:14px">' + email + '</span>' : '<span style="color:var(--muted)">Connect to the cloud to see this</span>') +
+      (cloudReady ? '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountChangeEmail()">Change</button>' : '')) +
+    row('Password',
+      '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountChangePassword()" ' + (cloudReady ? '' : 'disabled') + '>Change password</button>') +
+    row('Plan', planHTML);
+}
+
+function accountSaveOwnerName() {
+  const inp = document.getElementById('account-owner-name');
+  if (!inp) return;
+  try { localStorage.setItem('ejOwnerName', inp.value.trim()); } catch (e) {}
+  if (typeof cloudToast === 'function') cloudToast('Name saved');
+}
+
+function accountSaveStudioName() {
+  const inp = document.getElementById('account-studio-name');
+  if (!inp) return;
+  const name = inp.value.trim();
+  if (!name) { alert('Studio name cannot be empty.'); return; }
+  const st = Array.isArray(STUDIOS) ? STUDIOS.find(s => s.id === activeStudio) : null;
+  if (!st) return;
+  st.name = name;
+  if (typeof saveStudios === 'function') saveStudios();
+  if (typeof updateBrandingFromStudio === 'function') updateBrandingFromStudio();
+  if (typeof renderSidebarStudios === 'function') renderSidebarStudios();
+  if (typeof cloudToast === 'function') cloudToast('Studio name saved');
+}
+
+async function accountChangeEmail() {
+  if (!sbClient || !cloudReady) { alert('Connect to the cloud first.'); return; }
+  const email = (prompt('Enter the new login email:') || '').trim();
+  if (!email) return;
+  if (!/.+@.+\..+/.test(email)) { alert('Please enter a valid email address.'); return; }
+  try {
+    const { error } = await sbClient.auth.updateUser({ email });
+    if (error) { alert('Could not change email: ' + error.message); return; }
+    alert('Almost done. Check both your old and new inbox to confirm the change. Until you confirm, keep signing in with your current email.');
+    renderAccountSection();
+  } catch (e) { alert('Could not change email: ' + ((e && e.message) || e)); }
+}
+
+async function accountChangePassword() {
+  if (!sbClient || !cloudReady) { alert('Connect to the cloud first.'); return; }
+  const pw = prompt('Enter a new password (minimum 8 characters):') || '';
+  if (!pw) return;
+  if (pw.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  try {
+    const { error } = await sbClient.auth.updateUser({ password: pw });
+    if (error) { alert('Could not change password: ' + error.message); return; }
+    alert('Password updated. Other devices stay signed in until they reconnect.');
+  } catch (e) { alert('Could not change password: ' + ((e && e.message) || e)); }
+}
+
+function integrationEndpoint() {
+  return SB_URL.replace('.supabase.co', '.functions.supabase.co') + '/ingest-booking';
+}
+// Published one-click Zapier templates per provider. Fill these in once you
+// publish a template in your Zapier partner account; empty falls back to
+// Zapier's webhook app page.
+const ZAPIER_TEMPLATES = { timely: '', fresha: '', phorest: '' };
+function openZapier(provider) {
+  const url = (ZAPIER_TEMPLATES && ZAPIER_TEMPLATES[provider]) || 'https://zapier.com/apps/timely/integrations/webhook';
+  try { window.open(url, '_blank', 'noopener'); } catch (e) { location.href = url; }
+}
+
+async function cloudGetIngestKey() {
+  if (typeof cloudReady === 'undefined' || !cloudReady || !sbClient) return { key: null, problem: 'offline' };
+  try {
+    const { data, error } = await sbClient.from('studios').select('ingest_key').eq('id', activeStudio).maybeSingle();
+    if (error) return { key: null, problem: error.message };
+    return { key: (data && data.ingest_key) || null, problem: '' };
+  } catch (e) { return { key: null, problem: String((e && e.message) || e) }; }
+}
+
+function integrationFieldHTML(label, value, id) {
+  return '<div style="margin-bottom:10px">' +
+    '<div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);margin-bottom:4px">' + label + '</div>' +
+    '<div style="display:flex;gap:6px;align-items:center">' +
+      '<input id="' + id + '" readonly value="' + String(value).replace(/"/g, '&quot;') + '" style="flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-family:var(--mono);font-size:13px;color:var(--text);outline:none">' +
+      '<button class="btn btn-ghost" style="font-size:13px;padding:7px 12px" onclick="cloudCopyField(\'' + id + '\', this)">Copy</button>' +
+    '</div>' +
+  '</div>';
+}
+
+async function renderIntegrationKey() {
+  const box = document.getElementById('integration-box');
+  if (!box) return;
+  if (typeof cloudReady === 'undefined' || !cloudReady || !sbClient) {
+    box.textContent = 'Connect to the cloud first to see your integration details.';
+    return;
+  }
+  const { key, problem } = await cloudGetIngestKey();
+  if (!key) {
+    box.innerHTML = 'Run <strong>supabase/sql/integrations.sql</strong> in Supabase, then reopen this page to see your key.' +
+      (problem && problem !== 'offline' ? ' <span style="color:var(--muted2)">(' + problem + ')</span>' : '');
+    return;
+  }
+  box.innerHTML =
+    integrationFieldHTML('Webhook URL', integrationEndpoint(), 'int-url') +
+    integrationFieldHTML('Ingest key (keep this private)', key, 'int-key') +
+    '<button class="btn btn-ghost" style="font-size:13px;margin-top:2px" onclick="openZapier(\'timely\')">Open Zapier setup</button>' +
+    '<div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px">In the Zapier step add a header <strong>x-ingest-key</strong> set to the key above and send JSON including at least <strong>client_name</strong>. The full field list is in the integration README.</div>';
+}
+
+function cloudCopyField(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.select();
+  try { navigator.clipboard.writeText(el.value); } catch (e) { try { document.execCommand('copy'); } catch (e2) {} }
+  const prev = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = prev; }, 1200);
+}
+
+// ── Booking-integration setup state (per studio, synced via app_state) ──
+function getIntegrationSetupState() { try { return localStorage.getItem(studioKey('ejIntegrationSetup')) || ''; } catch { return ''; } }
+function setIntegrationSetupState(v) { try { localStorage.setItem(studioKey('ejIntegrationSetup'), v); } catch {} }
+function integrationSetupClose() { const m = document.getElementById('integration-setup-modal'); if (m) m.remove(); }
+function integrationSetupDone() { setIntegrationSetupState('done'); integrationSetupClose(); }
+function integrationSetupLater() { setIntegrationSetupState('skipped'); integrationSetupClose(); }
+
+// Auto-prompt the connect wizard once a Studio subscription is active (owner only,
+// once, until they finish or skip — they can always reopen it from Settings).
+let _integrationPromptShown = false;
+function maybeShowIntegrationSetup() {
+  if (_integrationPromptShown) return;
+  if (typeof cloudReady === 'undefined' || !cloudReady) return;
+  if (pinSessionUser !== 'admin') return;
+  if (typeof isSubscribed !== 'function' || !isSubscribed()) return;
+  if (typeof canUseIntegrations !== 'function' || !canUseIntegrations()) return;
+  const st = getIntegrationSetupState();
+  if (st === 'done' || st === 'skipped') return;
+  _integrationPromptShown = true;
+  showIntegrationSetupModal();
+}
+
+async function showIntegrationSetupModal() {
+  if (document.getElementById('integration-setup-modal')) return;
+  const ov = document.createElement('div');
+  ov.id = 'integration-setup-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10001;display:flex;align-items:center;justify-content:center;padding:24px';
+  ov.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px 30px;width:470px;max-width:96vw;box-shadow:0 12px 44px rgba(0,0,0,0.35)">' +
+      '<div style="font-family:var(--serif);font-weight:700;font-size:22px;color:var(--text);margin-bottom:6px">Connect your booking system</div>' +
+      '<div style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:16px">New clients from Timely (or Fresha / Phorest) will flow into your New Client Tracker automatically. It takes about two minutes and you only do it once.</div>' +
+      '<div id="integration-setup-body" style="font-size:14px;color:var(--muted)">Loading your details...</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">' +
+        '<button class="btn btn-ghost" style="font-size:14px" onclick="integrationSetupLater()">Set up later</button>' +
+        '<button class="btn btn-primary" style="font-size:14px" onclick="integrationSetupDone()">I have connected it</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  const body = document.getElementById('integration-setup-body');
+  const { key, problem } = await cloudGetIngestKey();
+  if (!key) {
+    body.innerHTML = 'Your account is ready. The database setup has not run yet' + (problem && problem !== 'offline' ? ' (' + problem + ')' : '') + ', so you can connect later from Settings.';
+    return;
+  }
+  body.innerHTML =
+    integrationFieldHTML('Webhook URL', integrationEndpoint(), 'setup-url') +
+    integrationFieldHTML('Ingest key (keep this private)', key, 'setup-key') +
+    '<button class="btn btn-primary" style="font-size:14px;margin-top:2px" onclick="openZapier(\'timely\')">Open the Zapier setup</button>' +
+    '<div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:10px">In Zapier: pick your booking app as the trigger, add a "Webhooks by Zapier" POST step, paste the URL, add a header <strong>x-ingest-key</strong> with the key above, and map the client name to <strong>client_name</strong>.</div>';
 }
 
 function saveAdminPINFromInput() {
@@ -10111,8 +10330,7 @@ function getTaxBASAutoValues(startISO, endISO) {
   const studioRate = getStudioRate() / 100;
   entries.forEach(e => {
     const ctrGross = e.contractor ? (e.contractor.svc || 0) + (e.contractor.prod || 0) : 0;
-    const studioOwn = Math.max(0, (e.total || 0) - ctrGross);
-    revenueIncGST += studioOwn;
+    revenueIncGST += e.total || 0;
     revenueIncGST += ctrGross * studioRate; // commission you keep
   });
 
@@ -11387,13 +11605,13 @@ async function cloudPushKind(kind) {
 }
 
 // ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
-const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins'];
+const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff',
   'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
-  'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB'
+  'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
 ];
 function cloudIsStateKey(k) {
   if (!k) return false;
@@ -11573,7 +11791,7 @@ function cloudConnectPrompt() {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px';
   ov.innerHTML =
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 28px;width:380px;max-width:95vw">' +
-      '<div style="font-family:var(--serif);font-size:24px;font-style:italic;color:var(--accent);margin-bottom:14px">Lumen</div>' +
+      '<div style="font-family:var(--serif);font-size:24px;font-style:italic;color:var(--accent);margin-bottom:14px">Lumin</div>' +
       '<div style="display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:18px">' +
         '<button id="cloud-tab-signin" onclick="cloudSetMode(\'signin\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:var(--surface);color:var(--text)">Log In</button>' +
         '<button id="cloud-tab-signup" onclick="cloudSetMode(\'signup\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:transparent;color:var(--muted)">Sign Up</button>' +
@@ -11770,16 +11988,21 @@ function cloudFirstRunWizard(studioName) {
 }
 // ── Subscription / billing (Stripe) ──
 let userSubscription = null;
-const LUMEN_TIERS = [
+const LUMIN_TIERS = [
   {
-    id: 'solo', name: 'Solo', tagline: 'For solo brow & lash artists',
+    id: 'solo', name: 'Solo', tagline: 'Know your numbers',
     monthly: 19, annual: 190,
-    features: ['1 stylist (you)', 'Dashboard, daily entries, weekly & yearly views', 'Per-stylist performance for yourself', 'P&L, Tax & BAS, Timesheets', 'Goals, lapsed clients, stock', 'Cloud sync across all your devices']
+    features: ['1 stylist (you)', 'Single venue', 'Dashboard, daily entries, weekly & yearly views', 'P&L, Tax & BAS', 'Goals, lapsed clients, stock', 'Cloud sync across all your devices']
   },
   {
-    id: 'studio', name: 'Studio', tagline: 'For boutique beauty studios', recommended: true,
+    id: 'studio', name: 'Studio', tagline: 'Know when to scale', recommended: true,
     monthly: 39, annual: 390,
-    features: ['Unlimited stylists', 'Contractor invoicing', 'Team leaderboard with celebrations', 'Per-stylist performance pages', 'Roster planner', 'Manager + stylist PINs', 'Everything in Solo']
+    features: ['Up to 5 stylists', 'Single venue', 'Timesheets', 'Contractor invoicing', 'Team leaderboard with celebrations', 'Per-stylist performance pages', 'Roster planner', 'Manager + stylist PINs', 'Everything in Solo']
+  },
+  {
+    id: 'salon', name: 'Salon', tagline: 'Know when to hire and fire',
+    monthly: 59, annual: 590,
+    features: ['Unlimited stylists', 'Multiple venues', 'Automatic booking integration (Timely, Fresha, Phorest)', 'Priority support', 'Everything in Studio']
   }
 ];
 async function fetchSubscription() {
@@ -11791,6 +12014,7 @@ async function fetchSubscription() {
     updateBillingBadge();
     renderBillingSection();
     maybeShowPaywall();
+    try { maybeShowIntegrationSetup(); } catch (e) {}
     return data;
   } catch (e) { console.warn('sub fetch err', e); return null; }
 }
@@ -11809,13 +12033,25 @@ function daysLeftInTrial() {
   return Math.max(0, Math.ceil(ms / 86400000));
 }
 function currentTier() { return (userSubscription && userSubscription.tier) || 'studio'; }
+// Stylist caps per tier: Solo 1, Studio 5, Salon unlimited.
+function stylistLimit() {
+  const t = currentTier();
+  if (t === 'solo') return 1;
+  if (t === 'studio') return 5;
+  return Infinity;
+}
 function canAddStylist() {
-  if (currentTier() !== 'solo') return true;
   const count = (typeof STYLISTS !== 'undefined' && Array.isArray(STYLISTS)) ? STYLISTS.length : 0;
-  return count < 1;
+  return count < stylistLimit();
 }
 function canUseLeaderboard() { return currentTier() !== 'solo'; }
 function canUseContractorInvoicing() { return currentTier() !== 'solo'; }
+// Timesheets are a Studio-tier feature (tier 2 and up).
+function canUseTimesheets() { return currentTier() !== 'solo'; }
+// Multiple venues (more than one studio) is a Salon-tier feature.
+function canAddVenue() { return currentTier() === 'salon'; }
+// Booking integrations (Timely / Fresha / Phorest) are a Salon-tier feature.
+function canUseIntegrations() { return currentTier() === 'salon'; }
 async function startCheckout(tier, period) {
   if (!sbClient || !cloudReady) { alert('Please connect to the cloud first.'); return; }
   try {
@@ -11849,7 +12085,7 @@ async function openCustomerPortal() {
 }
 function pricingTilesHTML(highlightTier) {
   return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">' +
-    LUMEN_TIERS.map(t => {
+    LUMIN_TIERS.map(t => {
       const isCurrent = highlightTier === t.id;
       const ring = (t.recommended || isCurrent) ? 'border:2px solid var(--accent)' : 'border:1px solid var(--border2)';
       return '<div style="background:var(--surface2);' + ring + ';border-radius:14px;padding:22px;position:relative">' +
@@ -11861,8 +12097,8 @@ function pricingTilesHTML(highlightTier) {
         '<ul style="margin:0 0 18px 0;padding:0;list-style:none;font-size:13px;color:var(--text);line-height:1.7">' +
           t.features.map(f => '<li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">✓</span>' + f + '</li>').join('') +
         '</ul>' +
-        '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Subscribe — $' + t.monthly + '/mo</button>' +
-        '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Or annual — $' + t.annual + '/yr</button>' +
+        '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Subscribe, $' + t.monthly + '/mo</button>' +
+        '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Or annual, $' + t.annual + '/yr</button>' +
       '</div>';
     }).join('') +
   '</div>';
@@ -11897,9 +12133,9 @@ function maybeShowPaywall() {
   ov.innerHTML =
     '<div style="max-width:880px;margin:0 auto;text-align:center">' +
       '<div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:8px">Your trial has ended</div>' +
-      '<div style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.6">Pick a plan to keep your studio data flowing. Your data is safe — nothing is lost, you just need an active subscription to keep using Lumen.</div>' +
+      '<div style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.6">Pick a plan to keep your studio data flowing. Your data is safe — nothing is lost, you just need an active subscription to keep using Lumin.</div>' +
       pricingTilesHTML(currentTier()) +
-      '<div style="margin-top:24px;font-size:13px;color:var(--muted2)">Already paid? <a href="#" onclick="event.preventDefault();fetchSubscription();" style="color:var(--accent);text-decoration:none">Refresh</a> · Need help? <a href="mailto:hello@lumen.studio" style="color:var(--accent);text-decoration:none">hello@lumen.studio</a></div>' +
+      '<div style="margin-top:24px;font-size:13px;color:var(--muted2)">Already paid? <a href="#" onclick="event.preventDefault();fetchSubscription();" style="color:var(--accent);text-decoration:none">Refresh</a> · Need help? <a href="mailto:hello@lumin.studio" style="color:var(--accent);text-decoration:none">hello@lumin.studio</a></div>' +
     '</div>';
   document.body.appendChild(ov);
 }
@@ -11919,7 +12155,7 @@ function updateBillingBadge() {
     const d = daysLeftInTrial();
     badge.innerHTML = '<span style="color:var(--accent)">Trial</span> · ' + d + ' day' + (d === 1 ? '' : 's') + ' left';
   } else if (isSubscribed()) {
-    const t = LUMEN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio' };
+    const t = LUMIN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio' };
     badge.innerHTML = '<span style="color:var(--green)">' + t.name + '</span> · active';
   } else if (userSubscription.status === 'canceled') {
     badge.innerHTML = '<span style="color:var(--red)">Subscription ended</span>';
@@ -11931,7 +12167,7 @@ function renderBillingSection() {
   const el = document.getElementById('billing-section');
   if (!el) return;
   if (!userSubscription) { el.innerHTML = ''; return; }
-  const tier = LUMEN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio', monthly: 39 };
+  const tier = LUMIN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio', monthly: 39 };
   let statusLine = '';
   if (isTrialing()) {
     statusLine = '<div style="color:var(--accent);font-weight:500">Trial — ' + daysLeftInTrial() + ' day' + (daysLeftInTrial() === 1 ? '' : 's') + ' left</div>';
@@ -11952,14 +12188,14 @@ function renderBillingSection() {
     actions = '<button class="btn btn-ghost" onclick="openCustomerPortal()" style="margin-right:8px">Manage subscription</button>' +
               '<button class="btn btn-ghost" onclick="showPricingModal(\'Switch your plan — change takes effect immediately, with proration.\')">Switch plan</button>';
   } else {
-    actions = '<button class="btn btn-primary" onclick="showPricingModal(\'Pick a plan to keep using Lumen.\')">Choose a plan</button>';
+    actions = '<button class="btn btn-primary" onclick="showPricingModal(\'Pick a plan to keep using Lumin.\')">Choose a plan</button>';
   }
   el.innerHTML =
     '<div class="form-section">' +
       '<div class="form-section-title">Your subscription</div>' +
       '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:14px">' +
         '<div>' +
-          '<div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent)">Lumen ' + tier.name + '</div>' +
+          '<div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent)">Lumin ' + tier.name + '</div>' +
           statusLine +
         '</div>' +
         '<div>' + actions + '</div>' +
@@ -11970,7 +12206,7 @@ function handleStripeReturn() {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscribed') === '1') {
-      cloudToast('Subscription active — welcome to Lumen ✓');
+      cloudToast('Subscription active — welcome to Lumin ✓');
       setTimeout(fetchSubscription, 1500);
       setTimeout(fetchSubscription, 5000);
       const url = window.location.pathname + window.location.hash;
@@ -11988,30 +12224,30 @@ const LEGAL_DOCS = {
     title: 'Terms of Service',
     updated: '15 June 2026',
     body:
-      '<p style="margin:0 0 14px"><strong>Important:</strong> Lumen is a software service for tracking studio performance. It is not a tax, accounting, legal, or financial advice tool. Decisions you make based on data in Lumen are your own responsibility.</p>' +
-      '<p style="margin:0 0 14px">Welcome to Lumen (lumen.studio, operated by [Business Name], ABN [TBA], "we", "us"). By creating an account, accessing, or using Lumen you ("you", "Customer") agree to these Terms of Service.</p>' +
+      '<p style="margin:0 0 14px"><strong>Important:</strong> Lumin is a software service for tracking studio performance. It is not a tax, accounting, legal, or financial advice tool. Decisions you make based on data in Lumin are your own responsibility.</p>' +
+      '<p style="margin:0 0 14px">Welcome to Lumin (lumin.studio, operated by [Business Name], ABN [TBA], "we", "us"). By creating an account, accessing, or using Lumin you ("you", "Customer") agree to these Terms of Service.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">1. The service</h3>' +
-      '<p style="margin:0 0 14px">Lumen is a cloud-based studio performance tracker accessible via web browser. We may add, modify, or remove features at any time. Beta features may behave unexpectedly.</p>' +
+      '<p style="margin:0 0 14px">Lumin is a cloud-based studio performance tracker accessible via web browser. We may add, modify, or remove features at any time. Beta features may behave unexpectedly.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">2. Your account</h3>' +
       '<p style="margin:0 0 14px">You are responsible for keeping your login credentials and PINs secure. You must not share your account with anyone outside your studio team. You are responsible for everything that happens under your account.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">3. Your data</h3>' +
-      '<p style="margin:0 0 14px">You own all data you enter into Lumen (revenue figures, stylist names, client information, business details). We process this data only to provide the service to you. You grant us a non-exclusive license to store, process, and display your data for the purpose of running Lumen.</p>' +
+      '<p style="margin:0 0 14px">You own all data you enter into Lumin (revenue figures, stylist names, client information, business details). We process this data only to provide the service to you. You grant us a non-exclusive license to store, process, and display your data for the purpose of running Lumin.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">4. Subscription &amp; billing</h3>' +
-      '<p style="margin:0 0 14px">Lumen is provided on a subscription basis. Pricing is shown at signup. We bill monthly or annually in advance. You can cancel at any time; cancellations take effect at the end of the current billing period. We do not refund partial periods.</p>' +
+      '<p style="margin:0 0 14px">Lumin is provided on a subscription basis. Pricing is shown at signup. We bill monthly or annually in advance. You can cancel at any time; cancellations take effect at the end of the current billing period. We do not refund partial periods.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">5. Free trial</h3>' +
       '<p style="margin:0 0 14px">New accounts may receive a free trial. We may end the trial early, change its terms, or limit functionality. If you do not subscribe by the end of the trial, your account may be suspended.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">6. Acceptable use</h3>' +
-      '<p style="margin:0 0 14px">You agree not to: (a) reverse engineer, copy, or resell Lumen; (b) use Lumen for unlawful purposes; (c) attempt to access other customers\' data; (d) overload our infrastructure; (e) upload malicious code.</p>' +
+      '<p style="margin:0 0 14px">You agree not to: (a) reverse engineer, copy, or resell Lumin; (b) use Lumin for unlawful purposes; (c) attempt to access other customers\' data; (d) overload our infrastructure; (e) upload malicious code.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">7. Service availability</h3>' +
       '<p style="margin:0 0 14px">We aim for high availability but do not guarantee uninterrupted service. We may perform maintenance from time to time. We are not liable for downtime caused by your internet, browser, or our infrastructure providers.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">8. Data export &amp; deletion</h3>' +
-      '<p style="margin:0 0 14px">You can export your data at any time from within Lumen. If you cancel, your data is retained for 60 days then permanently deleted. You can request immediate deletion by emailing us.</p>' +
+      '<p style="margin:0 0 14px">You can export your data at any time from within Lumin. If you cancel, your data is retained for 60 days then permanently deleted. You can request immediate deletion by emailing us.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">9. Termination</h3>' +
-      '<p style="margin:0 0 14px">You can cancel any time. We can suspend or terminate accounts that breach these terms, with notice where reasonable. On termination, your right to use Lumen ends.</p>' +
+      '<p style="margin:0 0 14px">You can cancel any time. We can suspend or terminate accounts that breach these terms, with notice where reasonable. On termination, your right to use Lumin ends.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">10. Disclaimer &amp; liability</h3>' +
-      '<p style="margin:0 0 14px">Nothing in these terms excludes consumer guarantees you may have under the Australian Consumer Law. Subject to those rights, Lumen is provided "as is" and we do not warrant it will be error-free or fit for any particular purpose. To the maximum extent permitted by law, our liability is limited to re-supplying the service or refunding fees paid in the last 3 months.</p>' +
+      '<p style="margin:0 0 14px">Nothing in these terms excludes consumer guarantees you may have under the Australian Consumer Law. Subject to those rights, Lumin is provided "as is" and we do not warrant it will be error-free or fit for any particular purpose. To the maximum extent permitted by law, our liability is limited to re-supplying the service or refunding fees paid in the last 3 months.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">11. Intellectual property</h3>' +
-      '<p style="margin:0 0 14px">Lumen (the software, design, brand) is our property. Your data is yours.</p>' +
+      '<p style="margin:0 0 14px">Lumin (the software, design, brand) is our property. Your data is yours.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">12. Privacy</h3>' +
       '<p style="margin:0 0 14px">Our handling of personal information is described in our Privacy Policy.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">13. Changes</h3>' +
@@ -12019,40 +12255,40 @@ const LEGAL_DOCS = {
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">14. Governing law</h3>' +
       '<p style="margin:0 0 14px">These terms are governed by the laws of [State], Australia. Disputes will be resolved in the courts of [State].</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">15. Contact</h3>' +
-      '<p style="margin:0 0 14px">Email <a href="mailto:hello@lumen.studio" style="color:var(--accent)">hello@lumen.studio</a>.</p>'
+      '<p style="margin:0 0 14px">Email <a href="mailto:hello@lumin.studio" style="color:var(--accent)">hello@lumin.studio</a>.</p>'
   },
   privacy: {
     title: 'Privacy Policy',
     updated: '15 June 2026',
     body:
-      '<p style="margin:0 0 14px">This Privacy Policy explains how Lumen (lumen.studio, operated by [Business Name], ABN [TBA]) handles personal information.</p>' +
+      '<p style="margin:0 0 14px">This Privacy Policy explains how Lumin (lumin.studio, operated by [Business Name], ABN [TBA]) handles personal information.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">1. What we collect</h3>' +
       '<ul style="margin:0 0 14px 22px;padding:0"><li><strong>Account info:</strong> email, password (hashed), studio name.</li><li><strong>Business data:</strong> revenue figures, stylist names, client names you enter, P&amp;L entries, timesheets, daily entries.</li><li><strong>Usage data:</strong> sign-in times, pages viewed, device, browser.</li><li><strong>Payment info:</strong> when you subscribe, Stripe collects your card details on our behalf. We never see your card number.</li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">2. How we use it</h3>' +
-      '<ul style="margin:0 0 14px 22px;padding:0"><li>To provide and improve Lumen.</li><li>To bill you and process payments.</li><li>To send essential service emails (confirmation, billing, security alerts).</li><li>To send product updates if you have opted in.</li><li>To respond to support requests.</li></ul>' +
+      '<ul style="margin:0 0 14px 22px;padding:0"><li>To provide and improve Lumin.</li><li>To bill you and process payments.</li><li>To send essential service emails (confirmation, billing, security alerts).</li><li>To send product updates if you have opted in.</li><li>To respond to support requests.</li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">3. Where it is stored</h3>' +
-      '<p style="margin:0 0 14px">Lumen uses Supabase (hosted on AWS) for data storage. We do not sell or rent your data.</p>' +
+      '<p style="margin:0 0 14px">Lumin uses Supabase (hosted on AWS) for data storage. We do not sell or rent your data.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">4. Who we share it with</h3>' +
       '<ul style="margin:0 0 14px 22px;padding:0"><li><strong>Service providers:</strong> Supabase (database, auth), Stripe (payments), our email provider, error-monitoring tools — only what is needed to run the service.</li><li><strong>Legal:</strong> if required by law.</li><li><strong>No marketing partners or data brokers.</strong></li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">5. Client data in your studio</h3>' +
-      '<p style="margin:0 0 14px">If you enter your clients\' names into Lumen\'s Client Service Log, you are the data controller of that information. You are responsible for ensuring you have the right to record it (e.g. via your booking system\'s consent flow). Lumen is your processor.</p>' +
+      '<p style="margin:0 0 14px">If you enter your clients\' names into Lumin\'s Client Service Log, you are the data controller of that information. You are responsible for ensuring you have the right to record it (e.g. via your booking system\'s consent flow). Lumin is your processor.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">6. Your rights</h3>' +
       '<p style="margin:0 0 8px">Under the Privacy Act 1988 (Cth) and where applicable the GDPR, you can:</p>' +
       '<ul style="margin:0 0 14px 22px;padding:0"><li>Access the personal data we hold about you.</li><li>Correct inaccurate data (or do it yourself in the app).</li><li>Request deletion of your data.</li><li>Export your data.</li><li>Object to processing or withdraw consent for marketing emails.</li><li>Lodge a complaint with the Office of the Australian Information Commissioner.</li></ul>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">7. Cookies &amp; tracking</h3>' +
-      '<p style="margin:0 0 14px">Lumen uses cookies and localStorage to keep you signed in and remember preferences. We do not use third-party advertising cookies.</p>' +
+      '<p style="margin:0 0 14px">Lumin uses cookies and localStorage to keep you signed in and remember preferences. We do not use third-party advertising cookies.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">8. Data security</h3>' +
       '<p style="margin:0 0 14px">We use TLS in transit, hashed passwords (bcrypt), and row-level security so studios can only access their own data. No system is 100% secure but we follow industry standards.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">9. Children</h3>' +
-      '<p style="margin:0 0 14px">Lumen is not intended for under-16s. We do not knowingly collect data from minors.</p>' +
+      '<p style="margin:0 0 14px">Lumin is not intended for under-16s. We do not knowingly collect data from minors.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">10. International users</h3>' +
-      '<p style="margin:0 0 14px">If you are outside Australia, your data may be transferred to Australia or the country where our service provider stores it (e.g. AWS regions). By using Lumen you consent to this transfer.</p>' +
+      '<p style="margin:0 0 14px">If you are outside Australia, your data may be transferred to Australia or the country where our service provider stores it (e.g. AWS regions). By using Lumin you consent to this transfer.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">11. Retention</h3>' +
       '<p style="margin:0 0 14px">We keep your data while your account is active. After cancellation, data is retained for 60 days then permanently deleted unless you request immediate deletion.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">12. Changes</h3>' +
       '<p style="margin:0 0 14px">We will notify you of material changes by email or in-app at least 14 days before they take effect.</p>' +
       '<h3 style="margin:18px 0 6px;font-size:15px;color:var(--accent)">13. Contact</h3>' +
-      '<p style="margin:0 0 14px">Email <a href="mailto:hello@lumen.studio" style="color:var(--accent)">hello@lumen.studio</a>.</p>'
+      '<p style="margin:0 0 14px">Email <a href="mailto:hello@lumin.studio" style="color:var(--accent)">hello@lumin.studio</a>.</p>'
   }
 };
 function showLegalDoc(which) {
@@ -12191,7 +12427,7 @@ const TOUR_BASICS = [
 ];
 const TOUR_OWNER = [
   { sel: ".nav-item[onclick*=\"'stylists'\"]", page: "stylists", title: "Step 1. Add your team", body: "Start here. Add everyone on your team. Tick “contractor” for anyone you pay by invoice." },
-  { sel: ".nav-item[onclick*=\"'pinmgmt'\"]", title: "Step 2. Set PINs", body: "Under Settings, open “Manage PINs” to set your Owner PIN and give each stylist their own code." },
+  { sel: ".nav-item[onclick*=\"'pinmgmt'\"]", title: "Step 2. Set PINs", body: "Open “Account & Settings” to set your Owner PIN and give each stylist their own code." },
   { sel: ".nav-item[onclick*=\"'entry'\"]", page: "entry", title: "Step 3. Add daily numbers", body: "Each day, come here and fill in revenue, products and clients. It saves itself as you type, with no save button." },
   { sel: ".nav-item[onclick*=\"'dashboard'\"]", page: "dashboard", title: "Step 4. Watch it add up", body: "Everything you enter rolls up here automatically, this week and this year." },
   { sel: ".nav-item[onclick*=\"'weekly'\"]", page: "weekly", title: "Weekly view", body: "A week-by-week breakdown. You can also import a spreadsheet of past data from here." },
