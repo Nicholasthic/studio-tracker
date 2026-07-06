@@ -432,6 +432,17 @@ body {
 }
 .filter-btn:hover { color: var(--text); border-color: var(--muted); }
 .filter-btn.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.filter-date {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font);
+  color-scheme: dark;
+}
+.filter-date:focus { outline: none; border-color: var(--accent); }
 
 /* STYLIST PERFORMANCE TABLE */
 .perf-table-wrap {
@@ -4065,6 +4076,8 @@ function saveStorage(d) { localStorage.setItem(studioKey('ejEntries'), JSON.stri
 
 let userEntries = loadStorage();
 let activeFilter = 'all';
+let customRange = { start: null, end: null };
+let customRangeOpen = false;
 let activeWeeklyFilter = 'all';
 
 // Stylists — studio-scoped, loaded after studioKey is available
@@ -4105,6 +4118,12 @@ function filteredEntries(filter) {
 
   // Month filter (e.g. 'Jan')
   if (MONTH_NAMES.includes(filter)) return all.filter(e => getMonth(e.date) === filter);
+
+  // Custom date range — inclusive of both selected dates
+  if (filter === 'custom') {
+    if (!customRange.start || !customRange.end) return all;
+    return all.filter(e => e.date >= customRange.start && e.date <= customRange.end);
+  }
 
   const today = new Date();
   const yr = today.getFullYear();
@@ -4220,8 +4239,30 @@ function setFilter(f, btn) {
 }
 
 function filterLabel(filter) {
+  if (filter === 'custom' && customRange.start && customRange.end) {
+    const f = d => new Date(d + 'T00:00:00').toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+    return `${f(customRange.start)} to ${f(customRange.end)}`;
+  }
   const labels = { all:'All Year', thisweek:'This Week', lastweek:'Last Week', ytd:'YTD', fy:'Fin. Year', q1:'Q1 Jul–Sep', q2:'Q2 Oct–Dec', q3:'Q3 Jan–Mar', q4:'Q4 Apr–Jun' };
   return labels[filter] || filter;
+}
+
+function toggleCustomRange() {
+  customRangeOpen = !customRangeOpen;
+  if (!customRangeOpen && activeFilter === 'custom') activeFilter = 'all';
+  renderDashboard();
+}
+
+function applyCustomRange() {
+  const s = document.getElementById('custom-range-start')?.value || null;
+  const e = document.getElementById('custom-range-end')?.value || null;
+  customRange.start = s;
+  customRange.end = e;
+  if (s && e) {
+    if (s > e) { customRange.start = e; customRange.end = s; }
+    activeFilter = 'custom';
+    renderDashboard();
+  }
 }
 
 function renderDashboard() {
@@ -4247,7 +4288,14 @@ function renderDashboard() {
       `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
       allMonthsWithData.map(m =>
         `<button class="filter-btn ${activeFilter === m ? 'active' : ''}" onclick="setFilter('${m}',this)">${m}</button>`
-      ).join('');
+      ).join('') +
+      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<button class="filter-btn ${activeFilter === 'custom' ? 'active' : ''}" onclick="toggleCustomRange()">Custom</button>` +
+      (customRangeOpen || activeFilter === 'custom' ? `<span style="display:inline-flex;align-items:center;gap:6px">
+        <input type="date" class="filter-date" id="custom-range-start" value="${customRange.start||''}" onchange="applyCustomRange()">
+        <span style="color:var(--muted);font-size:13px">to</span>
+        <input type="date" class="filter-date" id="custom-range-end" value="${customRange.end||''}" onchange="applyCustomRange()">
+      </span>` : '');
   }
 
   const entries = filteredEntries(activeFilter);
