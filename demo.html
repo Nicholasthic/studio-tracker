@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumin</title>
+<title>Lumin - Live Demo</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- demo build: no cloud library -->
 <style>
 :root {
   --bg: #e2dac9;
@@ -2430,7 +2430,7 @@ body.manager-view .owner-only { display: none !important; }
 <!-- ===================== PIN LOCK SCREEN ===================== -->
 <div id="pin-lock-screen">
   <div class="pin-lock-card">
-    <div class="pin-lock-logo" id="pin-lock-logo">Elyshia Jones</div>
+    <div class="pin-lock-logo" id="pin-lock-logo">Luna Brow Studio</div>
     <div class="pin-lock-sub">Lumin</div>
 
     <!-- Step 1: Who are you? -->
@@ -2472,7 +2472,7 @@ body.manager-view .owner-only { display: none !important; }
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-name" id="sidebar-logo-name">Elyshia Jones</div>
+    <div class="logo-name" id="sidebar-logo-name">Luna Brow Studio</div>
     <div class="logo-sub">Lumin</div>
   </div>
   <nav class="sidebar-nav">
@@ -2573,7 +2573,7 @@ body.manager-view .owner-only { display: none !important; }
   <div class="topbar">
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-right">
-      <span style="font-size:14px;color:var(--muted)" id="topbar-studio-name">Elyshia Jones Studio</span>
+      <span style="font-size:14px;color:var(--muted)" id="topbar-studio-name">Luna Brow Studio</span>
       <span style="font-size:14px;color:var(--muted2)" id="topbar-dot">·</span>
       <span style="font-size:14px;color:var(--muted)" id="topbar-year">2026</span>
       <button class="btn btn-ghost" id="topbar-add-day" onclick="showPage('entry')">+ Add Day</button>
@@ -3056,7 +3056,7 @@ body.manager-view .owner-only { display: none !important; }
         <div class="biz-fields-grid">
           <div class="biz-field full">
             <div class="biz-label">Business Name</div>
-            <input class="biz-input" id="biz-name" placeholder="Elyshia Jones Brow Studio" oninput="saveBizDetails()">
+            <input class="biz-input" id="biz-name" placeholder="Luna Brow Studio" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
             <div class="biz-label">ABN</div>
@@ -4128,10 +4128,10 @@ body.manager-view .owner-only { display: none !important; }
 // ===================== DATA =====================
 // STYLISTS — object array [{name, isContractor}], persisted to localStorage
 const DEFAULT_STYLISTS = [
-  {name:'Elyshia', isContractor:false},
-  {name:'Angel',   isContractor:false},
-  {name:'Ruby',    isContractor:false},
-  {name:'Saskia',  isContractor:false},
+  {name:'Ava', isContractor:false},
+  {name:'Mia',   isContractor:false},
+  {name:'Chloe',    isContractor:false},
+  {name:'Sophie',  isContractor:false},
 ];
 const AVATAR_COLORS = ['--c0','--c1','--c2','--c3','--c4','--c5','--c6'];
 function avatarColor(idx) { return `var(${AVATAR_COLORS[idx % AVATAR_COLORS.length]})`; }
@@ -4258,18 +4258,18 @@ const MONTH_FULL = ['January','February','March','April','May','June','July','Au
 
 // ── Studio management — must be declared before studioKey ─────────────────
 const STUDIO_COLORS = ['#c9a96e','#6b9ce8','#5eb87a','#9b7fe8','#e8a06b','#e86b9c','#6be8d4','#e8e86b'];
-const DEFAULT_STUDIOS = [{ id: 'ej', name: 'Elyshia Jones Studio', color: STUDIO_COLORS[0] }];
+const DEFAULT_STUDIOS = [{ id: 'ej', name: 'Luna Brow Studio', color: STUDIO_COLORS[0] }];
 let STUDIOS = (() => {
   try {
-    const s = JSON.parse(localStorage.getItem('ejStudios'));
+    const s = JSON.parse(localStorage.getItem('demo_ejStudios'));
     return Array.isArray(s) && s.length ? s : [...DEFAULT_STUDIOS];
   } catch { return [...DEFAULT_STUDIOS]; }
 })();
 let activeStudio = STUDIOS[0].id;
-function saveStudios() { localStorage.setItem('ejStudios', JSON.stringify(STUDIOS)); if (typeof cloudSyncOut === 'function') cloudSyncOut('studios'); }
+function saveStudios() { localStorage.setItem('demo_ejStudios', JSON.stringify(STUDIOS)); if (typeof cloudSyncOut === 'function') cloudSyncOut('studios'); }
 
 // ── Studio-scoped storage key helper ──────────────────────────────────────
-function studioKey(base) { return base + '_' + activeStudio; }
+function studioKey(base) { return 'demo_' + base + '_' + activeStudio; }
 
 // Load from localStorage
 function loadStorage() {
@@ -6306,7 +6306,7 @@ function setCmpMode(mode) {
 // Aggregate entries for a specific studio into monthly totals
 function aggregateStudioEntries(studioId, monthFilter) {
   let entries = [];
-  try { entries = JSON.parse(localStorage.getItem('ejEntries_' + studioId) || '[]'); } catch {}
+  try { entries = JSON.parse(localStorage.getItem('demo_ejEntries_' + studioId) || '[]'); } catch {}
 
   const totals = { ret:0, retR:0, retNR:0, newC:0, newR:0, newNR:0, svc:0, prod:0, total:0, stylists:0, days:0 };
   entries.forEach(e => {
@@ -7173,9 +7173,9 @@ function updateTSSummary() {
 function loadTSStaff() {
   try {
     const raw = JSON.parse(localStorage.getItem(studioKey('ejTSStaff')) || 'null');
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { extra: [], excluded: ['Elyshia'] };
-    return { extra: raw.extra || [], excluded: raw.excluded || ['Elyshia'] };
-  } catch { return { extra: [], excluded: ['Elyshia'] }; }
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { extra: [], excluded: ['Ava'] };
+    return { extra: raw.extra || [], excluded: raw.excluded || ['Ava'] };
+  } catch { return { extra: [], excluded: ['Ava'] }; }
 }
 function saveTSStaff(data) { localStorage.setItem(studioKey('ejTSStaff'), JSON.stringify(data)); }
 function loadTSExtra() { return loadTSStaff().extra; }
@@ -9234,11 +9234,11 @@ function rosterLoadData() {
   try {
     const s = JSON.parse(localStorage.getItem(rosterStorageKey('staff')) || 'null');
     if (s && Array.isArray(s)) rosterStaff = s;
-    else rosterStaff = ['Elyshia', 'Angel', 'Ruby', 'Saskia'];
+    else rosterStaff = ['Ava', 'Mia', 'Chloe', 'Sophie'];
     rosterA = JSON.parse(localStorage.getItem(rosterStorageKey('weekA')) || '{}');
     rosterB = JSON.parse(localStorage.getItem(rosterStorageKey('weekB')) || '{}');
   } catch {
-    rosterStaff = ['Elyshia', 'Angel', 'Ruby', 'Saskia'];
+    rosterStaff = ['Ava', 'Mia', 'Chloe', 'Sophie'];
     rosterA = {}; rosterB = {};
   }
 }
@@ -9442,9 +9442,9 @@ document.addEventListener('keydown', function(e) {
 
 // ===================== PIN LOCK SYSTEM =====================
 
-const ADMIN_PIN_KEY = 'ejAdminPIN';
-const MANAGER_PIN_KEY = 'ejManagerPIN';
-const STAFF_PINS_KEY = 'ejStaffPINs';
+const ADMIN_PIN_KEY = 'demo_ejAdminPIN';
+const MANAGER_PIN_KEY = 'demo_ejManagerPIN';
+const STAFF_PINS_KEY = 'demo_ejStaffPINs';
 const DEFAULT_ADMIN_PIN = '0000';
 
 let pinCurrentUser = null; // 'admin' (owner), 'manager', or stylist name
@@ -9675,11 +9675,11 @@ function pinLockNow() {
 // ===================== AUTO-LOCK (PIN re-prompt after inactivity) =====================
 let _autoLockTimer = null;
 function getAutoLockMins() {
-  try { const v = parseFloat(localStorage.getItem('ejAutoLockMins')); return (isFinite(v) && v >= 0) ? v : 5; } catch { return 5; }
+  try { const v = parseFloat(localStorage.getItem('demo_ejAutoLockMins')); return (isFinite(v) && v >= 0) ? v : 5; } catch { return 5; }
 }
 function setAutoLockMins(m) {
   const n = isFinite(m) && m >= 0 ? m : 0;
-  try { localStorage.setItem('ejAutoLockMins', String(n)); } catch {}
+  try { localStorage.setItem('demo_ejAutoLockMins', String(n)); } catch {}
   autoLockResetTimer();
 }
 function autoLockIsLocked() {
@@ -9799,7 +9799,7 @@ async function renderAccountSection() {
   const st = Array.isArray(STUDIOS) ? STUDIOS.find(s => s.id === activeStudio) : null;
   const studioName = (st && st.name) || '';
   let ownerName = '';
-  try { ownerName = localStorage.getItem('ejOwnerName') || ''; } catch (e) {}
+  try { ownerName = localStorage.getItem('demo_ejOwnerName') || ''; } catch (e) {}
   let email = '';
   try {
     if (cloudReady && sbClient) {
@@ -9818,7 +9818,7 @@ async function renderAccountSection() {
     : 'No active subscription';
   box.innerHTML =
     row('Your name',
-      '<input id="account-owner-name" value="' + String(ownerName).replace(/"/g, '&quot;') + '" placeholder="e.g. Elyshia" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
+      '<input id="account-owner-name" value="' + String(ownerName).replace(/"/g, '&quot;') + '" placeholder="e.g. Ava" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
       '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountSaveOwnerName()">Save</button>') +
     row('Studio name',
       '<input id="account-studio-name" value="' + String(studioName).replace(/"/g, '&quot;') + '" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
@@ -9834,7 +9834,7 @@ async function renderAccountSection() {
 function accountSaveOwnerName() {
   const inp = document.getElementById('account-owner-name');
   if (!inp) return;
-  try { localStorage.setItem('ejOwnerName', inp.value.trim()); } catch (e) {}
+  try { localStorage.setItem('demo_ejOwnerName', inp.value.trim()); } catch (e) {}
   if (typeof cloudToast === 'function') cloudToast('Name saved');
 }
 
@@ -10101,10 +10101,10 @@ let lbAudioCtx = null;
 // Soft synthesised "tick" for save events. Respects the per-device mute flag.
 let _clickDebounce = null;
 function clickSoundEnabled() {
-  try { return (localStorage.getItem('ejClickSound') || 'on') !== 'off'; } catch { return true; }
+  try { return (localStorage.getItem('demo_ejClickSound') || 'on') !== 'off'; } catch { return true; }
 }
 function setClickSoundEnabled(on) {
-  try { localStorage.setItem('ejClickSound', on ? 'on' : 'off'); } catch {}
+  try { localStorage.setItem('demo_ejClickSound', on ? 'on' : 'off'); } catch {}
 }
 function playClickSound() {
   if (!clickSoundEnabled()) return;
@@ -11719,8 +11719,8 @@ function exportStockCSV() {
 
 
 // ===================== SUPABASE CLOUD SYNC (local-first) =====================
-const SB_URL = 'https://eyfgzzpusgdqhhypcaoz.supabase.co';
-const SB_KEY = 'sb_publishable_nNkUb72YURbfysUbgzNvAQ_sYi6C7F0';
+const SB_URL = '';
+const SB_KEY = '';
 let sbClient = null;
 let cloudReady = false;     // signed in & syncing
 let cloudApplying = false;  // true while applying a pull (suppresses push)
@@ -11855,7 +11855,7 @@ function cloudInit() {
         try {
           const { count } = await sbClient.from('studios').select('id', { count: 'exact', head: true });
           if (count === 0) {
-            const pending = localStorage.getItem('ejPendingStudioName');
+            const pending = localStorage.getItem('demo_ejPendingStudioName');
             if (pending) await cloudFirstTimeSetup(pending);
             else cloudPromptNewStudio();
             return;
@@ -11882,7 +11882,7 @@ function cloudPromptNewStudio() {
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px 30px;width:420px;max-width:95vw">' +
       '<div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--accent);margin-bottom:8px">Welcome</div>' +
       '<div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5">Email confirmed. What would you like to call your studio?</div>' +
-      '<input id="cloud-new-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" onkeydown="if(event.key===\'Enter\')cloudNewStudioSubmit()" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<input id="cloud-new-studio-name" type="text" placeholder="Studio name (e.g. Luna Brow Studio)" onkeydown="if(event.key===\'Enter\')cloudNewStudioSubmit()" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
       '<div id="cloud-new-studio-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>' +
       '<button class="btn btn-primary" style="width:100%" onclick="cloudNewStudioSubmit()">Create Studio</button>' +
     '</div>';
@@ -12010,7 +12010,7 @@ async function cloudPushKind(kind) {
 }
 
 // ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
-const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
+const CLOUD_GLOBAL_KEYS = ['demo_ejAdminPIN', 'demo_ejManagerPIN', 'demo_ejStaffPINs', 'demo_ejAutoLockMins', 'demo_ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff',
   'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
@@ -12033,7 +12033,7 @@ function cloudPatchLocalStorage() {
     orig(k, v);
     try {
       // Subtle click tick on any app save (debounced so per-keystroke saves don't chatter)
-      if (k && typeof k === 'string' && k.indexOf('ej') === 0 && !cloudApplying) {
+      if (k && typeof k === 'string' && k.indexOf('demo_ej') === 0 && !cloudApplying) {
         clearTimeout(_clickDebounce);
         _clickDebounce = setTimeout(() => { playClickSound(); showSaveBlip(); }, 280);
       }
@@ -12166,7 +12166,7 @@ async function cloudPullAll() {
     const { data: studs } = await sbClient.from('studios').select('*');
     if (studs && studs.length) {
       STUDIOS = studs.map(s => ({ id: s.id, name: s.name, color: s.color || STUDIO_COLORS[0] }));
-      localStorage.setItem('ejStudios', JSON.stringify(STUDIOS));
+      localStorage.setItem('demo_ejStudios', JSON.stringify(STUDIOS));
     }
     const list = (studs && studs.length) ? studs : STUDIOS;
     for (const st of list) {
@@ -12195,7 +12195,7 @@ function updateBrandingFromStudio() {
 function reloadActiveStudioData() {
   if (Array.isArray(STUDIOS) && STUDIOS.length && !STUDIOS.find(s => s.id === activeStudio)) {
     activeStudio = STUDIOS[0].id;
-    try { localStorage.setItem('ejActiveStudio', activeStudio); } catch (e) {}
+    try { localStorage.setItem('demo_ejActiveStudio', activeStudio); } catch (e) {}
   }
   updateBrandingFromStudio();
   userEntries = loadStorage();
@@ -12237,7 +12237,7 @@ function cloudConnectPrompt() {
       '<input id="cloud-pass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
       '<div id="cloud-signup-fields" style="display:none">' +
         '<input id="cloud-pass2" type="password" placeholder="Confirm password" autocomplete="new-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
-        '<input id="cloud-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+        '<input id="cloud-studio-name" type="text" placeholder="Studio name (e.g. Luna Brow Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
         '<select id="cloud-booking-system" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);outline:none;margin-bottom:10px;font-family:var(--font)">' +
           '<option value="">Which booking system do you use? (optional)</option>' +
           '<option value="timely">Timely</option>' +
@@ -12321,7 +12321,7 @@ async function cloudDoSignIn() {
     const m = document.getElementById('cloud-modal'); if (m) m.remove();
     cloudUpdateStatus();
     fetchSubscription();
-    const pendingName = localStorage.getItem('ejPendingStudioName');
+    const pendingName = localStorage.getItem('demo_ejPendingStudioName');
     if (pendingName) {
       await cloudFirstTimeSetup(pendingName);
     } else {
@@ -12347,8 +12347,8 @@ async function cloudDoSignUp() {
   try {
     const { data, error } = await sbClient.auth.signUp({ email, password: pass });
     if (error) { errEl.textContent = error.message || 'Sign-up failed.'; return; }
-    localStorage.setItem('ejPendingStudioName', studioName);
-    if (bookingSystem) localStorage.setItem('ejPendingBookingSystem', bookingSystem);
+    localStorage.setItem('demo_ejPendingStudioName', studioName);
+    if (bookingSystem) localStorage.setItem('demo_ejPendingBookingSystem', bookingSystem);
     if (data && data.session) {
       cloudReady = true;
       const m = document.getElementById('cloud-modal'); if (m) m.remove();
@@ -12361,13 +12361,13 @@ async function cloudDoSignUp() {
   } catch (e) { if (errEl) errEl.textContent = 'Sign-up failed.'; }
 }
 async function cloudFirstTimeSetup(studioName) {
-  const KEEP = new Set(['ejClickSound', 'ejAutoLockMins']);
+  const KEEP = new Set(['demo_ejClickSound', 'demo_ejAutoLockMins']);
   const toRemove = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (k && k.indexOf('ej') === 0 && !KEEP.has(k)) toRemove.push(k);
   }
-  const pendingBookingSystem = (localStorage.getItem('ejPendingBookingSystem') || '').trim();
+  const pendingBookingSystem = (localStorage.getItem('demo_ejPendingBookingSystem') || '').trim();
   cloudApplying = true;
   try {
     toRemove.forEach(k => localStorage.removeItem(k));
@@ -12377,8 +12377,8 @@ async function cloudFirstTimeSetup(studioName) {
     activeStudio = newId;
     STYLISTS = [];
     userEntries = [];
-    localStorage.setItem('ejStudios', JSON.stringify(STUDIOS));
-    localStorage.setItem('ejActiveStudio', newId);
+    localStorage.setItem('demo_ejStudios', JSON.stringify(STUDIOS));
+    localStorage.setItem('demo_ejActiveStudio', newId);
   } finally {
     cloudApplying = false;
   }
@@ -12388,12 +12388,12 @@ async function cloudFirstTimeSetup(studioName) {
     const r = await sbClient.from('studios').upsert([row]);
     if (r && r.error) alert('Failed to create studio in cloud: ' + r.error.message);
   } catch (e) {}
-  localStorage.removeItem('ejPendingBookingSystem');
+  localStorage.removeItem('demo_ejPendingBookingSystem');
   try { await cloudPullAll(); } catch (e) {}
   cloudStamp();
   cloudToast('Welcome to ' + studioName + ' ✓');
   cloudStartRealtime();
-  localStorage.removeItem('ejPendingStudioName');
+  localStorage.removeItem('demo_ejPendingStudioName');
   try {
     if (typeof renderSidebarStudios === 'function') renderSidebarStudios();
     const ap = document.querySelector('.page.active');
@@ -12978,10 +12978,190 @@ function endTour() {
   if (root) root.style.display = 'none';
 }
 
-// ===================== INIT =====================
+
+// ===================== DEMO MODE (sample data, no cloud) =====================
+// Marketing demo build. Seeds a fictional studio (Luna Brow Studio) into
+// 'demo_'-prefixed localStorage keys and never connects to the cloud.
+
+function demoMulberry(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function demoISO(d) {
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+
+const DEMO_STYLIST_NAMES = ['Ava', 'Mia', 'Chloe', 'Sophie'];
+
+function demoSeedAll() {
+  const R = demoMulberry(20260707);
+  const pick = arr => arr[Math.floor(R() * arr.length)];
+  const between = (a, b) => a + R() * (b - a);
+  const K = base => 'demo_' + base + '_ej';
+
+  localStorage.setItem('demo_ejStudios', JSON.stringify([{ id: 'ej', name: 'Luna Brow Studio', color: '#c9a96e' }]));
+  localStorage.setItem(K('ejStylists'), JSON.stringify(DEMO_STYLIST_NAMES.map(n => ({ name: n, isContractor: false }))));
+  localStorage.setItem(K('ejStudioRate'), '30');
+  localStorage.setItem(K('ejContractorName'), 'Jess');
+  localStorage.setItem('demo_ejOwnerName', 'Luna');
+  localStorage.setItem('demo_ejAutoLockMins', '0');
+
+  // ── Daily entries: Jan 1 2026 to today, closed Sun and Mon ──
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const start = new Date(2026, 0, 1);
+  const end = today < new Date(2026, 11, 31) ? today : new Date(2026, 11, 31);
+  const notesPool = ['Bridal party in today', 'Lash lift launch week', 'Instagram promo, new client special',
+    'Market pop-up flyers went out', 'Team training morning, opened late', 'VIP loyalty night'];
+  const entries = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dow = d.getDay();
+    if (dow === 0 || dow === 1) continue;
+    if (R() < 0.025) continue;
+    const growth = 1 + d.getMonth() * 0.04;
+    const isSat = dow === 6;
+    const working = DEMO_STYLIST_NAMES.filter(() => R() < (isSat ? 0.97 : 0.8));
+    if (!working.length) working.push('Ava');
+    const sd = {};
+    let ret = 0, retR = 0, newC = 0, newR = 0, svc = 0, prod = 0, prodQty = 0;
+    working.forEach(name => {
+      const clients = Math.round(between(3, isSat ? 8 : 6));
+      const sRet = Math.round(clients * between(0.55, 0.8));
+      const sNew = clients - sRet;
+      const sRetR = Math.round(sRet * between(0.6, 0.85));
+      const sNewR = Math.round(sNew * between(0.3, 0.6));
+      const sSvc = Math.round(clients * between(95, 140) * growth / 5) * 5;
+      const sQty = R() < 0.35 ? Math.round(between(1, 3)) : 0;
+      const sProd = sQty ? Math.round(sQty * between(28, 70)) : 0;
+      sd[name] = { c: clients, rr: sRetR, rnr: sRet - sRetR, nr: sNew, nrr: sNewR, nnr: sNew - sNewR,
+                   svc: sSvc, prod: sProd, prodQty: sQty, tot: sSvc + sProd, shifts: 1 };
+      ret += sRet; retR += sRetR; newC += sNew; newR += sNewR; svc += sSvc; prod += sProd; prodQty += sQty;
+    });
+    let contractor = null;
+    if (isSat && R() < 0.6) {
+      const cClients = Math.round(between(3, 6));
+      const cSvc = Math.round(cClients * between(100, 130) / 5) * 5;
+      contractor = { name: 'Jess', clients: cClients, svc: cSvc, prod: R() < 0.25 ? 45 : 0, cash: Math.round(cSvc * 0.2 / 5) * 5 };
+    }
+    entries.push({
+      date: demoISO(d),
+      ret, retR, retNR: ret - retR,
+      newC, newR, newNR: newC - newR,
+      prod, prodQty, svc, total: svc + prod,
+      stylists: working.length,
+      notes: R() < 0.07 ? pick(notesPool) : '',
+      sd, contractor
+    });
+  }
+  localStorage.setItem(K('ejEntries'), JSON.stringify(entries));
+
+  // ── Client service log (with lapsed clients for follow-up features) ──
+  const firstNames = ['Grace', 'Olivia', 'Ella', 'Isla', 'Zoe', 'Harper', 'Willow', 'Ivy', 'Matilda', 'Sienna',
+    'Evie', 'Lily', 'Frankie', 'Billie', 'Daisy', 'Poppy', 'Georgia', 'Tahlia', 'Imogen', 'Ayla',
+    'Charlotte', 'Amelia', 'Mackenzie', 'Indie', 'Lara', 'Maya', 'Bonnie', 'Stella', 'Kirra', 'Jade',
+    'Holly', 'Paige', 'Tessa', 'Nina', 'Elsie', 'Freya', 'Marli', 'Sadie', 'Cleo', 'April',
+    'Bree', 'Dana', 'Erin', 'Faith', 'Gemma', 'Heidi', 'Romy', 'Piper'];
+  const lastInitials = 'ABCDEFGHJKLMNPRSTW';
+  const services = ['Brow Lamination', 'Brow Sculpt + Tint', 'Hybrid Tint', 'Lash Lift', 'Brow Shape', 'Lash Lift + Tint'];
+  const memos = ['Prefers mornings', 'Sensitive skin, patch tested', 'Referred by a friend', 'Loves the aftercare serum', 'Books 6 weeks ahead'];
+  const usedNames = new Set();
+  const clientLog = {};
+  DEMO_STYLIST_NAMES.forEach(sname => {
+    const rows = [];
+    for (let i = 0; i < 12; i++) {
+      let cname;
+      do { cname = pick(firstNames) + ' ' + lastInitials[Math.floor(R() * lastInitials.length)] + '.'; } while (usedNames.has(cname));
+      usedNames.add(cname);
+      const daysAgo = Math.round(between(3, 130));
+      const visit = new Date(today); visit.setDate(visit.getDate() - daysAgo);
+      rows.push({
+        name: cname + ' - ' + pick(services),
+        consult: R() < 0.85, before: R() < 0.6, after: R() < 0.6, notes: R() < 0.4,
+        rebook: daysAgo < 40 ? R() < 0.7 : R() < 0.35,
+        product: R() < 0.3,
+        memo: R() < 0.25 ? pick(memos) : '',
+        lastVisit: demoISO(visit)
+      });
+    }
+    clientLog[sname] = rows;
+  });
+  localStorage.setItem(K('ejClientServiceLog'), JSON.stringify(clientLog));
+
+  // ── P&L inputs, goals, stock, business details ──
+  localStorage.setItem(K('ejFixedExpenses'), JSON.stringify({
+    rent: 2600, wages: 16800, stock: 850, marketing: 420, software: 190, insurance: 150, utilities: 260, professional: 120 }));
+  localStorage.setItem(K('ejVariableDefaults'), JSON.stringify({ v_stock: 600, v_marketing: 250, v_supplies: 180 }));
+  localStorage.setItem(K('ejGoals'), JSON.stringify({
+    studio: { revenue: 52000, clients: 440, retRebookPct: 72, newRebookPct: 45, productRev: 2400 }, stylists: {} }));
+  const ago = days => { const d = new Date(today); d.setDate(d.getDate() - days); return demoISO(d); };
+  localStorage.setItem(K('ejStock'), JSON.stringify([
+    { id: 'p_demo1', name: 'Brow Lamination Kit', sku: 'LBS-001', barcode: '', supplier: 'Luxe Beauty Supply', cost: 38, retail: 0,  stock: 6,  reorder: 3, reorderQty: 12, addedDate: ago(160) },
+    { id: 'p_demo2', name: 'Hybrid Tint - Ash Brown', sku: 'LBS-002', barcode: '', supplier: 'Luxe Beauty Supply', cost: 14, retail: 0,  stock: 2,  reorder: 3, reorderQty: 10, addedDate: ago(150) },
+    { id: 'p_demo3', name: 'Aftercare Serum', sku: 'LBS-003', barcode: '', supplier: 'Glow Wholesale', cost: 11, retail: 34, stock: 18, reorder: 6, reorderQty: 24, addedDate: ago(120) },
+    { id: 'p_demo4', name: 'Brow Gel - Clear', sku: 'LBS-004', barcode: '', supplier: 'Glow Wholesale', cost: 8,  retail: 26, stock: 0,  reorder: 4, reorderQty: 12, addedDate: ago(110) },
+    { id: 'p_demo5', name: 'Lash Lift Kit', sku: 'LBS-005', barcode: '', supplier: 'Luxe Beauty Supply', cost: 42, retail: 0,  stock: 5,  reorder: 2, reorderQty: 6,  addedDate: ago(90) },
+    { id: 'p_demo6', name: 'Brow Pencil - Taupe', sku: 'LBS-006', barcode: '', supplier: 'Glow Wholesale', cost: 9,  retail: 29, stock: 14, reorder: 5, reorderQty: 15, addedDate: ago(75) }
+  ]));
+  localStorage.setItem(K('ejBizDetails'), JSON.stringify({
+    'biz-name': 'Luna Brow Studio', 'biz-abn': '12 345 678 901', 'biz-phone': '0400 123 456',
+    'biz-email': 'hello@lunabrow.example', 'biz-address': '12 Palm Street, Brisbane QLD 4000' }));
+}
+
+function demoResetData() {
+  if (!confirm('Reset the demo back to fresh sample data?')) return;
+  Object.keys(localStorage).filter(k => k.indexOf('demo_') === 0).forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+
+// Demo build never connects to the cloud: keep the landing page hidden and
+// show a friendly status in the sidebar instead. (Overrides the real one.)
+function cloudUpdateStatus() {
+  landingHide();
+  const bar = document.getElementById('cloud-bar');
+  if (bar) bar.innerHTML = '<div style="font-size:13px;color:var(--muted2)">Demo mode: cloud sync off</div>';
+}
+
+function demoRibbon() {
+  if (document.getElementById('demo-ribbon')) return;
+  const el = document.createElement('div');
+  el.id = 'demo-ribbon';
+  el.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99990;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--accent);border-radius:999px;padding:8px 10px 8px 18px;box-shadow:0 6px 24px rgba(0,0,0,.35);font-size:14px;color:var(--text);white-space:nowrap';
+  el.innerHTML = '<span><strong style="color:var(--accent)">Demo</strong> · sample data only</span>' +
+    '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="startTour(\'owner\')">Take the tour</button>' +
+    '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="demoResetData()">Reset demo</button>';
+  document.body.appendChild(el);
+}
+
+function demoPinHint() {
+  const screen = document.getElementById('pin-lock-screen');
+  if (!screen || document.getElementById('demo-pin-hint')) return;
+  const el = document.createElement('div');
+  el.id = 'demo-pin-hint';
+  el.style.cssText = 'position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:14px;color:var(--muted)';
+  el.textContent = 'Demo login: tap Owner, PIN 0000';
+  screen.appendChild(el);
+}
+
+function demoInit() {
+  try { if (!localStorage.getItem('demo_ejEntries_ej')) demoSeedAll(); } catch (e) { console.warn('demo seed failed', e); }
+  try { localStorage.setItem('demo_ejActiveStudio', 'ej'); } catch (e) {}
+  // Install the save hook (click + "Saved" blip). Cloud pushes can never fire:
+  // cloudReady stays false in the demo build.
+  try { cloudPatchLocalStorage(); } catch (e) {}
+  reloadActiveStudioData();
+  landingHide();
+  pinLoginSuccess('admin');
+  demoRibbon();
+  demoPinHint();
+}
+
+// ===================== INIT (DEMO) =====================
 renderSidebarStudios();
-cloudInit();
-try { handleStripeReturn(); } catch (e) {}
+demoInit();
 </script>
 </body>
 </html>
