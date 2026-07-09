@@ -3944,8 +3944,9 @@ function loadStylistPhoto(name) { try { return localStorage.getItem(getPhotoKey(
 function cloudPushPhotosSoon() {
   try {
     if (!cloudReady || cloudApplying) return;
+    cloudMarkDirty('photos');
     clearTimeout(_cloudTimers.photos);
-    _cloudTimers.photos = setTimeout(() => { try { cloudPushState(true); } catch (e) {} }, 1500);
+    _cloudTimers.photos = setTimeout(() => { try { cloudPushStateTracked(true); } catch (e) {} }, 1500);
   } catch (e) {}
 }
 function saveStylistPhoto(name, dataUrl) { try { localStorage.setItem(getPhotoKey(name), dataUrl); } catch {} cloudPushPhotosSoon(); }
@@ -11494,6 +11495,60 @@ let cloudReady = false;     // signed in & syncing
 let cloudApplying = false;  // true while applying a pull (suppresses push)
 let _cloudTimers = {};
 
+// ── Sync reliability: dirty flags (persisted), retries, session checks ──
+// A kind is marked dirty when a save is queued and cleared only once the cloud
+// confirms it. Flags survive reloads, so a save that Safari killed mid-upload
+// is pushed again the next time the app opens.
+let _cloudDirty = {};
+try { _cloudDirty = JSON.parse(localStorage.getItem('cloudDirtyKinds') || '{}') || {}; } catch (e) { _cloudDirty = {}; }
+function cloudMarkDirty(kind) { _cloudDirty[kind] = true; try { localStorage.setItem('cloudDirtyKinds', JSON.stringify(_cloudDirty)); } catch (e) {} }
+function cloudClearDirty(kind) { delete _cloudDirty[kind]; try { localStorage.setItem('cloudDirtyKinds', JSON.stringify(_cloudDirty)); } catch (e) {} }
+
+let _cloudRetryTimer = null, _cloudRetryDelay = 5000, _cloudFailToasted = false;
+function cloudPushFailed(kind) {
+  cloudMarkDirty(kind);
+  if (!_cloudFailToasted) { _cloudFailToasted = true; cloudToast('Cloud sync failed, retrying…'); }
+  clearTimeout(_cloudRetryTimer);
+  _cloudRetryTimer = setTimeout(() => cloudFlushPending(), _cloudRetryDelay);
+  _cloudRetryDelay = Math.min(_cloudRetryDelay * 2, 120000);
+}
+function cloudPushSucceeded(kind) {
+  cloudClearDirty(kind);
+  _cloudRetryDelay = 5000;
+  _cloudFailToasted = false;
+}
+// Push everything still waiting (pending debounce or failed earlier), right now.
+function cloudFlushPending() {
+  if (!cloudReady || cloudApplying || !sbClient) return Promise.resolve();
+  const jobs = [];
+  Object.keys(_cloudDirty).forEach(kind => {
+    if (!_cloudDirty[kind]) return;
+    clearTimeout(_cloudTimers[kind]);
+    if (kind === 'state') jobs.push(cloudPushStateTracked(false));
+    else if (kind === 'photos') jobs.push(cloudPushStateTracked(true));
+    else jobs.push(cloudPushKind(kind));
+  });
+  return Promise.all(jobs).catch(() => {});
+}
+// getSession() refreshes an expired token on demand. Only when there is truly
+// no session left do we drop out of the Connected state and ask to reconnect.
+async function cloudEnsureSession() {
+  if (!sbClient) return false;
+  try {
+    const { data } = await sbClient.auth.getSession();
+    if (data && data.session) return true;
+    cloudSessionLost();
+    return false;
+  } catch (e) { return false; }   // network hiccup: keep the session, retry later
+}
+function cloudSessionLost() {
+  if (!cloudReady) return;
+  cloudReady = false;
+  cloudStopRealtime();
+  cloudUpdateStatus();
+  cloudToast('Signed out of cloud, please reconnect');
+}
+
 // ── row mappers (local entry object <-> daily_entries row) ──
 function entryToRow(studioId, e) {
   return {
@@ -11527,6 +11582,9 @@ function cloudInit() {
   try {
     if (!window.supabase || !window.supabase.createClient) { cloudUpdateStatus(); return; }
     sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+    // Detect real sign-outs (revoked/expired sessions) instead of silently
+    // showing "Connected" while every upload fails
+    try { sbClient.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') cloudSessionLost(); }); } catch (e) {}
     sbClient.auth.getSession().then(async ({ data }) => {
       if (data && data.session) {
         cloudReady = true;
@@ -11541,7 +11599,9 @@ function cloudInit() {
             return;
           }
         } catch (e) {}
-        cloudPullAll().then(cloudStamp);
+        // Push anything a killed/suspended page never managed to upload BEFORE
+        // pulling, so the pull doesn't overwrite it
+        cloudFlushPending().then(() => cloudPullAll()).then(cloudStamp);
         cloudStartRealtime();
       } else {
         cloudUpdateStatus();
@@ -11602,54 +11662,87 @@ function cloudOnRemoteChange() {
   }, 1200);   // debounce bursts into a single pull
 }
 
+// ── App switch / phone lock handling ──
+// iOS Safari freezes timers and kills requests the moment the page is hidden,
+// so debounced uploads can vanish. Flush immediately on hide, and on return
+// re-check the session, re-push anything unsent, and refresh from the cloud.
+let _cloudHiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    _cloudHiddenAt = Date.now();
+    cloudFlushPending();
+  } else {
+    cloudOnAppResume();
+  }
+});
+window.addEventListener('pagehide', () => cloudFlushPending());
+window.addEventListener('online', () => cloudFlushPending());
+function cloudOnAppResume() {
+  if (!cloudReady || !sbClient) return;
+  const awayMs = _cloudHiddenAt ? (Date.now() - _cloudHiddenAt) : 0;
+  cloudEnsureSession().then(sessionOk => {
+    if (!sessionOk) return;
+    const flushed = cloudFlushPending();
+    if (awayMs > 20000) {   // long enough for iOS to have killed the realtime socket
+      cloudStartRealtime();
+      flushed.then(() => { if (cloudReady && !cloudApplying) cloudPullAll().then(cloudStamp); });
+    }
+  });
+}
+
 // Debounced push on save
 function cloudSyncOut(kind) {
   if (!cloudReady || cloudApplying || !sbClient) return;
+  cloudMarkDirty(kind);
   clearTimeout(_cloudTimers[kind]);
   _cloudTimers[kind] = setTimeout(() => cloudPushKind(kind), 600);
 }
 async function cloudPushKind(kind) {
   if (!cloudReady || !sbClient) return;
+  if (!(await cloudEnsureSession())) return;
+  // supabase-js doesn't throw on API errors, it returns {error} — check every call
+  const ok = r => { if (r.error) throw r.error; return r; };
   try {
     if (kind === 'studios') {
       // Diff sync — delete cloud studios that no longer exist locally, then upsert the rest
       const localIds = new Set(STUDIOS.map(s => s.id));
-      const sel = await sbClient.from('studios').select('id');
-      if (!sel.error && sel.data) {
+      const sel = ok(await sbClient.from('studios').select('id'));
+      if (sel.data) {
         const toDel = sel.data.filter(c => !localIds.has(c.id)).map(c => c.id);
         if (toDel.length) {
           // Remove the studio's child data first, then the studio row itself
-          await sbClient.from('stylists').delete().in('studio_id', toDel);
-          await sbClient.from('daily_entries').delete().in('studio_id', toDel);
-          await sbClient.from('app_state').delete().in('studio_id', toDel);
-          await sbClient.from('studios').delete().in('id', toDel);
+          ok(await sbClient.from('stylists').delete().in('studio_id', toDel));
+          ok(await sbClient.from('daily_entries').delete().in('studio_id', toDel));
+          ok(await sbClient.from('app_state').delete().in('studio_id', toDel));
+          ok(await sbClient.from('studios').delete().in('id', toDel));
         }
       }
-      await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color })));
+      ok(await sbClient.from('studios').upsert(STUDIOS.map(s => ({ id: s.id, name: s.name, color: s.color }))));
     } else if (kind === 'stylists') {
       // Diff sync — delete cloud rows that no longer exist locally, then upsert the rest
       const localNames = new Set(STYLISTS.map(s => s.name));
-      const sel = await sbClient.from('stylists').select('name').eq('studio_id', activeStudio);
-      if (!sel.error && sel.data) {
+      const sel = ok(await sbClient.from('stylists').select('name').eq('studio_id', activeStudio));
+      if (sel.data) {
         const toDel = sel.data.filter(c => !localNames.has(c.name)).map(c => c.name);
-        if (toDel.length) await sbClient.from('stylists').delete().eq('studio_id', activeStudio).in('name', toDel);
+        if (toDel.length) ok(await sbClient.from('stylists').delete().eq('studio_id', activeStudio).in('name', toDel));
       }
       const rows = STYLISTS.map((x, i) => ({ studio_id: activeStudio, name: x.name, is_contractor: !!x.isContractor, sort_order: i }));
-      if (rows.length) await sbClient.from('stylists').upsert(rows, { onConflict: 'studio_id,name' });
+      if (rows.length) ok(await sbClient.from('stylists').upsert(rows, { onConflict: 'studio_id,name' }));
     } else if (kind === 'entries') {
       // Diff sync — delete cloud entries whose date is no longer present locally, then upsert
       const localDates = new Set(userEntries.map(e => e.date));
-      const sel = await sbClient.from('daily_entries').select('entry_date').eq('studio_id', activeStudio);
-      if (!sel.error && sel.data) {
+      const sel = ok(await sbClient.from('daily_entries').select('entry_date').eq('studio_id', activeStudio));
+      if (sel.data) {
         const toDel = sel.data.filter(c => !localDates.has(c.entry_date)).map(c => c.entry_date);
-        if (toDel.length) await sbClient.from('daily_entries').delete().eq('studio_id', activeStudio).in('entry_date', toDel);
+        if (toDel.length) ok(await sbClient.from('daily_entries').delete().eq('studio_id', activeStudio).in('entry_date', toDel));
       }
       const rows = userEntries.map(e => entryToRow(activeStudio, e));
-      if (rows.length) await sbClient.from('daily_entries').upsert(rows, { onConflict: 'studio_id,entry_date' });
+      if (rows.length) ok(await sbClient.from('daily_entries').upsert(rows, { onConflict: 'studio_id,entry_date' }));
     }
     _cloudLastPush = Date.now();
     cloudStamp();
-  } catch (e) { console.warn('cloud push failed', kind, e); }
+    cloudPushSucceeded(kind);
+  } catch (e) { console.warn('cloud push failed', kind, e); cloudPushFailed(kind); }
 }
 
 // ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
@@ -11681,8 +11774,9 @@ function cloudPatchLocalStorage() {
         _clickDebounce = setTimeout(playClickSound, 280);
       }
       if (cloudReady && !cloudApplying && cloudIsStateKey(k)) {
+        cloudMarkDirty('state');
         clearTimeout(_cloudTimers.state);
-        _cloudTimers.state = setTimeout(() => cloudPushState(false), 800);
+        _cloudTimers.state = setTimeout(() => cloudPushStateTracked(false), 800);
       }
     } catch (e) {}
   };
@@ -11716,6 +11810,21 @@ async function cloudPushState(includePhotos) {
     cloudStamp();
     return { ok: true };
   } catch (e) { return { error: String((e && e.message) || e) }; }
+}
+// Wrapper for the debounced/background pushes: verifies the session first and
+// keeps the dirty flags + retry loop honest based on the actual result.
+async function cloudPushStateTracked(includePhotos) {
+  const kind = includePhotos ? 'photos' : 'state';
+  if (!cloudReady || !sbClient) return;
+  if (!(await cloudEnsureSession())) return;
+  const res = await cloudPushState(includePhotos);
+  if (res && res.ok) {
+    cloudPushSucceeded('state');                      // photos push includes all state rows
+    if (includePhotos) cloudPushSucceeded('photos');
+  } else {
+    console.warn('cloud state push failed', res && res.error);
+    cloudPushFailed(kind);
+  }
 }
 async function cloudPullState() {
   if (!cloudReady || !sbClient) return;
@@ -12388,6 +12497,7 @@ async function cloudOnConnected() {
       const res = await cloudMigrateAll();
       if (res && res.error) { alert('Initial upload failed:\n' + res.error); return; }
     }
+    await cloudFlushPending();   // push anything saved while disconnected before pulling
     await cloudPullAll();
     cloudStamp();
     cloudToast('Cloud connected ✓');
@@ -12396,8 +12506,8 @@ async function cloudOnConnected() {
 }
 async function cloudSignOut() {
   cloudStopRealtime();
+  cloudReady = false;   // before signOut, so the SIGNED_OUT listener treats it as intentional
   try { await sbClient.auth.signOut(); } catch {}
-  cloudReady = false;
   cloudUpdateStatus();
 }
 
@@ -12412,9 +12522,9 @@ async function cloudRevokeAll() {
   try {
     const { error: upErr } = await sbClient.auth.updateUser({ password: newPass });
     if (upErr) { alert('Failed to update password: ' + upErr.message); return; }
-    try { await sbClient.auth.signOut({ scope: 'global' }); } catch (e) {}
     cloudStopRealtime();
-    cloudReady = false;
+    cloudReady = false;   // before signOut, so the SIGNED_OUT listener treats it as intentional
+    try { await sbClient.auth.signOut({ scope: 'global' }); } catch (e) {}
     cloudUpdateStatus();
     alert('✓ Done.\n\nThe new password is set and every device has been signed out of the cloud.\n\nNow share the new password ONLY with people you want to keep access.');
   } catch (e) { alert('Error: ' + ((e && e.message) || e)); }
