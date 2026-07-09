@@ -411,6 +411,25 @@ body {
   display: none;
   animation: slideUp 0.3s ease;
 }
+/* Small unobtrusive blip shown whenever anything saves, on any page */
+.save-blip {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.save-blip.show { opacity: 1; transform: translateY(0); }
 @keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
@@ -2359,10 +2378,12 @@ body.manager-view .owner-only { display: none !important; }
     </div>
     <h1 style="font-family:var(--serif);font-style:italic;font-size:48px;color:var(--text);margin:0 0 20px;line-height:1.15;font-weight:400">Know your studio's numbers,<br>without spreadsheets.</h1>
     <p style="font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 44px;line-height:1.6">Clarity for you and your business. A daily performance tracker for brow, lash and beauty studios, with revenue, stylists and clients in one quiet, beautiful dashboard.</p>
-    <div style="display:flex;gap:14px;justify-content:center;margin-bottom:88px;flex-wrap:wrap">
+    <div style="display:flex;gap:14px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
       <button class="btn btn-primary" style="padding:14px 32px;font-size:16px" onclick="landingOpenAuth('signup')">Get Started Free</button>
       <button class="btn btn-ghost" style="padding:14px 32px;font-size:16px" onclick="landingOpenAuth('signin')">Log In</button>
+      <button class="btn btn-ghost" style="padding:14px 32px;font-size:16px" onclick="window.open('demo.html','_blank')">Try the Demo</button>
     </div>
+    <div style="font-size:13px;color:var(--muted2);margin:0 auto 88px">The demo is a full walkthrough with sample data. No sign-up needed.</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:36px;margin-bottom:64px;text-align:left">
       <div>
         <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Daily entries</div>
@@ -9848,7 +9869,7 @@ function setLeaderboardMetric(m) {
 }
 
 // What time window the rankings cover — any user can switch; persisted per studio
-const LEADERBOARD_PERIODS = { week: 'This Week', lastweek: 'Last Week', month: 'This Month', year: 'This Year' };
+const LEADERBOARD_PERIODS = { week: 'This Week', lastweek: 'Last Week', month: 'This Month', lastmonth: 'Last Month', year: 'This Year' };
 
 // Resolve a period key → { label, range:{start,end}|null, baseMonths:[] }
 // baseMonths = which STYLIST_MONTHLY months to fold in (seed data is monthly, BASE_YEAR only)
@@ -9869,12 +9890,17 @@ function lbPeriodResolve(period) {
     range = { start: lm, end: ls };
   } else if (period === 'month') {
     range = { start: new Date(curYear, today.getMonth(), 1), end: new Date(curYear, today.getMonth() + 1, 0) };
+  } else if (period === 'lastmonth') {
+    // month-1 rolls into December of the previous year automatically
+    range = { start: new Date(curYear, today.getMonth() - 1, 1), end: new Date(curYear, today.getMonth(), 0) };
   } else if (period === 'year') {
     range = { start: new Date(curYear, 0, 1), end: new Date(curYear, 11, 31) };
   }
   let baseMonths = [];
+  const prevMonthStart = new Date(curYear, today.getMonth() - 1, 1);
   if (period === 'year' && baseAvailable) baseMonths = ['Jan','Feb','Mar','Apr'];
   else if (period === 'month' && baseAvailable) baseMonths = [MONTH_NAMES[today.getMonth()]];
+  else if (period === 'lastmonth' && prevMonthStart.getFullYear() === BASE_YEAR) baseMonths = [MONTH_NAMES[prevMonthStart.getMonth()]];
   // week / lastweek → monthly seed data can't be sliced to a week
   return { label, range, baseMonths };
 }
@@ -9918,6 +9944,30 @@ function playClickSound() {
     g.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
     o.connect(g); g.connect(ctx.destination);
     o.start(now); o.stop(now + 0.06);
+  } catch (e) {}
+}
+
+// Small "✓ Saved" blip shown whenever anything saves, on any page.
+// Driven by the same localStorage hook as the click sound. Quiet during the
+// first moments after load so boot-time writes don't flash it.
+let _saveBlipTimer = null, _saveBlipReady = false;
+window.addEventListener('load', () => { setTimeout(() => { _saveBlipReady = true; }, 1500); });
+function showSaveBlip() {
+  try {
+    if (!_saveBlipReady) return;
+    const t = document.getElementById('toast');
+    if (t && t.style.display === 'block') return;   // a real toast message is up, don't overlap it
+    let el = document.getElementById('save-blip');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'save-blip';
+      el.className = 'save-blip';
+      el.innerHTML = '<span style="color:var(--green);font-weight:700">✓</span> Saved';
+      document.body.appendChild(el);
+    }
+    el.classList.add('show');
+    clearTimeout(_saveBlipTimer);
+    _saveBlipTimer = setTimeout(() => el.classList.remove('show'), 1400);
   } catch (e) {}
 }
 
@@ -11498,11 +11548,42 @@ let _cloudTimers = {};
 // ── Sync reliability: dirty flags (persisted), retries, session checks ──
 // A kind is marked dirty when a save is queued and cleared only once the cloud
 // confirms it. Flags survive reloads, so a save that Safari killed mid-upload
-// is pushed again the next time the app opens.
+// is pushed again the next time the app opens. Values are the timestamp of the
+// oldest unpushed change, so ancient queued data can be discarded instead of
+// overwriting days of newer edits from other devices.
 let _cloudDirty = {};
 try { _cloudDirty = JSON.parse(localStorage.getItem('cloudDirtyKinds') || '{}') || {}; } catch (e) { _cloudDirty = {}; }
-function cloudMarkDirty(kind) { _cloudDirty[kind] = true; try { localStorage.setItem('cloudDirtyKinds', JSON.stringify(_cloudDirty)); } catch (e) {} }
-function cloudClearDirty(kind) { delete _cloudDirty[kind]; try { localStorage.setItem('cloudDirtyKinds', JSON.stringify(_cloudDirty)); } catch (e) {} }
+// Individual localStorage keys with unpushed changes: the auto state push sends
+// only these (not every key wholesale), so e.g. changing a setting on one
+// device can't re-upload that device's stale timesheets over another device's
+// deletion.
+let _cloudDirtyStateKeys = {};
+try { _cloudDirtyStateKeys = JSON.parse(localStorage.getItem('cloudDirtyStateKeys') || '{}') || {}; } catch (e) { _cloudDirtyStateKeys = {}; }
+function _cloudSaveDirty() {
+  try {
+    localStorage.setItem('cloudDirtyKinds', JSON.stringify(_cloudDirty));
+    localStorage.setItem('cloudDirtyStateKeys', JSON.stringify(_cloudDirtyStateKeys));
+  } catch (e) {}
+}
+function cloudMarkDirty(kind) { if (!_cloudDirty[kind]) { _cloudDirty[kind] = Date.now(); } _cloudSaveDirty(); }
+function cloudClearDirty(kind) { delete _cloudDirty[kind]; _cloudSaveDirty(); }
+function cloudMarkStateKeyDirty(lsKey) { _cloudDirtyStateKeys[lsKey] = true; _cloudSaveDirty(); }
+function cloudClearStateKeys(keys) { keys.forEach(k => { delete _cloudDirtyStateKeys[k]; }); _cloudSaveDirty(); }
+// Queued changes older than this lose to the cloud rather than overwrite it
+const CLOUD_DIRTY_MAX_AGE = 48 * 3600 * 1000;
+function cloudDropStaleDirty() {
+  const now = Date.now();
+  Object.keys(_cloudDirty).forEach(kind => {
+    const t = _cloudDirty[kind];
+    if (typeof t !== 'number') { _cloudDirty[kind] = now; return; }   // legacy boolean flag
+    if (now - t > CLOUD_DIRTY_MAX_AGE) {
+      console.warn('discarding stale unsynced changes (older than 48h):', kind);
+      delete _cloudDirty[kind];
+      if (kind === 'state') _cloudDirtyStateKeys = {};
+    }
+  });
+  _cloudSaveDirty();
+}
 
 let _cloudRetryTimer = null, _cloudRetryDelay = 5000, _cloudFailToasted = false;
 function cloudPushFailed(kind) {
@@ -11600,7 +11681,9 @@ function cloudInit() {
           }
         } catch (e) {}
         // Push anything a killed/suspended page never managed to upload BEFORE
-        // pulling, so the pull doesn't overwrite it
+        // pulling, so the pull doesn't overwrite it (queued changes older than
+        // 48h are discarded instead, so stale devices can't clobber newer data)
+        cloudDropStaleDirty();
         cloudFlushPending().then(() => cloudPullAll()).then(cloudStamp);
         cloudStartRealtime();
       } else {
@@ -11771,10 +11854,11 @@ function cloudPatchLocalStorage() {
       // Subtle click tick on any app save (debounced so per-keystroke saves don't chatter)
       if (k && typeof k === 'string' && k.indexOf('ej') === 0 && !cloudApplying) {
         clearTimeout(_clickDebounce);
-        _clickDebounce = setTimeout(playClickSound, 280);
+        _clickDebounce = setTimeout(() => { playClickSound(); showSaveBlip(); }, 280);
       }
       if (cloudReady && !cloudApplying && cloudIsStateKey(k)) {
         cloudMarkDirty('state');
+        cloudMarkStateKeyDirty(k);
         clearTimeout(_cloudTimers.state);
         _cloudTimers.state = setTimeout(() => cloudPushStateTracked(false), 800);
       }
@@ -11784,12 +11868,21 @@ function cloudPatchLocalStorage() {
 async function cloudPushState(includePhotos) {
   if (!cloudReady || !sbClient) return { error: 'Not connected' };
   try {
+    // Auto pushes send ONLY the keys changed on this device. Pushing every key
+    // wholesale let a stale device re-upload old timesheets (etc.) over another
+    // device's edits or deletions. Full pushes (migrate / photo backup) still
+    // send everything.
+    const fullPush = !!includePhotos;
+    const dirtySnapshot = Object.keys(_cloudDirtyStateKeys);
+    const wants = lsKey => fullPush || !!_cloudDirtyStateKeys[lsKey];
     const now = new Date().toISOString();
     const rows = [];
-    CLOUD_GLOBAL_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) rows.push({ studio_id: '__global__', k: k, value: v, updated_at: now }); });
+    CLOUD_GLOBAL_KEYS.forEach(k => { if (!wants(k)) return; const v = localStorage.getItem(k); if (v !== null) rows.push({ studio_id: '__global__', k: k, value: v, updated_at: now }); });
     STUDIOS.forEach(st => {
       CLOUD_STUDIO_BASES.forEach(base => {
-        const v = localStorage.getItem(base + '_' + st.id);
+        const lsKey = base + '_' + st.id;
+        if (!wants(lsKey)) return;
+        const v = localStorage.getItem(lsKey);
         if (v !== null) rows.push({ studio_id: st.id, k: base, value: v, updated_at: now });
       });
     });
@@ -11801,11 +11894,12 @@ async function cloudPushState(includePhotos) {
         if (st) rows.push({ studio_id: st.id, k: key.slice(0, key.length - (st.id.length + 1)), value: localStorage.getItem(key), updated_at: now });
       }
     }
-    if (!rows.length) return { ok: true };
+    if (!rows.length) { cloudClearStateKeys(dirtySnapshot); return { ok: true }; }
     for (let i = 0; i < rows.length; i += 100) {
       const { error } = await sbClient.from('app_state').upsert(rows.slice(i, i + 100), { onConflict: 'studio_id,k' });
       if (error) return { error: 'app_state — ' + error.message };
     }
+    cloudClearStateKeys(dirtySnapshot);   // keys edited during the upload stay dirty
     _cloudLastPush = Date.now();
     cloudStamp();
     return { ok: true };
@@ -11819,7 +11913,10 @@ async function cloudPushStateTracked(includePhotos) {
   if (!(await cloudEnsureSession())) return;
   const res = await cloudPushState(includePhotos);
   if (res && res.ok) {
-    cloudPushSucceeded('state');                      // photos push includes all state rows
+    // Keys edited while the upload was in flight stay dirty; keep the kind
+    // flagged so a flush after a page kill still pushes them
+    if (Object.keys(_cloudDirtyStateKeys).length === 0) cloudPushSucceeded('state');
+    else { _cloudRetryDelay = 5000; _cloudFailToasted = false; }
     if (includePhotos) cloudPushSucceeded('photos');
   } else {
     console.warn('cloud state push failed', res && res.error);
@@ -11833,6 +11930,7 @@ async function cloudPullState() {
     if (error || !data) return;
     data.forEach(r => {
       const lsKey = (r.studio_id === '__global__') ? r.k : (r.k + '_' + r.studio_id);
+      if (_cloudDirtyStateKeys[lsKey]) return;   // this device has newer unpushed changes for this key
       if (r.value != null) localStorage.setItem(lsKey, r.value);
     });
   } catch (e) { console.warn('state pull failed', e); }
@@ -12497,6 +12595,7 @@ async function cloudOnConnected() {
       const res = await cloudMigrateAll();
       if (res && res.error) { alert('Initial upload failed:\n' + res.error); return; }
     }
+    cloudDropStaleDirty();
     await cloudFlushPending();   // push anything saved while disconnected before pulling
     await cloudPullAll();
     cloudStamp();
