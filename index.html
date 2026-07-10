@@ -29,6 +29,68 @@
   --serif: 'ALTA', 'EB Garamond', Georgia, serif;
   --mono: 'DM Mono', monospace;
 }
+/* ── COLOUR THEMES ─────────────────────────────────────────
+   Default (no attribute) is the cream/brown palette above.
+   Each theme re-tints background, surfaces and accent; text
+   stays black and status colours are unchanged. Per device,
+   picked in Help & Setup > Preferences. */
+html[data-theme="blue"] {
+  --bg: #d4dde5; --surface2: #edf2f6; --surface3: #e0e8ee;
+  --muted: #525e68; --muted2: #7f8d99;
+  --accent: #2f5570; --accent2: #264659; --accent-light: rgba(47,85,112,0.08);
+}
+html[data-theme="orange"] {
+  --bg: #ecd8bd; --surface2: #f8f0e3; --surface3: #f1e4cd;
+  --muted: #64533d; --muted2: #97815e;
+  --accent: #a85a24; --accent2: #8a491d; --accent-light: rgba(168,90,36,0.08);
+}
+html[data-theme="pink"] {
+  --bg: #e9d4d7; --surface2: #f8eef0; --surface3: #f0e0e3;
+  --muted: #604d52; --muted2: #8f7a80;
+  --accent: #a34d63; --accent2: #863e51; --accent-light: rgba(163,77,99,0.08);
+}
+html[data-theme="sage"] {
+  --bg: #d8dfcc; --surface2: #f0f3e8; --surface3: #e5ead8;
+  --muted: #525c48; --muted2: #7e8a71;
+  --accent: #53714a; --accent2: #435d3c; --accent-light: rgba(83,113,74,0.08);
+}
+/* ── DARK MODE ─────────────────────────────────────────────
+   data-mode="dark" on <html>, combinable with any theme.
+   Accents become light in dark mode, so primary buttons flip
+   to dark text (see .btn-primary override below). */
+html[data-mode="dark"] {
+  --bg: #161411; --surface: #211e1a; --surface2: #2b2721; --surface3: #353028;
+  --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.24);
+  --text: #f1ece2; --muted: #b5ab9c; --muted2: #877e6f;
+  --accent: #d9c9a7; --accent2: #c5b48e; --accent-light: rgba(217,201,167,0.12);
+  --green: #7fa387; --red: #c97a68; --blue: #7f9cb4; --purple: #a08fb0;
+}
+html[data-mode="dark"][data-theme="blue"] {
+  --bg: #12161a; --surface: #1a2026; --surface2: #232b33; --surface3: #2c3641;
+  --muted: #a3b0bc; --muted2: #76838f;
+  --accent: #8fb2cc; --accent2: #7ba2bf; --accent-light: rgba(143,178,204,0.12);
+}
+html[data-mode="dark"][data-theme="orange"] {
+  --bg: #191410; --surface: #241c15; --surface2: #2e241a; --surface3: #392c20;
+  --muted: #bca990; --muted2: #8b7b64;
+  --accent: #d99a5e; --accent2: #c8874a; --accent-light: rgba(217,154,94,0.12);
+}
+html[data-mode="dark"][data-theme="pink"] {
+  --bg: #1a1416; --surface: #251c1f; --surface2: #2f2428; --surface3: #3a2c31;
+  --muted: #bda3ab; --muted2: #8c757c;
+  --accent: #d491a3; --accent2: #c47d92; --accent-light: rgba(212,145,163,0.12);
+}
+html[data-mode="dark"][data-theme="sage"] {
+  --bg: #141712; --surface: #1d221b; --surface2: #262c23; --surface3: #2f372b;
+  --muted: #aab5a0; --muted2: #7c8873;
+  --accent: #a3bd93; --accent2: #8fac7e; --accent-light: rgba(163,189,147,0.12);
+}
+html[data-mode="dark"] .btn-primary { color: #1b1916; }
+html[data-mode="dark"] .theme-swatch span { border-color: rgba(255,255,255,.3); }
+/* Theme picker swatches (Help > Preferences) */
+.theme-swatch { display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; border:1px solid var(--border2); background:var(--surface); color:var(--text); cursor:pointer; font-family:var(--font); font-size:14px; }
+.theme-swatch span { width:16px; height:16px; border-radius:50%; border:1px solid rgba(0,0,0,.25); display:inline-block; flex-shrink:0; }
+.theme-swatch.active { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-light); font-weight:600; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size:17px; }
 body {
@@ -2375,11 +2437,18 @@ body.manager-view .owner-only { display: none !important; }
 .logo-name,.topbar-title,.section-title,.chart-title,.week-title,.form-section-title,.month-name,.ts-staff-name,.stylist-name,.ts-summary-name,.pin-lock-logo{font-weight:700!important}
 [style*="--serif"][style*="italic"]{font-weight:700!important}
 </style>
+<script>
+// Apply the saved colour theme + light/dark mode before first paint so there's no flash
+try {
+  var _t = localStorage.getItem('ejTheme'); if (_t && _t !== 'cream') document.documentElement.setAttribute('data-theme', _t);
+  var _m = localStorage.getItem('ejThemeMode'); if (_m === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
+} catch (e) {}
+</script>
 </head>
 <body>
 
 <!-- ===================== LANDING OVERLAY ===================== -->
-<div id="landing-overlay" style="position:fixed;inset:0;z-index:100000;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:center;justify-content:center;padding:60px 24px;font-family:var(--font);color:var(--text)">
+<div id="landing-overlay" style="position:fixed;inset:0;z-index:100000;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:72px 24px 60px;font-family:var(--font);color:var(--text)">
   <div style="max-width:1080px;width:100%;text-align:center">
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
       <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
@@ -3689,6 +3758,23 @@ body.manager-view .owner-only { display: none !important; }
       </p>
       <div id="pin-mgmt-output"></div>
     </div>
+    <div class="form-section">
+      <div class="form-section-title">Appearance</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">Just this device. Every device can have its own look.</p>
+      <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Mode</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+        <button class="theme-swatch" id="mode-btn-light" onclick="setThemeMode('light')"><span style="background:linear-gradient(135deg,#ffffff 50%,#e2dac9 50%)"></span>Light</button>
+        <button class="theme-swatch" id="mode-btn-dark" onclick="setThemeMode('dark')"><span style="background:linear-gradient(135deg,#353028 50%,#161411 50%)"></span>Dark</button>
+      </div>
+      <div style="font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:9px">Colour theme</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="theme-swatch" id="theme-btn-cream" onclick="setTheme('cream')"><span style="background:linear-gradient(135deg,#e2dac9 50%,#000000 50%)"></span>Cream</button>
+        <button class="theme-swatch" id="theme-btn-blue" onclick="setTheme('blue')"><span style="background:linear-gradient(135deg,#d4dde5 50%,#2f5570 50%)"></span>Blue</button>
+        <button class="theme-swatch" id="theme-btn-orange" onclick="setTheme('orange')"><span style="background:linear-gradient(135deg,#ecd8bd 50%,#a85a24 50%)"></span>Orange</button>
+        <button class="theme-swatch" id="theme-btn-pink" onclick="setTheme('pink')"><span style="background:linear-gradient(135deg,#e9d4d7 50%,#a34d63 50%)"></span>Pink</button>
+        <button class="theme-swatch" id="theme-btn-sage" onclick="setTheme('sage')"><span style="background:linear-gradient(135deg,#d8dfcc 50%,#53714a 50%)"></span>Sage</button>
+      </div>
+    </div>
   </div>
 
   <!-- ======================== LEADERBOARD ======================== -->
@@ -4016,6 +4102,7 @@ body.manager-view .owner-only { display: none !important; }
             <input type="checkbox" id="click-sound-toggle" onchange="setClickSoundEnabled(this.checked);if(this.checked)playClickSound();" style="accent-color:var(--accent);width:16px;height:16px">
             <span><strong>Click sound on save</strong> — soft tick when changes save. <span style="color:var(--muted)">(Just this device.)</span></span>
           </label>
+          <div style="margin-top:12px;font-size:14px;color:var(--muted)">Looking for colours and dark mode? They're in <strong>Account &amp; Settings</strong>, under Appearance.</div>
         </div>
       </div>
 
@@ -10127,6 +10214,44 @@ function playClickSound() {
     o.start(now); o.stop(now + 0.06);
   } catch (e) {}
 }
+
+// ── Colour themes: per-device preference, applied via data-theme on <html> ──
+// (Also applied by a tiny head script before first paint to avoid a flash.)
+const THEME_NAMES = ['cream', 'blue', 'orange', 'pink', 'sage'];
+function getTheme() {
+  try { const t = localStorage.getItem('ejTheme'); return THEME_NAMES.indexOf(t) !== -1 ? t : 'cream'; } catch { return 'cream'; }
+}
+function setTheme(name) {
+  if (THEME_NAMES.indexOf(name) === -1) name = 'cream';
+  if (name === 'cream') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', name);
+  try { localStorage.setItem('ejTheme', name); } catch (e) {}
+  themeSyncUI();
+  themeRefreshPage();
+}
+function getThemeMode() {
+  try { return localStorage.getItem('ejThemeMode') === 'dark' ? 'dark' : 'light'; } catch { return 'light'; }
+}
+function setThemeMode(mode) {
+  mode = mode === 'dark' ? 'dark' : 'light';
+  if (mode === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
+  else document.documentElement.removeAttribute('data-mode');
+  try { localStorage.setItem('ejThemeMode', mode); } catch (e) {}
+  themeSyncUI();
+  themeRefreshPage();
+}
+function themeSyncUI() {
+  const curT = getTheme(), curM = getThemeMode();
+  THEME_NAMES.forEach(n => { const b = document.getElementById('theme-btn-' + n); if (b) b.classList.toggle('active', n === curT); });
+  const bl = document.getElementById('mode-btn-light'), bd = document.getElementById('mode-btn-dark');
+  if (bl) bl.classList.toggle('active', curM === 'light');
+  if (bd) bd.classList.toggle('active', curM === 'dark');
+}
+// Re-render the current page so anything drawn with the old colours refreshes
+function themeRefreshPage() {
+  try { const ap = document.querySelector('.page.active'); if (ap) showPage(ap.id.replace('page-', '')); } catch (e) {}
+}
+themeSyncUI();
 
 // Small "✓ Saved" blip shown whenever anything saves, on any page.
 // Driven by the same localStorage hook as the click sound. Quiet during the
