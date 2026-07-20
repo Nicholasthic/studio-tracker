@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
+<meta name="lumin-build" content="2026.07.20-1313">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2501,6 +2502,7 @@ try {
   <div class="pin-lock-card">
     <div class="pin-lock-logo" id="pin-lock-logo">Elyshia Jones</div>
     <div class="pin-lock-sub">Lumin</div>
+    <div id="pin-build-label" style="font-size:10px;color:var(--muted2);letter-spacing:.08em;margin-top:4px"></div>
 
     <!-- Step 1: Who are you? -->
     <div id="pin-step-who">
@@ -2543,6 +2545,7 @@ try {
   <div class="sidebar-logo">
     <div class="logo-name" id="sidebar-logo-name">Elyshia Jones</div>
     <div class="logo-sub">Lumin</div>
+    <div id="build-label" style="font-size:10px;color:var(--muted2);letter-spacing:.08em;margin-top:2px"></div>
   </div>
   <nav class="sidebar-nav">
     <button class="nav-item staff-allowed" onclick="showPage('help')">
@@ -11873,7 +11876,7 @@ function _cloudSaveDirty() {
 }
 function cloudMarkDirty(kind) { if (!_cloudDirty[kind]) { _cloudDirty[kind] = Date.now(); } _cloudSaveDirty(); }
 function cloudClearDirty(kind) { delete _cloudDirty[kind]; _cloudSaveDirty(); }
-function cloudMarkStateKeyDirty(lsKey) { _cloudDirtyStateKeys[lsKey] = true; _cloudSaveDirty(); }
+function cloudMarkStateKeyDirty(lsKey) { _cloudDirtyStateKeys[lsKey] = Date.now(); _cloudSaveDirty(); }
 function cloudClearStateKeys(keys) { keys.forEach(k => { delete _cloudDirtyStateKeys[k]; }); _cloudSaveDirty(); }
 // Queued changes older than this lose to the cloud rather than overwrite it
 const CLOUD_DIRTY_MAX_AGE = 48 * 3600 * 1000;
@@ -12179,8 +12182,14 @@ async function cloudPushState(includePhotos) {
     // device's edits or deletions. Full pushes (migrate / photo backup) still
     // send everything.
     const fullPush = !!includePhotos;
+    const pushStart = Date.now();
     const dirtySnapshot = Object.keys(_cloudDirtyStateKeys);
     const wants = lsKey => fullPush || !!_cloudDirtyStateKeys[lsKey];
+    // Only clear flags for edits made BEFORE this upload started. A key edited
+    // while the upload is in flight keeps its (newer) timestamp and stays
+    // dirty, so the newest value is never stranded on this device.
+    // (Legacy `true` flags coerce to 1 and clear normally.)
+    const clearable = () => dirtySnapshot.filter(k => (_cloudDirtyStateKeys[k] || 0) <= pushStart);
     const now = new Date().toISOString();
     const rows = [];
     CLOUD_GLOBAL_KEYS.forEach(k => { if (!wants(k)) return; const v = localStorage.getItem(k); if (v !== null) rows.push({ studio_id: '__global__', k: k, value: v, updated_at: now }); });
@@ -12200,12 +12209,12 @@ async function cloudPushState(includePhotos) {
         if (st) rows.push({ studio_id: st.id, k: key.slice(0, key.length - (st.id.length + 1)), value: localStorage.getItem(key), updated_at: now });
       }
     }
-    if (!rows.length) { cloudClearStateKeys(dirtySnapshot); return { ok: true }; }
+    if (!rows.length) { cloudClearStateKeys(clearable()); return { ok: true }; }
     for (let i = 0; i < rows.length; i += 100) {
       const { error } = await sbClient.from('app_state').upsert(rows.slice(i, i + 100), { onConflict: 'studio_id,k' });
       if (error) return { error: 'app_state — ' + error.message };
     }
-    cloudClearStateKeys(dirtySnapshot);   // keys edited during the upload stay dirty
+    cloudClearStateKeys(clearable());   // keys edited during the upload stay dirty
     _cloudLastPush = Date.now();
     cloudStamp();
     return { ok: true };
@@ -13102,6 +13111,59 @@ function endTour() {
   const root = document.getElementById('tour-root');
   if (root) root.style.display = 'none';
 }
+
+// ===================== UPDATE CHECK (stale Safari / Home Screen apps) =====================
+// The app is one HTML file served from GitHub Pages. iOS Home Screen web apps
+// resume a frozen copy and can keep running week-old code indefinitely, so:
+// compare the build stamp baked into this file against a cache-busted re-fetch
+// of the page's own URL (at launch, on resume, and hourly) and offer a one-tap
+// refresh when the server copy is newer.
+const LUMIN_BUILD = (document.querySelector('meta[name="lumin-build"]') || {}).content || 'dev';
+let _updBannerShown = false;
+let _updLastCheck = 0;
+
+function updateBuildLabels() {
+  ['build-label', 'pin-build-label'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = 'v' + LUMIN_BUILD;
+  });
+}
+
+async function checkForNewBuild(force) {
+  if (_updBannerShown) return;
+  if (location.protocol === 'file:') return;   // local copies can't self-update
+  const now = Date.now();
+  if (!force && now - _updLastCheck < 10 * 60 * 1000) return;
+  _updLastCheck = now;
+  try {
+    const res = await fetch(location.pathname + '?updchk=' + now, {
+      cache: 'no-store',
+      headers: { 'Range': 'bytes=0-4095' }
+    });
+    if (!res.ok) return;
+    const text = await res.text();
+    const m = text.match(/name="lumin-build" content="([^"]+)"/);
+    if (m && m[1] && m[1] !== LUMIN_BUILD) showUpdateBanner();
+  } catch (e) { /* offline — try again later */ }
+}
+
+function showUpdateBanner() {
+  if (document.getElementById('update-banner')) return;
+  _updBannerShown = true;
+  const el = document.createElement('div');
+  el.id = 'update-banner';
+  el.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100002;background:var(--accent);color:#fff;border-radius:999px;padding:10px 22px;font-family:var(--font);font-size:14px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap';
+  el.innerHTML = 'A new version of Lumin is ready · <span style="text-decoration:underline">Tap to update</span>';
+  el.onclick = () => { location.replace(location.pathname + '?v=' + Date.now()); };
+  document.body.appendChild(el);
+}
+
+updateBuildLabels();
+setTimeout(() => checkForNewBuild(true), 4000);
+setInterval(() => checkForNewBuild(false), 60 * 60 * 1000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkForNewBuild(false);
+});
 
 // ===================== INIT =====================
 renderSidebarStudios();
