@@ -12267,10 +12267,11 @@ function cloudSchedulePull(quiet) {
   }
 }
 
-// ── Polling fallback — realtime is best-effort, so every minute each open
-// device also asks the cloud "anything newer than what I last saw?" (two tiny
-// one-row queries). Guarantees a window that sits open all day still catches
-// up within a minute even when the realtime socket is dead.
+// ── Polling fallback — realtime is best-effort (mobile Safari drops the socket
+// whenever the app is backgrounded), so every 15s each open device also asks the
+// cloud "anything newer than what I last saw?" (two tiny one-row queries).
+// Guarantees a window that sits open all day still catches up within ~15s even
+// when the realtime socket is dead.
 let _cloudRemoteStamp = '';
 async function cloudPollForChanges() {
   if (!cloudReady || !sbClient || document.visibilityState !== 'visible') return;
@@ -12286,34 +12287,91 @@ async function cloudPollForChanges() {
     if (changed && Date.now() - _cloudLastPush > 4000) cloudSchedulePull(true);
   } catch (e) { /* offline — next tick will retry */ }
 }
-setInterval(cloudPollForChanges, 60000);
+setInterval(cloudPollForChanges, 15000);
 setTimeout(cloudPollForChanges, 8000);   // prime the baseline soon after launch
 
 // ── App switch / phone lock handling ──
 // iOS Safari freezes timers and kills requests the moment the page is hidden,
 // so debounced uploads can vanish. Flush immediately on hide, and on return
 // re-check the session, re-push anything unsent, and refresh from the cloud.
+// Durable flush for the page-hide moment. The normal async push (cloudFlushPending)
+// dies when iOS Safari freezes the page: its await chain never resumes and its
+// fetch has no keepalive, so a change made just before backgrounding is stranded
+// until a later poll/retry. This sends the dirty app_state rows with a keepalive
+// request that survives page termination. It's an idempotent upsert and we do NOT
+// clear the dirty flags here, so if the beacon never lands the next resume still
+// re-pushes. Scoped to app_state (client tracker, settings, timesheets, P&L…);
+// daily entries keep their own diff-sync path.
+function cloudBeaconFlush() {
+  try {
+    if (!cloudReady || !sbClient) return;
+    if (!Object.keys(_cloudDirtyStateKeys).length) return;
+    // Read the access token synchronously — getSession() is async and won't
+    // resolve once the page is frozen.
+    const projRef = SB_URL.replace(/^https?:\/\//, '').split('.')[0];
+    let token = '';
+    try {
+      const raw = JSON.parse(localStorage.getItem('sb-' + projRef + '-auth-token') || 'null');
+      token = (raw && (raw.access_token || (raw.currentSession && raw.currentSession.access_token))) || '';
+    } catch (e) {}
+    if (!token) return;
+    const now = new Date().toISOString();
+    const rows = [];
+    CLOUD_GLOBAL_KEYS.forEach(k => {
+      if (!_cloudDirtyStateKeys[k]) return;
+      const v = localStorage.getItem(k);
+      if (v !== null) rows.push({ studio_id: '__global__', k: k, value: v, updated_at: now });
+    });
+    STUDIOS.forEach(st => {
+      CLOUD_STUDIO_BASES.forEach(base => {
+        const lsKey = base + '_' + st.id;
+        if (!_cloudDirtyStateKeys[lsKey]) return;
+        const v = localStorage.getItem(lsKey);
+        if (v !== null) rows.push({ studio_id: st.id, k: base, value: v, updated_at: now });
+      });
+    });
+    if (!rows.length) return;
+    const body = JSON.stringify(rows);
+    // keepalive bodies are capped (~64KB) across all in-flight keepalive requests;
+    // if this payload is too large, skip the beacon and let the normal push/retry
+    // handle it on resume rather than risk the browser rejecting the request.
+    if (body.length > 60000) return;
+    fetch(SB_URL + '/rest/v1/app_state?on_conflict=studio_id,k', {
+      method: 'POST',
+      keepalive: true,
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: body
+    }).catch(() => {});
+  } catch (e) {}
+}
 let _cloudHiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     _cloudHiddenAt = Date.now();
-    cloudFlushPending();
+    cloudBeaconFlush();     // durable: survives Safari freezing the page
+    cloudFlushPending();    // best-effort async: works when the page stays alive
   } else {
     cloudOnAppResume();
   }
 });
-window.addEventListener('pagehide', () => cloudFlushPending());
+window.addEventListener('pagehide', () => { cloudBeaconFlush(); cloudFlushPending(); });
 window.addEventListener('online', () => cloudFlushPending());
 function cloudOnAppResume() {
   if (!cloudReady || !sbClient) return;
-  const awayMs = _cloudHiddenAt ? (Date.now() - _cloudHiddenAt) : 0;
   cloudEnsureSession().then(sessionOk => {
     if (!sessionOk) return;
     const flushed = cloudFlushPending();
-    if (awayMs > 20000) {   // long enough for iOS to have killed the realtime socket
-      cloudStartRealtime();
-      flushed.then(() => { if (cloudReady && !cloudApplying) cloudPullAll().then(cloudStamp); });
-    }
+    // Mobile Safari kills the realtime socket on background even for brief
+    // switches, so always rejoin the channel and reconcile on return rather
+    // than only after a long absence — otherwise the device silently stops
+    // hearing other devices until the next 15s poll.
+    cloudStartRealtime();
+    flushed.then(() => { if (cloudReady && !cloudApplying) cloudPullAll().then(cloudStamp); });
   });
 }
 
