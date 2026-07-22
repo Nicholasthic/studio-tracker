@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.22-1547">
+<meta name="lumin-build" content="2026.07.22-1559">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,10 +18,11 @@
   --border2: rgba(0,0,0,0.22);
   --text: #000000;
   --muted: #5f5a52;
-  --muted2: #8c8579;
+  --muted2: #665e51;
   --accent: #000000;
   --accent2: #2b2b2b;
   --accent-light: rgba(0,0,0,0.06);
+  --on-accent: #ffffff;
   --green: #4f7457;
   --red: #9e4a3a;
   --blue: #41607a;
@@ -37,22 +38,22 @@
    picked in Help & Setup > Preferences. */
 html[data-theme="blue"] {
   --bg: #d4dde5; --surface2: #edf2f6; --surface3: #e0e8ee;
-  --muted: #525e68; --muted2: #7f8d99;
+  --muted: #525e68; --muted2: #62707c;
   --accent: #2f5570; --accent2: #264659; --accent-light: rgba(47,85,112,0.08);
 }
 html[data-theme="orange"] {
   --bg: #ecd8bd; --surface2: #f8f0e3; --surface3: #f1e4cd;
-  --muted: #64533d; --muted2: #97815e;
+  --muted: #64533d; --muted2: #7a684b;
   --accent: #a85a24; --accent2: #8a491d; --accent-light: rgba(168,90,36,0.08);
 }
 html[data-theme="pink"] {
   --bg: #e9d4d7; --surface2: #f8eef0; --surface3: #f0e0e3;
-  --muted: #604d52; --muted2: #8f7a80;
+  --muted: #604d52; --muted2: #6d5a60;
   --accent: #a34d63; --accent2: #863e51; --accent-light: rgba(163,77,99,0.08);
 }
 html[data-theme="sage"] {
   --bg: #d8dfcc; --surface2: #f0f3e8; --surface3: #e5ead8;
-  --muted: #525c48; --muted2: #7e8a71;
+  --muted: #525c48; --muted2: #616c55;
   --accent: #53714a; --accent2: #435d3c; --accent-light: rgba(83,113,74,0.08);
 }
 /* ── DARK MODE ─────────────────────────────────────────────
@@ -62,28 +63,29 @@ html[data-theme="sage"] {
 html[data-mode="dark"] {
   --bg: #161411; --surface: #211e1a; --surface2: #2b2721; --surface3: #353028;
   --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.24);
-  --text: #f1ece2; --muted: #b5ab9c; --muted2: #877e6f;
+  --text: #f1ece2; --muted: #b5ab9c; --muted2: #a09585;
   --accent: #d9c9a7; --accent2: #c5b48e; --accent-light: rgba(217,201,167,0.12);
+  --on-accent: #1b1916;
   --green: #7fa387; --red: #c97a68; --blue: #7f9cb4; --purple: #a08fb0;
 }
 html[data-mode="dark"][data-theme="blue"] {
   --bg: #12161a; --surface: #1a2026; --surface2: #232b33; --surface3: #2c3641;
-  --muted: #a3b0bc; --muted2: #76838f;
+  --muted: #a3b0bc; --muted2: #94a1ad;
   --accent: #8fb2cc; --accent2: #7ba2bf; --accent-light: rgba(143,178,204,0.12);
 }
 html[data-mode="dark"][data-theme="orange"] {
   --bg: #191410; --surface: #241c15; --surface2: #2e241a; --surface3: #392c20;
-  --muted: #bca990; --muted2: #8b7b64;
+  --muted: #bca990; --muted2: #a99878;
   --accent: #d99a5e; --accent2: #c8874a; --accent-light: rgba(217,154,94,0.12);
 }
 html[data-mode="dark"][data-theme="pink"] {
   --bg: #1a1416; --surface: #251c1f; --surface2: #2f2428; --surface3: #3a2c31;
-  --muted: #bda3ab; --muted2: #8c757c;
+  --muted: #bda3ab; --muted2: #aa939a;
   --accent: #d491a3; --accent2: #c47d92; --accent-light: rgba(212,145,163,0.12);
 }
 html[data-mode="dark"][data-theme="sage"] {
   --bg: #141712; --surface: #1d221b; --surface2: #262c23; --surface3: #2f372b;
-  --muted: #aab5a0; --muted2: #7c8873;
+  --muted: #aab5a0; --muted2: #9aa691;
   --accent: #a3bd93; --accent2: #8fac7e; --accent-light: rgba(163,189,147,0.12);
 }
 html[data-mode="dark"] .btn-primary { color: #1b1916; }
@@ -216,7 +218,7 @@ body {
 }
 .btn-primary {
   background: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
   letter-spacing: 0.04em;
 }
 .btn-primary:hover { background: var(--accent2); }
@@ -228,15 +230,15 @@ body {
 .btn-ghost:hover { background: var(--surface2); }
 
 /* PAGE */
-.page { display: none; padding: 28px; }
+.page { display: none; padding: 32px; }
 .page.active { display: block; }
 
 /* KPI CARDS */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 .kpi-card {
   background: var(--surface);
@@ -245,6 +247,11 @@ body {
   padding: 18px 20px;
   position: relative;
   overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.kpi-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 2px 6px rgba(100,75,50,0.08), 0 10px 28px rgba(100,75,50,0.08);
 }
 .kpi-card::before {
   content: '';
@@ -256,8 +263,8 @@ body {
   transition: opacity 0.2s;
 }
 .kpi-card:hover::before { opacity: 0.7; }
-.kpi-label { font-size:14px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
-.kpi-value { font-family: var(--serif); font-size:28px; font-weight: 400; margin: 8px 0 4px; line-height: 1; color: var(--text); }
+.kpi-label { font-size:12px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+.kpi-value { font-family: var(--serif); font-size:30px; font-weight: 400; margin: 10px 0 5px; line-height: 1; color: var(--text); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .kpi-sub { font-size:14px; color: var(--muted); }
 .kpi-trend { font-size:14px; font-weight: 500; }
 .kpi-trend.up { color: var(--green); }
@@ -275,15 +282,25 @@ body {
 .section-sub { font-size:14px; color: var(--muted); }
 
 /* CHARTS */
-.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
 .chart-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.chart-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 2px 6px rgba(100,75,50,0.08), 0 10px 28px rgba(100,75,50,0.08);
 }
 .chart-card.full { grid-column: 1/-1; }
-.chart-title { font-family: var(--serif); font-size:18px; font-weight: 400; font-style: italic; margin-bottom: 16px; color: var(--text); }
+.chart-title { font-family: var(--serif); font-size:18px; font-weight: 400; font-style: italic; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+.chart-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 120px; text-align: center;
+  font-size: 14px; color: var(--muted);
+}
 .chart-area { height: 140px; position: relative; }
 
 /* BAR CHART */
@@ -330,6 +347,7 @@ body {
   padding: 12px 12px;
   font-size:16px;
   border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
 }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: var(--surface2); }
@@ -465,7 +483,7 @@ body {
   bottom: 24px;
   right: 24px;
   background: var(--green);
-  color: #ffffff;
+  color: var(--on-accent);
   padding: 12px 20px;
   border-radius: 8px;
   font-size:15px;
@@ -512,7 +530,8 @@ body {
 }
 
 /* MONTH FILTER */
-.filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+.filter-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 4px; }
 .filter-btn {
   padding: 6px 14px;
   border-radius: 20px;
@@ -578,7 +597,7 @@ body::before {
 /* TABLE HEADER UPPERCASE — refined tracking */
 .data-table th, .ts-day-table th {
   letter-spacing: 0.14em;
-  font-size:11.5px;
+  font-size:12px;
   color: var(--muted2);
 }
 
@@ -728,7 +747,7 @@ body::before {
   user-select: none;
   transition: all 0.15s;
 }
-.day-toggle input[type=checkbox] { display: none; }
+.day-toggle input[type=checkbox] { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .day-toggle-inner {
   padding: 7px 13px;
   font-size:14px;
@@ -892,7 +911,7 @@ body::before {
   border: 1px solid var(--border2); background: var(--surface2);
   color: var(--muted2); user-select: none; transition: all .15s; white-space: nowrap;
 }
-.lb-row-toggle input { display: none; }
+.lb-row-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .lb-row-toggle.on { background: rgba(0,0,0,0.12); border-color: rgba(0,0,0,0.4); color: var(--accent); }
 .icon-btn {
   width: 30px; height: 30px;
@@ -1620,7 +1639,7 @@ tr:hover .row-actions { opacity: 1; }
 }
 .breakeven-stat { font-size:14px; }
 .breakeven-stat-label { color: var(--muted); }
-.breakeven-stat-val { font-family: var(--mono); font-weight: 600; margin-top: 2px; }
+.breakeven-stat-val { font-family: var(--mono); font-weight: 600; margin-top: 3px; font-size:16px; font-variant-numeric: tabular-nums; }
 
 /* Settings panel for fixed expenses */
 .expense-settings {
@@ -2438,6 +2457,26 @@ body.manager-view .owner-only { display: none !important; }
 /* Headings: upright and bold (applies to ALTA and its fallback) */
 .logo-name,.topbar-title,.section-title,.chart-title,.week-title,.form-section-title,.month-name,.ts-staff-name,.stylist-name,.ts-summary-name,.pin-lock-logo{font-weight:700!important}
 [style*="--serif"][style*="italic"]{font-weight:700!important}
+/* ── ACCESSIBILITY ─────────────────────────────────────────
+   Keyboard focus ring (beats the inline outline:none resets),
+   skip link, and screen-reader-only helper text. */
+:focus-visible { outline: 2px solid var(--accent) !important; outline-offset: 2px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: absolute; left: 8px; top: -60px; z-index: 10000;
+  background: var(--accent); color: var(--on-accent);
+  padding: 10px 18px; border-radius: 8px;
+  font-family: var(--font); font-size: 15px; font-weight: 600;
+  text-decoration: none; transition: top .15s;
+}
+.skip-link:focus { top: 8px; }
+.day-toggle:focus-within, .lb-row-toggle:focus-within {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
 </style>
 <script>
 // Apply the saved colour theme + light/dark mode before first paint so there's no flash
@@ -2448,6 +2487,7 @@ try {
 </script>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- ===================== LANDING OVERLAY ===================== -->
 <div id="landing-overlay" style="position:fixed;inset:0;z-index:100000;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:72px 24px 60px;font-family:var(--font);color:var(--text)">
@@ -2520,7 +2560,7 @@ try {
         <div class="pin-dot" id="pd2"></div>
         <div class="pin-dot" id="pd3"></div>
       </div>
-      <div class="pin-error-msg" id="pin-error"></div>
+      <div class="pin-error-msg" id="pin-error" role="alert"></div>
       <div class="pin-numpad">
         <button class="pin-key" onclick="pinKey('1')">1</button>
         <button class="pin-key" onclick="pinKey('2')">2</button>
@@ -2531,7 +2571,7 @@ try {
         <button class="pin-key" onclick="pinKey('7')">7</button>
         <button class="pin-key" onclick="pinKey('8')">8</button>
         <button class="pin-key" onclick="pinKey('9')">9</button>
-        <button class="pin-key del" onclick="pinDel()">⌫</button>
+        <button class="pin-key del" aria-label="Backspace" onclick="pinDel()"><span aria-hidden="true">⌫</span></button>
         <button class="pin-key zero" onclick="pinKey('0')">0</button>
       </div>
       <button class="pin-back-btn" onclick="pinBack()">← Back</button>
@@ -2642,9 +2682,9 @@ try {
 </aside>
 
 <!-- MAIN -->
-<main class="main">
+<main class="main" id="main-content">
   <div class="topbar">
-    <div class="topbar-title" id="page-title">Dashboard</div>
+    <h1 class="topbar-title" id="page-title">Dashboard</h1>
     <div class="topbar-right">
       <span style="font-size:14px;color:var(--muted)" id="topbar-studio-name">Elyshia Jones Studio</span>
       <span style="font-size:14px;color:var(--muted2)" id="topbar-dot">·</span>
@@ -2768,7 +2808,7 @@ try {
       </div>
     </div>
 
-    <div class="day-toggle-row" id="day-toggle-row">
+    <div class="day-toggle-row" id="day-toggle-row" role="group" aria-label="Days open">
       <span class="day-toggle-label">Show days:</span>
       <label class="day-toggle weekend" id="dt-0"><input type="checkbox" onchange="toggleDay(0,this)"><span class="day-toggle-inner">Sun</span></label>
       <label class="day-toggle" id="dt-1"><input type="checkbox" onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
@@ -2848,23 +2888,23 @@ try {
       <div class="form-section-title" id="entry-day-title">Day Details</div>
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label">Stylists on Floor</label>
+          <label class="form-label" for="entry-stylists">Stylists on Floor</label>
           <input type="number" class="form-input" id="entry-stylists" placeholder="0" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Notes</label>
+          <label class="form-label" for="entry-notes">Notes</label>
           <input type="text" class="form-input" id="entry-notes" placeholder="e.g. Angel sick, public holiday...">
         </div>
         <div class="form-group">
-          <label class="form-label">Product $ (auto)</label>
+          <label class="form-label" for="entry-product">Product $ (auto)</label>
           <input type="number" class="form-input auto-total" id="entry-product" placeholder="0" min="0" readonly tabindex="-1">
         </div>
         <div class="form-group">
-          <label class="form-label">Product Qty (auto)</label>
+          <label class="form-label" for="entry-product-qty">Product Qty (auto)</label>
           <input type="number" class="form-input auto-total" id="entry-product-qty" placeholder="0" min="0" readonly tabindex="-1">
         </div>
         <div class="form-group full">
-          <label class="form-label">Service $ (auto)</label>
+          <label class="form-label" for="entry-service">Service $ (auto)</label>
           <input type="number" class="form-input auto-total" id="entry-service" placeholder="0" min="0" readonly tabindex="-1">
         </div>
       </div>
@@ -2883,7 +2923,7 @@ try {
       <div style="font-size:14px;color:var(--muted);margin-bottom:14px">Contractor figures are subtracted from weekly net totals. They still appear in the daily gross.</div>
       <div class="form-grid" style="margin-bottom:14px">
         <div class="form-group">
-          <label class="form-label">Contractor Name</label>
+          <label class="form-label" for="c_name">Contractor Name</label>
           <input type="text" class="form-input" id="c_name" placeholder="e.g. Sarah" style="border-color:rgba(224,92,92,0.4)"
             oninput="saveContractorName(this.value)">
         </div>
@@ -2895,10 +2935,10 @@ try {
         <div class="stylist-block" style="border-color:rgba(224,92,92,0.25)">
           <div class="stylist-name" style="color:var(--red)" id="contractor-name-label">Contractor</div>
           <div class="stylist-inputs">
-            <div class="mini-group"><div class="mini-label">Clients</div><input class="mini-input" id="c_clients" type="number" min="0" placeholder="0"></div>
-            <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" id="c_svc" type="number" min="0" placeholder="0"></div>
-            <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" id="c_prod" type="number" min="0" placeholder="0"></div>
-            <div class="mini-group"><div class="mini-label">Cash $</div><input class="mini-input" id="c_cash" type="number" min="0" placeholder="0" style="border-color:rgba(94,184,122,0.5)" title="Cash taken — deducted from invoiced total, not shown on invoice"></div>
+            <div class="mini-group"><div class="mini-label">Clients</div><input class="mini-input" aria-label="Contractor clients" id="c_clients" type="number" min="0" placeholder="0"></div>
+            <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" aria-label="Contractor service dollars" id="c_svc" type="number" min="0" placeholder="0"></div>
+            <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" aria-label="Contractor product dollars" id="c_prod" type="number" min="0" placeholder="0"></div>
+            <div class="mini-group"><div class="mini-label">Cash $</div><input class="mini-input" aria-label="Contractor cash taken" id="c_cash" type="number" min="0" placeholder="0" style="border-color:rgba(94,184,122,0.5)" title="Cash taken — deducted from invoiced total, not shown on invoice"></div>
           </div>
         </div>
       </div>
@@ -2907,7 +2947,7 @@ try {
     <div id="entry-actions" style="display:none;gap:10px;align-items:center">
       <button class="btn btn-primary" onclick="saveEntry()">Save Day</button>
       <button class="btn btn-ghost" onclick="clearEntry()">Clear</button>
-      <span id="entry-auto-saved" style="font-size:14px;color:var(--muted);opacity:0;transition:opacity .25s ease;margin-left:6px"></span>
+      <span id="entry-auto-saved" role="status" aria-live="polite" style="font-size:14px;color:var(--muted);opacity:0;transition:opacity .25s ease;margin-left:6px"></span>
     </div>
     <input type="hidden" id="entry-date">
   </div>
@@ -2953,7 +2993,7 @@ try {
     </div>
     <div class="stylist-roster avatar-colors" id="stylist-roster"></div>
     <div class="add-stylist-row">
-      <input class="add-stylist-input" id="new-stylist-name" placeholder="New stylist name..." onkeydown="if(event.key==='Enter')addStylist()">
+      <input class="add-stylist-input" id="new-stylist-name" aria-label="New stylist name" placeholder="New stylist name..." onkeydown="if(event.key==='Enter')addStylist()">
       <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap;cursor:pointer">
         <input type="checkbox" id="new-stylist-contractor" style="accent-color:var(--red)"> Contractor
       </label>
@@ -2970,7 +3010,7 @@ try {
     </div>
     <div id="studio-mgmt-list" style="margin-bottom:16px"></div>
     <div class="add-stylist-row">
-      <input class="add-stylist-input" id="new-studio-name" placeholder="New studio name..." onkeydown="if(event.key==='Enter')addStudio(document.getElementById('new-studio-name').value)">
+      <input class="add-stylist-input" id="new-studio-name" aria-label="New studio name" placeholder="New studio name..." onkeydown="if(event.key==='Enter')addStudio(document.getElementById('new-studio-name').value)">
       <button class="btn btn-primary" onclick="addStudio(document.getElementById('new-studio-name').value)">+ Add Studio</button>
     </div>
   </div>
@@ -2990,7 +3030,7 @@ try {
     <div id="cmp-month-selectors" class="compare-selectors">
       <div class="compare-select-group">
         <div class="compare-select-label a">Month A</div>
-        <select class="compare-select a" id="cmp-a" onchange="renderCompare()">
+        <select class="compare-select a" id="cmp-a" aria-label="Comparison month A" onchange="renderCompare()">
           <option value="">Select month...</option>
           <option value="Jan">January</option>
           <option value="Feb">February</option>
@@ -3009,7 +3049,7 @@ try {
       <div class="compare-vs">vs</div>
       <div class="compare-select-group">
         <div class="compare-select-label b">Month B</div>
-        <select class="compare-select b" id="cmp-b" onchange="renderCompare()">
+        <select class="compare-select b" id="cmp-b" aria-label="Comparison month B" onchange="renderCompare()">
           <option value="">Select month...</option>
           <option value="Jan">January</option>
           <option value="Feb">February</option>
@@ -3031,16 +3071,16 @@ try {
     <div id="cmp-studio-selectors" class="compare-selectors" style="display:none">
       <div class="compare-select-group">
         <div class="compare-select-label a">Studio A</div>
-        <select class="compare-select a" id="cmp-studio-a" onchange="renderCompare()"></select>
+        <select class="compare-select a" id="cmp-studio-a" aria-label="Comparison studio A" onchange="renderCompare()"></select>
       </div>
       <div class="compare-vs">vs</div>
       <div class="compare-select-group">
         <div class="compare-select-label b">Studio B</div>
-        <select class="compare-select b" id="cmp-studio-b" onchange="renderCompare()"></select>
+        <select class="compare-select b" id="cmp-studio-b" aria-label="Comparison studio B" onchange="renderCompare()"></select>
       </div>
       <div class="compare-select-group" style="margin-left:12px">
         <div class="compare-select-label" style="color:var(--muted)">Month</div>
-        <select class="compare-select" id="cmp-studio-month" onchange="renderCompare()">
+        <select class="compare-select" id="cmp-studio-month" aria-label="Studio comparison month" onchange="renderCompare()">
           <option value="">All months</option>
           <option value="Jan">January</option>
           <option value="Feb">February</option>
@@ -3066,7 +3106,7 @@ try {
       <div class="compare-selectors">
         <div class="compare-select-group">
           <div class="compare-select-label" style="color:var(--muted)">Month</div>
-          <select class="compare-select" id="cmp-yoy-month" onchange="renderCompare()">
+          <select class="compare-select" id="cmp-yoy-month" aria-label="Year on year comparison month" onchange="renderCompare()">
             <option value="">All months (full year)</option>
             <option value="Jan">January</option><option value="Feb">February</option>
             <option value="Mar">March</option><option value="Apr">April</option>
@@ -3079,12 +3119,12 @@ try {
         <div class="compare-vs">·</div>
         <div class="compare-select-group">
           <div class="compare-select-label a">Year A</div>
-          <select class="compare-select a" id="cmp-yoy-a" onchange="renderCompare()"></select>
+          <select class="compare-select a" id="cmp-yoy-a" aria-label="Comparison year A" onchange="renderCompare()"></select>
         </div>
         <div class="compare-vs">vs</div>
         <div class="compare-select-group">
           <div class="compare-select-label b">Year B</div>
-          <select class="compare-select b" id="cmp-yoy-b" onchange="renderCompare()"></select>
+          <select class="compare-select b" id="cmp-yoy-b" aria-label="Comparison year B" onchange="renderCompare()"></select>
         </div>
       </div>
     </div>
@@ -3108,10 +3148,10 @@ try {
         <div class="page-subtitle" style="font-size:15px;color:var(--muted);margin-top:2px">Rebook rates, client totals &amp; product — internal only</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
-        <select class="compare-select" id="sp-stylist" onchange="renderStylistPerf()" style="min-width:130px">
+        <select class="compare-select" id="sp-stylist" aria-label="Stylist performance stylist filter" onchange="renderStylistPerf()" style="min-width:130px">
           <option value="all">All Stylists</option>
         </select>
-        <select class="compare-select" id="sp-month" onchange="renderStylistPerf()" style="min-width:130px">
+        <select class="compare-select" id="sp-month" aria-label="Stylist performance month filter" onchange="renderStylistPerf()" style="min-width:130px">
           <option value="all">All Months</option>
         </select>
       </div>
@@ -3122,8 +3162,8 @@ try {
 
     <!-- Business + Payment Details -->
     <div class="biz-details-panel">
-      <div class="biz-details-header" onclick="toggleBizDetails()">
-        <div class="biz-details-title">⚙ Business &amp; Payment Details — click to edit</div>
+      <div class="biz-details-header" role="button" tabindex="0" onclick="toggleBizDetails()">
+        <div class="biz-details-title"><span aria-hidden="true">⚙</span> Business &amp; Payment Details — click to edit</div>
         <svg fill="none" viewBox="0 0 16 16" width="14" height="14" id="biz-chevron"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
       <div class="biz-details-body" id="biz-details-body">
@@ -3131,51 +3171,51 @@ try {
         <div class="biz-section-label">Your Studio (From)</div>
         <div class="biz-fields-grid">
           <div class="biz-field full">
-            <div class="biz-label">Business Name</div>
-            <input class="biz-input" id="biz-name" placeholder="Elyshia Jones Brow Studio" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-name">Business Name</label>
+            <input class="biz-input" id="biz-name" autocomplete="organization" placeholder="Elyshia Jones Brow Studio" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">ABN</div>
-            <input class="biz-input" id="biz-abn" placeholder="12 345 678 901" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-abn">ABN</label>
+            <input class="biz-input" id="biz-abn" inputmode="numeric" placeholder="12 345 678 901" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Phone</div>
-            <input class="biz-input" id="biz-phone" placeholder="0400 000 000" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-phone">Phone</label>
+            <input class="biz-input" id="biz-phone" type="tel" autocomplete="tel" placeholder="0400 000 000" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Email</div>
-            <input class="biz-input" id="biz-email" placeholder="hello@studio.com.au" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-email">Email</label>
+            <input class="biz-input" id="biz-email" type="email" autocomplete="email" placeholder="hello@studio.com.au" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Address</div>
-            <input class="biz-input" id="biz-address" placeholder="123 Studio St, Brisbane QLD 4000" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-address">Address</label>
+            <input class="biz-input" id="biz-address" autocomplete="street-address" placeholder="123 Studio St, Brisbane QLD 4000" oninput="saveBizDetails()">
           </div>
         </div>
 
         <div class="biz-section-label">Payment Details</div>
         <div class="biz-fields-grid three">
           <div class="biz-field">
-            <div class="biz-label">Bank Name</div>
+            <label class="biz-label" for="biz-bank">Bank Name</label>
             <input class="biz-input" id="biz-bank" placeholder="Commonwealth Bank" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Account Name</div>
+            <label class="biz-label" for="biz-account-name">Account Name</label>
             <input class="biz-input" id="biz-account-name" placeholder="Your Studio Pty Ltd" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">BSB</div>
-            <input class="biz-input" id="biz-bsb" placeholder="062 000" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-bsb">BSB</label>
+            <input class="biz-input" id="biz-bsb" inputmode="numeric" placeholder="062 000" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Account Number</div>
-            <input class="biz-input" id="biz-account-number" placeholder="1234 5678" oninput="saveBizDetails()">
+            <label class="biz-label" for="biz-account-number">Account Number</label>
+            <input class="biz-input" id="biz-account-number" inputmode="numeric" placeholder="1234 5678" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Payment Terms</div>
+            <label class="biz-label" for="biz-terms">Payment Terms</label>
             <input class="biz-input" id="biz-terms" placeholder="Due within 7 days" oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">GST Registered</div>
+            <label class="biz-label" for="biz-gst">GST Registered</label>
             <select class="biz-input" id="biz-gst" onchange="saveBizDetails()">
               <option value="no">No</option>
               <option value="yes">Yes — GST included</option>
@@ -3187,23 +3227,23 @@ try {
         <div class="biz-section-label">Invoice Settings</div>
         <div class="biz-fields-grid">
           <div class="biz-field">
-            <div class="biz-label">Invoice Number Prefix</div>
+            <label class="biz-label" for="biz-inv-prefix">Invoice Number Prefix</label>
             <div class="biz-invoice-number-row">
               <input class="biz-input" id="biz-inv-prefix" placeholder="INV-" style="width:90px" oninput="saveBizDetails();updateInvNumberPreview()">
-              <input class="biz-input" id="biz-inv-number" type="number" placeholder="001" style="width:80px" oninput="saveBizDetails();updateInvNumberPreview()">
+              <input class="biz-input" id="biz-inv-number" type="number" aria-label="Invoice starting number" inputmode="numeric" placeholder="001" style="width:80px" oninput="saveBizDetails();updateInvNumberPreview()">
               <div class="inv-number-preview" id="inv-number-preview">INV-001</div>
             </div>
           </div>
           <div class="biz-field">
-            <div class="biz-label">Notes / Footer</div>
+            <label class="biz-label" for="biz-notes">Notes / Footer</label>
             <input class="biz-input" id="biz-notes" placeholder="Thank you for your continued partnership." oninput="saveBizDetails()">
           </div>
           <div class="biz-field">
-            <div class="biz-label">Bill To (override)</div>
+            <label class="biz-label" for="biz-bill-to">Bill To (override)</label>
             <input class="biz-input" id="biz-bill-to" placeholder="e.g. Jane Smith — leave blank to use contractor name" oninput="saveBizDetails();renderInvoice()">
           </div>
           <div class="biz-field full">
-            <div class="biz-label">Invoice Description</div>
+            <label class="biz-label" for="biz-description">Invoice Description</label>
             <input class="biz-input" id="biz-description" placeholder="e.g. Commission for chair rental — May 2026" oninput="saveBizDetails();renderInvoice()">
           </div>
         </div>
@@ -3215,13 +3255,13 @@ try {
     <div class="invoice-controls">
       <div class="invoice-control-group">
         <div class="invoice-control-label">Contractor</div>
-        <select class="invoice-select" id="inv-contractor" onchange="renderInvoice()">
+        <select class="invoice-select" id="inv-contractor" aria-label="Invoice contractor" onchange="renderInvoice()">
           <option value="all">All Contractors</option>
         </select>
       </div>
       <div class="invoice-control-group">
         <div class="invoice-control-label">Week</div>
-        <select class="invoice-select" id="inv-period" onchange="renderInvoice()">
+        <select class="invoice-select" id="inv-period" aria-label="Invoice week" onchange="renderInvoice()">
           <option value="thisweek" selected>This week</option>
           <option value="lastweek">Last week</option>
           <option value="thismonth">This month</option>
@@ -3311,10 +3351,10 @@ try {
         <div style="font-size:15px;color:var(--muted);margin-top:2px">Clients awaiting rebooking — tick <strong style="color:var(--green)">Rebooked</strong> to clear them off the list. (Will auto-feed from Timely later.)</div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <select class="compare-select" id="cl-stylist" onchange="renderClientLog()" style="min-width:130px">
+        <select class="compare-select" id="cl-stylist" aria-label="Client tracker stylist filter" onchange="renderClientLog()" style="min-width:130px">
         </select>
-        <input class="biz-input" id="cl-search" placeholder="Search client..." oninput="renderClientLog()" style="width:180px;padding:7px 12px;font-size:15px">
-        <select class="compare-select" id="cl-filter" onchange="renderClientLog()" style="min-width:140px">
+        <input class="biz-input" id="cl-search" aria-label="Search clients" placeholder="Search client..." oninput="renderClientLog()" style="width:180px;padding:7px 12px;font-size:15px">
+        <select class="compare-select" id="cl-filter" aria-label="Client tracker status filter" onchange="renderClientLog()" style="min-width:140px">
           <option value="not-rebooked" selected>Awaiting Rebook</option>
           <option value="rebooked">Rebooked ✓</option>
           <option value="all">All Clients</option>
@@ -3336,12 +3376,12 @@ try {
       <!-- Daily Log -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(201,169,110,0.12)">📋</div>
+          <div class="export-card-icon" style="background:rgba(201,169,110,0.12)"><span aria-hidden="true">📋</span></div>
           <div class="export-card-title">Daily Log</div>
         </div>
         <div class="export-card-desc">Every day's full data — clients, rebook rates, revenue, contractor, notes.</div>
         <div class="export-card-controls">
-          <select class="export-select" id="exp-daily-filter">
+          <select class="export-select" id="exp-daily-filter" aria-label="Daily log export period">
             <option value="all">All time</option>
             <option value="Jan">January</option><option value="Feb">February</option>
             <option value="Mar">March</option><option value="Apr">April</option>
@@ -3360,12 +3400,12 @@ try {
       <!-- Weekly Summary -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(107,156,232,0.12)">📅</div>
+          <div class="export-card-icon" style="background:rgba(107,156,232,0.12)"><span aria-hidden="true">📅</span></div>
           <div class="export-card-title">Weekly Summary</div>
         </div>
         <div class="export-card-desc">Week-by-week totals: studio revenue, contractor commission, studio net, client counts.</div>
         <div class="export-card-controls">
-          <select class="export-select" id="exp-weekly-filter">
+          <select class="export-select" id="exp-weekly-filter" aria-label="Weekly summary export period">
             <option value="all">All time</option>
             <option value="Jan">January</option><option value="Feb">February</option>
             <option value="Mar">March</option><option value="Apr">April</option>
@@ -3384,12 +3424,12 @@ try {
       <!-- Monthly Summary -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(94,184,122,0.12)">📊</div>
+          <div class="export-card-icon" style="background:rgba(94,184,122,0.12)"><span aria-hidden="true">📊</span></div>
           <div class="export-card-title">Monthly Summary</div>
         </div>
         <div class="export-card-desc">Month-by-month breakdown — revenue, clients, rebook rates, product vs service split.</div>
         <div class="export-card-controls">
-          <select class="export-select" id="exp-monthly-year">
+          <select class="export-select" id="exp-monthly-year" aria-label="Monthly summary export year">
             <option value="2026">2026</option>
           </select>
         </div>
@@ -3402,12 +3442,12 @@ try {
       <!-- Yearly Overview -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(155,127,232,0.12)">📈</div>
+          <div class="export-card-icon" style="background:rgba(155,127,232,0.12)"><span aria-hidden="true">📈</span></div>
           <div class="export-card-title">Yearly Overview</div>
         </div>
         <div class="export-card-desc">Full year snapshot — all months, YTD totals, rebook rates and revenue breakdown.</div>
         <div class="export-card-controls">
-          <select class="export-select" id="exp-yearly-year">
+          <select class="export-select" id="exp-yearly-year" aria-label="Yearly overview export year">
             <option value="2026">2026</option>
           </select>
         </div>
@@ -3420,12 +3460,12 @@ try {
       <!-- Stylist Performance -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(232,160,107,0.12)">👤</div>
+          <div class="export-card-icon" style="background:rgba(232,160,107,0.12)"><span aria-hidden="true">👤</span></div>
           <div class="export-card-title">Stylist Performance</div>
         </div>
         <div class="export-card-desc">Per-stylist breakdown — clients, revenue, rebook rates, shifts, avg per shift.</div>
         <div class="export-card-controls">
-          <select class="export-select" id="exp-stylist-year">
+          <select class="export-select" id="exp-stylist-year" aria-label="Stylist performance export year">
             <option value="2026">2026</option>
           </select>
         </div>
@@ -3438,19 +3478,19 @@ try {
       <!-- Contractor Invoice -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(224,92,92,0.12)">🧾</div>
+          <div class="export-card-icon" style="background:rgba(224,92,92,0.12)"><span aria-hidden="true">🧾</span></div>
           <div class="export-card-title">Contractor Invoice</div>
         </div>
         <div class="export-card-desc">Weekly contractor invoice — gross, commission deduction, amount due.</div>
         <div class="export-card-controls">
-          <select class="export-select" id="exp-inv-period">
+          <select class="export-select" id="exp-inv-period" aria-label="Contractor invoice export period">
             <option value="thisweek">This week</option>
             <option value="lastweek">Last week</option>
             <option value="thismonth">This month</option>
             <option value="lastmonth">Last month</option>
             <option value="all">All time</option>
           </select>
-          <select class="export-select" id="exp-inv-contractor">
+          <select class="export-select" id="exp-inv-contractor" aria-label="Contractor invoice export contractor">
             <option value="all">All Contractors</option>
           </select>
         </div>
@@ -3471,8 +3511,8 @@ try {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
       <!-- Fixed expenses settings -->
       <div class="expense-settings">
-        <div class="expense-settings-header" onclick="toggleExpenseSettings()">
-          <div class="expense-settings-title">⚙ Fixed Recurring Expenses</div>
+        <div class="expense-settings-header" role="button" tabindex="0" onclick="toggleExpenseSettings()">
+          <div class="expense-settings-title"><span aria-hidden="true">⚙</span> Fixed Recurring Expenses</div>
           <svg fill="none" viewBox="0 0 16 16" width="14" height="14" id="exp-settings-chevron"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="expense-settings-body" id="exp-settings-body">
@@ -3484,8 +3524,8 @@ try {
 
       <!-- Variable recurring defaults -->
       <div class="expense-settings">
-        <div class="expense-settings-header" onclick="toggleVariableSettings()">
-          <div class="expense-settings-title">⚙ Variable Recurring Defaults</div>
+        <div class="expense-settings-header" role="button" tabindex="0" onclick="toggleVariableSettings()">
+          <div class="expense-settings-title"><span aria-hidden="true">⚙</span> Variable Recurring Defaults</div>
           <svg fill="none" viewBox="0 0 16 16" width="14" height="14" id="var-settings-chevron"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="variable-settings-body" id="var-settings-body">
@@ -3518,9 +3558,9 @@ try {
         </div>
         <div id="pl-expense-rows"></div>
         <div class="pl-add-row">
-          <input class="pl-add-input" id="pl-new-exp-label" placeholder="+ Add one-off fixed line...">
-          <input class="pl-add-amount" id="pl-new-exp-amount" placeholder="$0.00" type="number" min="0">
-          <button class="pl-add-btn" onclick="addExpenseLine('fixed')">+</button>
+          <input class="pl-add-input" id="pl-new-exp-label" aria-label="New fixed expense name" placeholder="+ Add one-off fixed line...">
+          <input class="pl-add-amount" id="pl-new-exp-amount" aria-label="New fixed expense amount" placeholder="$0.00" type="number" min="0">
+          <button class="pl-add-btn" aria-label="Add fixed expense line" onclick="addExpenseLine('fixed')"><span aria-hidden="true">+</span></button>
         </div>
       </div>
 
@@ -3532,9 +3572,9 @@ try {
         </div>
         <div id="pl-variable-rows"></div>
         <div class="pl-add-row">
-          <input class="pl-add-input" id="pl-new-var-label" placeholder="+ Add variable line...">
-          <input class="pl-add-amount" id="pl-new-var-amount" placeholder="$0.00" type="number" min="0">
-          <button class="pl-add-btn" onclick="addExpenseLine('variable')">+</button>
+          <input class="pl-add-input" id="pl-new-var-label" aria-label="New variable expense name" placeholder="+ Add variable line...">
+          <input class="pl-add-amount" id="pl-new-var-amount" aria-label="New variable expense amount" placeholder="$0.00" type="number" min="0">
+          <button class="pl-add-btn" aria-label="Add variable expense line" onclick="addExpenseLine('variable')"><span aria-hidden="true">+</span></button>
         </div>
       </div>
     </div>
@@ -3553,7 +3593,7 @@ try {
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Quarter</div>
-        <select id="taxbas-quarter" class="compare-select" onchange="renderTaxBAS()" style="min-width:220px"></select>
+        <select id="taxbas-quarter" class="compare-select" aria-label="BAS quarter" onchange="renderTaxBAS()" style="min-width:220px"></select>
       </div>
       <div style="flex:1"></div>
       <div style="font-size:13px;color:var(--muted);max-width:280px;text-align:right">
@@ -3635,7 +3675,7 @@ try {
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Period</div>
-        <select id="goals-period" class="compare-select" onchange="renderGoals()" style="min-width:180px">
+        <select id="goals-period" class="compare-select" aria-label="Goals period" onchange="renderGoals()" style="min-width:180px">
           <option value="month">This Month</option>
           <option value="quarter">This Quarter</option>
           <option value="ytd">Year to Date</option>
@@ -3643,16 +3683,16 @@ try {
       </div>
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Month</div>
-        <select id="goals-month" class="compare-select" onchange="renderGoals()" style="min-width:140px"></select>
+        <select id="goals-month" class="compare-select" aria-label="Goals month" onchange="renderGoals()" style="min-width:140px"></select>
       </div>
       <div style="flex:1"></div>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="toggleGoalsSettings()">⚙ Set Targets</button>
+      <button class="btn btn-ghost" style="font-size:14px" onclick="toggleGoalsSettings()"><span aria-hidden="true">⚙</span> Set Targets</button>
     </div>
 
     <!-- Settings panel (collapsed by default) -->
     <div class="expense-settings" id="goals-settings-panel" style="display:none;margin-bottom:16px">
-      <div class="expense-settings-header" onclick="toggleGoalsSettings()">
-        <div class="expense-settings-title">⚙ Studio &amp; Stylist Targets</div>
+      <div class="expense-settings-header" role="button" tabindex="0" onclick="toggleGoalsSettings()">
+        <div class="expense-settings-title"><span aria-hidden="true">⚙</span> Studio &amp; Stylist Targets</div>
         <svg fill="none" viewBox="0 0 16 16" width="14" height="14"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
       <div class="expense-settings-body open" id="goals-settings-body">
@@ -3682,18 +3722,18 @@ try {
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Stylist Filter</div>
-        <select id="lapsed-stylist" class="compare-select" onchange="renderLapsed()" style="min-width:160px"></select>
+        <select id="lapsed-stylist" class="compare-select" aria-label="Lapsed clients stylist filter" onchange="renderLapsed()" style="min-width:160px"></select>
       </div>
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Sort By</div>
-        <select id="lapsed-sort" class="compare-select" onchange="renderLapsed()" style="min-width:160px">
+        <select id="lapsed-sort" class="compare-select" aria-label="Lapsed clients sort order" onchange="renderLapsed()" style="min-width:160px">
           <option value="overdue">Most Overdue</option>
           <option value="recent">Recently Lapsed</option>
           <option value="name">Name (A–Z)</option>
         </select>
       </div>
       <div style="flex:1"></div>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="toggleLapsedSettings()">⚙ Service Cadences</button>
+      <button class="btn btn-ghost" style="font-size:14px" onclick="toggleLapsedSettings()"><span aria-hidden="true">⚙</span> Service Cadences</button>
     </div>
 
     <!-- Cadence settings panel -->
@@ -3722,7 +3762,7 @@ try {
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">View</div>
-        <select id="stock-view" class="compare-select" onchange="renderStock()" style="min-width:160px">
+        <select id="stock-view" class="compare-select" aria-label="Stock view filter" onchange="renderStock()" style="min-width:160px">
           <option value="all">All Products</option>
           <option value="low">Low Stock Only</option>
           <option value="bestsellers">Best Sellers</option>
@@ -3731,7 +3771,7 @@ try {
       </div>
       <div>
         <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Sort By</div>
-        <select id="stock-sort" class="compare-select" onchange="renderStock()" style="min-width:140px">
+        <select id="stock-sort" class="compare-select" aria-label="Stock sort order" onchange="renderStock()" style="min-width:140px">
           <option value="name">Name</option>
           <option value="stock-asc">Stock (Low–High)</option>
           <option value="stock-desc">Stock (High–Low)</option>
@@ -4173,7 +4213,7 @@ try {
 
     <!-- Staff management panel -->
     <div class="ts-manage-panel">
-      <div class="ts-manage-header" onclick="toggleTSManage()">
+      <div class="ts-manage-header" role="button" tabindex="0" onclick="toggleTSManage()">
         <div class="ts-manage-title">Timesheet staff (click to manage)</div>
         <svg fill="none" viewBox="0 0 16 16" width="14" height="14" id="ts-manage-chevron"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
@@ -4216,7 +4256,7 @@ try {
 </main>
 </div>
 
-<div class="toast" id="toast">Day saved ✓</div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">Day saved ✓</div>
 
 <script>
 // ===================== DATA =====================
@@ -4254,11 +4294,11 @@ function avatarHTML(st, idx, size=34, editable=false) {
   const isContractor = st.isContractor;
   const bg = isContractor ? 'var(--red)' : avatarColor(idx);
   const editOverlay = editable
-    ? `<div class="avatar-edit-overlay" onclick="uploadStylistPhoto('${st.name}',${idx})" title="Change photo">📷</div>`
+    ? `<div class="avatar-edit-overlay" role="button" tabindex="0" aria-label="Change photo for ${st.name}" onclick="uploadStylistPhoto('${st.name}',${idx})" title="Change photo"><span aria-hidden="true">📷</span></div>`
     : '';
   if (photo) {
     return `<div class="stylist-row-avatar avatar-photo-wrap" style="width:${size}px;height:${size}px;position:relative;flex-shrink:0">
-      <img src="${photo}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;display:block">
+      <img src="${photo}" alt="${st.name}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;display:block">
       ${editOverlay}
     </div>`;
   }
@@ -4496,10 +4536,10 @@ function showPage(id) {
     return;
   }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); n.removeAttribute('aria-current'); });
   document.getElementById('page-' + id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
   const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
@@ -4575,18 +4615,18 @@ function renderDashboard() {
       `<button class="filter-btn ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all',this)">All</button>` +
       `<button class="filter-btn ${activeFilter === 'thisweek' ? 'active' : ''}" onclick="setFilter('thisweek',this)">This Week</button>` +
       `<button class="filter-btn ${activeFilter === 'lastweek' ? 'active' : ''}" onclick="setFilter('lastweek',this)">Last Week</button>` +
-      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<span class="filter-sep" aria-hidden="true"></span>` +
       `<button class="filter-btn ${activeFilter === 'ytd' ? 'active' : ''}" onclick="setFilter('ytd',this)">YTD</button>` +
       `<button class="filter-btn ${activeFilter === 'fy' ? 'active' : ''}" onclick="setFilter('fy',this)">Fin. Year</button>` +
-      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<span class="filter-sep" aria-hidden="true"></span>` +
       ['q1','q2','q3','q4'].map(q =>
         `<button class="filter-btn ${activeFilter === q ? 'active' : ''}" onclick="setFilter('${q}',this)">${q.toUpperCase()}</button>`
       ).join('') +
-      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<span class="filter-sep" aria-hidden="true"></span>` +
       allMonthsWithData.map(m =>
         `<button class="filter-btn ${activeFilter === m ? 'active' : ''}" onclick="setFilter('${m}',this)">${m}</button>`
       ).join('') +
-      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<span class="filter-sep" aria-hidden="true"></span>` +
       `<button class="filter-btn ${activeFilter === 'custom' ? 'active' : ''}" onclick="toggleCustomRange()">Custom</button>` +
       (customRangeOpen || activeFilter === 'custom' ? `<span style="display:inline-flex;align-items:center;gap:6px">
         <input type="date" class="filter-date" id="custom-range-start" value="${customRange.start||''}" onchange="applyCustomRange()">
@@ -4674,7 +4714,7 @@ function renderDashboard() {
     </div>
     <div class="kpi-card" style="border-color:rgba(201,169,110,0.5);background:rgba(201,169,110,0.05)">
       <div class="kpi-label" style="color:var(--accent)">Contractor Invoice Due</div>
-      <div class="kpi-value" style="color:var(--accent)">$${totalCtrInvoice.toLocaleString()}</div>
+      <div class="kpi-value" style="color:var(--accent)">$${totalCtrInvoice.toLocaleString(undefined, Number.isInteger(totalCtrInvoice) ? {} : {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
       <div class="kpi-sub">${(studioRate*100).toFixed(0)}% of contractor sales</div>
     </div>` : ''}
   `;
@@ -4721,7 +4761,7 @@ function renderDashboard() {
 
   // Rebook bars
   const rb = document.getElementById('rebook-bars');
-  rb.innerHTML = monthsWithData.map(m => {
+  rb.innerHTML = monthsWithData.length === 0 ? '<div class="chart-empty">No data yet. Add your first day to see rebook trends.</div>' : monthsWithData.map(m => {
     const d = MONTHLY[m];
     const pct = d.ret > 0 ? (d.retR/d.ret*100) : 0;
     const cls = pct >= 70 ? 'green' : pct >= 55 ? '' : '';
@@ -4732,7 +4772,7 @@ function renderDashboard() {
   }).join('');
 
   const nrb = document.getElementById('new-rebook-bars');
-  nrb.innerHTML = monthsWithData.map(m => {
+  nrb.innerHTML = monthsWithData.length === 0 ? '<div class="chart-empty">No data yet. New client rebooking will appear here.</div>' : monthsWithData.map(m => {
     const d = MONTHLY[m];
     const pct = d.newC > 0 ? (d.newR/d.newC*100) : 0;
     return `<div class="progress-item">
@@ -5039,11 +5079,11 @@ function renderWeekly() {
       `<button class="filter-btn ${activeWeeklyFilter === 'all' ? 'active' : ''}" onclick="setWeeklyFilter('all')">All</button>` +
       `<button class="filter-btn ${activeWeeklyFilter === 'ytd' ? 'active' : ''}" onclick="setWeeklyFilter('ytd')">YTD</button>` +
       `<button class="filter-btn ${activeWeeklyFilter === 'fy' ? 'active' : ''}" onclick="setWeeklyFilter('fy')">Fin. Year</button>` +
-      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<span class="filter-sep" aria-hidden="true"></span>` +
       ['q1','q2','q3','q4'].map(q =>
         `<button class="filter-btn ${activeWeeklyFilter === q ? 'active' : ''}" onclick="setWeeklyFilter('${q}')">${q.toUpperCase()}</button>`
       ).join('') +
-      `<span style="color:var(--border2);margin:0 4px;align-self:center">|</span>` +
+      `<span class="filter-sep" aria-hidden="true"></span>` +
       allMonthsWithData.map(m =>
         `<button class="filter-btn ${activeWeeklyFilter === m ? 'active' : ''}" onclick="setWeeklyFilter('${m}')">${m}</button>`
       ).join('');
@@ -5619,14 +5659,14 @@ function showEntryForm(iso, dayIdx) {
     return `<div class="stylist-block">
       <div class="stylist-name">${s}</div>
       <div class="stylist-inputs">
-        <div class="mini-group"><div class="mini-label">Ret. Clients</div><input class="mini-input" id="s_${s}_ret" type="number" min="0" placeholder="0" value="${vRet}"></div>
-        <div class="mini-group"><div class="mini-label">Ret. Rebook</div><input class="mini-input" id="s_${s}_retR" type="number" min="0" placeholder="0" value="${vRetR}"></div>
-        <div class="mini-group"><div class="mini-label">Ret. Not Reb.</div><input class="mini-input" id="s_${s}_retNR" type="number" min="0" placeholder="0" value="${vRetNR}"></div>
-        <div class="mini-group"><div class="mini-label">New Clients</div><input class="mini-input" id="s_${s}_new" type="number" min="0" placeholder="0" value="${vNew}"></div>
-        <div class="mini-group"><div class="mini-label">New Rebook</div><input class="mini-input" id="s_${s}_newR" type="number" min="0" placeholder="0" value="${vNewR}"></div>
-        <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" id="s_${s}_svc" type="number" min="0" placeholder="0" value="${vSvc}"></div>
-        <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" id="s_${s}_prod" type="number" min="0" placeholder="0" value="${vProd}"></div>
-        <div class="mini-group"><div class="mini-label">Product Qty</div><input class="mini-input" id="s_${s}_prodQty" type="number" min="0" placeholder="0" value="${vProdQty}"></div>
+        <div class="mini-group"><div class="mini-label">Ret. Clients</div><input class="mini-input" aria-label="${s} returning clients" id="s_${s}_ret" type="number" min="0" placeholder="0" value="${vRet}"></div>
+        <div class="mini-group"><div class="mini-label">Ret. Rebook</div><input class="mini-input" aria-label="${s} returning rebooked" id="s_${s}_retR" type="number" min="0" placeholder="0" value="${vRetR}"></div>
+        <div class="mini-group"><div class="mini-label">Ret. Not Reb.</div><input class="mini-input" aria-label="${s} returning not rebooked" id="s_${s}_retNR" type="number" min="0" placeholder="0" value="${vRetNR}"></div>
+        <div class="mini-group"><div class="mini-label">New Clients</div><input class="mini-input" aria-label="${s} new clients" id="s_${s}_new" type="number" min="0" placeholder="0" value="${vNew}"></div>
+        <div class="mini-group"><div class="mini-label">New Rebook</div><input class="mini-input" aria-label="${s} new rebooked" id="s_${s}_newR" type="number" min="0" placeholder="0" value="${vNewR}"></div>
+        <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" aria-label="${s} service dollars" id="s_${s}_svc" type="number" min="0" placeholder="0" value="${vSvc}"></div>
+        <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" aria-label="${s} product dollars" id="s_${s}_prod" type="number" min="0" placeholder="0" value="${vProd}"></div>
+        <div class="mini-group"><div class="mini-label">Product Qty</div><input class="mini-input" aria-label="${s} product quantity" id="s_${s}_prodQty" type="number" min="0" placeholder="0" value="${vProdQty}"></div>
       </div>
     </div>`;
   }).join('');
@@ -5877,7 +5917,7 @@ function renderStylistPage() {
       '<option value="' + k + '"' + (k === spPeriod ? ' selected' : '') + '>' + LEADERBOARD_PERIODS[k] + '</option>').join('');
     spBar.innerHTML =
       '<span style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)">Period</span>' +
-      '<select class="compare-select" style="min-width:140px" onchange="setStylistPagePeriod(this.value)">' + opts + '</select>';
+      '<select class="compare-select" aria-label="Stylist leaderboard period" style="min-width:140px" onchange="setStylistPagePeriod(this.value)">' + opts + '</select>';
   }
   const spTitle = document.getElementById('stylist-detail-title');
   if (spTitle) spTitle.textContent = 'Stylist Leaderboard — ' + spLabel;
@@ -6167,7 +6207,97 @@ function loadClientLog() {
 }
 
 function saveClientLog(data) {
+  // Stamp per-row identity + last-modified before persisting, so devices can
+  // merge instead of overwriting each other (see clMergeBlobs).
+  try { clStampChanges(localStorage.getItem(getClientLogKey()), data); } catch (e) {}
   try { localStorage.setItem(getClientLogKey(), JSON.stringify(data)); } catch {}
+}
+
+// ── Client-log identity, stamps & merge ──
+// The client log syncs as one blob per studio, which made it last-writer-wins:
+// a client ADDED on one device could be erased when another device saved a
+// tick seconds later from a slightly older copy. Every row now carries a
+// stable id and a last-modified stamp (_t), deletions leave tombstones in a
+// top-level _deleted map, and incoming cloud copies are MERGED row by row.
+function clAssignKeys(blob) {
+  // Deterministic ids so two devices name the same pre-existing row
+  // identically: 'n:<name>#<occurrence>' in array order.
+  Object.keys(blob).forEach(sty => {
+    if (sty === '_deleted' || !Array.isArray(blob[sty])) return;
+    const seen = {};
+    blob[sty].forEach(c => {
+      if (!c || c.id) return;
+      const base = 'n:' + (c.name || '');
+      seen[base] = (seen[base] || 0) + 1;
+      c.id = base + '#' + seen[base];
+    });
+  });
+}
+function clStripT(c) { const o = { ...c }; delete o._t; return o; }
+const CL_TOMB_MAX_AGE = 30 * 86400000;   // tombstones kept 30 days
+function clStampChanges(prevRaw, next) {
+  clAssignKeys(next);
+  let prev = {};
+  try { prev = JSON.parse(prevRaw || '{}') || {}; } catch (e) {}
+  clAssignKeys(prev);
+  const now = Date.now();
+  const tomb = {};
+  [prev._deleted || {}, next._deleted || {}].forEach(m =>
+    Object.keys(m).forEach(k => { tomb[k] = Math.max(tomb[k] || 0, m[k] || 0); }));
+  const prevIdx = {};
+  Object.keys(prev).forEach(sty => {
+    if (sty === '_deleted' || !Array.isArray(prev[sty])) return;
+    prev[sty].forEach(c => { if (c) prevIdx[sty + '|' + c.id] = c; });
+  });
+  Object.keys(next).forEach(sty => {
+    if (sty === '_deleted' || !Array.isArray(next[sty])) return;
+    next[sty].forEach(c => {
+      if (!c) return;
+      const key = sty + '|' + c.id;
+      const p = prevIdx[key];
+      if (!p) { if (!c._t) c._t = now; return; }
+      c._t = (JSON.stringify(clStripT(c)) === JSON.stringify(clStripT(p))) ? (p._t || 0) : now;
+      delete prevIdx[key];
+    });
+  });
+  Object.keys(prevIdx).forEach(k => { tomb[k] = now; });   // rows deleted in this save
+  Object.keys(tomb).forEach(k => { if (now - tomb[k] > CL_TOMB_MAX_AGE) delete tomb[k]; });
+  if (Object.keys(tomb).length) next._deleted = tomb; else delete next._deleted;
+}
+function clMergeBlobs(localRaw, cloudRaw) {
+  let L = {}, C = {};
+  try { L = JSON.parse(localRaw || '{}') || {}; } catch (e) {}
+  try { C = JSON.parse(cloudRaw || '{}') || {}; } catch (e) {}
+  clAssignKeys(L); clAssignKeys(C);
+  const now = Date.now();
+  const tomb = {};
+  [L._deleted || {}, C._deleted || {}].forEach(m =>
+    Object.keys(m).forEach(k => { tomb[k] = Math.max(tomb[k] || 0, m[k] || 0); }));
+  const out = {};
+  const stylists = [...new Set([...Object.keys(L), ...Object.keys(C)])].filter(s => s !== '_deleted');
+  stylists.forEach(sty => {
+    const lArr = Array.isArray(L[sty]) ? L[sty] : [];
+    const cArr = Array.isArray(C[sty]) ? C[sty] : [];
+    const lById = {};
+    lArr.forEach(c => { if (c) lById[c.id] = c; });
+    const inCloud = new Set();
+    const merged = [];
+    cArr.forEach(cc => {
+      if (!cc) return;
+      inCloud.add(cc.id);
+      const lc = lById[cc.id];
+      if (lc) { merged.push(((lc._t || 0) > (cc._t || 0)) ? lc : cc); return; }   // tie → cloud copy
+      if ((tomb[sty + '|' + cc.id] || 0) >= (cc._t || 0)) return;   // deleted somewhere, delete is newer
+      merged.push(cc);
+    });
+    const localOnly = lArr.filter(lc =>
+      lc && !inCloud.has(lc.id) && (tomb[sty + '|' + lc.id] || 0) < (lc._t || 0));
+    const rows = [...localOnly, ...merged];   // fresh local adds stay on top
+    if (rows.length) out[sty] = rows;
+  });
+  Object.keys(tomb).forEach(k => { if (now - tomb[k] > CL_TOMB_MAX_AGE) delete tomb[k]; });
+  if (Object.keys(tomb).length) out._deleted = tomb;
+  return out;
 }
 
 function toggleClientLogField(stylist, idx, field) {
@@ -6216,11 +6346,11 @@ function addClientLogEntry() {
       <div style="display:flex;flex-direction:column;gap:12px">
         <div>
           <div style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px">Client Name</div>
-          <input id="cl-new-name" class="biz-input" placeholder="e.g. Jane Smith" style="width:100%;box-sizing:border-box">
+          <input id="cl-new-name" class="biz-input" aria-label="Client name" placeholder="e.g. Jane Smith" style="width:100%;box-sizing:border-box">
         </div>
         <div>
           <div style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px">Service</div>
-          <select id="cl-new-service" class="compare-select" style="width:100%;box-sizing:border-box">
+          <select id="cl-new-service" class="compare-select" aria-label="New client service" style="width:100%;box-sizing:border-box">
             <option value="">Select service...</option>
             <option value="LAMI">LAMI — Lamination</option>
             <option value="DYE">DYE — Brow Dye</option>
@@ -6358,7 +6488,7 @@ function renderClientLog() {
       const on = c[f];
       return `<td style="text-align:center;padding:8px 6px">
         <button onclick="toggleClientLogField('${stylist}',${origIdx},'${f}')"
-          style="background:${on ? colColors[i] : 'var(--surface3)'};border:none;border-radius:5px;width:28px;height:28px;cursor:pointer;font-size:15px;color:${on ? '#fff' : 'var(--muted)'};transition:all .15s">
+          style="background:${on ? colColors[i] : 'var(--surface3)'};border:none;border-radius:5px;width:28px;height:28px;cursor:pointer;font-size:15px;color:${on ? 'var(--on-accent)' : 'var(--muted)'};transition:all .15s">
           ${on ? '✓' : '–'}
         </button>
       </td>`;
@@ -6373,7 +6503,7 @@ function renderClientLog() {
       </td>
       <td style="padding:8px 6px;text-align:center">
         <button onclick="deleteClientLogEntry('${stylist}',${origIdx})"
-          style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:4px" title="Delete">✕</button>
+          style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:4px" title="Delete" aria-label="Delete client entry">✕</button>
       </td>
     </tr>`;
   }).join('');
@@ -6772,11 +6902,11 @@ function renderStylistRoster() {
     const lbToggles = isEditing ? '' : `
       <label class="lb-row-toggle ${lb.canView ? 'on' : ''}" title="Can ${s} open the leaderboard when they log in?">
         <input type="checkbox" ${lb.canView ? 'checked' : ''} onchange="setStylistLBFromRow('${s}','canView',this.checked)">
-        <span>👁 View</span>
+        <span><span aria-hidden="true">👁</span> View</span>
       </label>
       <label class="lb-row-toggle ${lb.onBoard ? 'on' : ''}" title="Show ${s} on the leaderboard rankings?">
         <input type="checkbox" ${lb.onBoard ? 'checked' : ''} onchange="setStylistLBFromRow('${s}','onBoard',this.checked)">
-        <span>🏆 Board</span>
+        <span><span aria-hidden="true">🏆</span> Board</span>
       </label>`;
     return `<div class="stylist-row" id="srow-${i}">
       <span class="stylist-row-drag" title="Drag to reorder">⠿</span>
@@ -6789,16 +6919,16 @@ function renderStylistRoster() {
       ${lbToggles}
       <div class="stylist-row-actions">
         ${isEditing
-          ? `<button class="icon-btn confirm" onclick="confirmRename(${i})" title="Save">✓</button>
-             <button class="icon-btn" onclick="cancelRename()" title="Cancel">✕</button>`
+          ? `<button class="icon-btn confirm" onclick="confirmRename(${i})" title="Save" aria-label="Save">✓</button>
+             <button class="icon-btn" onclick="cancelRename()" title="Cancel" aria-label="Cancel">✕</button>`
           : `${loadStylistPhoto(s) ? `<button class="icon-btn" onclick="removeStylistPhoto('${s}')" title="Remove photo" style="font-size:13px">✕ photo</button>` : ''}
-             <button class="icon-btn" title="${isContractor ? 'Remove contractor role' : 'Mark as contractor'}"
+             <button class="icon-btn" title="${isContractor ? 'Remove contractor role' : 'Mark as contractor'}" aria-label="${isContractor ? 'Remove contractor role' : 'Mark as contractor'}"
                style="${isContractor ? 'color:var(--red);border-color:rgba(224,92,92,0.3)' : ''}"
                onclick="toggleContractor(${i})">
                ${isContractor ? '★' : '☆'}
              </button>
-             <button class="icon-btn" onclick="startRename(${i})" title="Rename">✎</button>
-             <button class="icon-btn danger" onclick="confirmDelete('${s}', ${i})" title="Delete">🗑</button>`}
+             <button class="icon-btn" onclick="startRename(${i})" title="Rename" aria-label="Rename">✎</button>
+             <button class="icon-btn danger" onclick="confirmDelete('${s}', ${i})" title="Delete" aria-label="Delete">🗑</button>`}
       </div>
     </div>`;
   }).join('');
@@ -6890,7 +7020,7 @@ function confirmDelete(name, idx) {
       : 'This stylist has no logged data. They will be removed immediately.'}</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('delete-overlay').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteStylist('${name}', ${idx})">Remove</button>
+      <button class="btn" style="background:var(--red);color:var(--on-accent)" onclick="deleteStylist('${name}', ${idx})">Remove</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -7351,8 +7481,8 @@ function renderTSStaffChips() {
     const color = isExcluded ? 'var(--muted2)' : avatarColor(i);
     const opacity = isExcluded ? 'opacity:0.4;' : '';
     const btn = isExcluded
-      ? '<button class="chip-remove" onclick="restoreTSStaff(\`' + st.name + '\`)" style="color:var(--green)" title="Restore">+</button>'
-      : '<button class="chip-remove" onclick="excludeTSStaff(\`' + st.name + '\`)" title="Remove">&#215;</button>';
+      ? '<button class="chip-remove" onclick="restoreTSStaff(\`' + st.name + '\`)" style="color:var(--green)" title="Restore" aria-label="Restore staff member">+</button>'
+      : '<button class="chip-remove" onclick="excludeTSStaff(\`' + st.name + '\`)" title="Remove" aria-label="Remove staff member">&#215;</button>';
     out += '<div class="ts-staff-chip ' + (isExcluded ? '' : 'active') + '" style="' + opacity + '">';
     out += '<div class="chip-dot" style="background:' + color + '"></div>';
     out += st.name;
@@ -7678,25 +7808,25 @@ function renderTimesheets() {
       const daySty = isToday ? 'color:var(--accent);font-weight:600' : isWknd ? 'color:var(--muted)' : '';
       const hasData = !!(sv || ev);
       const preIcon = isPre ? '<span style="font-size:11px;color:var(--muted2);margin-left:3px">↩</span>' : '';
-      const clearBtn = hasData ? `<button onclick="clearTSEntry(this.dataset.n,this.dataset.d)" data-n="${name}" data-d="${iso}" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:15px;padding:0;margin-left:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">✕</button>` : '';
+      const clearBtn = hasData ? `<button onclick="clearTSEntry(this.dataset.n,this.dataset.d)" aria-label="Clear entry" data-n="${name}" data-d="${iso}" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:15px;padding:0;margin-left:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">✕</button>` : '';
 
       const stepperBtn = (n, d, f, dir) =>
-        `<button class="ts-step-btn" onclick="tsStep('${n}','${d}','${f}',${dir})" tabindex="-1">${dir>0?'▲':'▼'}</button>`;
+        `<button class="ts-step-btn" aria-label="${f==='start'?'Start':'Finish'} time ${dir>0?'up':'down'} 30 minutes" onclick="tsStep('${n}','${d}','${f}',${dir})" tabindex="-1">${dir>0?'▲':'▼'}</button>`;
       rows += `<tr style="${isPre?'opacity:0.55':''}">
         <td style="${daySty}">${dayFmt}${preIcon}</td>
         <td><div class="ts-time-stepper">
           ${stepperBtn(name,iso,'start',1)}
-          <input type="text" class="ts-time-input" data-n="${name}" data-d="${iso}" data-f="start" value="${sv}" placeholder="09:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
+          <input type="text" class="ts-time-input" aria-label="${name} ${dayFmt} start time" data-n="${name}" data-d="${iso}" data-f="start" value="${sv}" placeholder="09:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
           ${stepperBtn(name,iso,'start',-1)}
         </div></td>
         <td><div class="ts-time-stepper">
           ${stepperBtn(name,iso,'end',1)}
-          <input type="text" class="ts-time-input" data-n="${name}" data-d="${iso}" data-f="end" value="${ev}" placeholder="17:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
+          <input type="text" class="ts-time-input" aria-label="${name} ${dayFmt} finish time" data-n="${name}" data-d="${iso}" data-f="end" value="${ev}" placeholder="17:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
           ${stepperBtn(name,iso,'end',-1)}
         </div></td>
-        <td><input type="number" class="ts-break-input" data-n="${name}" data-d="${iso}" data-f="break" min="0" max="120" step="5" value="${bv}" placeholder="0" oninput="tsLiveCalc(this)" onblur="tsBlur(this)"> <span style="font-size:13px;color:var(--muted)">min</span></td>
+        <td><input type="number" class="ts-break-input" aria-label="${name} ${dayFmt} break minutes" data-n="${name}" data-d="${iso}" data-f="break" min="0" max="120" step="5" value="${bv}" placeholder="0" oninput="tsLiveCalc(this)" onblur="tsBlur(this)"> <span style="font-size:13px;color:var(--muted)">min</span></td>
         <td><span id="tsh-${name.replace(/ /g,'_')}-${iso}" style="font-family:var(--mono);font-size:15px;font-weight:${h!==null&&h>0?'600':'normal'};color:${hCol}">${hTxt}</span></td>
-        <td style="display:flex;align-items:center;gap:4px"><input class="ts-notes-input" data-n="${name}" data-d="${iso}" data-f="notes" value="${(ent.notes||'').replace(/"/g,'&quot;')}" placeholder="Note..." onblur="tsBlur(this)">${clearBtn}</td>
+        <td style="display:flex;align-items:center;gap:4px"><input class="ts-notes-input" aria-label="${name} ${dayFmt} notes" data-n="${name}" data-d="${iso}" data-f="notes" value="${(ent.notes||'').replace(/"/g,'&quot;')}" placeholder="Note..." onblur="tsBlur(this)">${clearBtn}</td>
       </tr>`;
     });
 
@@ -7704,16 +7834,16 @@ function renderTimesheets() {
     const tsIdx = STYLISTS.indexOf(tsSt);
     const tsPhoto = loadStylistPhoto(name);
     const tsAvatar = tsPhoto
-      ? `<img src="${tsPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+      ? `<img src="${tsPhoto}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`
       : `<div class="ts-staff-avatar" style="background:${col}">${avatarInitial(name)}</div>`;
 
     const collapsed = tsCollapsed.has(name);
     cards += `<div class="ts-staff-card${collapsed?' collapsed':''}" id="ts-card-${name.replace(/ /g,'_')}">
-      <div class="ts-staff-header" onclick="toggleTSStaff('${name}')" style="cursor:pointer">
+      <div class="ts-staff-header" role="button" tabindex="0" onclick="toggleTSStaff('${name}')" style="cursor:pointer">
         ${tsAvatar}
         <div class="ts-staff-name">${name}</div>
         <div class="ts-staff-total"><span>Total: <span id="tst-${name.replace(/ /g,'_')}">${fmtHours(weekTot)}</span></span><span>${shifts} shift${shifts!==1?'s':''}</span></div>
-        <button class="ts-collapse-btn">▾</button>
+        <button class="ts-collapse-btn" aria-label="Collapse or expand timesheet">▾</button>
       </div>
       <table class="ts-day-table">
         <thead><tr><th>Day</th><th>Start</th><th>Finish</th><th>Break</th><th>Hours</th><th>Notes</th></tr></thead>
@@ -8019,10 +8149,10 @@ function renderSidebarStudios() {
   const list = document.getElementById('sidebar-studio-list');
   if (!list) return;
   list.innerHTML = STUDIOS.map(s => `
-    <div class="studio-pill ${s.id === activeStudio ? 'active' : ''}" onclick="switchStudio('${s.id}')">
+    <div class="studio-pill ${s.id === activeStudio ? 'active' : ''}" role="button" tabindex="0" aria-pressed="${s.id === activeStudio}" onclick="switchStudio('${s.id}')">
       <div class="studio-pill-dot" style="background:${s.color}"></div>
       <div class="studio-pill-name" title="${s.name}">${s.name}</div>
-      <button class="studio-pill-edit" onclick="event.stopPropagation();showRenameStudioModal('${s.id}')" title="Rename">✎</button>
+      <button class="studio-pill-edit" onclick="event.stopPropagation();showRenameStudioModal('${s.id}')" title="Rename" aria-label="Rename studio">✎</button>
     </div>
   `).join('');
 }
@@ -8089,7 +8219,7 @@ function deleteEntryConfirm(date) {
     <p>This will permanently remove the data for <strong>${fmt}</strong>. This can't be undone.</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('delete-entry-overlay').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteEntry('${date}')">Delete</button>
+      <button class="btn" style="background:var(--red);color:var(--on-accent)" onclick="deleteEntry('${date}')">Delete</button>
     </div>
   </div>`;
   document.body.appendChild(overlay);
@@ -8269,7 +8399,7 @@ function renderInvoice() {
     }).join('');
 
     return `<div class="invoice-week-block">
-      <div class="invoice-week-header" onclick="toggleInvoiceWeek(${wi})">
+      <div class="invoice-week-header" role="button" tabindex="0" onclick="toggleInvoiceWeek(${wi})">
         <div>
           <div class="invoice-week-label">${mondayFmt} — ${sundayFmt}</div>
           <div class="invoice-week-meta">${w.entries.length} day${w.entries.length!==1?'s':''} · ${rate}% commission</div>
@@ -8987,9 +9117,9 @@ function renderPLMonth(month) {
     const displayVal=savedVal!==undefined?savedVal:(fixedVal||'');
     const isFixed=fixedVal>0&&savedVal===undefined;
     if(parseFloat(displayVal)>0) totalFixed+=parseFloat(displayVal);
-    return `<div class="pl-row"><div class="pl-row-label">${cat.label}</div>${isFixed?'<div class="pl-row-fixed">recurring</div>':''}<input class="pl-row-input" type="number" min="0" placeholder="0.00" value="${displayVal}" onchange="savePLExpense('${monthKey}','${cat.id}',this.value);updatePLTotals('${monthKey}')"></div>`;
+    return `<div class="pl-row"><div class="pl-row-label">${cat.label}</div>${isFixed?'<div class="pl-row-fixed">recurring</div>':''}<input class="pl-row-input" aria-label="${cat.label} amount" type="number" min="0" placeholder="0.00" value="${displayVal}" onchange="savePLExpense('${monthKey}','${cat.id}',this.value);updatePLTotals('${monthKey}')"></div>`;
   }).join('');
-  const fixedCustomRows = customFixed.map((line,i)=>`<div class="pl-row"><div class="pl-row-label" style="flex:1"><input style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:15px;width:100%;outline:none;padding:2px 0" value="${line.label}" onchange="savePLCustomLabel('${monthKey}',${i},this.value,'fixed')"></div><input class="pl-row-input" type="number" min="0" placeholder="0.00" value="${line.amount||''}" onchange="savePLCustomAmount('${monthKey}',${i},this.value,'fixed');updatePLTotals('${monthKey}')"><button onclick="deletePLCustom('${monthKey}',${i},'fixed')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></div>`).join('');
+  const fixedCustomRows = customFixed.map((line,i)=>`<div class="pl-row"><div class="pl-row-label" style="flex:1"><input style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:15px;width:100%;outline:none;padding:2px 0" aria-label="Expense name" value="${line.label}" onchange="savePLCustomLabel('${monthKey}',${i},this.value,'fixed')"></div><input class="pl-row-input" aria-label="Expense amount" type="number" min="0" placeholder="0.00" value="${line.amount||''}" onchange="savePLCustomAmount('${monthKey}',${i},this.value,'fixed');updatePLTotals('${monthKey}')"><button onclick="deletePLCustom('${monthKey}',${i},'fixed')" aria-label="Remove row" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></div>`).join('');
   customFixed.forEach(l=>{if(l.amount>0) totalFixed+=parseFloat(l.amount);});
   if(expRows) expRows.innerHTML=fixedCatRows+fixedCustomRows;
   if(expTotal) expTotal.textContent='$'+fmt(totalFixed);
@@ -9003,9 +9133,9 @@ function renderPLMonth(month) {
     const displayVal=savedVal!==undefined?savedVal:(defVal||'');
     const isDef=defVal>0&&savedVal===undefined;
     if(parseFloat(displayVal)>0) totalVar+=parseFloat(displayVal);
-    return `<div class="pl-row"><div class="pl-row-label">${cat.label}</div>${isDef?'<div class="pl-row-fixed">default</div>':''}<input class="pl-row-input" type="number" min="0" placeholder="0.00" value="${displayVal}" onchange="savePLExpense('${monthKey}','${cat.id}',this.value);updatePLTotals('${monthKey}')"></div>`;
+    return `<div class="pl-row"><div class="pl-row-label">${cat.label}</div>${isDef?'<div class="pl-row-fixed">default</div>':''}<input class="pl-row-input" aria-label="${cat.label} amount" type="number" min="0" placeholder="0.00" value="${displayVal}" onchange="savePLExpense('${monthKey}','${cat.id}',this.value);updatePLTotals('${monthKey}')"></div>`;
   }).join('');
-  const varCustomRows = customVar.map((line,i)=>`<div class="pl-row"><div class="pl-row-label" style="flex:1"><input style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:15px;width:100%;outline:none;padding:2px 0" value="${line.label}" onchange="savePLCustomLabel('${monthKey}',${i},this.value,'variable')"></div><input class="pl-row-input" type="number" min="0" placeholder="0.00" value="${line.amount||''}" onchange="savePLCustomAmount('${monthKey}',${i},this.value,'variable');updatePLTotals('${monthKey}')"><button onclick="deletePLCustom('${monthKey}',${i},'variable')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></div>`).join('');
+  const varCustomRows = customVar.map((line,i)=>`<div class="pl-row"><div class="pl-row-label" style="flex:1"><input style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:15px;width:100%;outline:none;padding:2px 0" aria-label="Expense name" value="${line.label}" onchange="savePLCustomLabel('${monthKey}',${i},this.value,'variable')"></div><input class="pl-row-input" aria-label="Expense amount" type="number" min="0" placeholder="0.00" value="${line.amount||''}" onchange="savePLCustomAmount('${monthKey}',${i},this.value,'variable');updatePLTotals('${monthKey}')"><button onclick="deletePLCustom('${monthKey}',${i},'variable')" aria-label="Remove row" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></div>`).join('');
   customVar.forEach(l=>{if(l.amount>0) totalVar+=parseFloat(l.amount);});
   if(varRows) varRows.innerHTML=varCatRows+varCustomRows;
   if(varTotal) varTotal.textContent='$'+fmt(totalVar);
@@ -9118,10 +9248,10 @@ function renderDashboardBreakeven() {
 // ===================== STUDIO MANAGEMENT =====================
 function renderSidebarStudios() {
   const list=document.getElementById('sidebar-studio-list'); if(!list) return;
-  list.innerHTML=STUDIOS.map(s=>`<div class="studio-pill ${s.id===activeStudio?'active':''}" onclick="switchStudio('${s.id}')">
+  list.innerHTML=STUDIOS.map(s=>`<div class="studio-pill ${s.id===activeStudio?'active':''}" role="button" tabindex="0" aria-pressed="${s.id===activeStudio}" onclick="switchStudio('${s.id}')">
     <div class="studio-pill-dot" style="background:${s.color}"></div>
     <div class="studio-pill-name" title="${s.name}">${s.name}</div>
-    <button class="studio-pill-edit" onclick="event.stopPropagation();showRenameStudioModal('${s.id}')" title="Rename">✎</button>
+    <button class="studio-pill-edit" onclick="event.stopPropagation();showRenameStudioModal('${s.id}')" title="Rename" aria-label="Rename studio">✎</button>
   </div>`).join('');
 }
 
@@ -9220,7 +9350,7 @@ function confirmDeleteStudio(id) {
     <p style="color:var(--muted);font-size:15px">The studio will be removed from the list. Its data stays in local storage but won't be accessible unless you add it back with the same name.</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('studio-delete-modal').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteStudio('${id}')">Delete Studio</button>
+      <button class="btn" style="background:var(--red);color:var(--on-accent)" onclick="deleteStudio('${id}')">Delete Studio</button>
     </div></div>`;
   document.body.appendChild(overlay);
 }
@@ -9250,10 +9380,10 @@ function renderStudioMgmt() {
       ${isActive?`<span class="studio-mgmt-badge">Active</span>`:''}
       <div class="stylist-row-actions">
         ${isEditing
-          ?`<button class="icon-btn confirm" onclick="saveStudioEdit('${s.id}')" title="Save">✓</button>
-            <button class="icon-btn" onclick="editingStudio=null;renderStudioMgmt()" title="Cancel">✕</button>`
-          :`<button class="icon-btn" onclick="editingStudio='${s.id}';renderStudioMgmt()" title="Rename">✎</button>
-            ${STUDIOS.length>1?`<button class="icon-btn danger" onclick="confirmDeleteStudio('${s.id}')" title="Delete">🗑</button>`:''}`}
+          ?`<button class="icon-btn confirm" onclick="saveStudioEdit('${s.id}')" title="Save" aria-label="Save">✓</button>
+            <button class="icon-btn" onclick="editingStudio=null;renderStudioMgmt()" title="Cancel" aria-label="Cancel">✕</button>`
+          :`<button class="icon-btn" onclick="editingStudio='${s.id}';renderStudioMgmt()" title="Rename" aria-label="Rename">✎</button>
+            ${STUDIOS.length>1?`<button class="icon-btn danger" onclick="confirmDeleteStudio('${s.id}')" title="Delete" aria-label="Delete">🗑</button>`:''}`}
       </div></div>`;
   }).join('');
   if(editingStudio){const inp=document.getElementById('studio-edit-'+editingStudio);if(inp){inp.focus();inp.select();}}
@@ -9282,7 +9412,7 @@ function deleteEntryConfirm(date) {
   overlay.innerHTML=`<div class="studio-modal"><h3>Delete entry?</h3><p>This will permanently remove the data for <strong>${fmt}</strong>. This can't be undone.</p>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="document.getElementById('delete-entry-overlay').remove()">Cancel</button>
-      <button class="btn" style="background:var(--red);color:#ffffff" onclick="deleteEntry('${date}')">Delete</button>
+      <button class="btn" style="background:var(--red);color:var(--on-accent)" onclick="deleteEntry('${date}')">Delete</button>
     </div></div>`;
   document.body.appendChild(overlay);
 }
@@ -9574,6 +9704,16 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Backspace') pinDel();
 });
 
+// Keyboard activation for div-based buttons (role="button"): Enter/Space triggers their click handler
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target;
+  if (t && t.getAttribute && t.getAttribute('role') === 'button' && t.tagName !== 'BUTTON') {
+    e.preventDefault();
+    t.click();
+  }
+});
+
 
 
 // ===================== PIN LOCK SYSTEM =====================
@@ -9850,7 +9990,7 @@ function renderPINManagement() {
     <div style="margin-bottom:16px">
       <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Owner PIN</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <input type="password" id="admin-pin-input" maxlength="4" placeholder="New PIN (4 digits)"
+        <input type="password" id="admin-pin-input" maxlength="4" placeholder="New PIN (4 digits)" aria-label="New owner PIN"
           style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:16px;color:var(--text);outline:none;width:160px"
           oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
         <button class="btn btn-ghost" style="font-size:14px" onclick="saveAdminPINFromInput()">Save</button>
@@ -9860,7 +10000,7 @@ function renderPINManagement() {
         <div style="font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Auto-lock</div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:15px;color:var(--text)">Return to PIN screen after</span>
-          <select id="auto-lock-select" onchange="setAutoLockMins(parseFloat(this.value))" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+          <select id="auto-lock-select" aria-label="Auto-lock timeout" onchange="setAutoLockMins(parseFloat(this.value))" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
             <option value="0" ${getAutoLockMins()===0?'selected':''}>Off</option>
             <option value="1" ${getAutoLockMins()===1?'selected':''}>1 minute</option>
             <option value="2" ${getAutoLockMins()===2?'selected':''}>2 minutes</option>
@@ -9896,7 +10036,7 @@ function renderPINManagement() {
     <div style="margin-bottom:16px">
       <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Manager PIN</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <input type="password" id="manager-pin-input" maxlength="4" placeholder="${managerHasPIN ? 'New PIN (4 digits)' : 'Set PIN (4 digits)'}"
+        <input type="password" id="manager-pin-input" maxlength="4" aria-label="Manager PIN" placeholder="${managerHasPIN ? 'New PIN (4 digits)' : 'Set PIN (4 digits)'}"
           style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:16px;color:var(--text);outline:none;width:160px"
           oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
         <button class="btn btn-ghost" style="font-size:14px" onclick="saveManagerPINFromInput()">Save</button>
@@ -9916,7 +10056,7 @@ function renderPINManagement() {
           <div style="font-size:13px;color:${hasPIN ? 'var(--green)' : 'var(--muted)'}">
             ${hasPIN ? '● PIN set' : '○ No PIN yet — first login sets it'}
           </div>
-          <input type="password" maxlength="4" placeholder="New PIN" id="staffpin-${i}"
+          <input type="password" maxlength="4" placeholder="New PIN" aria-label="${st.name} PIN" id="staffpin-${i}"
             style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;width:110px"
             oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
           <button class="btn btn-ghost" style="font-size:14px;padding:6px 12px" onclick="saveStaffPINFromInput(${i},'${st.name}')">Save</button>
@@ -9954,10 +10094,10 @@ async function renderAccountSection() {
     : 'No active subscription';
   box.innerHTML =
     row('Your name',
-      '<input id="account-owner-name" value="' + String(ownerName).replace(/"/g, '&quot;') + '" placeholder="e.g. Elyshia" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
+      '<input id="account-owner-name" aria-label="Your name" value="' + String(ownerName).replace(/"/g, '&quot;') + '" placeholder="e.g. Elyshia" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
       '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountSaveOwnerName()">Save</button>') +
     row('Studio name',
-      '<input id="account-studio-name" value="' + String(studioName).replace(/"/g, '&quot;') + '" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
+      '<input id="account-studio-name" aria-label="Studio name" value="' + String(studioName).replace(/"/g, '&quot;') + '" style="flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:15px;color:var(--text);outline:none">' +
       '<button class="btn btn-ghost" style="font-size:13px;padding:6px 12px" onclick="accountSaveStudioName()">Save</button>') +
     row('Login email',
       (email ? '<span style="font-family:var(--mono);font-size:14px">' + email + '</span>' : '<span style="color:var(--muted)">Connect to the cloud to see this</span>') +
@@ -10573,9 +10713,9 @@ function renderLeaderboard(activeStaff) {
       '<div style="font-size:15px;color:var(--muted)">Ranked by <strong style="color:var(--accent)">' + lbCfg.label + '</strong></div>' +
       '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
         '<span style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)">Period</span>' +
-        '<select class="compare-select" style="min-width:130px" onchange="setLeaderboardPeriod(this.value)">' + lbPeriodOptions + '</select>' +
+        '<select class="compare-select" aria-label="Leaderboard period" style="min-width:130px" onchange="setLeaderboardPeriod(this.value)">' + lbPeriodOptions + '</select>' +
         '<span style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)">Rank by</span>' +
-        '<select class="compare-select" style="min-width:150px" onchange="setLeaderboardMetric(this.value)">' + lbOptions + '</select>' +
+        '<select class="compare-select" aria-label="Leaderboard ranking metric" style="min-width:150px" onchange="setLeaderboardMetric(this.value)">' + lbOptions + '</select>' +
       '</div>' +
     '</div>';
 
@@ -11467,6 +11607,7 @@ function renderLapsed() {
   // Build flat list of all clients across stylists
   const allClients = [];
   Object.keys(log).forEach(stylist => {
+    if (stylist === '_deleted' || !Array.isArray(log[stylist])) return;   // sync bookkeeping, not a stylist
     if (filterStylist !== 'all' && stylist !== filterStylist) return;
     (log[stylist] || []).forEach((entry, idx) => {
       const cleanName = getClientCleanName(entry.name);
@@ -11600,39 +11741,39 @@ function addStockProduct(existing) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
         <div style="grid-column:span 2">
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Product Name *</div>
-          <input id="sk-name" placeholder="e.g. Brow Tint Refill" value="${existing?.name || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+          <input id="sk-name" aria-label="Product name" placeholder="e.g. Brow Tint Refill" value="${existing?.name || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
         </div>
         <div>
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">SKU</div>
-          <input id="sk-sku" placeholder="SKU-001" value="${existing?.sku || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none">
+          <input id="sk-sku" aria-label="SKU" placeholder="SKU-001" value="${existing?.sku || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none">
         </div>
         <div>
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Barcode</div>
-          <input id="sk-barcode" placeholder="9300675000000" value="${existing?.barcode || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none">
+          <input id="sk-barcode" aria-label="Barcode" placeholder="9300675000000" value="${existing?.barcode || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none">
         </div>
         <div style="grid-column:span 2">
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Supplier</div>
-          <input id="sk-supplier" placeholder="e.g. Thic Brow" value="${existing?.supplier || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+          <input id="sk-supplier" aria-label="Supplier" placeholder="e.g. Thic Brow" value="${existing?.supplier || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
         </div>
         <div>
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Cost Price ($)</div>
-          <input id="sk-cost" type="number" min="0" step="0.01" placeholder="0.00" value="${existing?.cost || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
+          <input id="sk-cost" aria-label="Cost price" type="number" min="0" step="0.01" placeholder="0.00" value="${existing?.cost || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
         </div>
         <div>
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Retail Price ($)</div>
-          <input id="sk-retail" type="number" min="0" step="0.01" placeholder="0.00" value="${existing?.retail || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
+          <input id="sk-retail" aria-label="Retail price" type="number" min="0" step="0.01" placeholder="0.00" value="${existing?.retail || ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
         </div>
         <div>
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Current Stock</div>
-          <input id="sk-stock" type="number" min="0" step="1" placeholder="0" value="${existing?.stock !== undefined ? existing.stock : ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
+          <input id="sk-stock" aria-label="Current stock" type="number" min="0" step="1" placeholder="0" value="${existing?.stock !== undefined ? existing.stock : ''}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
         </div>
         <div>
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Reorder At</div>
-          <input id="sk-reorder" type="number" min="0" step="1" placeholder="3" value="${existing?.reorder !== undefined ? existing.reorder : 3}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
+          <input id="sk-reorder" aria-label="Reorder level" type="number" min="0" step="1" placeholder="3" value="${existing?.reorder !== undefined ? existing.reorder : 3}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
         </div>
         <div style="grid-column:span 2">
           <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Reorder Quantity</div>
-          <input id="sk-reorderQty" type="number" min="1" step="1" placeholder="12" value="${existing?.reorderQty || 12}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
+          <input id="sk-reorderQty" aria-label="Reorder quantity" type="number" min="1" step="1" placeholder="12" value="${existing?.reorderQty || 12}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:15px;color:var(--text);outline:none;text-align:right">
         </div>
       </div>
 
@@ -11857,11 +11998,11 @@ function renderStock() {
                 <td style="padding:12px 8px;text-align:right;font-family:var(--mono);font-size:14px">$${p.retail.toFixed(2)}</td>
                 <td style="padding:12px 8px;text-align:right;font-family:var(--mono);font-size:14px;color:${p.margin >= 50 ? 'var(--green)' : p.margin >= 30 ? 'var(--accent)' : 'var(--red)'};font-weight:600">${p.margin}%</td>
                 <td style="padding:12px 14px;text-align:right;white-space:nowrap">
-                  <button onclick="recordStockMovement('${p.id}','sale')"    title="Record sale"    style="background:none;border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:12px;padding:4px 7px;border-radius:5px;margin-right:3px">−</button>
-                  <button onclick="recordStockMovement('${p.id}','restock')" title="Restock"       style="background:none;border:1px solid var(--green);color:var(--green);cursor:pointer;font-size:12px;padding:4px 7px;border-radius:5px;margin-right:3px">+</button>
-                  <button onclick="recordStockMovement('${p.id}','adjust')"  title="Adjust"        style="background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:12px;padding:4px 7px;border-radius:5px;margin-right:6px">⟲</button>
+                  <button onclick="recordStockMovement('${p.id}','sale')"    title="Record sale" aria-label="Record sale"    style="background:none;border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:12px;padding:4px 7px;border-radius:5px;margin-right:3px">−</button>
+                  <button onclick="recordStockMovement('${p.id}','restock')" title="Restock" aria-label="Restock"       style="background:none;border:1px solid var(--green);color:var(--green);cursor:pointer;font-size:12px;padding:4px 7px;border-radius:5px;margin-right:3px">+</button>
+                  <button onclick="recordStockMovement('${p.id}','adjust')"  title="Adjust" aria-label="Adjust stock"        style="background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:12px;padding:4px 7px;border-radius:5px;margin-right:6px">⟲</button>
                   <button onclick='addStockProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' title="Edit" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;margin-right:8px">Edit</button>
-                  <button onclick="deleteStockProduct('${p.id}')" title="Delete" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:0">×</button>
+                  <button onclick="deleteStockProduct('${p.id}')" title="Delete" aria-label="Delete product" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:0">×</button>
                 </td>
               </tr>`;
           }).join('')}
@@ -12339,6 +12480,22 @@ async function cloudPullState() {
     if (error || !data) return;
     data.forEach(r => {
       const lsKey = (r.studio_id === '__global__') ? r.k : (r.k + '_' + r.studio_id);
+      // Client log: merge row-by-row instead of overwriting (safe even with
+      // local unpushed edits — they carry newer _t stamps and win the merge).
+      // If the merge holds anything the cloud copy is missing, push it back.
+      if (r.k === 'ejClientServiceLog' && r.value != null) {
+        try {
+          const merged = JSON.stringify(clMergeBlobs(localStorage.getItem(lsKey), r.value));
+          localStorage.setItem(lsKey, merged);
+          if (merged !== r.value) {
+            cloudMarkDirty('state');
+            cloudMarkStateKeyDirty(lsKey);
+            clearTimeout(_cloudTimers.state);
+            _cloudTimers.state = setTimeout(() => cloudPushStateTracked(false), 1500);
+          }
+          return;
+        } catch (e) { /* fall back to the plain path below */ }
+      }
       if (_cloudDirtyStateKeys[lsKey]) return;   // this device has newer unpushed changes for this key
       if (r.value != null) localStorage.setItem(lsKey, r.value);
     });
@@ -12461,12 +12618,12 @@ function cloudConnectPrompt() {
         '<button id="cloud-tab-signup" onclick="cloudSetMode(\'signup\')" style="flex:1;padding:8px;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:500;background:transparent;color:var(--muted)">Sign Up</button>' +
       '</div>' +
       '<div id="cloud-mode-msg" style="font-size:14px;color:var(--muted);margin-bottom:12px;line-height:1.5">Sign in to your studio account.</div>' +
-      '<input id="cloud-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
-      '<input id="cloud-pass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<input id="cloud-email" type="email" placeholder="Email" aria-label="Email" autocomplete="username" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<input id="cloud-pass" type="password" placeholder="Password" aria-label="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
       '<div id="cloud-signup-fields" style="display:none">' +
-        '<input id="cloud-pass2" type="password" placeholder="Confirm password" autocomplete="new-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
-        '<input id="cloud-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
-        '<select id="cloud-booking-system" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);outline:none;margin-bottom:10px;font-family:var(--font)">' +
+        '<input id="cloud-pass2" type="password" placeholder="Confirm password" aria-label="Confirm password" autocomplete="new-password" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+        '<input id="cloud-studio-name" type="text" placeholder="Studio name (e.g. Elyshia Jones Studio)" aria-label="Studio name" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);outline:none;margin-bottom:10px">' +
+        '<select id="cloud-booking-system" aria-label="Booking system" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);outline:none;margin-bottom:10px;font-family:var(--font)">' +
           '<option value="">Which booking system do you use? (optional)</option>' +
           '<option value="timely">Timely</option>' +
           '<option value="fresha">Fresha</option>' +
@@ -12641,9 +12798,9 @@ function cloudFirstRunWizard(studioName) {
       '<div style="font-family:var(--serif);font-size:22px;font-style:italic;color:var(--accent);margin-bottom:6px">Welcome to ' + (studioName || 'your studio').replace(/</g,'&lt;') + '</div>' +
       '<div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5">Set your <b>Owner PIN</b>. This is what you and only you will use to unlock owner-only screens (P&amp;L, Tax &amp; BAS, PIN settings). You can add a Manager PIN and Stylist PINs later from Settings.</div>' +
       '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">Owner PIN (4–8 digits)</div>' +
-      '<input id="first-run-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:18px;letter-spacing:6px;text-align:center;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<input id="first-run-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" aria-label="Owner PIN" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:18px;letter-spacing:6px;text-align:center;color:var(--text);outline:none;margin-bottom:10px">' +
       '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">Confirm PIN</div>' +
-      '<input id="first-run-pin2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:18px;letter-spacing:6px;text-align:center;color:var(--text);outline:none;margin-bottom:10px">' +
+      '<input id="first-run-pin2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" aria-label="Confirm PIN" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:18px;letter-spacing:6px;text-align:center;color:var(--text);outline:none;margin-bottom:10px">' +
       '<div id="first-run-err" style="font-size:14px;color:var(--red);min-height:16px;margin-bottom:10px"></div>' +
       '<button class="btn btn-primary" style="width:100%" onclick="cloudFirstRunSave()">Save &amp; Continue</button>' +
     '</div>';
@@ -12753,7 +12910,7 @@ function pricingTilesHTML(highlightTier) {
       const isCurrent = highlightTier === t.id;
       const ring = (t.recommended || isCurrent) ? 'border:2px solid var(--accent)' : 'border:1px solid var(--border2)';
       return '<div style="background:var(--surface2);' + ring + ';border-radius:14px;padding:22px;position:relative">' +
-        (t.recommended ? '<div style="position:absolute;top:-11px;left:22px;background:var(--accent);color:#fff;font-size:11px;letter-spacing:1px;padding:4px 10px;border-radius:20px;text-transform:uppercase">Most popular</div>' : '') +
+        (t.recommended ? '<div style="position:absolute;top:-11px;left:22px;background:var(--accent);color:var(--on-accent);font-size:12px;letter-spacing:1px;padding:4px 10px;border-radius:20px;text-transform:uppercase">Most popular</div>' : '') +
         '<div style="font-family:var(--serif);font-style:italic;font-size:22px;color:var(--accent);margin-bottom:4px">' + t.name + '</div>' +
         '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">' + t.tagline + '</div>' +
         '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px"><span style="font-size:32px;font-weight:500;color:var(--text)">$' + t.monthly + '</span><span style="font-size:14px;color:var(--muted)">AUD / month</span></div>' +
@@ -13124,7 +13281,7 @@ function _tourEnsureEls() {
         '<span id="tour-count" style="font-size:12px;color:var(--muted2);flex:1"></span>' +
         '<button onclick="endTour()" style="background:none;border:none;font-size:13px;color:var(--muted2);cursor:pointer">Skip</button>' +
         '<button id="tour-back" onclick="tourMove(-1)" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 12px;font-size:13px;color:var(--text);cursor:pointer">Back</button>' +
-        '<button id="tour-next" onclick="tourMove(1)" style="background:var(--accent);border:none;border-radius:7px;padding:6px 14px;font-size:13px;color:#fff;cursor:pointer">Next</button>' +
+        '<button id="tour-next" onclick="tourMove(1)" style="background:var(--accent);border:none;border-radius:7px;padding:6px 14px;font-size:13px;color:var(--on-accent);cursor:pointer">Next</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(root);
@@ -13246,7 +13403,7 @@ function showUpdateBanner() {
   _updBannerShown = true;
   const el = document.createElement('div');
   el.id = 'update-banner';
-  el.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100002;background:var(--accent);color:#fff;border-radius:999px;padding:10px 22px;font-family:var(--font);font-size:14px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap';
+  el.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100002;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:10px 22px;font-family:var(--font);font-size:14px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.3);cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap';
   el.innerHTML = 'A new version of Lumin is ready · <span style="text-decoration:underline">Tap to update</span>';
   el.onclick = () => { location.replace(location.pathname + '?v=' + Date.now()); };
   document.body.appendChild(el);
