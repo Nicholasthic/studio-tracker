@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.20-1313">
+<meta name="lumin-build" content="2026.07.22-1547">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -383,6 +383,7 @@ body {
   transition: border-color 0.15s;
 }
 .form-input:focus { border-color: var(--accent); }
+.form-input.auto-total { pointer-events: none; background: transparent; border-style: dashed; color: var(--muted); }
 .form-section {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -2855,17 +2856,20 @@ try {
           <input type="text" class="form-input" id="entry-notes" placeholder="e.g. Angel sick, public holiday...">
         </div>
         <div class="form-group">
-          <label class="form-label">Product $ (store total)</label>
-          <input type="number" class="form-input" id="entry-product" placeholder="0" min="0">
+          <label class="form-label">Product $ (auto)</label>
+          <input type="number" class="form-input auto-total" id="entry-product" placeholder="0" min="0" readonly tabindex="-1">
         </div>
         <div class="form-group">
-          <label class="form-label">Product Qty (store total)</label>
-          <input type="number" class="form-input" id="entry-product-qty" placeholder="0" min="0">
+          <label class="form-label">Product Qty (auto)</label>
+          <input type="number" class="form-input auto-total" id="entry-product-qty" placeholder="0" min="0" readonly tabindex="-1">
         </div>
         <div class="form-group full">
-          <label class="form-label">Service $ (store total)</label>
-          <input type="number" class="form-input" id="entry-service" placeholder="0" min="0">
+          <label class="form-label">Service $ (auto)</label>
+          <input type="number" class="form-input auto-total" id="entry-service" placeholder="0" min="0" readonly tabindex="-1">
         </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px">
+        Store totals are calculated automatically from the stylist breakdown below — no need to type them.
       </div>
     </div>
 
@@ -5626,7 +5630,44 @@ function showEntryForm(iso, dayIdx) {
       </div>
     </div>`;
   }).join('');
+  entrySyncStoreTotals();
 }
+
+// ── Store-total auto-calc ──
+// The three store-total fields are read-only and always calculated live from
+// the stylist breakdown — no manual input. Days saved before per-stylist
+// entry existed (e.g. CSV imports) have no breakdown at all; for those the
+// stored totals are kept rather than wiped to zero.
+const ENTRY_STORE_FIELDS = [
+  { top: 'entry-product',     f: 'prod' },
+  { top: 'entry-product-qty', f: 'prodQty' },
+  { top: 'entry-service',     f: 'svc' },
+];
+const ENTRY_BREAKDOWN_FIELDS = ['ret','retR','retNR','new','newR','svc','prod','prodQty'];
+function entryStylistSum(field) {
+  return STYLISTS.reduce((sum, st) => {
+    const el = document.getElementById('s_' + st.name + '_' + field);
+    return sum + ((el && parseFloat(el.value)) || 0);
+  }, 0);
+}
+function entryHasBreakdown() {
+  return STYLISTS.some(st => ENTRY_BREAKDOWN_FIELDS.some(f => {
+    const el = document.getElementById('s_' + st.name + '_' + f);
+    return el && parseFloat(el.value) > 0;
+  }));
+}
+function entrySyncStoreTotals() {
+  if (!entryHasBreakdown()) return;   // legacy day with store-level totals only
+  ENTRY_STORE_FIELDS.forEach(({ top, f }) => {
+    const el = document.getElementById(top);
+    if (!el) return;
+    const sum = entryStylistSum(f);
+    el.value = sum ? +sum.toFixed(2) : '';
+  });
+}
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.closest && e.target.closest('#stylist-entry-grid')) entrySyncStoreTotals();
+});
 
 let entryEnabledDays = new Set([1,2,3,4,5]); // Mon-Fri default
 
@@ -5718,9 +5759,14 @@ function saveEntryData() {
   const stylistProdSum    = Object.values(sd).reduce((acc, x) => acc + (x.prod || 0), 0);
   const stylistProdQtySum = Object.values(sd).reduce((acc, x) => acc + (x.prodQty || 0), 0);
   const stylistSvcSum     = Object.values(sd).reduce((acc, x) => acc + (x.svc || 0), 0);
-  const prod     = Math.max(v('entry-product'),     stylistProdSum);
-  const prodQty  = Math.max(v('entry-product-qty'), stylistProdQtySum);
-  const svcTotal = Math.max(v('entry-service'),     stylistSvcSum);
+  // Store totals are always the stylist-breakdown sums — the fields are
+  // read-only. Days with no breakdown at all (imported / pre-breakdown
+  // entries) keep their stored totals instead of being wiped to zero.
+  const hasBreakdown = Object.values(sd).some(x =>
+    (x.c || 0) > 0 || (x.svc || 0) > 0 || (x.prod || 0) > 0 || (x.prodQty || 0) > 0);
+  const prod     = hasBreakdown ? stylistProdSum    : v('entry-product');
+  const prodQty  = hasBreakdown ? stylistProdQtySum : v('entry-product-qty');
+  const svcTotal = hasBreakdown ? stylistSvcSum     : v('entry-service');
   const stylists = v('entry-stylists');
   const notes = sv('entry-notes');
   const total = prod + svcTotal;
@@ -12030,6 +12076,7 @@ function cloudNewStudioSubmit() {
 let _rtChannel = null;
 let _rtTimer = null;
 let _cloudLastPush = 0;   // timestamp of our own last push, to ignore its echo
+let _rtRetryTimer = null, _rtRetryDelay = 5000;
 function cloudStartRealtime() {
   if (!sbClient || !cloudReady) return;
   try {
@@ -12038,21 +12085,68 @@ function cloudStartRealtime() {
     ['studios', 'stylists', 'daily_entries', 'app_state'].forEach(t => {
       ch = ch.on('postgres_changes', { event: '*', schema: 'public', table: t }, cloudOnRemoteChange);
     });
-    ch.subscribe();
+    // The join can fail silently (Safari waking from sleep, dropped networks,
+    // expired sockets) — watch the status and rejoin with backoff, otherwise a
+    // device stops hearing other devices until the app is fully reopened.
+    ch.subscribe((status) => {
+      if (status === 'SUBSCRIBED') { _rtRetryDelay = 5000; return; }
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        clearTimeout(_rtRetryTimer);
+        _rtRetryTimer = setTimeout(() => { if (cloudReady) cloudStartRealtime(); }, _rtRetryDelay);
+        _rtRetryDelay = Math.min(_rtRetryDelay * 2, 120000);
+      }
+    });
     _rtChannel = ch;
   } catch (e) { console.warn('realtime start failed', e); }
 }
 function cloudStopRealtime() {
   if (_rtChannel && sbClient) { try { sbClient.removeChannel(_rtChannel); } catch (e) {} }
   _rtChannel = null;
+  clearTimeout(_rtRetryTimer);
 }
 function cloudOnRemoteChange() {
   if (Date.now() - _cloudLastPush < 4000) return;   // ignore the echo of our own recent save
   clearTimeout(_rtTimer);
-  _rtTimer = setTimeout(() => {
-    if (cloudReady && !cloudApplying) cloudPullAll().then(() => cloudToast('Updated from another device ✓'));
-  }, 1200);   // debounce bursts into a single pull
+  _rtTimer = setTimeout(() => cloudSchedulePull(false), 1200);   // debounce bursts into a single pull
 }
+
+// ── Pull scheduling — waits out active typing so an incoming refresh never
+// repaints the page under someone's fingers, then pulls once.
+let _lastTypedAt = 0;
+document.addEventListener('input', () => { _lastTypedAt = Date.now(); }, true);
+let _pullWaitTimer = null;
+function cloudSchedulePull(quiet) {
+  clearTimeout(_pullWaitTimer);
+  if (Date.now() - _lastTypedAt < 6000) {
+    _pullWaitTimer = setTimeout(() => cloudSchedulePull(quiet), 3000);
+    return;
+  }
+  if (cloudReady && !cloudApplying) {
+    cloudPullAll().then(() => { cloudStamp(); if (!quiet) cloudToast('Updated from another device ✓'); });
+  }
+}
+
+// ── Polling fallback — realtime is best-effort, so every minute each open
+// device also asks the cloud "anything newer than what I last saw?" (two tiny
+// one-row queries). Guarantees a window that sits open all day still catches
+// up within a minute even when the realtime socket is dead.
+let _cloudRemoteStamp = '';
+async function cloudPollForChanges() {
+  if (!cloudReady || !sbClient || document.visibilityState !== 'visible') return;
+  try {
+    const newest1 = await sbClient.from('app_state').select('updated_at').order('updated_at', { ascending: false }).limit(1);
+    const newest2 = await sbClient.from('daily_entries').select('updated_at').order('updated_at', { ascending: false }).limit(1);
+    const newest = [newest1, newest2]
+      .map(r => (r.data && r.data[0] && r.data[0].updated_at) || '')
+      .sort().pop() || '';
+    if (!newest) return;
+    const changed = _cloudRemoteStamp && newest > _cloudRemoteStamp;
+    _cloudRemoteStamp = newest;
+    if (changed && Date.now() - _cloudLastPush > 4000) cloudSchedulePull(true);
+  } catch (e) { /* offline — next tick will retry */ }
+}
+setInterval(cloudPollForChanges, 60000);
+setTimeout(cloudPollForChanges, 8000);   // prime the baseline soon after launch
 
 // ── App switch / phone lock handling ──
 // iOS Safari freezes timers and kills requests the moment the page is hidden,
