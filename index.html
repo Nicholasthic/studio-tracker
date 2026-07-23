@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.23-1537">
+<meta name="lumin-build" content="2026.07.23-1829">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3890,6 +3890,11 @@ try {
       </p>
       <div id="pin-mgmt-output"></div>
     </div>
+    <div class="form-section" id="studio-prefs-section">
+      <div class="form-section-title">Studio preferences</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6">Applies to this studio and syncs to every device.</p>
+      <div id="studio-prefs-output"></div>
+    </div>
     <div class="form-section">
       <div class="form-section-title">Appearance</div>
       <p style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6">Just this device. Every device can have its own look.</p>
@@ -4490,6 +4495,56 @@ function saveStudios() { localStorage.setItem('ejStudios', JSON.stringify(STUDIO
 // ── Studio-scoped storage key helper ──────────────────────────────────────
 function studioKey(base) { return base + '_' + activeStudio; }
 
+// ── Studio preferences (per-studio, owner-configurable, cloud-synced) ──
+// One small blob per studio: { rebookTarget, defaultPeriod, fyStartMonth,
+// gstRate, currency, ... }. Getters return sensible defaults so existing
+// studios that have never opened Settings behave exactly as before.
+function loadStudioPrefs() {
+  try { return JSON.parse(localStorage.getItem(studioKey('ejStudioPrefs')) || '{}') || {}; } catch { return {}; }
+}
+function getStudioPref(key, dflt) {
+  const p = loadStudioPrefs();
+  return (p && p[key] !== undefined && p[key] !== null && p[key] !== '') ? p[key] : dflt;
+}
+function setStudioPref(key, val) {
+  const p = loadStudioPrefs();
+  p[key] = val;
+  const k = studioKey('ejStudioPrefs');
+  localStorage.setItem(k, JSON.stringify(p));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(k);
+}
+// Rebook target: the studio's own returning-client rebook goal. Meeting it reads
+// as green / "on target"; within 15 points is amber; below is red.
+function getRebookTarget() {
+  const v = parseFloat(getStudioPref('rebookTarget', 65));
+  return (isFinite(v) && v > 0 && v <= 100) ? v : 65;
+}
+function rebookBadgeClass(pct) {
+  const t = getRebookTarget();
+  return pct >= t ? 'badge-green' : pct >= t - 15 ? 'badge-amber' : pct > 0 ? 'badge-red' : '';
+}
+function rebookColor(pct) {
+  const t = getRebookTarget();
+  return pct >= t ? 'var(--green)' : pct >= t - 15 ? '#e2a043' : 'var(--red)';
+}
+// Staff hourly pay rates (per-studio, OWNER-ONLY: the inputs and the wage totals
+// they produce are gated to pinSessionUser === 'admin'). Stored as { name: rate }.
+function loadPayRates() {
+  try { return JSON.parse(localStorage.getItem(studioKey('ejPayRates')) || '{}') || {}; } catch { return {}; }
+}
+function getPayRate(name) {
+  const v = parseFloat(loadPayRates()[name]);
+  return (isFinite(v) && v > 0) ? v : 0;
+}
+function setPayRate(name, rate) {
+  const r = loadPayRates();
+  const v = parseFloat(rate);
+  if (isFinite(v) && v > 0) r[name] = Math.round(v * 100) / 100; else delete r[name];
+  const k = studioKey('ejPayRates');
+  localStorage.setItem(k, JSON.stringify(r));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(k);
+}
+
 // Load from localStorage
 function loadStorage() {
   try { return JSON.parse(localStorage.getItem(studioKey('ejEntries')) || '[]'); } catch { return []; }
@@ -4498,6 +4553,7 @@ function saveStorage(d) { localStorage.setItem(studioKey('ejEntries'), JSON.stri
 
 let userEntries = loadStorage();
 let activeFilter = 'all';
+let _dashDefaultApplied = false;   // apply the owner's default dashboard period once per session
 let customRange = { start: null, end: null };
 let customRangeOpen = false;
 let activeWeeklyFilter = 'all';
@@ -4667,7 +4723,7 @@ function showPage(id) {
   if (id === 'timesheets') { renderTSStaffChips(); renderTimesheets(); }
   if (id === 'roster') { rosterInitStaff(); rosterRenderAll(); }
   if (id === 'leaderboard') renderLeaderboard(pinSessionUser);
-  if (id === 'pinmgmt') renderPINManagement();
+  if (id === 'pinmgmt') { renderPINManagement(); renderStudioPrefs(); }
   if (id === 'help') { const _cb = document.getElementById('click-sound-toggle'); if (_cb) _cb.checked = clickSoundEnabled(); }
 
 }
@@ -4708,6 +4764,12 @@ function applyCustomRange() {
 }
 
 function renderDashboard() {
+  // First open this session: start on the owner's chosen default period
+  if (!_dashDefaultApplied) {
+    _dashDefaultApplied = true;
+    const dp = getStudioPref('defaultPeriod', 'all');
+    if (['all','thisweek','lastweek','ytd','fy','q1','q2','q3','q4'].indexOf(dp) !== -1) activeFilter = dp;
+  }
   // Build dash filter buttons
   const allMonthsWithData = [...new Set(allEntries().map(e => getMonth(e.date)))]
     .filter(Boolean)
@@ -4789,7 +4851,7 @@ function renderDashboard() {
     <div class="kpi-card">
       <div class="kpi-label">Ret. Rebook Rate</div>
       <div class="kpi-value">${retRebook.toFixed(1)}%</div>
-      <div class="kpi-sub kpi-trend ${retRebook >= 65 ? 'up' : 'down'}">${retRebook >= 65 ? '▲ On target' : '▼ Below 65%'}</div>
+      <div class="kpi-sub kpi-trend ${retRebook >= getRebookTarget() ? 'up' : 'down'}">${retRebook >= getRebookTarget() ? '▲ On target' : '▼ Below ' + getRebookTarget() + '%'}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Avg Daily Revenue</div>
@@ -4869,7 +4931,7 @@ function renderDashboard() {
   rb.innerHTML = monthsWithData.length === 0 ? '<div class="chart-empty">No data yet. Add your first day to see rebook trends.</div>' : monthsWithData.map(m => {
     const d = MONTHLY[m];
     const pct = d.ret > 0 ? (d.retR/d.ret*100) : 0;
-    const cls = pct >= 70 ? 'green' : pct >= 55 ? '' : '';
+    const cls = pct >= getRebookTarget() ? 'green' : '';
     return `<div class="progress-item">
       <div class="progress-header"><span class="progress-name">${m}</span><span class="progress-val">${pct.toFixed(1)}%</span></div>
       <div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
@@ -4897,7 +4959,7 @@ function renderDashboard() {
     const retPct = e.ret > 0 ? (e.retR/e.ret*100).toFixed(0) : '-';
     const newPct = e.newC > 0 ? (e.newR/e.newC*100).toFixed(0) : '-';
     const rPct = retPct !== '-' ? parseFloat(retPct) : 0;
-    const badge = rPct >= 70 ? 'badge-green' : rPct >= 50 ? 'badge-amber' : rPct > 0 ? 'badge-red' : '';
+    const badge = rPct > 0 ? rebookBadgeClass(rPct) : '';
     const d = new Date(e.date);
     const fmt = d.toLocaleDateString('en-AU', {day:'numeric', month:'short', weekday:'short'});
     const ctr = e.contractor;
@@ -5542,7 +5604,7 @@ function renderYearly() {
     <div class="kpi-card">
       <div class="kpi-label">Rebook Rate</div>
       <div class="kpi-value">${ytdRebook}%</div>
-      <div class="kpi-sub kpi-trend ${ytdRebook >= 65 ? 'up' : 'down'}">${ytdRebook >= 65 ? '▲ Strong' : '▼ Watch this'}</div>
+      <div class="kpi-sub kpi-trend ${ytdRebook >= getRebookTarget() ? 'up' : 'down'}">${ytdRebook >= getRebookTarget() ? '▲ Strong' : '▼ Watch this'}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Avg Monthly Revenue</div>
@@ -5652,7 +5714,7 @@ function renderYearly() {
     return `<tr>
       <td><strong>${s}</strong></td>
       <td class="mono">${d.clients}</td>
-      <td><span class="badge ${retPct >= 70 ? 'badge-green' : retPct >= 55 ? 'badge-amber' : 'badge-red'}">${retPct}%</span></td>
+      <td><span class="badge ${rebookBadgeClass(retPct)}">${retPct}%</span></td>
       <td><span class="badge badge-amber">${newPct}%</span></td>
       <td class="mono"><strong>$${d.revenue.toLocaleString()}</strong></td>
       <td class="mono">${d.shifts}</td>
@@ -6086,7 +6148,7 @@ function renderStylistPage() {
       <td class="mono">${d.clients}</td>
       <td class="mono">${d.retR}</td>
       <td class="mono">${d.retNR}</td>
-      <td><span class="badge ${rp >= 70 ? 'badge-green' : rp >= 55 ? 'badge-amber' : 'badge-red'}">${rp}%</span></td>
+      <td><span class="badge ${rebookBadgeClass(rp)}">${rp}%</span></td>
       <td class="mono">${newTotal}</td>
       <td class="mono">${d.newR}</td>
       <td><span class="badge badge-amber">${np}%</span></td>
@@ -6193,7 +6255,7 @@ function renderStylistPerf() {
     if (pct === '-') return `<span class="badge badge-amber">—</span>`;
     const n = parseFloat(pct);
     const cls = type === 'ret'
-      ? (n >= 70 ? 'badge-green' : n >= 55 ? 'badge-amber' : 'badge-red')
+      ? rebookBadgeClass(n)
       : (n >= 40 ? 'badge-green' : n >= 25 ? 'badge-amber' : 'badge-red');
     return `<span class="badge ${cls}">${pct}%</span>`;
   };
@@ -6201,7 +6263,7 @@ function renderStylistPerf() {
   const bar = (pct) => {
     if (pct === '-') return '';
     const n = Math.min(parseFloat(pct), 100);
-    const col = n >= 70 ? 'var(--green)' : n >= 55 ? '#e2a043' : 'var(--red)';
+    const col = rebookColor(n);
     return `<div class="rebook-bar" style="margin-top:5px"><div class="rebook-fill" style="width:${n}%;background:${col}"></div></div>`;
   };
 
@@ -7529,10 +7591,15 @@ function updateTSSummary() {
       if (!e || !e.start || !e.end) return false;
       return (calcHours(e.start, e.end, e.break || 0) || 0) > 0;
     }).length;
+    const rate = (typeof getPayRate === 'function') ? getPayRate(s) : 0;
+    const wageLine = (pinSessionUser === 'admin' && rate > 0)
+      ? `<div class="ts-summary-sub" style="color:var(--accent);font-weight:600;margin-top:3px">$${(totalH * rate).toFixed(2)} <span style="color:var(--muted);font-weight:400">· $${rate.toFixed(2)}/hr</span></div>`
+      : '';
     return `<div class="ts-summary-card">
       <div class="ts-summary-name">${s}</div>
       <div class="ts-summary-hours" style="color:${totalH > 0 ? 'var(--green)' : 'var(--muted2)'}">${fmtHours(totalH)}</div>
       <div class="ts-summary-sub">${workedDays} shift${workedDays !== 1 ? 's' : ''} this cycle</div>
+      ${wageLine}
     </div>`;
   }).join('');
 }
@@ -7913,7 +7980,7 @@ function renderTimesheets() {
       const daySty = isToday ? 'color:var(--accent);font-weight:600' : isWknd ? 'color:var(--muted)' : '';
       const hasData = !!(sv || ev);
       const preIcon = isPre ? '<span style="font-size:11px;color:var(--muted2);margin-left:3px">↩</span>' : '';
-      const clearBtn = hasData ? `<button onclick="clearTSEntry(this.dataset.n,this.dataset.d)" aria-label="Clear entry" data-n="${name}" data-d="${iso}" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:15px;padding:0;margin-left:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">✕</button>` : '';
+      const clearBtn = hasData ? `<button onclick="clearTSEntry(this.dataset.n,this.dataset.d)" aria-label="Clear entry" title="Remove entry" data-n="${name}" data-d="${iso}" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex-shrink:0;background:rgba(158,74,58,0.14);border:1px solid rgba(158,74,58,0.35);color:var(--red);cursor:pointer;font-size:15px;font-weight:600;line-height:1;border-radius:7px;padding:0;margin-left:6px" onmouseover="this.style.background='rgba(158,74,58,0.28)'" onmouseout="this.style.background='rgba(158,74,58,0.14)'">✕</button>` : '';
 
       const stepperBtn = (n, d, f, dir) =>
         `<button class="ts-step-btn" aria-label="${f==='start'?'Start':'Finish'} time ${dir>0?'up':'down'} 30 minutes" onclick="tsStep('${n}','${d}','${f}',${dir})" tabindex="-1">${dir>0?'▲':'▼'}</button>`;
@@ -10083,6 +10150,70 @@ function autoLockResetTimer() {
 });
 
 // ===================== PIN MANAGEMENT (Admin only) =====================
+// Studio preferences card (Account & Settings). Owner-only.
+function renderStudioPrefs() {
+  const el = document.getElementById('studio-prefs-output');
+  if (!el) return;
+  if (pinSessionUser !== 'admin') {
+    el.innerHTML = '<div style="font-size:14px;color:var(--muted)">Studio preferences are owner-only.</div>';
+    return;
+  }
+  const target = getRebookTarget();
+  const dp = getStudioPref('defaultPeriod', 'all');
+  const periods = [['all','All time'],['thisweek','This week'],['lastweek','Last week'],['ytd','Year to date'],['fy','Financial year'],['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
+  const payStaff = (typeof getAllTSStaff === 'function') ? getAllTSStaff() : STYLISTS.map(s => ({ name: s.name }));
+  const payRates = loadPayRates();
+  const payRateRows = payStaff.map(s => {
+    const nm = String(s.name).replace(/'/g, "\\'");
+    const val = (payRates[s.name] != null) ? payRates[s.name] : '';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:5px 0">
+      <span style="font-size:15px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</span>
+      <span style="font-size:15px;color:var(--muted)">$</span>
+      <input type="number" min="0" step="0.5" value="${val}" placeholder="0.00" aria-label="${s.name} hourly pay rate"
+        oninput="this.value=this.value.replace(/[^0-9.]/g,'')" onchange="setPayRate('${nm}', this.value)"
+        style="width:96px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none;text-align:right">
+      <span style="font-size:13px;color:var(--muted)">/hr</span>
+    </div>`;
+  }).join('') || '<div style="font-size:14px;color:var(--muted)">Add staff on the Stylists page first.</div>';
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:22px;max-width:540px">
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Rebook target</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:15px;color:var(--text)">Aim for a returning-client rebook rate of</span>
+          <input type="number" id="pref-rebook-target" min="1" max="100" value="${target}" aria-label="Rebook target percent"
+            oninput="this.value=this.value.replace(/\\D/g,'').slice(0,3)" onchange="saveRebookTarget(this.value)"
+            style="width:72px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none;text-align:center">
+          <span style="font-size:15px;color:var(--text)">%</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Drives the "on target" marker and the green / amber / red colours on every rebook figure across the app. Meeting it reads green; within 15 points is amber.</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Default dashboard period</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:15px;color:var(--text)">Open the dashboard on</span>
+          <select id="pref-default-period" aria-label="Default dashboard period" onchange="setStudioPref('defaultPeriod', this.value)"
+            style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+            ${periods.map(([v,l]) => `<option value="${v}" ${dp===v?'selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Which period the dashboard shows the first time you open the app each session.</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Staff pay rates</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">Only you (the owner) can see these and the wage totals they produce on the Timesheets page. Leave blank for anyone you don't pay hourly.</div>
+        ${payRateRows}
+      </div>
+    </div>`;
+}
+function saveRebookTarget(v) {
+  let n = parseInt(v, 10);
+  if (!isFinite(n) || n < 1) n = 65;
+  if (n > 100) n = 100;
+  setStudioPref('rebookTarget', n);
+  const inp = document.getElementById('pref-rebook-target'); if (inp) inp.value = n;
+}
+
 function renderPINManagement() {
   const el = document.getElementById('pin-mgmt-output');
   if (!el) return;
@@ -10788,7 +10919,7 @@ function renderLeaderboard(activeStaff) {
         '<span style="font-size:15px;font-weight:500">' + s.name + (isMe ? ' <span style="font-size:12px;color:var(--accent)">(you)</span>' : '') + ' ' + medalEmoji + '</span>' +
       '</div></td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:15px">' +
-        '<span style="background:' + (s.rebookPct >= 70 ? 'rgba(90,127,94,.12)' : s.rebookPct >= 55 ? 'rgba(0,0,0,.1)' : 'rgba(158,74,58,.1)') + ';color:' + (s.rebookPct >= 70 ? 'var(--green)' : s.rebookPct >= 55 ? 'var(--accent)' : 'var(--red)') + ';padding:3px 10px;border-radius:20px;font-size:14px;font-weight:600">' + s.rebookPct + '%</span>' +
+        '<span style="background:' + (s.rebookPct >= getRebookTarget() ? 'rgba(90,127,94,.12)' : s.rebookPct >= getRebookTarget()-15 ? 'rgba(0,0,0,.1)' : 'rgba(158,74,58,.1)') + ';color:' + (s.rebookPct >= getRebookTarget() ? 'var(--green)' : s.rebookPct >= getRebookTarget()-15 ? 'var(--accent)' : 'var(--red)') + ';padding:3px 10px;border-radius:20px;font-size:14px;font-weight:600">' + s.rebookPct + '%</span>' +
       '</td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:15px">' + s.clients + '</td>' +
       '<td style="padding:12px 14px;font-family:var(--mono);font-size:15px">' + s.shifts + '</td>' +
@@ -10880,14 +11011,14 @@ function renderMyStats(name, statsMap) {
     if (pct === '-') return `<span class="badge badge-amber">—</span>`;
     const n = parseFloat(pct);
     const cls = type === 'ret'
-      ? (n >= 70 ? 'badge-green' : n >= 55 ? 'badge-amber' : 'badge-red')
+      ? rebookBadgeClass(n)
       : (n >= 40 ? 'badge-green' : n >= 25 ? 'badge-amber' : 'badge-red');
     return `<span class="badge ${cls}">${pct}%</span>`;
   };
   const bar = (pct) => {
     if (pct === '-') return '';
     const n = Math.min(parseFloat(pct), 100);
-    const col = n >= 70 ? 'var(--green)' : n >= 55 ? '#e2a043' : 'var(--red)';
+    const col = rebookColor(n);
     return `<div class="rebook-bar" style="margin-top:5px"><div class="rebook-fill" style="width:${n}%;background:${col}"></div></div>`;
   };
   return `
@@ -12552,7 +12683,7 @@ async function cloudPushKind(kind) {
 // ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
 const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
-  'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff',
+  'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
   'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
