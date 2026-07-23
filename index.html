@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.23-2131">
+<meta name="lumin-build" content="2026.07.23-2150">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -7535,6 +7535,22 @@ function saveTSEntry(staffName, dateISO, field, value, hoursSpan, totalSpan, day
   updateTSSummary();
 }
 
+// Annual / personal leave for a day. Mutually exclusive: ticking one clears the
+// other. A leave day is a real entry (clears any tombstone) and re-renders so the
+// whole row recolours and the paired checkbox updates.
+function tsSetLeave(el, type) {
+  const name = el.getAttribute('data-n');
+  const iso = el.getAttribute('data-d');
+  if (!name || !iso) return;
+  const data = loadTSData();
+  const k = name + '__' + iso;
+  if (!data[k]) data[k] = {};
+  if (el.checked) { data[k].leave = type; delete data[k].cleared; }
+  else if (data[k].leave === type) { delete data[k].leave; }
+  saveTSData(data);
+  renderTimesheets();
+}
+
 function clearTSEntry(staffName, dateISO) {
   const data = loadTSData();
   const k = tsKey(staffName, dateISO);
@@ -7587,6 +7603,12 @@ function updateTSSummary() {
         if (h !== null && h > 0) totalH += h;
       }
     });
+    let annualDays = 0, personalDays = 0;
+    days.forEach(d => {
+      const e = data[tsKey(s, toLocalISO(d))];
+      if (e && e.leave === 'annual') annualDays++;
+      else if (e && e.leave === 'personal') personalDays++;
+    });
     const workedDays = days.filter(d => {
       const k = tsKey(s, toLocalISO(d));
       const e = data[k];
@@ -7597,10 +7619,17 @@ function updateTSSummary() {
     const wageLine = (pinSessionUser === 'admin' && rate > 0)
       ? `<div class="ts-summary-sub" style="color:var(--accent);font-weight:600;margin-top:3px">$${(totalH * rate).toFixed(2)} <span style="color:var(--muted);font-weight:400">· $${rate.toFixed(2)}/hr</span></div>`
       : '';
+    const leaveBits = [];
+    if (annualDays) leaveBits.push(`<span style="color:var(--blue)">${annualDays} annual</span>`);
+    if (personalDays) leaveBits.push(`<span style="color:#c98c4a">${personalDays} personal</span>`);
+    const leaveLine = leaveBits.length
+      ? `<div class="ts-summary-sub" style="margin-top:3px">${leaveBits.join(' · ')} leave</div>`
+      : '';
     return `<div class="ts-summary-card">
       <div class="ts-summary-name">${s}</div>
       <div class="ts-summary-hours" style="color:${totalH > 0 ? 'var(--green)' : 'var(--muted2)'}">${fmtHours(totalH)}</div>
       <div class="ts-summary-sub">${workedDays} shift${workedDays !== 1 ? 's' : ''} this cycle</div>
+      ${leaveLine}
       ${wageLine}
     </div>`;
   }).join('');
@@ -7973,8 +8002,9 @@ function renderTimesheets() {
       let sv = ent.start || '', ev = ent.end || '', bv = ent.break || '';
       let isPre = false;
       // ent.cleared is a tombstone written by the ✕ button — it blanks the row and
-      // stops the previous-week prefill from silently refilling it.
-      if (!sv && !ev && !ent.cleared) {
+      // stops the previous-week prefill from silently refilling it. Leave days
+      // (annual/personal) also skip the prefill — they aren't worked shifts.
+      if (!sv && !ev && !ent.cleared && !ent.leave) {
         const prev = getPrevWeekEntry(name, d.getDay());
         if (prev && (prev.start || prev.end)) { sv = prev.start||''; ev = prev.end||''; bv = prev.break||''; isPre = true; }
       }
@@ -7990,7 +8020,10 @@ function renderTimesheets() {
 
       const stepperBtn = (n, d, f, dir) =>
         `<button class="ts-step-btn" aria-label="${f==='start'?'Start':'Finish'} time ${dir>0?'up':'down'} 30 minutes" onclick="tsStep('${n}','${d}','${f}',${dir})" tabindex="-1">${dir>0?'▲':'▼'}</button>`;
-      rows += `<tr style="${isPre?'opacity:0.55;':''}">
+      // Leave days tint the whole day: blue for annual, amber for personal.
+      const leave = ent.leave || null;
+      const rowBg = leave === 'annual' ? 'background:rgba(65,96,122,0.16);' : leave === 'personal' ? 'background:rgba(201,140,74,0.18);' : '';
+      rows += `<tr style="${rowBg}${isPre?'opacity:0.55;':''}">
         <td style="border-bottom:none;${daySty}">${dayFmt}${preIcon}</td>
         <td style="border-bottom:none"><div class="ts-time-stepper">
           ${stepperBtn(name,iso,'start',1)}
@@ -8005,8 +8038,14 @@ function renderTimesheets() {
         <td style="border-bottom:none"><input type="number" class="ts-break-input" aria-label="${name} ${dayFmt} break minutes" data-n="${name}" data-d="${iso}" data-f="break" min="0" max="120" step="5" value="${bv}" placeholder="0" oninput="tsLiveCalc(this)" onblur="tsBlur(this)"> <span style="font-size:13px;color:var(--muted)">min</span></td>
         <td style="border-bottom:none;white-space:nowrap"><span id="tsh-${name.replace(/ /g,'_')}-${iso}" style="font-family:var(--mono);font-size:15px;font-weight:${h!==null&&h>0?'600':'normal'};color:${hCol}">${hTxt}</span>${clearBtn}</td>
       </tr>
-      <tr style="${isPre?'opacity:0.55;':''}">
-        <td colspan="5" style="padding-top:0;padding-bottom:12px"><input class="ts-notes-input" aria-label="${name} ${dayFmt} notes" data-n="${name}" data-d="${iso}" data-f="notes" value="${(ent.notes||'').replace(/"/g,'&quot;')}" placeholder="Note for this day..." onblur="tsBlur(this)"></td>
+      <tr style="${rowBg}${isPre?'opacity:0.55;':''}">
+        <td colspan="5" style="padding-top:0;padding-bottom:12px">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" data-n="${name}" data-d="${iso}" ${leave==='annual'?'checked':''} onchange="tsSetLeave(this,'annual')" style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer">Annual leave</label>
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" data-n="${name}" data-d="${iso}" ${leave==='personal'?'checked':''} onchange="tsSetLeave(this,'personal')" style="width:16px;height:16px;accent-color:#c98c4a;cursor:pointer">Personal leave</label>
+            <input class="ts-notes-input" aria-label="${name} ${dayFmt} notes" data-n="${name}" data-d="${iso}" data-f="notes" value="${(ent.notes||'').replace(/"/g,'&quot;')}" placeholder="Note for this day..." onblur="tsBlur(this)" style="flex:1;min-width:140px;width:auto">
+          </div>
+        </td>
       </tr>`;
     });
 
