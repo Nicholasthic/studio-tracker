@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.22-1842">
+<meta name="lumin-build" content="2026.07.23-1537">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -7399,7 +7399,7 @@ function tsNavWeek(dir) {
 
 // Storage
 function loadTSData() { try { return JSON.parse(localStorage.getItem(studioKey('ejTimesheets')) || '{}'); } catch { return {}; } }
-function saveTSData(data) { localStorage.setItem(studioKey('ejTimesheets'), JSON.stringify(data)); }
+function saveTSData(data) { localStorage.setItem(studioKey('ejTimesheets'), JSON.stringify(data)); if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejTimesheets')); }
 
 function tsCycleKey(offset) {
   const start = getTsCycleStart(offset);
@@ -7548,7 +7548,7 @@ function loadTSStaff() {
     return { extra: raw.extra || [], excluded: raw.excluded || ['Elyshia'] };
   } catch { return { extra: [], excluded: ['Elyshia'] }; }
 }
-function saveTSStaff(data) { localStorage.setItem(studioKey('ejTSStaff'), JSON.stringify(data)); }
+function saveTSStaff(data) { localStorage.setItem(studioKey('ejTSStaff'), JSON.stringify(data)); if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejTSStaff')); }
 function loadTSExtra() { return loadTSStaff().extra; }
 function loadTSExcluded() { return loadTSStaff().excluded; }
 
@@ -12170,6 +12170,20 @@ function cloudMarkDirty(kind) { if (!_cloudDirty[kind]) { _cloudDirty[kind] = Da
 function cloudClearDirty(kind) { delete _cloudDirty[kind]; _cloudSaveDirty(); }
 function cloudMarkStateKeyDirty(lsKey) { _cloudDirtyStateKeys[lsKey] = Date.now(); _cloudSaveDirty(); }
 function cloudClearStateKeys(keys) { keys.forEach(k => { delete _cloudDirtyStateKeys[k]; }); _cloudSaveDirty(); }
+// Explicitly flag a blob state key as locally edited and schedule its upload.
+// The localStorage.setItem auto-hook skips dirty-tracking while a cloud pull is
+// in flight (cloudApplying), so an edit saved during a background sync was left
+// untracked and then wiped when cloudPullState overwrote the key wholesale.
+// Blob saves (timesheets etc.) call this directly so the edit is always tracked,
+// which makes the pull's "skip keys with unpushed local changes" guard protect
+// it instead of clobbering it. Fixes timesheet entries vanishing on Safari.
+function cloudNoteLocalEdit(lsKey) {
+  if (typeof cloudReady === 'undefined' || !cloudReady || !lsKey) return;
+  cloudMarkDirty('state');
+  cloudMarkStateKeyDirty(lsKey);
+  clearTimeout(_cloudTimers.state);
+  _cloudTimers.state = setTimeout(() => cloudPushStateTracked(false), 800);
+}
 // Queued changes older than this lose to the cloud rather than overwrite it
 const CLOUD_DIRTY_MAX_AGE = 48 * 3600 * 1000;
 function cloudDropStaleDirty() {
