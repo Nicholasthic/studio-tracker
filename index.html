@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.23-2202">
+<meta name="lumin-build" content="2026.07.24-0908">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13202,7 +13202,10 @@ function isTrialing() {
 function isSubscribed() {
   return userSubscription && ['active', 'past_due'].includes(userSubscription.status);
 }
-function hasAccess() { return isTrialing() || isSubscribed(); }
+// Complimentary accounts: full access, never billed (your own studio, staff,
+// beta testers). Set subscriptions.comp = true on the row. Immune to Stripe.
+function isComp() { return !!(userSubscription && userSubscription.comp === true); }
+function hasAccess() { return isComp() || isTrialing() || isSubscribed(); }
 function daysLeftInTrial() {
   if (!userSubscription || !userSubscription.trial_ends_at) return 0;
   const ms = new Date(userSubscription.trial_ends_at).getTime() - Date.now();
@@ -13346,7 +13349,9 @@ function renderBillingSection() {
   if (!userSubscription) { el.innerHTML = ''; return; }
   const tier = LUMIN_TIERS.find(x => x.id === currentTier()) || { name: 'Studio', monthly: 39 };
   let statusLine = '';
-  if (isTrialing()) {
+  if (isComp()) {
+    statusLine = '<div style="color:var(--accent);font-weight:500">Complimentary — no billing</div>';
+  } else if (isTrialing()) {
     statusLine = '<div style="color:var(--accent);font-weight:500">Trial — ' + daysLeftInTrial() + ' day' + (daysLeftInTrial() === 1 ? '' : 's') + ' left</div>';
   } else if (isSubscribed()) {
     statusLine = '<div style="color:var(--green);font-weight:500">Active</div>';
@@ -13361,7 +13366,9 @@ function renderBillingSection() {
     statusLine = '<div style="color:var(--muted)">' + userSubscription.status + '</div>';
   }
   let actions = '';
-  if (isSubscribed() || userSubscription.status === 'past_due') {
+  if (isComp()) {
+    actions = '';   // complimentary accounts have nothing to manage or pay
+  } else if (isSubscribed() || userSubscription.status === 'past_due') {
     actions = '<button class="btn btn-ghost" onclick="openCustomerPortal()" style="margin-right:8px">Manage subscription</button>' +
               '<button class="btn btn-ghost" onclick="showPricingModal(\'Switch your plan — change takes effect immediately, with proration.\')">Switch plan</button>';
   } else {
