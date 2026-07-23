@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.23-2150">
+<meta name="lumin-build" content="2026.07.23-2202">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13269,12 +13269,13 @@ function pricingTilesHTML(highlightTier) {
         '<div style="font-family:var(--serif);font-style:italic;font-size:22px;color:var(--accent);margin-bottom:4px">' + t.name + '</div>' +
         '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">' + t.tagline + '</div>' +
         '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px"><span style="font-size:32px;font-weight:500;color:var(--text)">$' + t.monthly + '</span><span style="font-size:14px;color:var(--muted)">AUD / month</span></div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">or $' + t.annual + ' / year (save ~17%)</div>' +
+        '<div style="font-size:12px;color:var(--muted)">or $' + t.annual + ' / year (save ~17%)</div>' +
+        '<div style="font-size:12px;color:var(--accent);font-weight:600;margin:6px 0 14px">7 days free, then billed. Cancel anytime.</div>' +
         '<ul style="margin:0 0 18px 0;padding:0;list-style:none;font-size:13px;color:var(--text);line-height:1.7">' +
           t.features.map(f => '<li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">✓</span>' + f + '</li>').join('') +
         '</ul>' +
-        '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Subscribe, $' + t.monthly + '/mo</button>' +
-        '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Or annual, $' + t.annual + '/yr</button>' +
+        '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Start free trial — then $' + t.monthly + '/mo</button>' +
+        '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Annual — free week, then $' + t.annual + '/yr</button>' +
       '</div>';
     }).join('') +
   '</div>';
@@ -13382,7 +13383,7 @@ function handleStripeReturn() {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscribed') === '1') {
-      cloudToast('Subscription active — welcome to Lumin ✓');
+      cloudToast('You\'re in — your 7-day free trial has started ✓');
       setTimeout(fetchSubscription, 1500);
       setTimeout(fetchSubscription, 5000);
       const url = window.location.pathname + window.location.hash;
