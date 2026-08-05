@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. demo</title>
-<meta name="sums-build" content="2026.08.06-0250">
+<meta name="sums-build" content="2026.08.06-0450">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -154,6 +154,18 @@ html[data-theme="money"] .kpi-value {
 @media (prefers-reduced-motion: reduce) {
   html[data-theme="money"] .kpi-value { animation: none; background: none; -webkit-text-fill-color: currentColor; }
 }
+/* ── Lucky Break: a Money theme exclusive ── */
+#nav-luckybreak { display: none !important; }
+html[data-theme="money"] #nav-luckybreak { display: flex !important; }
+body.staff-view .sidebar-nav #nav-luckybreak:not(.staff-allowed) { display: none !important; }
+@keyframes lb-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+.lb-bounce { animation: lb-bounce 1.15s ease-in-out infinite; }
+@keyframes lb-pulse { 0% { box-shadow: 0 0 0 0 rgba(212,175,55,0.55); } 70% { box-shadow: 0 0 0 12px rgba(212,175,55,0); } 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } }
+.lb-highlight { animation: lb-pulse 1.25s ease-out infinite; border-color: #d4af37 !important; }
+@media (prefers-reduced-motion: reduce) { .lb-bounce, .lb-highlight { animation: none; } }
+.lb-mode-btn { padding:8px 15px; border-radius:999px; border:1px solid var(--border2); background:var(--surface); color:var(--text); cursor:pointer; font-family:var(--font); font-size:14px; }
+.lb-mode-btn.active { border-color:var(--accent); background:var(--accent-light); font-weight:600; }
+#scratch-overlay { position:fixed; inset:0; z-index:9600; background:rgba(8,12,9,0.74); display:none; align-items:center; justify-content:center; padding:20px; }
 html[data-mode="dark"] .btn-primary { color: #1b1916; }
 html[data-mode="dark"] .theme-swatch span { border-color: rgba(255,255,255,.3); }
 /* Theme picker swatches (Help > Preferences) */
@@ -2876,6 +2888,10 @@ try {
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.6 3.5L8 10l-3.1 1.5.6-3.5L3 5.5 6.5 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
       Leaderboard
     </button>
+    <button class="nav-item staff-allowed" id="nav-luckybreak" onclick="showPage('luckybreak')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="1.6" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Lucky Break
+    </button>
     <button class="nav-item" onclick="showPage('roster')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v2M11 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><path d="M4 10h3M9 10h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Roster Planner
@@ -4171,6 +4187,12 @@ try {
         <button class="theme-swatch" id="theme-btn-terminal" onclick="setTheme('terminal')"><span style="background:linear-gradient(135deg,#0a0f0b 50%,#6ee787 50%)"></span>Dev</button>
         <button class="theme-swatch" id="theme-btn-money" onclick="setTheme('money')"><span style="background:linear-gradient(135deg,#17603e 50%,#d4af37 50%)"></span>Money</button>
       </div>
+      <div id="lb-theme-teaser" style="display:none;margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--accent-light);border:1px dashed var(--border2);text-align:center">
+        <div class="lb-bounce" style="font-size:26px;line-height:1">🎰</div>
+        <div style="font-size:15px;color:var(--text);font-weight:500;margin-top:6px">There's a game hiding in the Money theme</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5">Lucky Break: spin the wheel for a team treat. Turn on Money to unlock it.</div>
+        <button class="btn btn-primary lb-bounce" style="margin-top:12px" onclick="lbUnlock()">Unlock Lucky Break</button>
+      </div>
     </div>
   </div>
 
@@ -4603,31 +4625,86 @@ try {
 
   </div>
 
+  <!-- ======================== LUCKY BREAK ======================== -->
+  <div class="page" id="page-luckybreak">
+    <div class="form-section" style="max-width:520px;margin:0 auto;text-align:center">
+      <div id="lb-locked" style="display:none">
+        <div class="lb-bounce" style="font-size:46px;line-height:1;margin-bottom:10px">🎰</div>
+        <div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:6px">Lucky Break is locked</div>
+        <div style="font-size:15px;color:var(--muted);line-height:1.6;max-width:360px;margin:0 auto 18px">The wheel only spins in the Money theme, where the studio turns green and gold and the sounds go full casino.</div>
+        <button class="btn btn-primary lb-bounce" onclick="lbUnlock()" style="min-width:180px">Turn on the Money theme</button>
+        <div style="margin-top:10px"><button class="btn btn-ghost" onclick="lbShowMeWhere()" style="font-size:14px">Show me where</button></div>
+      </div>
+      <div id="lb-game" style="display:none">
+      <div style="font-family:var(--serif);font-style:italic;font-size:28px;color:var(--accent);margin-bottom:12px">Lucky Break</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 18px">
+        <button class="lb-mode-btn active" id="lb-mode-btn-wheel" onclick="lbSetMode('wheel')">Team treat</button>
+        <button class="lb-mode-btn" id="lb-mode-btn-spinner" onclick="lbSetMode('spinner')">Spin the stylist</button>
+        <button class="lb-mode-btn" id="lb-mode-btn-trivia" onclick="lbSetMode('trivia')">Studio trivia</button>
+      </div>
+      <div id="lb-mode-wheel">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:6px">Spin the wheel. Over 100 ways to win, and the prize is team morale.</div>
+      <div id="roulette-pool-note" style="font-size:12px;color:var(--muted2);margin-bottom:18px"></div>
+      <div style="position:relative;width:280px;height:280px;margin:0 auto 18px;max-width:100%">
+        <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:16px solid var(--accent)"></div>
+        <svg id="roulette-wheel" viewBox="0 0 200 200" style="width:100%;height:100%;transform:rotate(0deg)"></svg>
+      </div>
+      <button id="roulette-spin-btn" class="btn btn-primary" onclick="spinRoulette()" style="min-width:150px">Spin</button>
+      <div id="roulette-result" style="display:none;margin-top:18px;padding:16px 18px;border-radius:12px;background:var(--accent-light);border:1px solid var(--border2)">
+        <div id="roulette-result-num" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px"></div>
+        <div id="roulette-result-idea" style="font-size:17px;color:var(--text);line-height:1.5;font-weight:500"></div>
+      </div>
+      <div style="font-size:13px;color:var(--muted2);margin-top:20px;line-height:1.6">Every idea comes up only once. When the wheel runs dry it reloads with a fresh set. The green zero is the jackpot.</div>
+      </div>
+
+      <div id="lb-mode-spinner" style="display:none">
+        <div style="font-size:14px;color:var(--muted);margin-bottom:14px">Whose turn is it? Let the wheel decide, and nobody can argue with the wheel.</div>
+        <input id="lb-task-input" type="text" placeholder="What for? e.g. opening Saturday" aria-label="What the spin decides"
+          style="width:100%;max-width:300px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:15px;color:var(--text);outline:none;margin-bottom:16px;text-align:center">
+        <div style="position:relative;width:260px;height:260px;margin:0 auto 18px;max-width:100%">
+          <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:16px solid var(--accent)"></div>
+          <svg id="lb-stylist-wheel" viewBox="0 0 200 200" style="width:100%;height:100%;transform:rotate(0deg)"></svg>
+        </div>
+        <button id="lb-stylist-spin-btn" class="btn btn-primary" onclick="spinStylistWheel()" style="min-width:150px">Spin</button>
+        <div id="lb-stylist-result" style="display:none;margin-top:18px;padding:16px 18px;border-radius:12px;background:var(--accent-light);border:1px solid var(--border2)">
+          <div id="lb-stylist-result-name" style="font-family:var(--serif);font-style:italic;font-size:24px;color:var(--accent)"></div>
+          <div id="lb-stylist-result-task" style="font-size:15px;color:var(--text);margin-top:4px"></div>
+        </div>
+      </div>
+
+      <div id="lb-mode-trivia" style="display:none">
+        <div id="lb-trivia-body"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">Day saved ✓</div>
 
-<!-- ── Money theme: staff bonding roulette (only visible while Money theme is on) ── -->
+<!-- ── Money theme shortcut to the Lucky Break page ── -->
 <button id="roulette-fab" onclick="openRoulette()" aria-label="Open Lucky Break, the staff bonding wheel"
   style="position:fixed;bottom:22px;right:22px;z-index:9000;width:58px;height:58px;border-radius:50%;cursor:pointer;
   background:#a8322e;border:4px dashed #f2e6c8;box-shadow:0 4px 14px rgba(0,0,0,0.35), inset 0 0 0 3px #7e211e;
   color:#f2e6c8;font-size:22px;line-height:1">$</button>
-<div id="roulette-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(8,12,9,0.72);align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:28px 26px;max-width:420px;width:100%;text-align:center;position:relative">
-    <button onclick="closeRoulette()" aria-label="Close Lucky Break" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:var(--serif);font-style:italic;font-size:24px;color:var(--accent);margin-bottom:4px">Lucky Break</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:18px">Spin the wheel. Over 100 ways to win, and the prize is team morale.</div>
-    <div id="roulette-pool-note" style="font-size:12px;color:var(--muted2);margin:-12px 0 14px"></div>
-    <div style="position:relative;width:280px;height:280px;margin:0 auto 18px">
-      <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:16px solid var(--accent)"></div>
-      <svg id="roulette-wheel" viewBox="0 0 200 200" style="width:100%;height:100%;transform:rotate(0deg)"></svg>
+
+<div id="scratch-overlay">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:26px 24px;max-width:380px;width:100%;text-align:center;position:relative">
+    <button onclick="closeScratch()" aria-label="Close scratch card" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">&#10005;</button>
+    <div style="font-family:var(--serif);font-style:italic;font-size:22px;color:var(--accent);margin-bottom:14px">Daily scratch card</div>
+    <div id="scratch-card" onclick="revealScratch()" style="position:relative;border-radius:14px;overflow:hidden;min-height:158px;display:flex;align-items:center;justify-content:center;padding:22px;background:var(--accent-light);border:1px dashed var(--border2);cursor:pointer">
+      <div id="scratch-cover" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#d4af37 0%,#a8862a 50%,#d4af37 100%);color:#1a1508;font-weight:600;font-size:15px">
+        <div style="font-size:30px;line-height:1">&#129689;</div>
+        <div>Tap to reveal</div>
+      </div>
+      <div id="scratch-reveal" style="opacity:0">
+        <div id="scratch-headline" style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:6px"></div>
+        <div id="scratch-sub" style="font-size:14px;color:var(--muted);line-height:1.55"></div>
+      </div>
     </div>
-    <button id="roulette-spin-btn" class="btn btn-primary" onclick="spinRoulette()" style="min-width:140px">Spin</button>
-    <div id="roulette-result" style="display:none;margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--accent-light);border:1px solid var(--border2)">
-      <div id="roulette-result-num" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px"></div>
-      <div id="roulette-result-idea" style="font-size:16px;color:var(--text);line-height:1.5;font-weight:500"></div>
-    </div>
+    <div style="font-size:12px;color:var(--muted2);margin-top:12px">One card per day, only in the Money theme.</div>
   </div>
 </div>
 
@@ -5010,7 +5087,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', pinmgmt:'Account & Settings', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', lapsed:'Lapsed Clients', stock:'Stock & Retail', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -5031,7 +5108,8 @@ function showPage(id) {
   if (id === 'timesheets') { renderTSStaffChips(); renderTimesheets(); }
   if (id === 'roster') { rosterInitStaff(); rosterRenderAll(); }
   if (id === 'leaderboard') renderLeaderboard(pinSessionUser);
-  if (id === 'pinmgmt') { renderPINManagement(); renderStudioPrefs(); syncTaxSelects(); }
+  if (id === 'luckybreak') lbSyncLockState();
+  if (id === 'pinmgmt') { renderPINManagement(); renderStudioPrefs(); syncTaxSelects(); lbSyncLockState(); }
   if (id === 'help') { const _cb = document.getElementById('click-sound-toggle'); if (_cb) _cb.checked = clickSoundEnabled(); }
 
 }
@@ -6452,10 +6530,12 @@ function saveEntryData() {
 
 function saveEntry() {
   if (!saveEntryData()) { alert('Please select a date.'); return; }
+  const savedDate = sv('entry-date');
   const toast = document.getElementById('toast');
   toast.style.display = 'block';
   setTimeout(() => { toast.style.display = 'none'; }, 2500);
   clearEntry();
+  try { maybeShowScratch(savedDate); } catch (e) {}
 }
 
 // ── Auto-save as you type — debounced ──
@@ -11594,18 +11674,312 @@ function buildRouletteWheel() {
   svg.dataset.built = '1';
 }
 function openRoulette() {
-  buildRouletteWheel();
-  const m = document.getElementById('roulette-modal');
-  if (m) m.style.display = 'flex';
-  const res = document.getElementById('roulette-result');
+  showPage('luckybreak');
+}
+
+// ── Lucky Break gating: the game lives inside the Money theme ──
+function lbSyncLockState() {
+  const locked = document.getElementById('lb-locked');
+  const game = document.getElementById('lb-game');
+  const on = moneyThemeActive();
+  if (locked) locked.style.display = on ? 'none' : 'block';
+  if (game) game.style.display = on ? 'block' : 'none';
+  if (on) { try { lbSetMode(_lbMode || 'wheel'); } catch (e) { buildRouletteWheel(); lbUpdatePoolNote(); } }
+  const teaser = document.getElementById('lb-theme-teaser');
+  if (teaser) teaser.style.display = on ? 'none' : 'block';
+}
+function lbUnlock() {
+  setTheme('money');            // dark-only theme, so this also flips the mode
+  showPage('luckybreak');
+}
+
+// ── Lucky Break arcade: mode switching ──
+let _lbMode = 'wheel';
+function lbSetMode(mode) {
+  _lbMode = mode;
+  ['wheel', 'spinner', 'trivia'].forEach(m => {
+    const panel = document.getElementById('lb-mode-' + m);
+    const btn = document.getElementById('lb-mode-btn-' + m);
+    if (panel) panel.style.display = (m === mode) ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+  if (mode === 'wheel') { buildRouletteWheel(); lbUpdatePoolNote(); }
+  if (mode === 'spinner') buildStylistWheel();
+  if (mode === 'trivia' && !_lbTriviaQs.length) lbTriviaStart();
+  try { playChipClick(); } catch (e) {}
+}
+
+// ── Spin the stylist: the wheel picks who is up ──
+let _lbStylistRotation = 0, _lbStylistSpinning = false, _lbStylistTick = null;
+function lbStylistNames() {
+  try { return (STYLISTS || []).map(s => s.name).filter(Boolean); } catch (e) { return []; }
+}
+function lbEsc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function buildStylistWheel() {
+  const svg = document.getElementById('lb-stylist-wheel');
+  if (!svg) return;
+  const names = lbStylistNames();
+  const sig = names.join('|');
+  if (svg.dataset.sig === sig) return;
+  if (!names.length) {
+    svg.innerHTML = '<text x="100" y="100" text-anchor="middle" fill="#888" font-size="11" font-family="Georgia,serif">Add stylists first</text>';
+    svg.dataset.sig = sig;
+    return;
+  }
+  const n = names.length, seg = 360 / n, cx = 100, cy = 100, r = 96;
+  let parts = '';
+  for (let i = 0; i < n; i++) {
+    const a0 = (i * seg - 90) * Math.PI / 180, a1 = ((i + 1) * seg - 90) * Math.PI / 180;
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const fill = (n === 1) ? '#1d7a44' : (i % 2 === 0 ? '#a8322e' : '#232323');
+    const d = (n === 1)
+      ? `M${cx} ${cy} m-${r} 0 a${r} ${r} 0 1 0 ${r * 2} 0 a${r} ${r} 0 1 0 -${r * 2} 0`
+      : `M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 ${seg > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
+    parts += `<path d="${d}" fill="${fill}" stroke="#d4af37" stroke-width="0.5"/>`;
+    const am = (i + 0.5) * seg - 90, amr = am * Math.PI / 180;
+    const tx = cx + 66 * Math.cos(amr), ty = cy + 66 * Math.sin(amr);
+    const label = names[i].length > 11 ? names[i].slice(0, 10) + '…' : names[i];
+    parts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" fill="#f2e6c8" font-size="9" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am + 90).toFixed(1)} ${tx.toFixed(2)} ${ty.toFixed(2)})">${lbEsc(label)}</text>`;
+  }
+  parts += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4af37" stroke-width="3"/>`;
+  parts += `<circle cx="${cx}" cy="${cy}" r="15" fill="#d4af37"/><text x="${cx}" y="${cy + 0.5}" fill="#1a1508" font-size="13" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle">$</text>`;
+  svg.innerHTML = parts;
+  svg.dataset.sig = sig;
+}
+function spinStylistWheel() {
+  if (_lbStylistSpinning) return;
+  const names = lbStylistNames();
+  if (!names.length) return;
+  buildStylistWheel();
+  _lbStylistSpinning = true;
+  const svg = document.getElementById('lb-stylist-wheel');
+  const btn = document.getElementById('lb-stylist-spin-btn');
+  const res = document.getElementById('lb-stylist-result');
   if (res) res.style.display = 'none';
-  lbUpdatePoolNote();
-  playChipClick();
+  if (btn) btn.textContent = 'Spinning…';
+  const n = names.length, seg = 360 / n;
+  _lbStylistRotation += 5 * 360 + Math.random() * 360;
+  svg.style.transition = 'transform 3.6s cubic-bezier(0.12, 0.6, 0.08, 1)';
+  svg.style.transform = `rotate(${_lbStylistRotation}deg)`;
+  _lbStylistTick = setInterval(playChipClick, 130);
+  setTimeout(() => {
+    clearInterval(_lbStylistTick);
+    _lbStylistSpinning = false;
+    if (btn) btn.textContent = 'Spin again';
+    const landed = ((360 - (_lbStylistRotation % 360)) % 360);
+    const idx = Math.floor(landed / seg) % n;
+    const nameEl = document.getElementById('lb-stylist-result-name');
+    const taskEl = document.getElementById('lb-stylist-result-task');
+    const task = (document.getElementById('lb-task-input') || {}).value || '';
+    if (nameEl) nameEl.textContent = names[idx];
+    if (taskEl) taskEl.textContent = task.trim() ? ('is up for ' + task.trim()) : 'is up';
+    if (res) res.style.display = 'block';
+    playChaChing();
+  }, 3700);
 }
-function closeRoulette() {
-  const m = document.getElementById('roulette-modal');
-  if (m) m.style.display = 'none';
+
+// ── Studio trivia: every question is built from the studio's own entries ──
+let _lbTriviaQs = [], _lbTriviaIdx = 0, _lbTriviaScore = 0;
+function lbShuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
 }
+function lbFmtDay(iso) {
+  try { const p = iso.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  catch (e) { return iso; }
+}
+function lbFmtMonth(key) {
+  try { const p = key.split('-'); return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString('en-AU', { month: 'long', year: 'numeric' }); }
+  catch (e) { return key; }
+}
+function lbGenQuestions() {
+  let ents = [];
+  try { ents = (allEntries() || []).filter(e => e && (((e.ret || 0) + (e.newC || 0)) > 0)); } catch (e) { return []; }
+  const qs = [];
+  if (ents.length < 3) return qs;
+  const clients = e => (e.ret || 0) + (e.newC || 0);
+
+  // Which of these three days was busiest?
+  for (let attempt = 0; attempt < 3 && qs.length < 2; attempt++) {
+    const three = lbShuffle(ents.slice()).slice(0, 3);
+    if (new Set(three.map(clients)).size < 3) continue;
+    const best = three.reduce((a, b) => (clients(b) > clients(a) ? b : a));
+    qs.push({ q: 'Which day was the busiest?', opts: three.map(e => lbFmtDay(e.date)), answer: lbFmtDay(best.date), tag: clients(best) + ' clients' });
+  }
+
+  // How many clients on a given day?
+  const e2 = lbShuffle(ents.slice()).find(e => clients(e) > 2);
+  if (e2) {
+    const c = clients(e2);
+    const set = [c, c + 2, Math.max(1, c - 2), c + 5];
+    if (new Set(set).size === 4) {
+      qs.push({ q: 'How many clients came through on ' + lbFmtDay(e2.date) + '?', opts: lbShuffle(set.map(String)), answer: String(c) });
+    }
+  }
+
+  // Most new clients in a single day
+  const e3 = lbShuffle(ents.slice()).filter(e => (e.newC || 0) > 0);
+  if (e3.length >= 3) {
+    const three = e3.slice(0, 3);
+    if (new Set(three.map(e => e.newC || 0)).size === 3) {
+      const best = three.reduce((a, b) => ((b.newC || 0) > (a.newC || 0) ? b : a));
+      qs.push({ q: 'Which day brought in the most new clients?', opts: three.map(e => lbFmtDay(e.date)), answer: lbFmtDay(best.date), tag: (best.newC || 0) + ' new clients' });
+    }
+  }
+
+  // Who has seen the most clients overall?
+  const byStylist = {}, newByStylist = {};
+  ents.forEach(e => {
+    const sd = e.sd || {};
+    Object.keys(sd).forEach(nm => {
+      byStylist[nm] = (byStylist[nm] || 0) + ((sd[nm] && sd[nm].c) || 0);
+      newByStylist[nm] = (newByStylist[nm] || 0) + ((sd[nm] && sd[nm].nr) || 0);
+    });
+  });
+  const rows = Object.keys(byStylist).map(nm => ({ nm, c: byStylist[nm] })).filter(r => r.c > 0);
+  if (rows.length >= 3) {
+    rows.sort((a, b) => b.c - a.c);
+    if (rows[0].c > rows[1].c) {
+      qs.push({ q: 'Who has seen the most clients overall?', opts: lbShuffle(rows.slice(0, 4).map(r => r.nm)), answer: rows[0].nm, tag: rows[0].c + ' clients' });
+    }
+  }
+  const newRows = Object.keys(newByStylist).map(nm => ({ nm, c: newByStylist[nm] })).filter(r => r.c > 0);
+  if (newRows.length >= 3) {
+    newRows.sort((a, b) => b.c - a.c);
+    if (newRows[0].c > newRows[1].c) {
+      qs.push({ q: 'Who has brought in the most new clients?', opts: lbShuffle(newRows.slice(0, 4).map(r => r.nm)), answer: newRows[0].nm, tag: newRows[0].c + ' new clients' });
+    }
+  }
+
+  // Busiest month by clients
+  const byMonth = {};
+  ents.forEach(e => { const k = String(e.date).slice(0, 7); byMonth[k] = (byMonth[k] || 0) + clients(e); });
+  const monthRows = Object.keys(byMonth).map(k => ({ k, v: byMonth[k] }));
+  if (monthRows.length >= 3) {
+    monthRows.sort((a, b) => b.v - a.v);
+    if (monthRows[0].v > monthRows[1].v) {
+      qs.push({ q: 'Which month was the studio\'s busiest?', opts: lbShuffle(monthRows.slice(0, 4).map(r => lbFmtMonth(r.k))), answer: lbFmtMonth(monthRows[0].k), tag: monthRows[0].v + ' clients' });
+    }
+  }
+
+  // Higher or lower on clients
+  const pair = lbShuffle(ents.slice()).slice(0, 2);
+  if (pair.length === 2 && clients(pair[0]) !== clients(pair[1])) {
+    const hi = clients(pair[0]) > clients(pair[1]) ? pair[0] : pair[1];
+    qs.push({ q: 'Higher or lower: which day saw more clients?', opts: [lbFmtDay(pair[0].date), lbFmtDay(pair[1].date)], answer: lbFmtDay(hi.date), tag: clients(hi) + ' clients' });
+  }
+
+  return qs;
+}
+function lbTriviaStart() {
+  _lbTriviaQs = lbShuffle(lbGenQuestions()).slice(0, 5);
+  _lbTriviaIdx = 0;
+  _lbTriviaScore = 0;
+  lbTriviaRender();
+}
+function lbTriviaRender() {
+  const el = document.getElementById('lb-trivia-body');
+  if (!el) return;
+  if (!_lbTriviaQs.length) {
+    el.innerHTML = '<div style="font-size:15px;color:var(--muted);line-height:1.6;max-width:340px;margin:0 auto 16px">Add a few days of entries first. Once the studio has some history, the questions write themselves.</div>' +
+      '<button class="btn btn-ghost" onclick="lbTriviaStart()">Check again</button>';
+    return;
+  }
+  if (_lbTriviaIdx >= _lbTriviaQs.length) {
+    const perfect = _lbTriviaScore === _lbTriviaQs.length;
+    if (perfect) { try { playJackpotSound(); } catch (e) {} }
+    el.innerHTML = '<div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:6px">' +
+      (perfect ? 'Clean sweep' : 'Round over') + '</div>' +
+      '<div style="font-size:17px;color:var(--text);margin-bottom:18px">' + _lbTriviaScore + ' out of ' + _lbTriviaQs.length + '</div>' +
+      '<button class="btn btn-primary" onclick="lbTriviaStart()" style="min-width:150px">Play again</button>';
+    return;
+  }
+  const q = _lbTriviaQs[_lbTriviaIdx];
+  el.innerHTML = '<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Question ' + (_lbTriviaIdx + 1) + ' of ' + _lbTriviaQs.length + ' · score ' + _lbTriviaScore + '</div>' +
+    '<div style="font-size:18px;color:var(--text);font-weight:500;line-height:1.5;margin-bottom:16px">' + lbEsc(q.q) + '</div>' +
+    q.opts.map((o, i) => '<button class="btn btn-ghost" style="display:block;width:100%;max-width:320px;margin:0 auto 9px" onclick="lbTriviaAnswer(' + i + ')">' + lbEsc(o) + '</button>').join('');
+}
+function lbTriviaAnswer(i) {
+  const q = _lbTriviaQs[_lbTriviaIdx];
+  if (!q) return;
+  const correct = q.opts[i] === q.answer;
+  if (correct) { _lbTriviaScore++; try { playChaChing(); } catch (e) {} }
+  else { try { playChipClick(); } catch (e) {} }
+  const el = document.getElementById('lb-trivia-body');
+  if (!el) return;
+  el.innerHTML = '<div style="font-family:var(--serif);font-style:italic;font-size:24px;color:' + (correct ? 'var(--green)' : 'var(--red)') + ';margin-bottom:6px">' +
+    (correct ? 'Correct' : 'Not quite') + '</div>' +
+    '<div style="font-size:16px;color:var(--text);line-height:1.5;margin-bottom:4px">' + lbEsc(q.answer) + '</div>' +
+    (q.tag ? '<div style="font-size:14px;color:var(--muted)">' + lbEsc(q.tag) + '</div>' : '') +
+    '<button class="btn btn-primary" onclick="lbTriviaNext()" style="margin-top:16px;min-width:130px">Next</button>';
+}
+function lbTriviaNext() { _lbTriviaIdx++; lbTriviaRender(); }
+
+// ── Daily scratch card: one per day, revealed after saving an entry ──
+function scratchVerdict(entry, ents) {
+  const clientsOf = e => (e.ret || 0) + (e.newC || 0);
+  const c = clientsOf(entry);
+  const newC = entry.newC || 0;
+  const newBit = newC > 0 ? (' ' + newC + ' of them new.') : '';
+  const others = ents.filter(e => e.date !== entry.date);
+  if (!others.length) return { headline: 'Day one on the board', sub: c + ' clients logged, and the first numbers in your history. Every trend starts here.' };
+  const avg = others.reduce((a, e) => a + clientsOf(e), 0) / others.length;
+  const best = others.reduce((a, e) => Math.max(a, clientsOf(e)), 0);
+  if (c > best) return { headline: 'New studio record', sub: c + ' clients, more than any day on record. The old best was ' + best + '.' + newBit };
+  if (avg > 0 && c >= avg * 1.25) return { headline: 'Well above average', sub: c + ' clients against a typical ' + Math.round(avg) + '.' + newBit };
+  if (avg > 0 && c >= avg) return { headline: 'Above average day', sub: c + ' clients, ahead of your usual ' + Math.round(avg) + '.' + newBit };
+  if (avg > 0 && c >= avg * 0.75) return { headline: 'Steady one', sub: c + ' clients, close to your usual ' + Math.round(avg) + '.' + newBit };
+  return { headline: 'Quiet one', sub: c + ' clients today. The quiet days make the busy ones look good, and it is all counted now.' };
+}
+function maybeShowScratch(date) {
+  if (!date || !moneyThemeActive()) return;
+  const key = studioKey('ejScratchLast');
+  try { if (localStorage.getItem(key) === date) return; localStorage.setItem(key, date); } catch (e) {}
+  let ents = [];
+  try { ents = (allEntries() || []).filter(e => e && (((e.ret || 0) + (e.newC || 0)) > 0)); } catch (e) { return; }
+  const entry = ents.find(e => e.date === date);
+  if (!entry) return;
+  const v = scratchVerdict(entry, ents);
+  const h = document.getElementById('scratch-headline'), s = document.getElementById('scratch-sub');
+  const cover = document.getElementById('scratch-cover'), reveal = document.getElementById('scratch-reveal');
+  const overlay = document.getElementById('scratch-overlay');
+  if (!h || !s || !cover || !reveal || !overlay) return;
+  h.textContent = v.headline;
+  s.textContent = v.sub;
+  cover.style.display = 'flex';
+  cover.style.opacity = '1';
+  reveal.style.opacity = '0';
+  overlay.style.display = 'flex';
+}
+function revealScratch() {
+  const cover = document.getElementById('scratch-cover'), reveal = document.getElementById('scratch-reveal');
+  if (!cover || !reveal || cover.style.display === 'none') return;
+  cover.style.transition = 'opacity .45s ease';
+  reveal.style.transition = 'opacity .45s ease';
+  cover.style.opacity = '0';
+  reveal.style.opacity = '1';
+  setTimeout(() => { cover.style.display = 'none'; }, 460);
+  try { playChaChing(); } catch (e) {}
+}
+function closeScratch() {
+  const o = document.getElementById('scratch-overlay');
+  if (o) o.style.display = 'none';
+}
+
+function lbShowMeWhere() {
+  showPage('pinmgmt');
+  setTimeout(() => {
+    const btn = document.getElementById('theme-btn-money');
+    if (!btn) return;
+    try { btn.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+    btn.classList.add('lb-highlight', 'lb-bounce');
+    setTimeout(() => btn.classList.remove('lb-highlight', 'lb-bounce'), 7000);
+  }, 300);
+}
+
 function spinRoulette() {
   if (_rouletteSpinning) return;
   _rouletteSpinning = true;
@@ -11684,6 +12058,7 @@ function setThemeMode(mode) {
   themeRefreshPage();
 }
 function themeSyncUI() {
+  try { if (typeof lbSyncLockState === 'function') lbSyncLockState(); } catch (e) {}
   const curT = getTheme(), curM = getThemeMode();
   THEME_NAMES.forEach(n => { const b = document.getElementById('theme-btn-' + n); if (b) b.classList.toggle('active', n === curT); });
   const bl = document.getElementById('mode-btn-light'), bd = document.getElementById('mode-btn-dark');
