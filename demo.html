@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. demo</title>
-<meta name="sums-build" content="2026.08.06-0010">
+<meta name="sums-build" content="2026.08.06-0250">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -56,6 +56,23 @@ html[data-theme="sage"] {
   --muted: #525c48; --muted2: #616c55;
   --accent: #53714a; --accent2: #435d3c; --accent-light: rgba(83,113,74,0.08);
 }
+html[data-theme="mono"] {
+  --bg: #ebebeb; --surface2: #ffffff; --surface3: #f2f2f2;
+  --muted: #565656; --muted2: #6b6b6b;
+  --accent: #000000; --accent2: #2b2b2b; --accent-light: rgba(0,0,0,0.07);
+}
+html[data-theme="terminal"] {
+  --bg: #dde6dd; --surface2: #f2f7f2; --surface3: #e6eee6;
+  --muted: #4c5f4c; --muted2: #5c715c;
+  --accent: #1c7c3c; --accent2: #166331; --accent-light: rgba(28,124,60,0.09);
+  --font: 'DM Mono', monospace; --serif: 'DM Mono', monospace;
+}
+html[data-theme="money"] {
+  --bg: #d3ddd0; --surface2: #f1f5ec; --surface3: #e3eadd;
+  --muted: #48584a; --muted2: #586a5a;
+  --accent: #17603e; --accent2: #114c31; --accent-light: rgba(23,96,62,0.09);
+  --green: #2e7d4f; --purple: #8a7430;
+}
 /* ── DARK MODE ─────────────────────────────────────────────
    data-mode="dark" on <html>, combinable with any theme.
    Accents become light in dark mode, so primary buttons flip
@@ -87,6 +104,55 @@ html[data-mode="dark"][data-theme="sage"] {
   --bg: #141712; --surface: #1d221b; --surface2: #262c23; --surface3: #2f372b;
   --muted: #aab5a0; --muted2: #9aa691;
   --accent: #a3bd93; --accent2: #8fac7e; --accent-light: rgba(163,189,147,0.12);
+}
+html[data-mode="dark"][data-theme="mono"] {
+  --bg: #0e0e0e; --surface: #171717; --surface2: #202020; --surface3: #2a2a2a;
+  --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.26);
+  --text: #f2f2f2; --muted: #a8a8a8; --muted2: #8f8f8f;
+  --accent: #ffffff; --accent2: #d9d9d9; --accent-light: rgba(255,255,255,0.12);
+  --on-accent: #111111;
+}
+html[data-mode="dark"][data-theme="terminal"] {
+  --bg: #0a0f0b; --surface: #101711; --surface2: #16211a; --surface3: #1c2a20;
+  --border: rgba(110,231,135,0.14); --border2: rgba(110,231,135,0.30);
+  --text: #d8ecd8; --muted: #8fae92; --muted2: #7d9b80;
+  --accent: #6ee787; --accent2: #52d273; --accent-light: rgba(110,231,135,0.12);
+  --on-accent: #08130b;
+  --green: #6ee787; --red: #ff7b72; --blue: #79c0ff; --purple: #d2a8ff;
+}
+html[data-mode="dark"][data-theme="money"] {
+  --bg: #0c1410; --surface: #122019; --surface2: #182a20; --surface3: #1f3428;
+  --border: rgba(212,175,55,0.14); --border2: rgba(212,175,55,0.32);
+  --text: #ece7d3; --muted: #b0b8a2; --muted2: #9aa48c;
+  --accent: #d4af37; --accent2: #c19b2e; --accent-light: rgba(212,175,55,0.12);
+  --on-accent: #1a1508;
+  --green: #85c497; --red: #d08770; --blue: #8fb4a6; --purple: #cbb56a;
+}
+/* ── Money theme casino flair: $ wallpaper, card suits, gold shimmer ── */
+html[data-theme="money"] { --money-shine: #4fae74; }
+html[data-mode="dark"][data-theme="money"] { --money-shine: #f6e7ac; }
+html[data-theme="money"] body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg font-family='Georgia,serif' font-size='44' fill='%2317603e' opacity='0.05'%3E%3Ctext x='28' y='70' transform='rotate(-14 28 70)'%3E%24%3C/text%3E%3Ctext x='150' y='180' transform='rotate(11 150 180)'%3E%24%3C/text%3E%3C/g%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+html[data-mode="dark"][data-theme="money"] body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg font-family='Georgia,serif' font-size='44' fill='%23d4af37' opacity='0.055'%3E%3Ctext x='28' y='70' transform='rotate(-14 28 70)'%3E%24%3C/text%3E%3Ctext x='150' y='180' transform='rotate(11 150 180)'%3E%24%3C/text%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-theme="money"] .topbar-title::after {
+  content: " ♠ ♥ ♦ ♣"; font-size: 12px; letter-spacing: 4px; opacity: .45; color: var(--accent); font-style: normal; vertical-align: 3px;
+}
+#roulette-fab { display: none; align-items: center; justify-content: center; }
+html[data-theme="money"] #roulette-fab { display: flex; }
+html[data-theme="money"] .kpi-value {
+  background: linear-gradient(100deg, var(--accent) 32%, var(--money-shine) 50%, var(--accent) 68%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: money-shimmer 4.5s linear infinite;
+}
+@keyframes money-shimmer { from { background-position: 225% 0; } to { background-position: -125% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="money"] .kpi-value { animation: none; background: none; -webkit-text-fill-color: currentColor; }
 }
 html[data-mode="dark"] .btn-primary { color: #1b1916; }
 html[data-mode="dark"] .theme-swatch span { border-color: rgba(255,255,255,.3); }
@@ -2651,6 +2717,7 @@ body.manager-view .owner-only { display: none !important; }
 try {
   var _t = localStorage.getItem('demo_ejTheme'); if (_t && _t !== 'cream') document.documentElement.setAttribute('data-theme', _t);
   var _m = localStorage.getItem('demo_ejThemeMode'); if (_m === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
+  if (_t === 'terminal' || _t === 'money') document.documentElement.setAttribute('data-mode', 'dark');
 } catch (e) {}
 </script>
 </head>
@@ -3078,7 +3145,7 @@ try {
       </div>
       <div class="week-day-grid" id="entry-week-grid"></div>
       <div style="font-size:13px;color:var(--muted);margin-top:-4px">
-        Sun &amp; Sat are unchecked by default. Tap to enable if your studio opens those days.
+        Your working days stay highlighted; other days are dimmed. Tap a dimmed day to open it one-off, or change your working days in Account &amp; Settings.
       </div>
     </div>
 
@@ -4100,6 +4167,9 @@ try {
         <button class="theme-swatch" id="theme-btn-orange" onclick="setTheme('orange')"><span style="background:linear-gradient(135deg,#ecd8bd 50%,#a85a24 50%)"></span>Orange</button>
         <button class="theme-swatch" id="theme-btn-pink" onclick="setTheme('pink')"><span style="background:linear-gradient(135deg,#e9d4d7 50%,#a34d63 50%)"></span>Pink</button>
         <button class="theme-swatch" id="theme-btn-sage" onclick="setTheme('sage')"><span style="background:linear-gradient(135deg,#d8dfcc 50%,#53714a 50%)"></span>Sage</button>
+        <button class="theme-swatch" id="theme-btn-mono" onclick="setTheme('mono')"><span style="background:linear-gradient(135deg,#ffffff 50%,#000000 50%)"></span>B&amp;W</button>
+        <button class="theme-swatch" id="theme-btn-terminal" onclick="setTheme('terminal')"><span style="background:linear-gradient(135deg,#0a0f0b 50%,#6ee787 50%)"></span>Dev</button>
+        <button class="theme-swatch" id="theme-btn-money" onclick="setTheme('money')"><span style="background:linear-gradient(135deg,#17603e 50%,#d4af37 50%)"></span>Money</button>
       </div>
     </div>
   </div>
@@ -4538,6 +4608,29 @@ try {
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">Day saved ✓</div>
 
+<!-- ── Money theme: staff bonding roulette (only visible while Money theme is on) ── -->
+<button id="roulette-fab" onclick="openRoulette()" aria-label="Open Lucky Break, the staff bonding wheel"
+  style="position:fixed;bottom:22px;right:22px;z-index:9000;width:58px;height:58px;border-radius:50%;cursor:pointer;
+  background:#a8322e;border:4px dashed #f2e6c8;box-shadow:0 4px 14px rgba(0,0,0,0.35), inset 0 0 0 3px #7e211e;
+  color:#f2e6c8;font-size:22px;line-height:1">$</button>
+<div id="roulette-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(8,12,9,0.72);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:28px 26px;max-width:420px;width:100%;text-align:center;position:relative">
+    <button onclick="closeRoulette()" aria-label="Close Lucky Break" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:var(--serif);font-style:italic;font-size:24px;color:var(--accent);margin-bottom:4px">Lucky Break</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:18px">Spin the wheel. Over 100 ways to win, and the prize is team morale.</div>
+    <div id="roulette-pool-note" style="font-size:12px;color:var(--muted2);margin:-12px 0 14px"></div>
+    <div style="position:relative;width:280px;height:280px;margin:0 auto 18px">
+      <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:16px solid var(--accent)"></div>
+      <svg id="roulette-wheel" viewBox="0 0 200 200" style="width:100%;height:100%;transform:rotate(0deg)"></svg>
+    </div>
+    <button id="roulette-spin-btn" class="btn btn-primary" onclick="spinRoulette()" style="min-width:140px">Spin</button>
+    <div id="roulette-result" style="display:none;margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--accent-light);border:1px solid var(--border2)">
+      <div id="roulette-result-num" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px"></div>
+      <div id="roulette-result-idea" style="font-size:16px;color:var(--text);line-height:1.5;font-weight:500"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===================== DATA =====================
 // STYLISTS — object array [{name, isContractor}], persisted to localStorage
@@ -4716,6 +4809,31 @@ function rebookBadgeClass(pct) {
 function rebookColor(pct) {
   const t = getRebookTarget();
   return pct >= t ? 'var(--green)' : pct >= t - 15 ? '#e2a043' : 'var(--red)';
+}
+// Working days: which weekdays the studio trades, as JS day indices (0=Sun..6=Sat).
+// Highlighted on the Entry week grid and Timesheets; other days dim but stay usable.
+function getWorkingDays() {
+  const v = getStudioPref('workingDays', null);
+  if (Array.isArray(v) && v.length) {
+    const clean = v.map(Number).filter(n => isFinite(n) && n >= 0 && n <= 6);
+    if (clean.length) return clean;
+  }
+  return [1, 2, 3, 4, 5];
+}
+function isWorkingDay(dayIdx) { return getWorkingDays().includes(dayIdx); }
+function toggleWorkingDay(dayIdx) {
+  const cur = new Set(getWorkingDays());
+  if (cur.has(dayIdx)) {
+    if (cur.size <= 1) return;   // studio must trade at least one day
+    cur.delete(dayIdx);
+  } else {
+    cur.add(dayIdx);
+  }
+  setStudioPref('workingDays', Array.from(cur).sort((a, b) => a - b));
+  entryEnabledDays = new Set(getWorkingDays());
+  if (typeof renderStudioPrefs === 'function') renderStudioPrefs();
+  if (document.getElementById('entry-week-grid')) renderEntryWeekGrid();
+  if (typeof renderTimesheets === 'function' && document.getElementById('ts-grid')) renderTimesheets();
 }
 // Staff hourly pay rates (per-studio, OWNER-ONLY: the inputs and the wage totals
 // they produce are gated to pinSessionUser === 'admin'). Stored as { name: rate }.
@@ -6209,7 +6327,7 @@ document.addEventListener('input', (e) => {
   if (e.target && e.target.closest && e.target.closest('#stylist-entry-grid')) entrySyncStoreTotals();
 });
 
-let entryEnabledDays = new Set([1,2,3,4,5]); // Mon-Fri default
+let entryEnabledDays = new Set(getWorkingDays()); // seeded from the studio's working days setting
 
 function toggleEntryDay(dayIdx) {
   if (entryEnabledDays.has(dayIdx)) {
@@ -6234,14 +6352,13 @@ function renderEntryWeekGrid() {
   grid.innerHTML = days.map(d => {
     const iso = toLocalISO(d);
     const dayIdx = d.getDay();
-    const isWeekend = dayIdx === 0 || dayIdx === 6;
     const isEnabled = entryEnabledDays.has(dayIdx);
     const hasData = allEnt.some(e => e.date === iso && (e.total||0) > 0);
     const isSelected = iso === selectedDate;
     const isToday = iso === toLocalISO(new Date());
 
     let cls = 'week-day-cell';
-    if (isWeekend && !isEnabled) cls += ' weekend';
+    if (!isEnabled) cls += ' weekend';
     if (isSelected) cls += ' selected';
     if (hasData) cls += ' has-data';
 
@@ -8420,7 +8537,7 @@ function renderTimesheets() {
     days.forEach(d => {
       const iso = toLocalISO(d);
       const isToday = iso === todayISO;
-      const isWknd = d.getDay() === 0 || d.getDay() === 6;
+      const isWknd = !isWorkingDay(d.getDay());
       const k = `${name}__${iso}`;
       const ent = stored[k] || {};
       let sv = ent.start || '', ev = ent.end || '', bv = ent.break || '';
@@ -9910,6 +10027,7 @@ function switchStudio(id) {
   if (el && studio) el.textContent = studio.name;
 
   // Reload all studio-scoped in-memory data
+  entryEnabledDays = new Set(getWorkingDays());
   userEntries = loadStorage();
   STYLISTS = (() => {
     try {
@@ -10676,6 +10794,18 @@ function renderStudioPrefs() {
         <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Which period the dashboard shows the first time you open the app each session.</div>
       </div>
       <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Working days</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${[[1,'Mon'],[2,'Tue'],[3,'Wed'],[4,'Thu'],[5,'Fri'],[6,'Sat'],[0,'Sun']].map(([i,lbl]) => {
+            const on = isWorkingDay(i);
+            return `<button onclick="toggleWorkingDay(${i})" aria-pressed="${on}" aria-label="${lbl} ${on ? 'working day' : 'not a working day'}"
+              style="min-width:52px;padding:9px 0;border-radius:9px;font-family:var(--font);font-size:14px;font-weight:${on ? '600' : '400'};cursor:pointer;outline:none;
+              background:${on ? 'var(--accent)' : 'var(--surface2)'};color:${on ? 'var(--bg)' : 'var(--muted)'};border:1px solid ${on ? 'var(--accent)' : 'var(--border2)'}">${lbl}</button>`;
+          }).join('')}
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">The days your studio trades. They stay highlighted on the Entry week grid and Timesheets across the whole app; other days are dimmed but can still be opened for one-off trading. Applies to this studio on every device.</div>
+      </div>
+      <div>
         <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Staff pay rates</div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">Only you (the owner) can see these and the wage totals they produce on the Timesheets page. Leave blank for anyone you don't pay hourly.</div>
         ${payRateRows}
@@ -11096,6 +11226,7 @@ function setClickSoundEnabled(on) {
 }
 function playClickSound() {
   if (!clickSoundEnabled()) return;
+  if (moneyThemeActive()) { playChaChing(); return; }
   try {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -11116,9 +11247,418 @@ function playClickSound() {
   } catch (e) {}
 }
 
+// ── Money theme: casino audio. Synthesized (no files), only while the Money
+// theme is active, sharing the app's AudioContext. Cha-ching on save, clay
+// chip click on nav, coin-cascade jackpot for celebrations.
+function moneyThemeActive() { return typeof getTheme === 'function' && getTheme() === 'money'; }
+function moneyCtx() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!lbAudioCtx) lbAudioCtx = new AC();
+  if (lbAudioCtx.state === 'suspended') lbAudioCtx.resume();
+  return lbAudioCtx;
+}
+function playChaChing() {
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = moneyCtx(); if (!ctx) return;
+    const now = ctx.currentTime;
+    const master = ctx.createGain(); master.gain.value = 0.10; master.connect(ctx.destination);
+    [[2093, 0], [2637, 0.07]].forEach(([f, dt]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = f;
+      const t = now + dt;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.6, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.25);
+    });
+    const o2 = ctx.createOscillator(), g2 = ctx.createGain();
+    o2.type = 'sine'; o2.frequency.value = 4186;
+    g2.gain.setValueAtTime(0.0001, now + 0.07);
+    g2.gain.exponentialRampToValueAtTime(0.15, now + 0.085);
+    g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+    o2.connect(g2); g2.connect(master); o2.start(now + 0.07); o2.stop(now + 0.32);
+  } catch (e) {}
+}
+function playChipClick() {
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = moneyCtx(); if (!ctx) return;
+    const now = ctx.currentTime;
+    const len = Math.floor(ctx.sampleRate * 0.05);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2.5;
+    const master = ctx.createGain(); master.gain.value = 0.12; master.connect(ctx.destination);
+    src.connect(bp); bp.connect(master);
+    src.start(now);
+  } catch (e) {}
+}
+function playJackpotSound() {
+  try {
+    const ctx = moneyCtx(); if (!ctx) return;
+    const now = ctx.currentTime;
+    const master = ctx.createGain(); master.gain.value = 0.14; master.connect(ctx.destination);
+    for (let i = 0; i < 12; i++) {
+      const t = now + i * 0.055;
+      const f = [1568, 2093, 2637, 3136][i % 4] * (1 + (i % 3) * 0.003);
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.35, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.18);
+    }
+    [392, 523.25, 659.25, 783.99].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sawtooth'; o.frequency.value = f;
+      const t = now + 0.1 + i * 0.12;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.45);
+    });
+  } catch (e) {}
+}
+// Clay chip click on sidebar navigation while the Money theme is on
+document.addEventListener('click', (e) => {
+  try {
+    if (!moneyThemeActive()) return;
+    if (e.target && e.target.closest && e.target.closest('.nav-item')) playChipClick();
+  } catch (err) {}
+});
+
+// ── Staff bonding roulette (Money theme only). Lands on a bonding idea. ──
+const ROULETTE_BANKS = [
+  [
+    "Jackpot! The studio shouts lunch for the whole team today",
+    "Coffee run! The studio shouts everyone their order",
+    "Team breakfast before Saturday open this week",
+    "Compliment circle: one genuine compliment to the person on your left",
+    "Today's top earner controls the playlist all day",
+    "Group face masks after close. Photos mandatory",
+    "Five minute stretch circle before the next client",
+    "Everyone shares their best client moment of the week",
+    "Team photo for the socials. Best pose wins bragging rights",
+    "Snack run: the studio shouts something sweet this afternoon",
+    "Skill swap: everyone teaches one trick they swear by",
+    "Lunch together today, phones in a basket",
+    "Two truths and a lie, studio edition",
+    "Nominate this week's MVP and say why in front of everyone",
+    "Pick this week's best brow transformation for the wall",
+    "Games night after close. Loser opens Saturday",
+    "Everyone writes a thank you note to a favourite client",
+    "Invent a ten second team handshake",
+    "Vote on the next studio treat day",
+    "Smoothie round on the studio tomorrow morning",
+    "Bring a plate day: everyone brings one snack to share",
+    "Mystery client story time: best one wins a coffee",
+    "Guess the baby photo: everyone brings one in",
+    "Studio walk: ten minutes of fresh air together",
+    "Swap stations for the first hour tomorrow",
+    "Teach the team your fastest mapping trick",
+    "Group vote: invent a new name for one menu treatment",
+    "Post-close pizza while restocking together",
+    "Karaoke closer: one song each before lock up",
+    "Whoever rebooks the most clients today picks Friday lunch",
+    "Write one goal for the month and share it",
+    "Bring your favourite childhood photo tomorrow",
+    "Accent hour: hold your best accent for a full hour",
+    "Compliment a stranger challenge on lunch",
+    "Team plank: hold a group plank for sixty seconds",
+    "Shout the quietest teammate their coffee order",
+    "Everyone invents one new emoji combo for the group chat",
+    "Design a secret code word for difficult days",
+    "High five everyone in the building before your next client",
+    "Trivia at the front desk: five questions, winner skips bins duty",
+    "Group photo recreating the oldest team picture you can find",
+    "Bring in your most-used product for show and tell",
+    "Everyone predicts the week's total revenue, closest wins a treat",
+    "Swap playlists with a teammate for the afternoon",
+    "Teach the team a phrase in another language",
+    "Write your teammate's award show introduction and read it out",
+    "Desk yoga: three poses between clients",
+    "The next hour is compliments-only hour",
+    "Everyone shares their dream holiday in one sentence",
+    "Doughnut run before close",
+    "Create the studio's signature group selfie angle",
+    "Whoever makes the team laugh hardest today wins a snack",
+    "Everyone brings their reusable cup tomorrow: coffee on the studio",
+    "Share the weirdest client request you've ever had",
+    "Rock paper scissors tournament: champion leaves ten minutes early",
+    "Sticky note appreciation: leave one kind note on every station",
+    "Group brainstorm: one new social media idea each",
+    "Best beauty hack under thirty seconds: demonstrate it now",
+    "Everyone texts one lovely old client just to say hi",
+    "Choreograph a five second closing dance",
+    "Bring your pet photo tomorrow: cutest wins morning tea",
+    "Accessory swap for the rest of the day",
+    "Teach the newest team member one thing they don't know yet",
+    "Bubble tea order for the afternoon",
+    "Everyone writes one thing they're grateful for at work",
+    "Silent ten minutes: communicate with gestures only",
+    "Guess whose handwriting: mystery notes at the desk",
+    "Everyone picks a walk-up song for their next client arrival",
+    "Group decision: restyle one corner of the studio",
+    "Fastest clean station challenge: winner picks the playlist",
+    "Everyone shares their first ever beauty disaster story",
+    "Team manifesto: write where the studio will be in one year",
+    "Ice cream run after the last client",
+    "Compliment battle: two teammates, best compliment wins",
+    "Hydration pact: everyone finishes two litres of water today",
+    "Best client review of the month gets read out loud",
+    "Rename the group chat something new and ridiculous",
+    "Everyone brings one book to swap next week",
+    "Sunset photo challenge on the way home: best shot wins",
+    "Team vote: next playlist theme week",
+    "Practise the team handshake before close",
+    "Mentor minute: senior teaches junior one business tip",
+    "Whoever books the biggest day this week gets breakfast shouted",
+    "Bring your favourite mug from home tomorrow",
+    "One minute dance break, right now",
+    "Everyone writes down their proudest work moment this year",
+    "Plan a team beach or park morning for the next day off",
+    "Slow motion entrance video for the socials",
+    "Everyone gives their station a name and a label",
+    "Draft five categories for a studio awards night",
+    "Blindfolded brow mapping on paper: worst one buys snacks",
+    "Everyone compliments their own work out loud, no cringing",
+    "Print this month's best team moment for the photo wall",
+    "Next team meeting starts with everyone's highlight of the week",
+    "Teach the team your coffee order in under ten words",
+    "Everyone swaps one job task for an hour",
+    "Write a time capsule note to open at Christmas",
+    "Whoever gets the next five star review picks tomorrow's lunch spot",
+    "Team superlatives: most likely to, studio edition",
+    "Everyone shouts out someone who helped them this week",
+    "Swap chairs with whoever books the next client",
+    "Fancy sparkling water round on the studio",
+    "Everyone picks one throwback song for a 2000s hour",
+    "Matching hairstyles day tomorrow",
+    "Whoever upsells the next product picks the morning tea spot",
+    "Write the studio a one line hype chant and use it at open",
+    "Everyone brings a childhood snack next shift",
+    "Client compliment relay: pass on every nice thing a client says today",
+  ],
+  [
+    "Jackpot! The studio shouts everyone breakfast tomorrow",
+    "Milkshake round after the last client",
+    "Everyone shares the best advice a mentor ever gave them",
+    "Teach a teammate your favourite lash or brow trick",
+    "Fresh flowers for the front desk, picked as a team",
+    "Everyone swaps aprons or tool belts for the afternoon",
+    "Whoever guesses today's client count closest wins a coffee",
+    "Group vote: the studio's official celebration song",
+    "Plan a surprise treat for the next new team member",
+    "Everyone posts one story hyping a teammate today",
+    "Five minute meditation together before open",
+    "Pancake morning before the first Saturday client",
+    "Everyone writes one skill they want to learn this year",
+    "Team boomerang for the socials before close",
+    "The newest team member picks the playlist till lunch",
+    "Everyone brings one photo of their happy place",
+    "Design a new team accessory together",
+    "Whisper challenge at the front desk on break",
+    "Everyone says their favourite thing about the studio out loud",
+    "Iced coffee round when the afternoon slump hits",
+    "Build a group chat playlist: two songs each",
+    "Everyone demos their fastest clean-up routine, best one becomes law",
+    "Team vote: which service deserves a glow-up this season",
+    "Bring your favourite scent tomorrow and defend it",
+    "Everyone finds one new collab account for the studio to follow",
+    "Group stretch to one full song before close",
+    "Drop a kind review for another local small business",
+    "Everyone tells the story of their first day here",
+    "Sushi lunch order on the studio",
+    "Everyone predicts tomorrow's first service, winner gloats all day",
+    "Anonymous kind notes in a jar: everyone draws one",
+    "Hot chocolate round on the first cold morning",
+    "Everyone shares one goal for next month in three words",
+    "Guess the song: hum it, team guesses, loser restocks towels",
+    "Everyone brings their favourite tea bag to swap",
+    "Team walk to the good coffee place, not the close one",
+    "Write the studio's origin story in one dramatic paragraph",
+    "Everyone picks a celebrity client they'd love and why",
+    "Speed compliments: thirty seconds, as many as you can",
+    "Everyone shows the oldest photo on their phone",
+    "Fruit platter morning on the studio",
+    "Everyone teaches one phone or app shortcut they love",
+    "Team vote: best studio moment of the month",
+    "Everyone writes their teammate's superpower on a sticky note",
+    "One song dance party while the last towels dry",
+    "Everyone shares a product they secretly love",
+    "Draw your teammate in sixty seconds, gallery on the mirror",
+    "Everyone brings lunch from home: picnic together",
+    "Rank the studio snacks: official tier list on the whiteboard",
+    "Everyone learns the first line of a song in another language",
+    "Team photo in height order, then reverse alphabetical, for no reason",
+    "Everyone nominates a local cafe for the next team breakfast",
+    "Invent a client welcome ritual and test it today",
+    "Everyone shares their best money saving tip",
+    "Croissant run before the morning rush",
+    "Everyone picks their walk-out song for end of day",
+    "Team huddle: one word each for how you're feeling",
+    "Everyone finds the funniest stock photo of a salon",
+    "Best out of three thumb wars: champion picks morning tea",
+    "Everyone writes down a fear they beat this year",
+    "Team vote: studio mascot animal, decision is final",
+    "Everyone brings one item for a studio care basket",
+    "Silent disco minute: headphones in, dance, no context",
+    "Everyone shares the last photo that made them laugh",
+    "Gelato run when the day hits its target",
+    "Everyone sets one tiny goal for tomorrow and says it out loud",
+    "Recreate a famous painting as a team photo",
+    "Everyone swaps favourite podcasts for the commute",
+    "Team vote: best client compliment ever received",
+    "Everyone writes a six word memoir of their week",
+    "Surprise the first client tomorrow with a small extra",
+    "Everyone shares their weirdest hidden talent",
+    "Toastie afternoon: the studio provides",
+    "Everyone picks one thing to declutter from their station",
+    "Group brainstorm: dream studio upgrade wishlist",
+    "Everyone learns everyone's middle name, quiz at close",
+    "Team vote: the official studio emoji",
+    "Everyone brings a baby photo for the mystery wall",
+    "Smoothie names: rename each teammate as a smoothie",
+    "Everyone shares one thing they'd tell their first-year self",
+    "Bagel morning before the weekend rush",
+    "Everyone demonstrates their client small talk opener",
+    "Team vote: best studio playlist era so far",
+    "Everyone writes one wish for the studio in the time capsule",
+    "Paper plane contest across the studio, winner skips laundry",
+    "Everyone shouts out a client who made their week",
+    "Group decision: the next studio scent",
+    "Everyone shares their go-to karaoke song, no performing required",
+    "Cheese board Friday after the last client",
+    "Everyone picks a teammate and lists three things they do brilliantly",
+    "Team quiz: who knows the price list best",
+    "Everyone brings one plant cutting for the studio shelf",
+    "Slowest walk race across the studio on break",
+    "Everyone shares their favourite before and after this month",
+    "Team vote: invent a secret menu item for VIP clients",
+    "Everyone writes a haiku about brows, read aloud",
+    "Brownie run at three pm sharp",
+    "Everyone shares one thing outside work they're proud of",
+    "Group photo jumping, keep going till everyone's airborne",
+    "Everyone picks tomorrow's opening song together",
+    "Team vote: best studio inside joke, preserve it forever",
+    "Everyone teaches their favourite two minute makeup fix",
+    "Studio awards: hand out three made-up trophies today",
+    "Everyone shares where they see the studio in five years",
+    "Golden ticket: hide one in the studio, finder gets a treat",
+    "High tea afternoon when the week's target lands",
+    "Everyone invents a fancy menu name for their own signature service",
+    "Mirror pep talk: everyone gives themselves one line of hype",
+  ],
+];
+// Lucky Break no-repeat state lives in studio prefs (synced): {bank, used[]}
+function lbState() {
+  const v = getStudioPref('luckyBreak', null);
+  if (v && typeof v === 'object' && Array.isArray(v.used)) return { bank: v.bank || 0, used: v.used.slice() };
+  return { bank: 0, used: [] };
+}
+function lbSave(st) { setStudioPref('luckyBreak', { bank: st.bank, used: st.used }); }
+function lbIdeas(st) { return ROULETTE_BANKS[st.bank % ROULETTE_BANKS.length]; }
+function lbUpdatePoolNote() {
+  const el = document.getElementById('roulette-pool-note');
+  if (!el) return;
+  const st = lbState();
+  el.textContent = (lbIdeas(st).length - 1 - st.used.length) + ' of ' + (lbIdeas(st).length - 1) + ' ideas still on this wheel';
+}
+let _rouletteRotation = 0, _rouletteSpinning = false, _rouletteTick1 = null, _rouletteTick2 = null;
+const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const WHEEL_RED = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+function buildRouletteWheel() {
+  const svg = document.getElementById('roulette-wheel');
+  if (!svg || svg.dataset.built) return;
+  const n = WHEEL_ORDER.length, seg = 360 / n, cx = 100, cy = 100, r = 96;
+  let parts = '';
+  for (let i = 0; i < n; i++) {
+    const num = WHEEL_ORDER[i];
+    const a0 = (i * seg - 90) * Math.PI / 180, a1 = ((i + 1) * seg - 90) * Math.PI / 180;
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const fill = num === 0 ? '#1d7a44' : (WHEEL_RED.has(num) ? '#a8322e' : '#232323');
+    parts += `<path d="M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${fill}" stroke="#d4af37" stroke-width="0.4"/>`;
+    const am = (i + 0.5) * seg - 90, amr = am * Math.PI / 180;
+    const tx = cx + 86 * Math.cos(amr), ty = cy + 86 * Math.sin(amr);
+    parts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" fill="#f2e6c8" font-size="7" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am + 90).toFixed(1)} ${tx.toFixed(2)} ${ty.toFixed(2)})">${num}</text>`;
+  }
+  parts += `<circle cx="${cx}" cy="${cy}" r="70" fill="none" stroke="#d4af37" stroke-width="1"/>`;
+  parts += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4af37" stroke-width="3"/>`;
+  parts += `<circle cx="${cx}" cy="${cy}" r="16" fill="#d4af37"/><text x="${cx}" y="${cy + 0.5}" fill="#1a1508" font-size="14" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle">$</text>`;
+  svg.innerHTML = parts;
+  svg.dataset.built = '1';
+}
+function openRoulette() {
+  buildRouletteWheel();
+  const m = document.getElementById('roulette-modal');
+  if (m) m.style.display = 'flex';
+  const res = document.getElementById('roulette-result');
+  if (res) res.style.display = 'none';
+  lbUpdatePoolNote();
+  playChipClick();
+}
+function closeRoulette() {
+  const m = document.getElementById('roulette-modal');
+  if (m) m.style.display = 'none';
+}
+function spinRoulette() {
+  if (_rouletteSpinning) return;
+  _rouletteSpinning = true;
+  const svg = document.getElementById('roulette-wheel');
+  const btn = document.getElementById('roulette-spin-btn');
+  const res = document.getElementById('roulette-result');
+  if (res) res.style.display = 'none';
+  if (btn) btn.textContent = 'Spinning…';
+  const n = WHEEL_ORDER.length, seg = 360 / n;
+  const extra = 5 * 360 + Math.random() * 360;
+  _rouletteRotation += extra;
+  svg.style.transition = 'transform 4.2s cubic-bezier(0.12, 0.6, 0.08, 1)';
+  svg.style.transform = `rotate(${_rouletteRotation}deg)`;
+  _rouletteTick1 = setInterval(playChipClick, 110);
+  setTimeout(() => { clearInterval(_rouletteTick1); _rouletteTick2 = setInterval(playChipClick, 240); }, 2600);
+  setTimeout(() => {
+    clearInterval(_rouletteTick2);
+    _rouletteSpinning = false;
+    if (btn) btn.textContent = 'Spin again';
+    const landed = ((360 - (_rouletteRotation % 360)) % 360);
+    const idx = Math.floor(landed / seg) % n;
+    const num = WHEEL_ORDER[idx];
+    const jackpot = num === 0;
+    let idea, freshWheel = false;
+    if (jackpot) {
+      idea = lbIdeas(lbState())[0];
+    } else {
+      let st = lbState();
+      let pool = [];
+      for (let k = 1; k < lbIdeas(st).length; k++) if (st.used.indexOf(k) === -1) pool.push(k);
+      if (!pool.length) {
+        st = { bank: (st.bank + 1) % ROULETTE_BANKS.length, used: [] };
+        freshWheel = true;
+        for (let k = 1; k < lbIdeas(st).length; k++) pool.push(k);
+      }
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      st.used.push(pick);
+      idea = lbIdeas(st)[pick];
+      lbSave(st);
+    }
+    const numEl = document.getElementById('roulette-result-num');
+    const ideaEl = document.getElementById('roulette-result-idea');
+    if (numEl) numEl.textContent = jackpot ? 'Green zero · JACKPOT' : (freshWheel ? 'No. ' + num + ' · fresh wheel! New ideas loaded' : 'No. ' + num + ' · tonight\'s winner');
+    if (ideaEl) ideaEl.textContent = idea;
+    lbUpdatePoolNote();
+    if (res) res.style.display = 'block';
+    playJackpotSound();
+  }, 4300);
+}
+
 // ── Colour themes: per-device preference, applied via data-theme on <html> ──
 // (Also applied by a tiny head script before first paint to avoid a flash.)
-const THEME_NAMES = ['cream', 'blue', 'orange', 'pink', 'sage'];
+const THEME_NAMES = ['cream', 'blue', 'orange', 'pink', 'sage', 'mono', 'terminal', 'money'];
 function getTheme() {
   try { const t = localStorage.getItem('demo_ejTheme'); return THEME_NAMES.indexOf(t) !== -1 ? t : 'cream'; } catch { return 'cream'; }
 }
@@ -11127,6 +11667,7 @@ function setTheme(name) {
   if (name === 'cream') document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme', name);
   try { localStorage.setItem('demo_ejTheme', name); } catch (e) {}
+  if ((name === 'terminal' || name === 'money') && getThemeMode() !== 'dark') { setThemeMode('dark'); return; }
   themeSyncUI();
   themeRefreshPage();
 }
@@ -11135,6 +11676,7 @@ function getThemeMode() {
 }
 function setThemeMode(mode) {
   mode = mode === 'dark' ? 'dark' : 'light';
+  if (mode === 'light' && (getTheme() === 'terminal' || getTheme() === 'money')) setTheme('cream');
   if (mode === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
   else document.documentElement.removeAttribute('data-mode');
   try { localStorage.setItem('demo_ejThemeMode', mode); } catch (e) {}
@@ -11169,9 +11711,11 @@ function showSaveBlip() {
       el = document.createElement('div');
       el.id = 'save-blip';
       el.className = 'save-blip';
-      el.innerHTML = '<span style="color:var(--green);font-weight:700">✓</span> Saved';
       document.body.appendChild(el);
     }
+    el.innerHTML = moneyThemeActive()
+      ? '<span style="font-weight:700">💰</span> Saved'
+      : '<span style="color:var(--green);font-weight:700">✓</span> Saved';
     el.classList.add('show');
     clearTimeout(_saveBlipTimer);
     _saveBlipTimer = setTimeout(() => el.classList.remove('show'), 1400);
@@ -11180,6 +11724,7 @@ function showSaveBlip() {
 
 // Synthesised celebration chime — no external audio files, plays for every role
 function playCelebrationSound() {
+  if (moneyThemeActive()) { playJackpotSound(); return; }
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
