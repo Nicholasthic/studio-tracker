@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumin</title>
-<meta name="lumin-build" content="2026.07.24-0908">
+<meta name="lumin-build" content="2026.08.05-1715">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffffff' stroke='%23000000' stroke-width='2.5'/%3E%3Ctext x='32' y='47' fill='%23000000' font-family='Georgia,serif' font-style='italic' font-weight='500' font-size='36' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -117,7 +117,7 @@ body {
   z-index: 100;
   overflow-y: auto;
 }
-.main { margin-left: 220px; flex: 1; min-height: 100vh; }
+.main { margin-left: 220px; flex: 1; min-width: 0; min-height: 100vh; }
 
 /* SIDEBAR */
 .sidebar-logo {
@@ -280,6 +280,30 @@ body {
 }
 .section-title { font-family: var(--serif); font-size:20px; font-weight: 400; font-style: italic; color: var(--text); letter-spacing: 0.01em; }
 .section-sub { font-size:14px; color: var(--muted); }
+
+/* DASHBOARD CUSTOMISATION (movable / hideable widgets) */
+.dash-toolbar { display:flex; justify-content:flex-end; margin-bottom:12px; }
+.dash-widgets { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px; align-items:start; }
+.dash-widget { min-width:0; }
+.dash-widget.wfull { grid-column:1 / -1; }
+.dash-widget.w-hidden { display:none; }
+.dash-widget-bar { display:none; }
+.dash-hint { display:none; }
+.dash-editing .dash-hint { display:block; font-size:13px; color:var(--muted); margin:0 0 14px; }
+.dash-editing .dash-widget { position:relative; outline:2px dashed var(--border2); outline-offset:4px; border-radius:8px; }
+.dash-editing .dash-widget.w-hidden { display:block; opacity:.45; }
+.dash-editing .dash-widget.dragging { opacity:.9; outline-color:var(--accent); box-shadow:0 10px 28px rgba(0,0,0,.18); }
+.dash-editing .dash-widget-bar { display:flex; align-items:center; gap:10px; margin-bottom:10px; padding:6px 8px 6px 4px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; font-size:13px; }
+.dash-drag { cursor:grab; touch-action:none; font-size:17px; line-height:1; color:var(--muted); user-select:none; padding:2px 6px; }
+.dash-editing .dash-widget.dragging .dash-drag { cursor:grabbing; }
+.dash-wname { font-weight:600; flex:1; }
+.dash-hide { cursor:pointer; border:1px solid var(--border2); background:var(--surface); color:var(--text); border-radius:6px; padding:3px 12px; font-size:12px; font-weight:500; font-family:var(--font); }
+.dash-hide:hover { border-color:var(--accent); }
+.kpi-card.kpi-off { display:none; }
+.dash-editing #kpi-grid .kpi-card { cursor:pointer; }
+.dash-editing #kpi-grid .kpi-card.kpi-off { display:block; opacity:.4; }
+.dash-editing #kpi-grid .kpi-card::after { content:'tap to hide'; position:absolute; top:7px; right:9px; font-size:10px; letter-spacing:.04em; color:var(--muted); text-transform:uppercase; }
+.dash-editing #kpi-grid .kpi-card.kpi-off::after { content:'hidden'; color:var(--accent); }
 
 /* CHARTS */
 .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
@@ -641,6 +665,8 @@ body::before {
 /* RESPONSIVE TWEAKS */
 @media (max-width: 1100px) {
   .chart-row { grid-template-columns: 1fr; }
+  .dash-widgets { grid-template-columns: 1fr; }
+  .dash-widget.wfull { grid-column: auto; }
   .year-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -1300,6 +1326,10 @@ tr:hover .row-actions { opacity: 1; }
   border-bottom: 1px solid var(--border);
   margin-bottom: 4px;
 }
+/* Numeric columns (everything after the Date column) right-align so the
+   figures line up on their decimals in both the header and the day rows. */
+.invoice-col-header > *:not(:first-child),
+.invoice-day-row > *:not(:first-child) { text-align: right; }
 
 /* Invoice summary */
 .invoice-summary {
@@ -1937,7 +1967,13 @@ tr:hover .row-actions { opacity: 1; }
   gap: 14px;
 }
 .ts-staff-total span { color: var(--text); font-weight: 600; font-family: var(--mono); }
-.ts-day-table { width: 100%; border-collapse: collapse; }
+.ts-day-table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 680px; }
+/* Fixed column widths so every stylist's table lines up with the others */
+.ts-day-table th:nth-child(1) { width: 18%; }
+.ts-day-table th:nth-child(2) { width: 21%; }
+.ts-day-table th:nth-child(3) { width: 21%; }
+.ts-day-table th:nth-child(4) { width: 21%; }
+.ts-day-table th:nth-child(5) { width: 19%; }
 .ts-day-table th {
   text-align: left;
   font-size:12px;
@@ -2550,13 +2586,64 @@ body.manager-view .owner-only { display: none !important; }
   .invoice-week-days { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .invoice-col-header, .invoice-day-row { min-width: 760px; }
 
+  /* Invoice figures + action buttons wrap instead of overflowing sideways */
+  .inv-actions-row { flex-wrap: wrap; gap: 14px; }
+  .inv-actions-row > #inv-figures-bar { width: 100%; flex-wrap: wrap; }
+  .inv-actions-row .inv-fig-cell { flex: 1 1 40%; }
+  .inv-actions-btns { width: 100%; }
+  .inv-actions-btns > .btn-primary { width: 100%; }
+
   /* Timesheet tables scroll rather than crush their columns */
   .ts-staff-card { overflow-x: auto; }
   .ts-day-table { white-space: nowrap; }
 
+  /* Timesheet toolbar wraps to multiple lines instead of overflowing sideways */
+  .ts-week-nav { flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
+  .ts-week-nav > div[style*="flex:1"] { display: none; }
+
   /* Trim the generous desktop padding on modals/overlays */
   .studio-modal, .delete-confirm-box { padding: 22px 20px; }
   .inv-preview-overlay { padding: 16px 8px; }
+}
+
+/* ── Phones: stack each timesheet day so it fits with NO sideways scroll ── */
+@media (max-width: 640px) {
+  .ts-staff-card { overflow-x: visible; }
+  .ts-day-table { min-width: 0; white-space: normal; table-layout: auto; }
+  .ts-day-table thead { display: none; }
+  .ts-day-table, .ts-day-table tbody, .ts-day-table tr, .ts-day-table td { display: block; }
+  .ts-day-table td { border-bottom: none; }
+
+  /* Data row (day + times) becomes a two-line flex block */
+  .ts-day-table tbody tr:nth-child(odd) {
+    display: flex; flex-wrap: wrap; align-items: flex-start;
+    column-gap: 12px; row-gap: 8px; padding: 12px 14px 6px;
+  }
+  .ts-day-table tbody tr:nth-child(odd) td { padding: 0; }
+  .ts-day-table td:nth-child(1) { order: 1; flex: 1 1 auto; font-weight: 600; font-size: 15px; }
+  .ts-day-table td:nth-child(5) { order: 2; margin-left: auto; text-align: right; white-space: nowrap; }
+  .ts-day-table td:nth-child(2),
+  .ts-day-table td:nth-child(3),
+  .ts-day-table td:nth-child(4) {
+    order: 3; flex: 1 1 0; min-width: 0;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 3px; margin-top: 2px;
+  }
+  .ts-day-table td:nth-child(2)::before { content: 'Start'; }
+  .ts-day-table td:nth-child(3)::before { content: 'Finish'; }
+  .ts-day-table td:nth-child(4)::before { content: 'Break'; }
+  .ts-day-table td:nth-child(2)::before,
+  .ts-day-table td:nth-child(3)::before,
+  .ts-day-table td:nth-child(4)::before {
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+
+  /* Notes / leave row sits full width under its day */
+  .ts-day-table tbody tr:nth-child(even) {
+    padding: 0 14px 14px; border-bottom: 1px solid var(--border);
+  }
+  .ts-day-table tbody tr:nth-child(even) td { padding: 0; }
+  .ts-day-table tbody tr:last-child { border-bottom: none; }
 }
 </style>
 <script>
@@ -2785,55 +2872,78 @@ try {
   <div class="page active" id="page-dashboard">
     <div class="filter-row" id="dash-filter"></div>
 
-    <div class="kpi-grid" id="kpi-grid"></div>
-
-    <div class="chart-row">
-      <div class="chart-card">
-        <div class="chart-title">Total Clients — Monthly</div>
-        <div class="chart-area" id="chart-clients"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">Revenue — Monthly</div>
-        <div class="chart-area" id="chart-revenue"></div>
-      </div>
+    <div class="dash-toolbar">
+      <button class="btn btn-ghost dash-edit-btn" id="dash-edit-btn" onclick="dashToggleEdit()">Edit layout</button>
     </div>
+    <div class="dash-hint">Drag <strong>⠿</strong> to reorder sections. Tap <strong>Hide</strong> to remove a section, or tap any stat card to hide it. Saved on this device. <button onclick="dashResetLayout()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;font-family:var(--font);text-decoration:underline">Reset to default</button></div>
 
-    <div class="chart-row">
-      <div class="chart-card">
-        <div class="chart-title">Rebook Rate — Returning Clients %</div>
-        <div id="rebook-bars"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">New Client Rebook %</div>
-        <div id="new-rebook-bars"></div>
-      </div>
-    </div>
+    <div class="dash-widgets" id="dash-widgets">
 
-    <div class="chart-row">
-      <div class="chart-card full breakeven-card" id="dash-breakeven-card">
-        <div class="breakeven-header">
-          <div class="breakeven-title">Monthly Breakeven</div>
-          <span id="dash-breakeven-status" class="breakeven-status">—</span>
+      <div class="dash-widget wfull" data-w="kpis">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Key stats</span><button class="dash-hide" onclick="dashToggleWidget('kpis')">Hide</button></div>
+        <div class="kpi-grid" id="kpi-grid"></div>
+      </div>
+
+      <div class="dash-widget" data-w="chart-clients">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Total Clients chart</span><button class="dash-hide" onclick="dashToggleWidget('chart-clients')">Hide</button></div>
+        <div class="chart-card">
+          <div class="chart-title">Total Clients — Monthly</div>
+          <div class="chart-area" id="chart-clients"></div>
         </div>
-        <div style="position:relative;margin-bottom:24px">
-          <div class="breakeven-track">
-            <div class="breakeven-fill" id="dash-breakeven-fill" style="width:0%;background:var(--green)"></div>
+      </div>
+
+      <div class="dash-widget" data-w="chart-revenue">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Revenue chart</span><button class="dash-hide" onclick="dashToggleWidget('chart-revenue')">Hide</button></div>
+        <div class="chart-card">
+          <div class="chart-title">Revenue — Monthly</div>
+          <div class="chart-area" id="chart-revenue"></div>
+        </div>
+      </div>
+
+      <div class="dash-widget" data-w="chart-rebook">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Rebook Rate chart</span><button class="dash-hide" onclick="dashToggleWidget('chart-rebook')">Hide</button></div>
+        <div class="chart-card">
+          <div class="chart-title">Rebook Rate — Returning Clients %</div>
+          <div id="rebook-bars"></div>
+        </div>
+      </div>
+
+      <div class="dash-widget" data-w="chart-newrebook">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">New Client Rebook chart</span><button class="dash-hide" onclick="dashToggleWidget('chart-newrebook')">Hide</button></div>
+        <div class="chart-card">
+          <div class="chart-title">New Client Rebook %</div>
+          <div id="new-rebook-bars"></div>
+        </div>
+      </div>
+
+      <div class="dash-widget wfull" data-w="breakeven">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Monthly Breakeven</span><button class="dash-hide" onclick="dashToggleWidget('breakeven')">Hide</button></div>
+        <div class="chart-card full breakeven-card" id="dash-breakeven-card">
+          <div class="breakeven-header">
+            <div class="breakeven-title">Monthly Breakeven</div>
+            <span id="dash-breakeven-status" class="breakeven-status">—</span>
           </div>
-          <div class="breakeven-marker" id="dash-breakeven-marker" style="left:0%">
-            <div class="breakeven-marker-label">Breakeven</div>
+          <div style="position:relative;margin-bottom:24px">
+            <div class="breakeven-track">
+              <div class="breakeven-fill" id="dash-breakeven-fill" style="width:0%;background:var(--green)"></div>
+            </div>
+            <div class="breakeven-marker" id="dash-breakeven-marker" style="left:0%">
+              <div class="breakeven-marker-label">Breakeven</div>
+            </div>
           </div>
+          <div class="breakeven-stats">
+            <div class="breakeven-stat"><div class="breakeven-stat-label">Revenue</div><div class="breakeven-stat-val" id="dash-be-revenue">$0</div></div>
+            <div class="breakeven-stat"><div class="breakeven-stat-label">Fixed Costs</div><div class="breakeven-stat-val" id="dash-be-costs">$0</div></div>
+            <div class="breakeven-stat"><div class="breakeven-stat-label">Breakeven Point</div><div class="breakeven-stat-val" id="dash-be-point">$0</div></div>
+            <div class="breakeven-stat" style="text-align:right"><div class="breakeven-stat-label">Surplus / Deficit</div><div class="breakeven-stat-val" id="dash-be-diff">$0</div></div>
+          </div>
+          <div style="font-size:13px;color:var(--muted2);margin-top:10px">Set your fixed monthly expenses in the P&L page to enable this. <button onclick="showPage('pl')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;font-family:var(--font)">Go to P&L →</button></div>
         </div>
-        <div class="breakeven-stats">
-          <div class="breakeven-stat"><div class="breakeven-stat-label">Revenue</div><div class="breakeven-stat-val" id="dash-be-revenue">$0</div></div>
-          <div class="breakeven-stat"><div class="breakeven-stat-label">Fixed Costs</div><div class="breakeven-stat-val" id="dash-be-costs">$0</div></div>
-          <div class="breakeven-stat"><div class="breakeven-stat-label">Breakeven Point</div><div class="breakeven-stat-val" id="dash-be-point">$0</div></div>
-          <div class="breakeven-stat" style="text-align:right"><div class="breakeven-stat-label">Surplus / Deficit</div><div class="breakeven-stat-val" id="dash-be-diff">$0</div></div>
-        </div>
-        <div style="font-size:13px;color:var(--muted2);margin-top:10px">Set your fixed monthly expenses in the P&L page to enable this. <button onclick="showPage('pl')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;font-family:var(--font)">Go to P&L →</button></div>
       </div>
-    </div>
 
-    <div class="section">
+      <div class="dash-widget wfull" data-w="dailylog">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Daily Log</span><button class="dash-hide" onclick="dashToggleWidget('dailylog')">Hide</button></div>
+        <div class="section" style="margin-bottom:0">
       <div class="section-header">
         <div>
           <div class="section-title">Daily Log</div>
@@ -2861,6 +2971,9 @@ try {
           <tbody id="daily-tbody"></tbody>
         </table>
       </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -3105,10 +3218,29 @@ try {
 
     <!-- Mode toggle -->
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <button id="cmp-mode-week" class="btn btn-ghost" onclick="setCmpMode('week')" style="font-size:15px">Week vs Week</button>
       <button id="cmp-mode-month" class="btn btn-primary" onclick="setCmpMode('month')" style="font-size:15px">Month vs Month</button>
       <button id="cmp-mode-studio" class="btn btn-ghost" onclick="setCmpMode('studio')" style="font-size:15px">Studio vs Studio</button>
       <button id="cmp-mode-yoy" class="btn btn-ghost" onclick="setCmpMode('yoy')" style="font-size:15px">Year on Year</button>
 
+    </div>
+
+    <!-- Week vs Week selectors -->
+    <div id="cmp-week-selectors" style="display:none">
+      <div style="margin-bottom:12px">
+        <button class="btn btn-ghost" style="font-size:14px;padding:7px 14px" onclick="weekThisVsLast()">⚡ This week vs last week</button>
+      </div>
+      <div class="compare-selectors">
+        <div class="compare-select-group">
+          <div class="compare-select-label a">Week A</div>
+          <select class="compare-select a" id="cmp-week-a" aria-label="Comparison week A" onchange="renderCompare()"></select>
+        </div>
+        <div class="compare-vs">vs</div>
+        <div class="compare-select-group">
+          <div class="compare-select-label b">Week B</div>
+          <select class="compare-select b" id="cmp-week-b" aria-label="Comparison week B" onchange="renderCompare()"></select>
+        </div>
+      </div>
     </div>
 
     <!-- Month vs Month selectors -->
@@ -3277,6 +3409,25 @@ try {
           </div>
         </div>
 
+        <div class="biz-section-label">Tax profile</div>
+        <div class="biz-fields-grid">
+          <div class="biz-field">
+            <label class="biz-label" for="biz-entity">Business structure</label>
+            <select class="biz-input" id="biz-entity" onchange="setTaxEntity(this.value)">
+              <option value="company">Company (Pty Ltd)</option>
+              <option value="sole">Sole trader</option>
+            </select>
+          </div>
+          <div class="biz-field">
+            <label class="biz-label" for="biz-gstreg">GST registered (for BAS)</label>
+            <select class="biz-input" id="biz-gstreg" onchange="setTaxGstReg(this.value==='yes')">
+              <option value="yes">Registered</option>
+              <option value="no">Not registered</option>
+            </select>
+          </div>
+          <div class="biz-field full" style="font-size:13px;color:var(--muted);margin-top:-4px">These drive the Tax &amp; BAS page. Separate from the invoice GST option below, which only affects how GST shows on contractor invoices.</div>
+        </div>
+
         <div class="biz-section-label">Payment Details</div>
         <div class="biz-fields-grid three">
           <div class="biz-field">
@@ -3391,7 +3542,7 @@ try {
         <div class="rate-hint">Commission on cash takings — internal only, not on invoice</div>
       </div>
       <div style="flex:1"></div>
-      <div style="display:flex;align-items:flex-end;gap:24px">
+      <div class="inv-actions-row" style="display:flex;align-items:flex-end;gap:24px">
         <div id="inv-figures-bar" style="display:flex;gap:0;align-items:stretch;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;overflow:hidden">
           <div class="inv-fig-cell" style="padding:12px 18px;border-right:1px solid var(--border)">
             <div class="inv-fig-label">Gross</div>
@@ -3414,7 +3565,7 @@ try {
             <div class="inv-fig-val" id="inv-quick-total" style="color:var(--green);font-size:20px">—</div>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:8px;align-self:flex-end">
+        <div class="inv-actions-btns" style="display:flex;flex-direction:column;gap:8px;align-self:flex-end">
           <button class="btn btn-primary" onclick="previewInvoice()" style="flex-shrink:0">👁 Preview Invoice</button>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost" onclick="printInvoice()" style="flex:1;font-size:14px">⬇ Save PDF</button>
@@ -3674,6 +3825,25 @@ try {
   <!-- ======================== TAX & BAS ======================== -->
   <div class="page" id="page-taxbas">
 
+    <!-- Business structure + GST registration -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Business structure</div>
+        <select id="taxbas-entity" class="compare-select" aria-label="Business structure" onchange="setTaxEntity(this.value)" style="min-width:180px">
+          <option value="company">Company (Pty Ltd)</option>
+          <option value="sole">Sole trader</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">GST</div>
+        <select id="taxbas-gstreg" class="compare-select" aria-label="GST registration" onchange="setTaxGstReg(this.value==='yes')" style="min-width:180px">
+          <option value="yes">Registered</option>
+          <option value="no">Not registered</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:220px;font-size:13px;color:var(--muted);line-height:1.5" id="taxbas-entity-note"></div>
+    </div>
+
     <!-- Period selector -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <div>
@@ -3702,7 +3872,7 @@ try {
         <div class="kpi-sub">From staff wages</div>
       </div>
       <div class="kpi-card" style="border-color:rgba(0,0,0,0.4);background:rgba(0,0,0,0.05)">
-        <div class="kpi-label" style="color:var(--accent)">Company Tax</div>
+        <div class="kpi-label" id="tb-tax-label" style="color:var(--accent)">Company Tax</div>
         <div class="kpi-value" id="tb-tax" style="color:var(--accent)">$0</div>
         <div class="kpi-sub" id="tb-tax-sub">25% of profit</div>
       </div>
@@ -3746,7 +3916,7 @@ try {
     <!-- Disclaimer -->
     <div style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:24px">
       Estimates only. Not financial or tax advice. Confirm rates and obligations with your accountant.<br>
-      Defaults: base-rate entity (25% company tax), GST 10%, Super Guarantee 12% from 1 Jul 2025.
+      Company: 25% base-rate company tax. Sole trader: individual marginal income-tax rates, with an optional 2% Medicare levy. GST 10% when registered. Super Guarantee 12% from 1 Jul 2025.
     </div>
 
   </div>
@@ -3894,6 +4064,26 @@ try {
       <div class="form-section-title">Studio preferences</div>
       <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6">Applies to this studio and syncs to every device.</p>
       <div id="studio-prefs-output"></div>
+    </div>
+    <div class="form-section" id="tax-profile-section">
+      <div class="form-section-title">Tax profile</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6">Drives the Tax &amp; BAS page. Applies to this studio and syncs to every device.</p>
+      <div class="biz-fields-grid">
+        <div class="biz-field">
+          <label class="biz-label" for="acct-entity">Business structure</label>
+          <select class="biz-input" id="acct-entity" onchange="setTaxEntity(this.value)">
+            <option value="company">Company (Pty Ltd)</option>
+            <option value="sole">Sole trader</option>
+          </select>
+        </div>
+        <div class="biz-field">
+          <label class="biz-label" for="acct-gstreg">GST registered (for BAS)</label>
+          <select class="biz-input" id="acct-gstreg" onchange="setTaxGstReg(this.value==='yes')">
+            <option value="yes">Registered</option>
+            <option value="no">Not registered</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="form-section">
       <div class="form-section-title">Appearance</div>
@@ -4723,7 +4913,7 @@ function showPage(id) {
   if (id === 'timesheets') { renderTSStaffChips(); renderTimesheets(); }
   if (id === 'roster') { rosterInitStaff(); rosterRenderAll(); }
   if (id === 'leaderboard') renderLeaderboard(pinSessionUser);
-  if (id === 'pinmgmt') { renderPINManagement(); renderStudioPrefs(); }
+  if (id === 'pinmgmt') { renderPINManagement(); renderStudioPrefs(); syncTaxSelects(); }
   if (id === 'help') { const _cb = document.getElementById('click-sound-toggle'); if (_cb) _cb.checked = clickSoundEnabled(); }
 
 }
@@ -4763,7 +4953,149 @@ function applyCustomRange() {
   }
 }
 
+/* ── DASHBOARD LAYOUT (movable / hideable widgets, saved per device) ── */
+const DASH_WIDGETS = ['kpis','chart-clients','chart-revenue','chart-rebook','chart-newrebook','breakeven','dailylog'];
+let dashEditing = false;
+let _dashLayoutInited = false;
+let _dashDragW = null;
+
+function loadDashPrefs() {
+  try { return JSON.parse(localStorage.getItem('ejDashLayout') || 'null') || {}; } catch (e) { return {}; }
+}
+function saveDashPrefs(p) {
+  try { localStorage.setItem('ejDashLayout', JSON.stringify(p)); } catch (e) {}
+}
+
+function applyDashWidgets() {
+  const cont = document.getElementById('dash-widgets');
+  if (!cont) return;
+  const p = loadDashPrefs();
+  const order = (Array.isArray(p.order) && p.order.length) ? p.order : DASH_WIDGETS.slice();
+  const seen = {};
+  order.forEach(id => {
+    const el = cont.querySelector('.dash-widget[data-w="' + id + '"]');
+    if (el) { cont.appendChild(el); seen[id] = 1; }
+  });
+  DASH_WIDGETS.forEach(id => {
+    if (!seen[id]) { const el = cont.querySelector('.dash-widget[data-w="' + id + '"]'); if (el) cont.appendChild(el); }
+  });
+  const hidden = {}; (p.hidden || []).forEach(id => hidden[id] = 1);
+  cont.querySelectorAll('.dash-widget').forEach(el => {
+    const id = el.getAttribute('data-w');
+    const off = !!hidden[id];
+    el.classList.toggle('w-hidden', off);
+    const b = el.querySelector('.dash-hide');
+    if (b) b.textContent = off ? 'Show' : 'Hide';
+  });
+}
+
+function applyKpiVisibility() {
+  const p = loadDashPrefs();
+  const hidden = {}; (p.kpiHidden || []).forEach(id => hidden[id] = 1);
+  document.querySelectorAll('#kpi-grid .kpi-card[data-kpi]').forEach(c => {
+    c.classList.toggle('kpi-off', !!hidden[c.getAttribute('data-kpi')]);
+  });
+}
+
+function dashToggleWidget(id) {
+  const p = loadDashPrefs();
+  const set = {}; (p.hidden || []).forEach(x => set[x] = 1);
+  if (set[id]) delete set[id]; else set[id] = 1;
+  p.hidden = Object.keys(set);
+  saveDashPrefs(p);
+  applyDashWidgets();
+}
+
+function dashToggleKpi(id) {
+  const p = loadDashPrefs();
+  const set = {}; (p.kpiHidden || []).forEach(x => set[x] = 1);
+  if (set[id]) delete set[id]; else set[id] = 1;
+  p.kpiHidden = Object.keys(set);
+  saveDashPrefs(p);
+  applyKpiVisibility();
+}
+
+function dashToggleEdit() {
+  dashEditing = !dashEditing;
+  const page = document.getElementById('page-dashboard');
+  if (page) page.classList.toggle('dash-editing', dashEditing);
+  const btn = document.getElementById('dash-edit-btn');
+  if (btn) { btn.textContent = dashEditing ? 'Done' : 'Edit layout'; btn.classList.toggle('btn-primary', dashEditing); }
+}
+
+function dashResetLayout() {
+  if (!confirm('Reset the dashboard to its default layout on this device?')) return;
+  const p = loadDashPrefs();
+  delete p.order; delete p.hidden; delete p.kpiHidden;
+  saveDashPrefs(p);
+  applyDashWidgets();
+  applyKpiVisibility();
+}
+
+// Pointer-based drag reorder (works with touch + mouse)
+function dashDragDown(e) {
+  if (!dashEditing) return;
+  const handle = e.target.closest('.dash-drag');
+  if (!handle) return;
+  const w = handle.closest('.dash-widget');
+  if (!w) return;
+  e.preventDefault();
+  if (_dashDragW) _dashDragW.classList.remove('dragging'); // clear any stuck drag
+  _dashDragW = w;
+  w.classList.add('dragging');
+  try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+  handle.addEventListener('pointermove', dashDragMove);
+  handle.addEventListener('pointerup', dashDragUp);
+  handle.addEventListener('pointercancel', dashDragUp);
+}
+function dashDragMove(e) {
+  if (!_dashDragW) return;
+  const cont = document.getElementById('dash-widgets');
+  if (!cont) return;
+  const items = [].slice.call(cont.querySelectorAll('.dash-widget:not(.dragging)'));
+  let ref = null;
+  for (let i = 0; i < items.length; i++) {
+    const r = items[i].getBoundingClientRect();
+    const cy = r.top + r.height / 2, cx = r.left + r.width / 2;
+    if (e.clientY < cy - 4) { ref = items[i]; break; }
+    if (Math.abs(e.clientY - cy) <= r.height / 2 && e.clientX < cx) { ref = items[i]; break; }
+  }
+  if (ref !== _dashDragW) { if (ref) cont.insertBefore(_dashDragW, ref); else cont.appendChild(_dashDragW); }
+}
+function dashDragUp(e) {
+  const handle = e.target.closest('.dash-drag');
+  if (handle) {
+    try { handle.releasePointerCapture(e.pointerId); } catch (err) {}
+    handle.removeEventListener('pointermove', dashDragMove);
+    handle.removeEventListener('pointerup', dashDragUp);
+    handle.removeEventListener('pointercancel', dashDragUp);
+  }
+  if (_dashDragW) {
+    _dashDragW.classList.remove('dragging');
+    _dashDragW = null;
+    const cont = document.getElementById('dash-widgets');
+    const order = [].slice.call(cont.querySelectorAll('.dash-widget')).map(el => el.getAttribute('data-w'));
+    const p = loadDashPrefs(); p.order = order; saveDashPrefs(p);
+  }
+}
+
+function dashInitLayout() {
+  if (_dashLayoutInited) return;
+  const cont = document.getElementById('dash-widgets');
+  if (!cont) return;
+  _dashLayoutInited = true;
+  cont.addEventListener('pointerdown', dashDragDown);
+  const kg = document.getElementById('kpi-grid');
+  if (kg) kg.addEventListener('click', function (e) {
+    if (!dashEditing) return;
+    const card = e.target.closest('.kpi-card[data-kpi]');
+    if (card) dashToggleKpi(card.getAttribute('data-kpi'));
+  });
+  applyDashWidgets();
+}
+
 function renderDashboard() {
+  dashInitLayout();
   // First open this session: start on the owner's chosen default period
   if (!_dashDefaultApplied) {
     _dashDefaultApplied = true;
@@ -4838,53 +5170,54 @@ function renderDashboard() {
 
   const kpi = document.getElementById('kpi-grid');
   kpi.innerHTML = `
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="clients">
       <div class="kpi-label">Total Clients</div>
       <div class="kpi-value">${displayClients.toLocaleString()}</div>
       <div class="kpi-sub">${filterLabel(activeFilter)}</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="revenue">
       <div class="kpi-label">Total Revenue</div>
       <div class="kpi-value">$${displayRevenue.toLocaleString()}</div>
       <div class="kpi-sub">${filterLabel(activeFilter)}</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="rebook">
       <div class="kpi-label">Ret. Rebook Rate</div>
       <div class="kpi-value">${retRebook.toFixed(1)}%</div>
       <div class="kpi-sub kpi-trend ${retRebook >= getRebookTarget() ? 'up' : 'down'}">${retRebook >= getRebookTarget() ? '▲ On target' : '▼ Below ' + getRebookTarget() + '%'}</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="avgday">
       <div class="kpi-label">Avg Daily Revenue</div>
       <div class="kpi-value">$${Math.round(avgDay).toLocaleString()}</div>
       <div class="kpi-sub">${activeDays} trading days</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="product">
       <div class="kpi-label">Product Sales</div>
       <div class="kpi-value">$${totalProd.toLocaleString()}</div>
       <div class="kpi-sub">${totalProdQty.toLocaleString()} unit${totalProdQty === 1 ? '' : 's'} sold</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="returning">
       <div class="kpi-label">Returning Clients</div>
       <div class="kpi-value">${totalRet.toLocaleString()}</div>
       <div class="kpi-sub">${(totalRet+totalNew) > 0 ? (totalRet/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" data-kpi="new">
       <div class="kpi-label">New Clients</div>
       <div class="kpi-value">${totalNew.toLocaleString()}</div>
       <div class="kpi-sub">${(totalRet+totalNew) > 0 ? (totalNew/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
     </div>
     ${hasCtr ? `
-    <div class="kpi-card" style="border-color:rgba(201,169,110,0.25)">
+    <div class="kpi-card" data-kpi="ctrgross" style="border-color:rgba(201,169,110,0.25)">
       <div class="kpi-label" style="color:var(--accent)">Contractor Gross</div>
       <div class="kpi-value">$${totalCtrGross.toLocaleString()}</div>
       <div class="kpi-sub">Total contractor sales</div>
     </div>
-    <div class="kpi-card" style="border-color:rgba(201,169,110,0.5);background:rgba(201,169,110,0.05)">
+    <div class="kpi-card" data-kpi="ctrdue" style="border-color:rgba(201,169,110,0.5);background:rgba(201,169,110,0.05)">
       <div class="kpi-label" style="color:var(--accent)">Contractor Invoice Due</div>
       <div class="kpi-value" style="color:var(--accent)">$${totalCtrInvoice.toLocaleString(undefined, Number.isInteger(totalCtrInvoice) ? {} : {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
       <div class="kpi-sub">${(studioRate*100).toFixed(0)}% of contractor sales</div>
     </div>` : ''}
   `;
+  applyKpiVisibility();
 
   // Monthly bar chart — clients
   const monthsWithData = MONTH_NAMES.filter(m => MONTHLY[m]);
@@ -6702,13 +7035,28 @@ let cmpMode = 'month';
 
 function setCmpMode(mode) {
   cmpMode = mode;
+  document.getElementById('cmp-week-selectors').style.display = mode === 'week' ? '' : 'none';
   document.getElementById('cmp-month-selectors').style.display = mode === 'month' ? '' : 'none';
   document.getElementById('cmp-studio-selectors').style.display = mode === 'studio' ? '' : 'none';
   document.getElementById('cmp-yoy-selectors').style.display = mode === 'yoy' ? '' : 'none';
-  ['month','studio','yoy'].forEach(m => {
+  ['week','month','studio','yoy'].forEach(m => {
     const btn = document.getElementById('cmp-mode-' + m);
     if (btn) btn.className = m === mode ? 'btn btn-primary' : 'btn btn-ghost';
   });
+
+  if (mode === 'week') {
+    const weeks = getAvailableWeeks();
+    const selA = document.getElementById('cmp-week-a');
+    const selB = document.getElementById('cmp-week-b');
+    [selA, selB].forEach((sel, idx) => {
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">Select week...</option>' +
+        weeks.map(w => `<option value="${w}">${weekLabel(w)}</option>`).join('');
+      // Default: A = most recent week, B = the week before
+      if (prev && weeks.includes(prev)) sel.value = prev;
+      else if (weeks[idx]) sel.value = weeks[idx];
+    });
+  }
 
   if (mode === 'studio') {
     const selA = document.getElementById('cmp-studio-a');
@@ -6758,6 +7106,60 @@ function aggregateStudioEntries(studioId, monthFilter) {
     totals.days++;
   });
   return totals;
+}
+
+// ── Week vs Week helpers ──────────────────────────────────────────────────
+// Weeks run Monday–Sunday. Returns the Monday of the week a date falls in.
+function weekStartMon(dateISO) {
+  const x = new Date(dateISO + 'T00:00:00');
+  const dow = (x.getDay() + 6) % 7; // Mon=0 … Sun=6
+  x.setDate(x.getDate() - dow);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function weekLabel(wsISO) {
+  const start = new Date(wsISO + 'T00:00:00');
+  const end = new Date(start); end.setDate(end.getDate() + 6);
+  const f = d => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  return f(start) + ' – ' + f(end);
+}
+// Distinct week-start ISO dates that have entries, newest first (plus this week).
+function getAvailableWeeks() {
+  const set = {};
+  allEntries().forEach(e => { if (e.date) set[toLocalISO(weekStartMon(e.date))] = true; });
+  set[toLocalISO(weekStartMon(toLocalISO(new Date())))] = true; // include current week
+  return Object.keys(set).sort().reverse();
+}
+// Aggregate a week's entries into the shared compare stats shape.
+function aggregateWeek(wsISO) {
+  const start = wsISO;
+  const endD = new Date(wsISO + 'T00:00:00'); endD.setDate(endD.getDate() + 6);
+  const end = toLocalISO(endD);
+  const t = { ret:0, retR:0, retNR:0, newC:0, newR:0, newNR:0, svc:0, prod:0, total:0, stylists:0, days:0 };
+  allEntries().forEach(e => {
+    if (!e.date || e.date < start || e.date > end) return;
+    t.ret+=e.ret||0; t.retR+=e.retR||0; t.retNR+=e.retNR||0;
+    t.newC+=e.newC||0; t.newR+=e.newR||0; t.newNR+=e.newNR||0;
+    t.svc+=e.svc||0; t.prod+=e.prod||0; t.total+=e.total||0;
+    t.stylists+=e.stylists||0; t.days++;
+  });
+  return t;
+}
+function weekThisVsLast() {
+  const weeks = getAvailableWeeks();
+  const thisW = toLocalISO(weekStartMon(toLocalISO(new Date())));
+  const lastD = new Date(thisW + 'T00:00:00'); lastD.setDate(lastD.getDate() - 7);
+  const lastW = toLocalISO(lastD);
+  const selA = document.getElementById('cmp-week-a');
+  const selB = document.getElementById('cmp-week-b');
+  const opts = [...new Set([thisW, lastW, ...weeks])].sort().reverse();
+  [selA, selB].forEach(sel => {
+    sel.innerHTML = '<option value="">Select week...</option>' +
+      opts.map(w => `<option value="${w}">${weekLabel(w)}</option>`).join('');
+  });
+  if (selA) selA.value = thisW;
+  if (selB) selB.value = lastW;
+  renderCompare();
 }
 
 function yoyThisMonthLastYear() {
@@ -6892,6 +7294,28 @@ function renderCompare() {
     }
 
     out.innerHTML = renderCompareOutput(dA, dB, nameA, nameB, studioA?.color || 'var(--accent)', studioB?.color || 'var(--blue)');
+    return;
+  }
+
+  // ── Week vs Week mode ──────────────────────────────────────────────────
+  if (cmpMode === 'week') {
+    const wA = document.getElementById('cmp-week-a')?.value;
+    const wB = document.getElementById('cmp-week-b')?.value;
+    if (!wA || !wB) {
+      out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">↕</div><p>Select two weeks above to compare performance</p></div>';
+      return;
+    }
+    if (wA === wB) {
+      out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">🤔</div><p>Select two different weeks to compare</p></div>';
+      return;
+    }
+    const dwA = aggregateWeek(wA);
+    const dwB = aggregateWeek(wB);
+    if (dwA.days === 0 && dwB.days === 0) {
+      out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">📭</div><p>No entries found for either week</p></div>';
+      return;
+    }
+    out.innerHTML = renderCompareOutput(dwA, dwB, weekLabel(wA), weekLabel(wB), 'var(--accent)', 'var(--blue)');
     return;
   }
 
@@ -8602,7 +9026,7 @@ function renderInvoice() {
       const net = invoiceable - due - varCost;
       const cName = e.contractor.name || 'Contractor';
       const hasVar = varRate > 0;
-      return `<div class="invoice-day-row" style="grid-template-columns:${hasVar ? '120px 70px 75px 75px 80px 90px 90px 100px' : '120px 70px 75px 75px 80px 90px 100px'}">
+      return `<div class="invoice-day-row" style="grid-template-columns:${hasVar ? 'minmax(110px,1.5fr) 1fr 1fr 1fr 1.1fr 1.1fr 0.9fr 1.2fr' : 'minmax(110px,1.5fr) 1fr 1fr 1fr 1.1fr 1.1fr 1.2fr'}">
         <div>
           <div class="day-label">${dayFmt}</div>
           <div class="day-meta" style="color:var(--red)">${cName}</div>
@@ -8629,7 +9053,7 @@ function renderInvoice() {
         </div>
       </div>
       <div class="invoice-week-days" id="inv-week-${wi}">
-        <div class="invoice-col-header" id="inv-col-header-${wi}" style="grid-template-columns:${varRate > 0 ? '120px 70px 75px 75px 80px 90px 90px 100px' : '120px 70px 75px 75px 80px 90px 100px'}">
+        <div class="invoice-col-header" id="inv-col-header-${wi}" style="grid-template-columns:${varRate > 0 ? 'minmax(110px,1.5fr) 1fr 1fr 1fr 1.1fr 1.1fr 0.9fr 1.2fr' : 'minmax(110px,1.5fr) 1fr 1fr 1fr 1.1fr 1.1fr 1.2fr'}">
           <span>Date</span><span>Clients</span><span>Service $</span><span>Product $</span><span>Gross</span><span>Invoice (${rate}%)</span>${varRate > 0 ? '<span>Var. Cost</span>' : ''}<span>Contractor Keeps</span>
         </div>
         ${dayRows}
@@ -8914,6 +9338,11 @@ function renderBizDetails() {
     const el = document.getElementById(id);
     if (el && data[id] !== undefined) el.value = data[id];
   });
+  // Tax profile mirrors the Tax & BAS settings (stored with the tax data)
+  const eSel = document.getElementById('biz-entity');
+  if (eSel && typeof getTaxEntity === 'function') eSel.value = getTaxEntity();
+  const gSel = document.getElementById('biz-gstreg');
+  if (gSel && typeof getTaxGstRegistered === 'function') gSel.value = getTaxGstRegistered() ? 'yes' : 'no';
   updateInvNumberPreview();
 }
 function toggleBizDetails() {
@@ -11157,6 +11586,41 @@ const TAXBAS_DEFAULTS = {
   bufferRate:  5,
 };
 
+// Business structure + GST registration (per studio, stored with the tax data)
+function getTaxEntity() { const d = loadTaxBASData(); return d.entityType === 'sole' ? 'sole' : 'company'; }
+function getTaxGstRegistered() { const d = loadTaxBASData(); return d.gstRegistered !== false; } // default registered
+// Keep every mirror of the tax-profile controls (Tax & BAS page, invoice
+// business details, Account & Settings) showing the same value.
+function syncTaxSelects() {
+  const e = getTaxEntity();
+  const gYes = getTaxGstRegistered() ? 'yes' : 'no';
+  ['taxbas-entity', 'biz-entity', 'acct-entity'].forEach(id => { const el = document.getElementById(id); if (el) el.value = e; });
+  ['taxbas-gstreg', 'biz-gstreg', 'acct-gstreg'].forEach(id => { const el = document.getElementById(id); if (el) el.value = gYes; });
+}
+function setTaxEntity(v) { const d = loadTaxBASData(); d.entityType = (v === 'sole' ? 'sole' : 'company'); saveTaxBASData(d); syncTaxSelects(); renderTaxBAS(); }
+function setTaxGstReg(on) { const d = loadTaxBASData(); d.gstRegistered = !!on; saveTaxBASData(d); syncTaxSelects(); renderTaxBAS(); }
+function getTaxMedicare() { const d = loadTaxBASData(); return d.medicareLevy !== false; } // default included for sole traders
+function setTaxMedicare(on) { const d = loadTaxBASData(); d.medicareLevy = !!on; saveTaxBASData(d); renderTaxBAS(); }
+
+// Australian Medicare levy — 2% of taxable income, with the 2024–25 single
+// low-income threshold ($27,222) and phase-in up to $34,027. Applies to sole
+// traders (individuals), not companies.
+function auMedicareLevy(income) {
+  if (income <= 27222) return 0;
+  if (income <= 34027) return (income - 27222) * 0.10;
+  return income * 0.02;
+}
+
+// Australian resident individual income tax — 2024–25 rates (apply FY2025 & FY2026),
+// excludes Medicare levy. Used to estimate a sole trader's income tax on business profit.
+function auResidentIncomeTax(income) {
+  if (income <= 18200)  return 0;
+  if (income <= 45000)  return (income - 18200) * 0.16;
+  if (income <= 135000) return 4288 + (income - 45000) * 0.30;
+  if (income <= 190000) return 31288 + (income - 135000) * 0.37;
+  return 51638 + (income - 190000) * 0.45;
+}
+
 // AU FY quarters — Q1=Jul-Sep, Q2=Oct-Dec, Q3=Jan-Mar, Q4=Apr-Jun
 // FY{N} runs Jul (N-1) to Jun (N) — e.g. FY2026 = Jul 2025 to Jun 2026
 function getAuQuarters() {
@@ -11312,27 +11776,47 @@ function taxBasResetOverrides() {
   renderTaxBAS();
 }
 
-function calcTaxBAS(vals, rates) {
+function calcTaxBAS(vals, rates, opts) {
+  opts = opts || {};
+  const entity = opts.entity === 'sole' ? 'sole' : 'company';
+  const gstReg = opts.gstRegistered !== false; // default registered
+
+  // GST only applies if registered. Otherwise prices are GST-free (ex == inc).
   const gstDiv = 1 + rates.gstRate / 100;
-  const revenueEx = vals.revenue / gstDiv;
-  const gstCollected = vals.revenue - revenueEx;
-  const expensesEx = vals.expenses / gstDiv;
-  const gstCredits = vals.expenses - expensesEx;
-  const gstNet = Math.max(0, gstCollected - gstCredits);
+  const revenueEx    = gstReg ? vals.revenue / gstDiv : vals.revenue;
+  const gstCollected = gstReg ? vals.revenue - revenueEx : 0;
+  const expensesEx   = gstReg ? vals.expenses / gstDiv : vals.expenses;
+  const gstCredits   = gstReg ? vals.expenses - expensesEx : 0;
+  const gstNet       = gstReg ? Math.max(0, gstCollected - gstCredits) : 0;
 
   const grossWages = vals.wages;
   const superAmount = grossWages * (rates.superRate / 100);
 
   const profit = revenueEx - grossWages - superAmount - expensesEx;
-  const tax = Math.max(0, profit * (rates.taxRate / 100));
+
+  // Income tax: sole traders pay individual marginal rates on profit; companies
+  // pay the flat company rate. Sole-trader profit is annualised (×4) for the
+  // bracket lookup, then the quarter's share (÷4) is set aside.
+  let tax, effRate;
+  if (entity === 'sole') {
+    const annualProfit = Math.max(0, profit * 4);
+    let annualTax = auResidentIncomeTax(annualProfit);
+    if (opts.medicareLevy) annualTax += auMedicareLevy(annualProfit);
+    tax = annualTax / 4;
+    effRate = annualProfit > 0 ? (annualTax / annualProfit) * 100 : 0;
+  } else {
+    tax = Math.max(0, profit * (rates.taxRate / 100));
+    effRate = rates.taxRate;
+  }
   const taxWithBuffer = tax * (1 + rates.bufferRate / 100);
 
   const total = gstNet + vals.payg + taxWithBuffer + superAmount;
 
   return {
+    entity, gstReg,
     revenueEx, gstCollected, gstCredits, gstNet,
     expensesEx, grossWages, superAmount,
-    profit, tax, taxWithBuffer, total
+    profit, tax, taxWithBuffer, effRate, total
   };
 }
 
@@ -11354,7 +11838,22 @@ function renderTaxBAS() {
 
   const vals = getTaxBASValues(qKey);
   const rates = getTaxBASRates(qKey);
-  const calc = calcTaxBAS(vals, rates);
+  const entity = getTaxEntity();
+  const gstReg = getTaxGstRegistered();
+  const medicare = getTaxMedicare();
+  const calc = calcTaxBAS(vals, rates, { entity, gstRegistered: gstReg, medicareLevy: medicare });
+
+  // Reflect the current structure in the selectors + note
+  const eSel = document.getElementById('taxbas-entity'); if (eSel) eSel.value = entity;
+  const gSel = document.getElementById('taxbas-gstreg'); if (gSel) gSel.value = gstReg ? 'yes' : 'no';
+  const eNote = document.getElementById('taxbas-entity-note');
+  if (eNote) {
+    const gstBit = gstReg ? '' : ' Not GST registered, so GST is left out of your BAS.';
+    const medBit = medicare ? ' and includes the 2% Medicare levy' : ' and excludes the Medicare levy';
+    eNote.innerHTML = (entity === 'sole'
+      ? 'Sole trader: profit is taxed at your personal marginal income-tax rates (estimate assumes the business is your main income' + medBit + ').'
+      : 'Company: profit is taxed at the ' + rates.taxRate + '% company rate.') + gstBit;
+  }
 
   // Source grid
   const srcGrid = document.getElementById('taxbas-source-grid');
@@ -11390,8 +11889,12 @@ function renderTaxBAS() {
   document.getElementById('tb-tax').textContent   = TB_FMT(calc.taxWithBuffer);
   document.getElementById('tb-super').textContent = TB_FMT(calc.superAmount);
   document.getElementById('tb-total').textContent = TB_FMT(calc.total);
-  document.getElementById('tb-gst-sub').textContent   = rates.gstRate + '% · net for BAS';
-  document.getElementById('tb-tax-sub').textContent   = rates.taxRate + '% of profit' + (rates.bufferRate > 0 ? ' + ' + rates.bufferRate + '%' : '');
+  document.getElementById('tb-gst-sub').textContent   = gstReg ? (rates.gstRate + '% · net for BAS') : 'Not GST registered';
+  const tbTaxLabel = document.getElementById('tb-tax-label');
+  if (tbTaxLabel) tbTaxLabel.textContent = entity === 'sole' ? 'Income Tax' : 'Company Tax';
+  document.getElementById('tb-tax-sub').textContent   = entity === 'sole'
+    ? ('~' + calc.effRate.toFixed(0) + '% marginal (est.)' + (rates.bufferRate > 0 ? ' + ' + rates.bufferRate + '%' : ''))
+    : (rates.taxRate + '% of profit' + (rates.bufferRate > 0 ? ' + ' + rates.bufferRate + '%' : ''));
   document.getElementById('tb-super-sub').textContent = rates.superRate + '% of wages';
 
   // Inputs panel
@@ -11411,10 +11914,10 @@ function renderTaxBAS() {
     </div>`;
 
   document.getElementById('tb-inputs').innerHTML =
-    inputRow('revenue',  'Quarter Revenue (GST incl.)', 'Total takings for the quarter',               vals.revenue,  vals.auto.revenue) +
+    inputRow('revenue',  'Quarter Revenue' + (gstReg ? ' (GST incl.)' : ''), 'Total takings for the quarter',               vals.revenue,  vals.auto.revenue) +
     inputRow('wages',    'Gross Wages Paid',            'Total cost incl. PAYG you withheld',          vals.wages,    vals.auto.wages) +
     inputRow('payg',     'PAYG Withheld from Wages',    'Tax deducted from staff — owed to ATO',       vals.payg,     vals.auto.payg) +
-    inputRow('expenses', 'Other Expenses (GST incl.)',  'Stock, rent, software etc paid this quarter', vals.expenses, vals.auto.expenses);
+    inputRow('expenses', 'Other Expenses' + (gstReg ? ' (GST incl.)' : ''),  'Stock, rent, software etc paid this quarter', vals.expenses, vals.auto.expenses);
 
   // Rates panel
   const rateRow = (field, label, sub, val, dflt) => `
@@ -11432,10 +11935,12 @@ function renderTaxBAS() {
     </div>`;
 
   document.getElementById('tb-rates').innerHTML =
-    rateRow('gstRate',    'GST Rate',          'Standard AU rate',                                          rates.gstRate,    TAXBAS_DEFAULTS.gstRate) +
-    rateRow('taxRate',    'Company Tax Rate',  '25% base-rate entities · 30% otherwise',                    rates.taxRate,    TAXBAS_DEFAULTS.taxRate) +
+    (gstReg ? rateRow('gstRate', 'GST Rate', 'Standard AU rate', rates.gstRate, TAXBAS_DEFAULTS.gstRate) : '') +
+    (entity === 'company' ? rateRow('taxRate', 'Company Tax Rate', '25% base-rate entities · 30% otherwise', rates.taxRate, TAXBAS_DEFAULTS.taxRate) : '') +
     rateRow('superRate',  'Super Guarantee',   '12% from 1 Jul 2025',                                       rates.superRate,  TAXBAS_DEFAULTS.superRate) +
-    rateRow('bufferRate', 'Tax Safety Buffer', 'Extra cushion on company tax estimate · 5–10% recommended', rates.bufferRate, TAXBAS_DEFAULTS.bufferRate);
+    rateRow('bufferRate', 'Tax Safety Buffer', 'Extra cushion on the tax estimate · 5–10% recommended',     rates.bufferRate, TAXBAS_DEFAULTS.bufferRate) +
+    (entity === 'sole' ? '<div style="font-size:13px;color:var(--muted);padding:12px 0 2px;line-height:1.5">Income tax is estimated from individual marginal rates on your annualised profit, so there is no single rate to set here.</div>' +
+      '<label style="display:flex;align-items:center;gap:9px;padding:10px 0 2px;font-size:15px;cursor:pointer"><input type="checkbox" ' + (medicare ? 'checked' : '') + ' onchange="setTaxMedicare(this.checked)" style="width:17px;height:17px;accent-color:var(--accent);cursor:pointer">Include 2% Medicare levy</label>' : '');
 
   // Detail
   const detailRow = (label, val, color = 'var(--text)') => `
@@ -11444,16 +11949,16 @@ function renderTaxBAS() {
       <span style="font-family:var(--mono);font-weight:600;color:${color}">${TB_FMT2(val)}</span>
     </div>`;
   document.getElementById('tb-detail').innerHTML =
-    detailRow('Revenue ex-GST',                  calc.revenueEx) +
-    detailRow('GST collected on sales',          calc.gstCollected, 'var(--blue)') +
-    detailRow('GST credits on expenses',         -calc.gstCredits,  'var(--green)') +
-    detailRow('Net GST payable',                 calc.gstNet,       'var(--blue)') +
+    detailRow('Revenue' + (gstReg ? ' ex-GST' : ''),  calc.revenueEx) +
+    (gstReg ? detailRow('GST collected on sales',      calc.gstCollected, 'var(--blue)') : '') +
+    (gstReg ? detailRow('GST credits on expenses',     -calc.gstCredits,  'var(--green)') : '') +
+    (gstReg ? detailRow('Net GST payable',             calc.gstNet,       'var(--blue)') : '') +
     detailRow('PAYG withheld (already deducted)',vals.payg,         'var(--red)') +
     detailRow('Gross wages',                     calc.grossWages) +
     detailRow('Super on wages',                  calc.superAmount,  'var(--green)') +
-    detailRow('Expenses ex-GST',                 calc.expensesEx) +
+    detailRow('Expenses' + (gstReg ? ' ex-GST' : ''), calc.expensesEx) +
     detailRow('Estimated taxable profit',        calc.profit,       calc.profit >= 0 ? 'var(--green)' : 'var(--red)') +
-    detailRow('Company tax @ ' + rates.taxRate + '%', calc.tax,     'var(--accent)') +
+    detailRow(entity === 'sole' ? ('Income tax' + (medicare ? ' + Medicare levy' : '') + ' (marginal est. ~' + calc.effRate.toFixed(0) + '%)') : ('Company tax @ ' + rates.taxRate + '%'), calc.tax, 'var(--accent)') +
     (rates.bufferRate > 0 ? detailRow('+ ' + rates.bufferRate + '% safety buffer', calc.taxWithBuffer - calc.tax, 'var(--accent)') : '') +
     '<div style="display:flex;justify-content:space-between;padding:14px 0 4px;margin-top:6px;border-top:2px solid var(--accent);font-size:17px">' +
     '<span style="font-weight:600">Total to set aside</span>' +
@@ -11472,7 +11977,8 @@ function renderPLTaxBASCard() {
   const qKey = getCurrentQuarterKey();
   const vals = getTaxBASValues(qKey);
   const rates = getTaxBASRates(qKey);
-  const calc = calcTaxBAS(vals, rates);
+  const entity = getTaxEntity();
+  const calc = calcTaxBAS(vals, rates, { entity, gstRegistered: getTaxGstRegistered(), medicareLevy: getTaxMedicare() });
   const quarter = getAuQuarters().find(q => q.key === qKey);
 
   if (!card) {
@@ -11500,7 +12006,7 @@ function renderPLTaxBASCard() {
         <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red);margin-top:3px">${TB_FMT(vals.payg)}</div>
       </div>
       <div style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.25);border-radius:8px;padding:10px 12px">
-        <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)">Co. Tax</div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)">${entity === 'sole' ? 'Income Tax' : 'Co. Tax'}</div>
         <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--accent);margin-top:3px">${TB_FMT(calc.taxWithBuffer)}</div>
       </div>
       <div style="background:rgba(90,127,94,0.06);border:1px solid rgba(90,127,94,0.2);border-radius:8px;padding:10px 12px">
