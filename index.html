@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.08.06-0520">
-<meta name="lumin-build" content="2026.08.06-0520"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.08.06-0620">
+<meta name="lumin-build" content="2026.08.17-1504"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -820,6 +820,20 @@ body::before {
 .compare-bar-val { font-size:13px; font-family: var(--mono); }
 .compare-bar-val.a { color: var(--accent); }
 .compare-bar-val.b { color: var(--blue); }
+.sty-trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.sty-trend-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.sty-trend-head { font-size:15px; font-weight: 600; color: var(--text); }
+.sty-trend-range { font-size:12px; color: var(--muted2); margin-top: 2px; margin-bottom: 12px; font-family: var(--mono); }
+.sty-trend-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--border); }
+.sty-trend-row:first-of-type { border-top: none; }
+.sty-trend-metric { font-size:13px; color: var(--muted); width: 92px; flex-shrink: 0; }
+.sty-trend-vals { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sty-trend-now { font-size:18px; font-weight: 600; line-height: 1.1; }
+.sty-trend-was { font-size:12px; color: var(--muted2); font-family: var(--mono); }
+.sty-trend-empty { font-size:14px; color: var(--muted2); padding: 10px 0; }
+.sty-trend-note { font-size:13px; color: var(--muted2); margin-top: 12px; }
+.sty-trend-head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+@media (max-width: 900px) { .sty-trend-grid { grid-template-columns: 1fr; } }
 .compare-prompt { text-align:center; padding:60px 20px; color:var(--muted); }
 .compare-prompt p { font-size:16px; margin-top:8px; }
 
@@ -3032,6 +3046,19 @@ try {
         </div>
       </div>
 
+      <div class="dash-widget wfull" data-w="stylist-trend">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Stylist Trend</span><button class="dash-hide" onclick="dashToggleWidget('stylist-trend')">Hide</button></div>
+        <div class="chart-card full">
+          <div class="sty-trend-head-row">
+            <div class="chart-title" style="margin:0;flex:1">Stylist Trend</div>
+            <select class="compare-select" id="sty-trend-who" aria-label="Stylist to trend" onchange="setStylistTrendWho(this.value)" style="min-width:150px"></select>
+            <button class="btn btn-primary" id="sty-trend-basis-todate" onclick="setStylistTrendBasis('todate')" style="font-size:13px;padding:6px 12px">To date</button>
+            <button class="btn btn-ghost" id="sty-trend-basis-full" onclick="setStylistTrendBasis('full')" style="font-size:13px;padding:6px 12px">Full period</button>
+          </div>
+          <div id="sty-trend-body"></div>
+        </div>
+      </div>
+
       <div class="dash-widget wfull" data-w="dailylog">
         <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Daily Log</span><button class="dash-hide" onclick="dashToggleWidget('dailylog')">Hide</button></div>
         <div class="section" style="margin-bottom:0">
@@ -3079,6 +3106,10 @@ try {
         <label class="btn btn-ghost" style="font-size:14px;cursor:pointer;margin:0">
           ⬆ Upload CSV
           <input type="file" accept=".csv" style="display:none" onchange="handleCSVUpload(this)">
+        </label>
+        <label class="btn btn-primary" style="font-size:14px;cursor:pointer;margin:0">
+          &#8679; Import from booking system
+          <input type="file" accept=".csv,text/csv" style="display:none" onchange="bkHandleFile(this)">
         </label>
         <span style="font-size:14px;color:var(--muted)" id="csv-upload-status"></span>
       </div>
@@ -3313,6 +3344,7 @@ try {
       <button id="cmp-mode-month" class="btn btn-primary" onclick="setCmpMode('month')" style="font-size:15px">Month vs Month</button>
       <button id="cmp-mode-studio" class="btn btn-ghost" onclick="setCmpMode('studio')" style="font-size:15px">Studio vs Studio</button>
       <button id="cmp-mode-yoy" class="btn btn-ghost" onclick="setCmpMode('yoy')" style="font-size:15px">Year on Year</button>
+      <button id="cmp-mode-sty" class="btn btn-ghost" onclick="setCmpMode('sty')" style="font-size:15px">Stylist vs Period</button>
 
     </div>
 
@@ -3438,6 +3470,30 @@ try {
     </div>
 
 
+
+    <!-- Stylist vs Period selectors -->
+    <div id="cmp-sty-selectors" class="compare-selectors" style="display:none">
+      <div class="compare-select-group">
+        <div class="compare-select-label a">Stylist</div>
+        <select class="compare-select a" id="cmp-sty-who" aria-label="Stylist to compare" onchange="renderCompare()"></select>
+      </div>
+      <div class="compare-vs">vs</div>
+      <div class="compare-select-group">
+        <div class="compare-select-label b">Compare to</div>
+        <select class="compare-select b" id="cmp-sty-period" aria-label="Period to compare against" onchange="renderCompare()">
+          <option value="week">Last week</option>
+          <option value="month">Last month</option>
+          <option value="year">Last year</option>
+        </select>
+      </div>
+      <div class="compare-select-group">
+        <div class="compare-select-label" style="color:var(--muted)">Basis</div>
+        <select class="compare-select" id="cmp-sty-basis" aria-label="Comparison basis" onchange="renderCompare()">
+          <option value="todate">Same days elapsed</option>
+          <option value="full">Full previous period</option>
+        </select>
+      </div>
+    </div>
 
     <div id="compare-output">
       <div class="compare-prompt">
@@ -4691,6 +4747,15 @@ try {
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">Day saved ✓</div>
+<div id="bk-import-overlay" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,0.62);overflow-y:auto;padding:24px 12px">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;max-width:780px;margin:0 auto;padding:26px 24px;position:relative">
+    <button onclick="bkClose()" aria-label="Close import" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">&#10005;</button>
+    <div style="font-family:var(--serif);font-style:italic;font-size:26px;color:var(--accent);margin-bottom:4px">Import from your booking system</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6">Export your appointments or sales from Fresha, Timely, Phorest, Square or anything else, then drop the file in as it comes. Columns are matched automatically, and whatever you confirm here is remembered for next time.</div>
+    <div id="bk-body"></div>
+  </div>
+</div>
+
 
 <!-- ── Money theme shortcut to the Lucky Break page ── -->
 <button id="roulette-fab" onclick="openRoulette()" aria-label="Open Lucky Break, the staff bonding wheel"
@@ -5158,7 +5223,7 @@ function applyCustomRange() {
 }
 
 /* ── DASHBOARD LAYOUT (movable / hideable widgets, saved per device) ── */
-const DASH_WIDGETS = ['kpis','chart-clients','chart-revenue','chart-rebook','chart-newrebook','breakeven','dailylog'];
+const DASH_WIDGETS = ['kpis','chart-clients','chart-revenue','chart-rebook','chart-newrebook','breakeven','stylist-trend','dailylog'];
 let dashEditing = false;
 let _dashLayoutInited = false;
 let _dashDragW = null;
@@ -5488,6 +5553,9 @@ function renderDashboard() {
   // Update breakeven
   renderDashboardBreakeven();
 
+  // Stylist trend tile
+  renderStylistTrend();
+
   // Daily table
   const tbody = document.getElementById('daily-tbody');
   const rows = [...filteredEntries(activeFilter)].reverse();
@@ -5608,6 +5676,347 @@ function downloadCSVTemplate() {
   const blob = new Blob([lines.join('\n')], {type:'text/csv'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'daily-entry-template.csv'; a.click();
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// Booking-system CSV import
+// Booking platforms (Fresha, Timely, Phorest, Square…) export one row per
+// appointment or sale line, not one row per day. None of them publish their
+// column names, so instead of hard-coding formats we detect each column by
+// meaning, aggregate the rows into daily entries, and remember the mapping
+// per file layout so the next export from the same system imports in one tap.
+// ══════════════════════════════════════════════════════════════════════
+const BK_SYNONYMS = {
+  date:       ['date','appointment date','booking date','start date','date time','datetime','start','start time','appointment start','day','sale date','transaction date','visit date'],
+  client:     ['client','client name','customer','customer name','contact','contact name','guest','guest name','client full name','patient'],
+  staff:      ['staff','staff name','staff member','team member','employee','employee name','stylist','therapist','practitioner','provider','operator','performed by','service provider','with','resource','technician'],
+  service:    ['service','service name','item','item name','treatment','description','product service','appointment type','line item','product name'],
+  itemType:   ['type','item type','category','service type','line type','product type','item category','sale type'],
+  amount:     ['price','amount','total','gross','net','sale amount','service price','item price','value','paid','revenue','total price','gross sales','line total','net sales','total amount'],
+  qty:        ['qty','quantity','units','count','no of items'],
+  status:     ['status','appointment status','booking status','state','appointment state'],
+  clientType: ['client type','customer type','new returning','new or returning','new client','is new','visit type','client status'],
+};
+const BK_VENDOR_HINTS = [
+  { name: 'Fresha',  needles: ['team member', 'sale no', 'sales no', 'gross sales'] },
+  { name: 'Timely',  needles: ['staff member', 'appointment type', 'booking reference'] },
+  { name: 'Phorest', needles: ['staff name', 'branch', 'client id', 'appointment id'] },
+  { name: 'Square',  needles: ['gross sales', 'transaction id', 'staff name', 'net sales'] },
+];
+
+let _bk = null;
+
+function bkNorm(s) { return String(s == null ? '' : s).trim().toLowerCase().replace(/[_\-]+/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
+function bkPad(n) { return String(n).padStart(2, '0'); }
+function bkMoney(v) { const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, '')); return isFinite(n) ? n : 0; }
+function bkEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+const BK_MONTHS = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+function bkParseDate(val, fmt) {
+  const s = String(val == null ? '' : val).trim();
+  if (!s) return null;
+  let m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+  if (m) return m[1] + '-' + bkPad(m[2]) + '-' + bkPad(m[3]);
+  m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);
+  if (m) {
+    let a = +m[1], b = +m[2], y = +m[3];
+    if (y < 100) y += 2000;
+    const day = (fmt === 'mdy') ? b : a;
+    const mon = (fmt === 'mdy') ? a : b;
+    if (mon < 1 || mon > 12 || day < 1 || day > 31) return null;
+    return y + '-' + bkPad(mon) + '-' + bkPad(day);
+  }
+  m = s.match(/(\d{1,2})\s+([a-z]{3,})\.?,?\s+(\d{4})/i);
+  if (m && BK_MONTHS[m[2].slice(0, 3).toLowerCase()]) return m[3] + '-' + bkPad(BK_MONTHS[m[2].slice(0, 3).toLowerCase()]) + '-' + bkPad(m[1]);
+  m = s.match(/([a-z]{3,})\.?\s+(\d{1,2}),?\s+(\d{4})/i);
+  if (m && BK_MONTHS[m[1].slice(0, 3).toLowerCase()]) return m[3] + '-' + bkPad(BK_MONTHS[m[1].slice(0, 3).toLowerCase()]) + '-' + bkPad(m[2]);
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return toLocalISO(d);
+  return null;
+}
+// Day-first or month-first? Scan every value: anything above 12 in a slot settles it.
+function bkDetectDateFormat(values) {
+  let firstOver12 = 0, secondOver12 = 0;
+  values.forEach(v => {
+    const m = String(v == null ? '' : v).trim().match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);
+    if (!m) return;
+    if (+m[1] > 12) firstOver12++;
+    if (+m[2] > 12) secondOver12++;
+  });
+  if (firstOver12 && !secondOver12) return 'dmy';
+  if (secondOver12 && !firstOver12) return 'mdy';
+  return 'dmy';   // Australian default; the review screen lets you flip it
+}
+
+function bkAutoMap(headers) {
+  const norm = headers.map(bkNorm);
+  const map = {};
+  const taken = {};
+  Object.keys(BK_SYNONYMS).forEach(role => {
+    let best = -1, bestScore = 0;
+    norm.forEach((h, i) => {
+      if (!h || taken[i]) return;
+      let score = 0;
+      BK_SYNONYMS[role].forEach(syn => {
+        if (h === syn) score = Math.max(score, 100);
+        else if (h.indexOf(syn) !== -1) score = Math.max(score, 60 + syn.length);
+        else if (syn.indexOf(h) !== -1 && h.length > 2) score = Math.max(score, 40 + h.length);
+      });
+      if (score > bestScore) { bestScore = score; best = i; }
+    });
+    if (best >= 0 && bestScore > 0) { map[role] = best; taken[best] = true; }
+  });
+  return map;
+}
+function bkDetectVendor(headers) {
+  const norm = headers.map(bkNorm).join(' | ');
+  let hit = null, hits = 0;
+  BK_VENDOR_HINTS.forEach(v => {
+    const n = v.needles.filter(needle => norm.indexOf(needle) !== -1).length;
+    if (n > hits) { hits = n; hit = v.name; }
+  });
+  return hits >= 2 ? hit : '';
+}
+
+function bkProfiles() { try { return getStudioPref('csvProfiles', {}) || {}; } catch (e) { return {}; } }
+function bkSignature(headers) { return headers.map(bkNorm).filter(Boolean).join('|').slice(0, 400); }
+
+function bkHandleFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { input.value = ''; bkStart(String(e.target.result || ''), file.name); };
+  reader.readAsText(file);
+}
+function bkStart(text, fileName) {
+  const lines = text.replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { alert('That file looks empty.'); return; }
+  // The header is the first row that matches at least three known columns.
+  let headerIdx = 0, headers = [], best = 0;
+  for (let i = 0; i < Math.min(12, lines.length); i++) {
+    const cols = parseCSVLine(lines[i]);
+    if (cols.length < 3) continue;
+    const hits = Object.keys(bkAutoMap(cols)).length;
+    if (hits > best) { best = hits; headerIdx = i; headers = cols; }
+    if (hits >= 5) break;
+  }
+  if (!headers.length) headers = parseCSVLine(lines[0]);
+  const rows = lines.slice(headerIdx + 1).map(parseCSVLine).filter(c => c.some(x => String(x).trim()));
+
+  const sig = bkSignature(headers);
+  const saved = bkProfiles()[sig];
+  const map = saved && saved.map ? saved.map : bkAutoMap(headers);
+  const dateCol = map.date;
+  const dateVals = dateCol != null ? rows.slice(0, 400).map(r => r[dateCol]) : [];
+
+  _bk = {
+    fileName: fileName || 'export.csv',
+    headers: headers,
+    rows: rows,
+    map: map,
+    sig: sig,
+    dateFmt: (saved && saved.dateFmt) || bkDetectDateFormat(dateVals),
+    staffMap: (saved && saved.staffMap) || {},
+    excludeCancelled: saved ? saved.excludeCancelled !== false : true,
+    vendor: bkDetectVendor(headers),
+    remembered: !!saved,
+  };
+  document.getElementById('bk-import-overlay').style.display = 'block';
+  bkRender();
+}
+function bkClose() {
+  const o = document.getElementById('bk-import-overlay');
+  if (o) o.style.display = 'none';
+  _bk = null;
+}
+function bkSetMap(role, idx) { if (!_bk) return; _bk.map[role] = (idx === '' ? undefined : +idx); if (role === 'date') _bk.dateFmt = bkDetectDateFormat(_bk.rows.slice(0, 400).map(r => r[_bk.map.date])); bkRender(); }
+function bkSetDateFmt(v) { if (!_bk) return; _bk.dateFmt = v; bkRender(); }
+function bkSetExclude(v) { if (!_bk) return; _bk.excludeCancelled = !!v; bkRender(); }
+function bkSetStaff(raw, val) { if (!_bk) return; _bk.staffMap[raw] = val; bkRender(); }
+
+// Turn appointment/sale lines into the studio's daily entries.
+function bkBuildDays() {
+  const map = _bk.map, out = { days: [], warnings: [], staffRaw: [], skipped: 0, lines: 0 };
+  if (map.date == null) { out.warnings.push('Pick which column holds the date.'); return out; }
+  const cell = (cols, role) => (map[role] == null ? '' : (cols[map[role]] == null ? '' : cols[map[role]]));
+
+  const lines = [];
+  const staffSeen = {};
+  _bk.rows.forEach(cols => {
+    const iso = bkParseDate(cell(cols, 'date'), _bk.dateFmt);
+    if (!iso) { out.skipped++; return; }
+    const status = bkNorm(cell(cols, 'status'));
+    if (_bk.excludeCancelled && status && /cancel|no show|noshow|void|refund|declin|delet/.test(status)) { out.skipped++; return; }
+    const staffRaw = String(cell(cols, 'staff') || '').trim() || 'Unassigned';
+    if (!staffSeen[staffRaw]) { staffSeen[staffRaw] = true; out.staffRaw.push(staffRaw); }
+    const clientRaw = String(cell(cols, 'client') || '').trim();
+    const typeStr = bkNorm(cell(cols, 'itemType')) + ' ' + bkNorm(cell(cols, 'service'));
+    lines.push({
+      iso: iso,
+      client: bkNorm(clientRaw) || ('row' + lines.length),
+      hasClient: !!clientRaw,
+      staffRaw: staffRaw,
+      amount: bkMoney(cell(cols, 'amount')),
+      qty: Math.max(1, Math.round(bkMoney(cell(cols, 'qty'))) || 1),
+      isProduct: /\bproduct\b|\bretail\b|\bstock\b/.test(typeStr),
+      newFlag: /new/.test(bkNorm(cell(cols, 'clientType'))),
+    });
+  });
+  out.lines = lines.length;
+  if (!lines.length) { out.warnings.push('No usable rows found. Check the date column and date format.'); return out; }
+  if (map.client == null) out.warnings.push('No client column found, so every line counts as one client and new-versus-returning cannot be worked out.');
+  if (map.amount == null) out.warnings.push('No price column found, so revenue will import as zero.');
+  if (map.staff == null) out.warnings.push('No staff column found, so everything lands under one stylist.');
+
+  // First and later visits per client, taken from this file only.
+  const firstVisit = {}, visitDates = {};
+  lines.forEach(l => {
+    if (!firstVisit[l.client] || l.iso < firstVisit[l.client]) firstVisit[l.client] = l.iso;
+    (visitDates[l.client] = visitDates[l.client] || {})[l.iso] = true;
+  });
+  const rebooked = (client, iso) => Object.keys(visitDates[client] || {}).some(d => d > iso);
+
+  // One client can have several lines on a day: count the visit once, sum the money.
+  const byDay = {};
+  lines.forEach(l => {
+    const staff = _bk.staffMap[l.staffRaw] === undefined ? l.staffRaw : _bk.staffMap[l.staffRaw];
+    if (staff === '__ignore__') return;
+    const day = byDay[l.iso] = byDay[l.iso] || { date: l.iso, staff: {} };
+    const st = day.staff[staff] = day.staff[staff] || { svc: 0, prod: 0, prodQty: 0, visits: {} };
+    if (l.isProduct) { st.prod += l.amount; st.prodQty += l.qty; }
+    else st.svc += l.amount;
+    const v = st.visits[l.client] = st.visits[l.client] || { isNew: l.newFlag || firstVisit[l.client] === l.iso, rebooked: rebooked(l.client, l.iso) };
+    if (l.newFlag) v.isNew = true;
+  });
+
+  Object.keys(byDay).sort().forEach(iso => {
+    const day = byDay[iso];
+    const sd = {};
+    let ret = 0, retR = 0, retNR = 0, newC = 0, newR = 0, svcTot = 0, prodTot = 0, qtyTot = 0, staffCount = 0;
+    Object.keys(day.staff).forEach(name => {
+      const s = day.staff[name];
+      let c = 0, rr = 0, rnr = 0, nr = 0, nrr = 0;
+      Object.keys(s.visits).forEach(cl => {
+        const v = s.visits[cl];
+        c++;
+        if (v.isNew) { nr++; if (v.rebooked) nrr++; }
+        else { if (v.rebooked) rr++; else rnr++; }
+      });
+      sd[name] = { c: c, rr: rr, rnr: rnr, nr: nr, nrr: nrr, nnr: nr - nrr, svc: Math.round(s.svc * 100) / 100, prod: Math.round(s.prod * 100) / 100, prodQty: s.prodQty, tot: Math.round((s.svc + s.prod) * 100) / 100, shifts: c > 0 ? 1 : 0 };
+      ret += (c - nr); retR += rr; retNR += rnr; newC += nr; newR += nrr;
+      svcTot += s.svc; prodTot += s.prod; qtyTot += s.prodQty;
+      if (c > 0) staffCount++;
+    });
+    out.days.push({
+      date: iso, ret: ret, retR: retR, retNR: retNR,
+      newC: newC, newR: newR, newNR: newC - newR,
+      svc: Math.round(svcTot * 100) / 100, prod: Math.round(prodTot * 100) / 100, prodQty: qtyTot,
+      total: Math.round((svcTot + prodTot) * 100) / 100,
+      stylists: staffCount, notes: 'Imported' + (_bk.vendor ? ' from ' + _bk.vendor : ''), sd: sd, contractor: null,
+    });
+  });
+  return out;
+}
+
+function bkRender() {
+  const el = document.getElementById('bk-body');
+  if (!el || !_bk) return;
+  const built = bkBuildDays();
+  _bk.built = built;
+  const roles = [['date','Date'],['client','Client'],['staff','Staff'],['service','Service or item'],['itemType','Item type'],['amount','Price'],['qty','Quantity'],['status','Status'],['clientType','New or returning']];
+  const opts = idx => '<option value="">not in this file</option>' + _bk.headers.map((h, i) => '<option value="' + i + '"' + (idx === i ? ' selected' : '') + '>' + bkEsc(h || ('column ' + (i + 1))) + '</option>').join('');
+
+  const knownStylists = (typeof STYLISTS !== 'undefined' ? STYLISTS : []).map(s => s.name);
+  const staffRows = built.staffRaw.map(raw => {
+    let cur = _bk.staffMap[raw];
+    if (cur === undefined) {
+      const hit = knownStylists.find(n => bkNorm(n) === bkNorm(raw)) || knownStylists.find(n => bkNorm(n).split(' ')[0] === bkNorm(raw).split(' ')[0]);
+      cur = hit || raw;
+      _bk.staffMap[raw] = cur;
+    }
+    const isKnown = knownStylists.some(n => n === cur);
+    return '<div style="display:flex;align-items:center;gap:10px;padding:4px 0;flex-wrap:wrap">' +
+      '<span style="font-size:14px;color:var(--text);min-width:130px">' + bkEsc(raw) + '</span>' +
+      '<span style="color:var(--muted2)">→</span>' +
+      '<select onchange="bkSetStaff(' + JSON.stringify(raw).replace(/"/g, '&quot;') + ', this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 9px;font-family:var(--font);font-size:14px;color:var(--text)">' +
+        knownStylists.map(n => '<option value="' + bkEsc(n) + '"' + (cur === n ? ' selected' : '') + '>' + bkEsc(n) + '</option>').join('') +
+        '<option value="' + bkEsc(raw) + '"' + (!isKnown && cur !== '__ignore__' ? ' selected' : '') + '>Add "' + bkEsc(raw) + '" as new</option>' +
+        '<option value="__ignore__"' + (cur === '__ignore__' ? ' selected' : '') + '>Skip this person</option>' +
+      '</select></div>';
+  }).join('') || '<div style="font-size:14px;color:var(--muted)">No staff column detected.</div>';
+
+  const existing = new Set((typeof userEntries !== 'undefined' ? userEntries : []).map(e => e.date));
+  const clash = built.days.filter(d => existing.has(d.date)).length;
+  const previewRows = built.days.slice(0, 14).map(d =>
+    '<tr><td style="padding:6px 10px">' + d.date + '</td><td style="padding:6px 10px;text-align:right">' + (d.ret + d.newC) + '</td>' +
+    '<td style="padding:6px 10px;text-align:right">' + d.newC + '</td>' +
+    '<td style="padding:6px 10px;text-align:right">' + (d.ret ? Math.round(d.retR / d.ret * 100) + '%' : '—') + '</td>' +
+    '<td style="padding:6px 10px;text-align:right">$' + d.svc.toFixed(0) + '</td>' +
+    '<td style="padding:6px 10px;text-align:right">$' + d.prod.toFixed(0) + '</td>' +
+    '<td style="padding:6px 10px;text-align:right;font-weight:600">$' + d.total.toFixed(0) + '</td></tr>').join('');
+
+  el.innerHTML =
+    '<div style="font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.6">' +
+      bkEsc(_bk.fileName) + ' · ' + _bk.rows.length + ' rows' +
+      (_bk.vendor ? ' · looks like <strong style="color:var(--accent)">' + bkEsc(_bk.vendor) + '</strong>' : '') +
+      (_bk.remembered ? ' · <span style="color:var(--green)">using your saved mapping</span>' : '') +
+    '</div>' +
+    '<div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Columns</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-bottom:8px">' +
+      roles.map(r => '<label style="display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)">' + r[1] +
+        '<select onchange="bkSetMap(\'' + r[0] + '\', this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 9px;font-family:var(--font);font-size:14px;color:var(--text)">' + opts(_bk.map[r[0]]) + '</select></label>').join('') +
+    '</div>' +
+    '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:18px;font-size:14px;color:var(--text)">' +
+      '<label style="display:inline-flex;align-items:center;gap:6px">Dates read as ' +
+        '<select onchange="bkSetDateFmt(this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 9px;font-family:var(--font);font-size:14px;color:var(--text)">' +
+          '<option value="dmy"' + (_bk.dateFmt === 'dmy' ? ' selected' : '') + '>day/month/year</option>' +
+          '<option value="mdy"' + (_bk.dateFmt === 'mdy' ? ' selected' : '') + '>month/day/year</option></select></label>' +
+      '<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" ' + (_bk.excludeCancelled ? 'checked' : '') + ' onchange="bkSetExclude(this.checked)" style="width:16px;height:16px;accent-color:var(--accent)">Skip cancellations, no-shows and refunds</label>' +
+    '</div>' +
+    '<div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Staff</div>' +
+    '<div style="margin-bottom:18px">' + staffRows + '</div>' +
+    (built.warnings.length ? '<div style="background:var(--accent-light);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text);line-height:1.6">' + built.warnings.map(w => '• ' + bkEsc(w)).join('<br>') + '</div>' : '') +
+    '<div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Preview · ' + built.days.length + ' days' + (built.skipped ? ' · ' + built.skipped + ' rows skipped' : '') + (clash ? ' · ' + clash + ' will overwrite existing days' : '') + '</div>' +
+    (built.days.length ? '<div style="overflow-x:auto;max-height:260px;border:1px solid var(--border);border-radius:10px;margin-bottom:18px"><table style="width:100%;border-collapse:collapse;font-size:14px">' +
+      '<thead><tr style="background:var(--surface2)"><th style="padding:7px 10px;text-align:left">Date</th><th style="padding:7px 10px;text-align:right">Clients</th><th style="padding:7px 10px;text-align:right">New</th><th style="padding:7px 10px;text-align:right">Rebook</th><th style="padding:7px 10px;text-align:right">Service</th><th style="padding:7px 10px;text-align:right">Product</th><th style="padding:7px 10px;text-align:right">Total</th></tr></thead><tbody>' +
+      previewRows + '</tbody></table></div>' : '<div style="font-size:14px;color:var(--muted);margin-bottom:18px">Nothing to import yet.</div>') +
+    '<div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">' +
+      '<button class="btn btn-ghost" onclick="bkClose()">Cancel</button>' +
+      '<button class="btn btn-primary" onclick="bkImport()"' + (built.days.length ? '' : ' disabled') + '>Import ' + built.days.length + ' day' + (built.days.length === 1 ? '' : 's') + '</button>' +
+    '</div>';
+}
+
+function bkImport() {
+  if (!_bk || !_bk.built || !_bk.built.days.length) return;
+  const days = _bk.built.days;
+  // Any staff kept as a new name joins the stylist list so their figures have a home.
+  const known = STYLISTS.map(s => s.name);
+  const wanted = {};
+  days.forEach(d => Object.keys(d.sd || {}).forEach(n => { wanted[n] = true; }));
+  let added = 0;
+  Object.keys(wanted).forEach(n => { if (n && known.indexOf(n) === -1) { STYLISTS.push({ name: n, isContractor: false }); added++; } });
+  if (added) saveStylists();
+
+  const dates = new Set(days.map(d => d.date));
+  userEntries = userEntries.filter(e => !dates.has(e.date)).concat(days);
+  saveStorage(userEntries);
+
+  try {
+    const profiles = bkProfiles();
+    profiles[_bk.sig] = { map: _bk.map, dateFmt: _bk.dateFmt, staffMap: _bk.staffMap, excludeCancelled: _bk.excludeCancelled, vendor: _bk.vendor };
+    setStudioPref('csvProfiles', profiles);
+  } catch (e) {}
+
+  const n = days.length;
+  bkClose();
+  try { showPage('weekly'); } catch (e) {}
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = n + ' day' + (n === 1 ? '' : 's') + ' imported ✓' + (added ? ' · ' + added + ' stylist' + (added === 1 ? '' : 's') + ' added' : '');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; toast.textContent = 'Day saved ✓'; }, 3200);
+  }
 }
 
 function handleCSVUpload(input) {
@@ -7244,7 +7653,8 @@ function setCmpMode(mode) {
   document.getElementById('cmp-month-selectors').style.display = mode === 'month' ? '' : 'none';
   document.getElementById('cmp-studio-selectors').style.display = mode === 'studio' ? '' : 'none';
   document.getElementById('cmp-yoy-selectors').style.display = mode === 'yoy' ? '' : 'none';
-  ['week','month','studio','yoy'].forEach(m => {
+  document.getElementById('cmp-sty-selectors').style.display = mode === 'sty' ? '' : 'none';
+  ['week','month','studio','yoy','sty'].forEach(m => {
     const btn = document.getElementById('cmp-mode-' + m);
     if (btn) btn.className = m === mode ? 'btn btn-primary' : 'btn btn-ghost';
   });
@@ -7272,6 +7682,15 @@ function setCmpMode(mode) {
         STUDIOS.map(s => `<option value="${s.id}"${s.id === (idx === 0 ? STUDIOS[0]?.id : STUDIOS[1]?.id) ? ' selected' : ''}>${s.name}</option>`).join('');
       if (prev) sel.value = prev;
     });
+  }
+
+  if (mode === 'sty') {
+    const sel = document.getElementById('cmp-sty-who');
+    if (sel) {
+      const prev = sel.value || getStudioPref('trendStylist', '');
+      sel.innerHTML = STYLISTS.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+      if (prev && STYLISTS.some(s => s.name === prev)) sel.value = prev;
+    }
   }
 
   if (mode === 'yoy') {
@@ -7470,6 +7889,35 @@ function renderCompare() {
     return;
   }
 
+  // ── Stylist vs Period mode ─────────────────────────────────────────────
+  if (cmpMode === 'sty') {
+    const who   = document.getElementById('cmp-sty-who')?.value || '';
+    const kind  = document.getElementById('cmp-sty-period')?.value || 'week';
+    const basis = document.getElementById('cmp-sty-basis')?.value || 'todate';
+
+    if (!who) {
+      out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">👤</div><p>Select a stylist above to compare their recent performance</p></div>';
+      return;
+    }
+
+    const r = stylistPeriodRange(kind, basis);
+    const dA = aggregateStylistRange(who, r.curr.start, r.curr.end);
+    const dB = aggregateStylistRange(who, r.prev.start, r.prev.end);
+
+    if (dA.clients === 0 && dB.clients === 0 && dA.total === 0 && dB.total === 0) {
+      out.innerHTML = `<div class="compare-prompt"><div style="font-size:38px">📭</div><p>No days logged for <strong>${who}</strong> in either period</p></div>`;
+      return;
+    }
+
+    const labelA = `${r.curr.label} · ${r.curr.range}`;
+    const labelB = `${r.prev.label} · ${r.prev.range}`;
+    const note = `<div style="font-size:13px;color:var(--muted);margin-bottom:16px">${who} · ${basis === 'todate'
+      ? 'the earlier period is trimmed to the same number of days elapsed, so the comparison is like for like'
+      : 'compared against the complete previous period'}</div>`;
+    out.innerHTML = note + renderCompareOutput(dA, dB, labelA, labelB, 'var(--accent)', 'var(--blue)');
+    return;
+  }
+
   // ── Studio vs Studio mode ──────────────────────────────────────────────
   if (cmpMode === 'studio') {
     const idA = document.getElementById('cmp-studio-a')?.value;
@@ -7651,6 +8099,182 @@ function renderCompareOutput(dA, dB, nameA, nameB, colorA, colorB) {
   `;
 }
 
+
+// ── Stylist trend helpers (dashboard tile + Stylist vs Period compare) ────
+// One stylist, one date range, folded into the shared compare stats shape.
+function aggregateStylistRange(name, startISO, endISO) {
+  const t = { ret:0, retR:0, retNR:0, newC:0, newR:0, newNR:0, svc:0, prod:0, prodQty:0, total:0, clients:0, days:0 };
+  if (!name) return t;
+  allEntries().forEach(e => {
+    if (!e.date || !e.sd) return;
+    if (startISO && e.date < startISO) return;
+    if (endISO && e.date > endISO) return;
+    const sd = e.sd[name];
+    if (!sd) return;
+    const rr = sd.rr||0, rnr = sd.rnr||0, nrr = sd.nrr||0;
+    const nnr = sd.nnr != null ? sd.nnr : Math.max((sd.nr||0) - nrr, 0);
+    const newC = sd.nr != null ? sd.nr : (nrr + nnr);
+    const svc = sd.svc||0, prod = sd.prod||0;
+    t.ret   += rr + rnr;
+    t.retR  += rr;
+    t.retNR += rnr;
+    t.newC  += newC;
+    t.newR  += nrr;
+    t.newNR += nnr;
+    t.svc   += svc;
+    t.prod  += prod;
+    t.prodQty += sd.prodQty||0;
+    t.total += sd.tot != null ? sd.tot : (svc + prod);
+    t.clients += sd.c != null ? sd.c : (rr + rnr + newC);
+    if ((sd.c||0) > 0 || svc || prod) t.days++;
+  });
+  t.total = Math.round(t.total * 100) / 100;
+  t.svc   = Math.round(t.svc   * 100) / 100;
+  t.prod  = Math.round(t.prod  * 100) / 100;
+  return t;
+}
+
+// Current period + the matching slice of the period before it.
+// basis 'todate' trims the earlier period to the same number of elapsed days,
+// so a half-finished month isn't judged against a complete one.
+// basis 'full'  compares the whole previous period against the current one.
+function stylistPeriodRange(kind, basis) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const iso = d => toLocalISO(d);
+  const shift = (d, days) => { const x = new Date(d); x.setDate(x.getDate() + days); return x; };
+  let cStart, cEnd = today, pStart, pEnd, unit;
+
+  if (kind === 'week') {
+    unit = 'week';
+    cStart = weekStartMon(iso(today));
+    pStart = shift(cStart, -7);
+    pEnd   = basis === 'full' ? shift(pStart, 6) : shift(pStart, Math.round((today - cStart) / 86400000));
+  } else if (kind === 'year') {
+    unit = 'year';
+    cStart = new Date(today.getFullYear(), 0, 1);
+    pStart = new Date(today.getFullYear() - 1, 0, 1);
+    pEnd   = basis === 'full' ? new Date(today.getFullYear() - 1, 11, 31)
+                              : new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+  } else {
+    unit = 'month';
+    cStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    pStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const pLast = new Date(pStart.getFullYear(), pStart.getMonth() + 1, 0);
+    pEnd = basis === 'full' ? pLast
+                            : new Date(Math.min(new Date(pStart.getFullYear(), pStart.getMonth(), today.getDate()).getTime(), pLast.getTime()));
+  }
+
+  const fmt = d => d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  const curLabel = unit === 'year' ? 'This year' : unit === 'month' ? 'This month' : 'This week';
+  const prvLabel = unit === 'year' ? 'Last year' : unit === 'month' ? 'Last month' : 'Last week';
+  return {
+    unit,
+    curr: { start: iso(cStart), end: iso(cEnd), label: curLabel, range: fmt(cStart) + ' – ' + fmt(cEnd) },
+    prev: { start: iso(pStart), end: iso(pEnd), label: prvLabel, range: fmt(pStart) + ' – ' + fmt(pEnd) }
+  };
+}
+
+// Percentage change between two numbers, plus a class for colouring.
+function trendDelta(a, b, higherBetter) {
+  if (higherBetter === undefined) higherBetter = true;
+  if (!b) return { cls: 'neutral', text: a ? 'New' : '—', pct: null };
+  const diff = a - b;
+  if (diff === 0) return { cls: 'neutral', text: 'No change', pct: 0 };
+  const pct = (diff / Math.abs(b)) * 100;
+  const good = higherBetter ? diff > 0 : diff < 0;
+  return { cls: good ? 'up' : 'down', text: (diff > 0 ? '▲' : '▼') + ' ' + Math.abs(pct).toFixed(1) + '%', pct };
+}
+
+function rebookPct(r, total) { return total > 0 ? (r / total * 100) : 0; }
+
+// ── Dashboard tile: one stylist vs last week / last month / last year ─────
+function stylistTrendSelected() {
+  const sel = document.getElementById('sty-trend-who');
+  if (sel && sel.value) return sel.value;
+  const saved = getStudioPref('trendStylist', '');
+  if (saved && STYLISTS.some(s => s.name === saved)) return saved;
+  return STYLISTS[0] ? STYLISTS[0].name : '';
+}
+
+function setStylistTrendWho(name) {
+  setStudioPref('trendStylist', name);
+  renderStylistTrend();
+}
+
+function setStylistTrendBasis(basis) {
+  setStudioPref('trendBasis', basis);
+  renderStylistTrend();
+}
+
+function renderStylistTrend() {
+  const out = document.getElementById('sty-trend-body');
+  if (!out) return;
+
+  // Keep the stylist picker in step with the roster
+  const sel = document.getElementById('sty-trend-who');
+  const who = stylistTrendSelected();
+  if (sel) {
+    sel.innerHTML = STYLISTS.map(s => `<option value="${s.name}"${s.name === who ? ' selected' : ''}>${s.name}</option>`).join('');
+  }
+
+  const basis = getStudioPref('trendBasis', 'todate');
+  ['todate','full'].forEach(b => {
+    const btn = document.getElementById('sty-trend-basis-' + b);
+    if (btn) btn.className = b === basis ? 'btn btn-primary' : 'btn btn-ghost';
+  });
+
+  if (!STYLISTS.length) {
+    out.innerHTML = '<div class="chart-empty">Add a stylist to your roster to track trends.</div>';
+    return;
+  }
+  if (!who) { out.innerHTML = '<div class="chart-empty">Select a stylist above.</div>'; return; }
+
+  const cards = ['week','month','year'].map(kind => {
+    const r = stylistPeriodRange(kind, basis);
+    const cur = aggregateStylistRange(who, r.curr.start, r.curr.end);
+    const prv = aggregateStylistRange(who, r.prev.start, r.prev.end);
+
+    if (cur.clients === 0 && prv.clients === 0 && cur.total === 0 && prv.total === 0) {
+      return `<div class="sty-trend-card">
+        <div class="sty-trend-head">vs ${r.prev.label}</div>
+        <div class="sty-trend-range">${r.curr.range} vs ${r.prev.range}</div>
+        <div class="sty-trend-empty">No days logged for ${who} in either period.</div>
+      </div>`;
+    }
+
+    const rows = [
+      { label: 'Clients', a: cur.clients, b: prv.clients,
+        fmt: v => v.toLocaleString() },
+      { label: 'Revenue', a: cur.total, b: prv.total,
+        fmt: v => '$' + Math.round(v).toLocaleString() },
+      { label: 'Rebook %', a: rebookPct(cur.retR, cur.ret), b: rebookPct(prv.retR, prv.ret),
+        fmt: v => v.toFixed(1) + '%' },
+      { label: 'New rebook %', a: rebookPct(cur.newR, cur.newC), b: rebookPct(prv.newR, prv.newC),
+        fmt: v => v.toFixed(1) + '%' },
+    ];
+
+    return `<div class="sty-trend-card">
+      <div class="sty-trend-head">vs ${r.prev.label}</div>
+      <div class="sty-trend-range">${r.curr.range} vs ${r.prev.range}</div>
+      ${rows.map(row => {
+        const d = trendDelta(row.a, row.b);
+        return `<div class="sty-trend-row">
+          <div class="sty-trend-metric">${row.label}</div>
+          <div class="sty-trend-vals">
+            <span class="sty-trend-now">${row.fmt(row.a)}</span>
+            <span class="sty-trend-was">was ${row.fmt(row.b)}</span>
+          </div>
+          <span class="compare-delta ${d.cls}">${d.text}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  out.innerHTML = `<div class="sty-trend-grid">${cards}</div>
+    <div class="sty-trend-note">${basis === 'todate'
+      ? 'Like for like: each earlier period is trimmed to the same number of days elapsed.'
+      : 'Full periods: the complete previous week, month and year.'}</div>`;
+}
 
 
 // ===================== STYLIST MANAGEMENT =====================
