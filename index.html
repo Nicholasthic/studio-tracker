@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.08.06-0620">
-<meta name="lumin-build" content="2026.08.17-1522"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.08.17-1601">
+<meta name="lumin-build" content="2026.08.17-1601"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -833,7 +833,13 @@ body::before {
 .sty-trend-empty { font-size:14px; color: var(--muted2); padding: 10px 0; }
 .sty-trend-note { font-size:13px; color: var(--muted2); margin-top: 12px; }
 .sty-trend-hint { font-size:12px; color: var(--muted2); font-style: italic; margin-bottom: 8px; }
-.sty-trend-head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.sty-trend-head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.sty-trend-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.sty-trend-ctl-label { font-size:12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.sty-trend-ctl-label.a { color: var(--accent); }
+.sty-trend-ctl-label.b { color: var(--blue); }
+.sty-trend-ctl-sep { font-size:13px; color: var(--muted); }
+.sty-trend-grid.one { grid-template-columns: 1fr; }
 @media (max-width: 900px) { .sty-trend-grid { grid-template-columns: 1fr; } }
 .compare-prompt { text-align:center; padding:60px 20px; color:var(--muted); }
 .compare-prompt p { font-size:16px; margin-top:8px; }
@@ -3053,8 +3059,31 @@ try {
           <div class="sty-trend-head-row">
             <div class="chart-title" style="margin:0;flex:1">Stylist Trend</div>
             <select class="compare-select" id="sty-trend-who" aria-label="Stylist to trend" onchange="setStylistTrendWho(this.value)" style="min-width:150px"></select>
+            <select class="compare-select" id="sty-trend-mode" aria-label="Stylist trend comparison" onchange="setStylistTrendMode(this.value)" style="min-width:170px">
+              <option value="rolling">Week, month &amp; year</option>
+              <option value="weeks">Pick two weeks...</option>
+              <option value="custom">Pick dates...</option>
+            </select>
+          </div>
+          <div class="sty-trend-controls" id="sty-trend-rolling-row">
             <button class="btn btn-primary" id="sty-trend-basis-todate" onclick="setStylistTrendBasis('todate')" style="font-size:13px;padding:6px 12px">To date</button>
             <button class="btn btn-ghost" id="sty-trend-basis-full" onclick="setStylistTrendBasis('full')" style="font-size:13px;padding:6px 12px">Full period</button>
+          </div>
+          <div class="sty-trend-controls" id="sty-trend-weeks-row" style="display:none">
+            <span class="sty-trend-ctl-label a">Week A</span>
+            <select class="compare-select" id="sty-trend-week-a" aria-label="Trend week A" onchange="setStylistTrendPick()" style="min-width:150px"></select>
+            <span class="sty-trend-ctl-label b">vs B</span>
+            <select class="compare-select" id="sty-trend-week-b" aria-label="Trend week B" onchange="setStylistTrendPick()" style="min-width:150px"></select>
+          </div>
+          <div class="sty-trend-controls" id="sty-trend-custom-row" style="display:none">
+            <span class="sty-trend-ctl-label a">Range A</span>
+            <input type="date" class="filter-date" id="sty-trend-a-start" aria-label="Trend range A start" onchange="setStylistTrendPick()">
+            <span class="sty-trend-ctl-sep">to</span>
+            <input type="date" class="filter-date" id="sty-trend-a-end" aria-label="Trend range A end" onchange="setStylistTrendPick()">
+            <span class="sty-trend-ctl-label b">vs B</span>
+            <input type="date" class="filter-date" id="sty-trend-b-start" aria-label="Trend range B start" onchange="setStylistTrendPick()">
+            <span class="sty-trend-ctl-sep">to</span>
+            <input type="date" class="filter-date" id="sty-trend-b-end" aria-label="Trend range B end" onchange="setStylistTrendPick()">
           </div>
           <div id="sty-trend-body"></div>
         </div>
@@ -7964,7 +7993,8 @@ function renderCompare() {
       }
       aStart = wA; aEnd = weekEndISO(wA);
       bStart = wB; bEnd = weekEndISO(wB);
-      labelA = weekLabel(wA); labelB = weekLabel(wB);
+      const wl = rangeLabelPair(aStart, aEnd, bStart, bEnd);
+      labelA = wl[0]; labelB = wl[1];
       noteText = 'two full weeks, Monday to Sunday';
 
     } else if (kind === 'custom') {
@@ -7979,7 +8009,8 @@ function renderCompare() {
       if (a1 > a2) { const t = a1; a1 = a2; a2 = t; }
       if (b1 > b2) { const t = b1; b1 = b2; b2 = t; }
       aStart = a1; aEnd = a2; bStart = b1; bEnd = b2;
-      labelA = rangeLabel(a1, a2); labelB = rangeLabel(b1, b2);
+      const cl = rangeLabelPair(a1, a2, b1, b2);
+      labelA = cl[0]; labelB = cl[1];
       const dA = daySpan(a1, a2), dB = daySpan(b1, b2);
       noteText = dA === dB
         ? `${dA} day${dA === 1 ? '' : 's'} each`
@@ -8262,13 +8293,24 @@ function stylistPeriodRange(kind, basis) {
                             : new Date(Math.min(new Date(pStart.getFullYear(), pStart.getMonth(), today.getDate()).getTime(), pLast.getTime()));
   }
 
-  const fmt = d => d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  // Add the year only where it's needed. Without it the year card reads
+  // "1 Jan – 17 Aug vs 1 Jan – 17 Aug" and you can't tell which side is which.
+  const thisYear = today.getFullYear();
+  const fmt = (d, withYear) => d.toLocaleDateString('en-AU',
+    withYear ? { day:'numeric', month:'short', year:'numeric' } : { day:'numeric', month:'short' });
+  const rng = (a, b) => {
+    const needY = unit === 'year' || a.getFullYear() !== thisYear || b.getFullYear() !== thisYear;
+    if (!needY) return fmt(a, false) + ' – ' + fmt(b, false);
+    return a.getFullYear() === b.getFullYear()
+      ? fmt(a, false) + ' – ' + fmt(b, true)
+      : fmt(a, true) + ' – ' + fmt(b, true);
+  };
   const curLabel = unit === 'year' ? 'This year' : unit === 'month' ? 'This month' : 'This week';
   const prvLabel = unit === 'year' ? 'Last year' : unit === 'month' ? 'Last month' : 'Last week';
   return {
     unit, basis,
-    curr: { start: iso(cStart), end: iso(cEnd), label: curLabel, range: fmt(cStart) + ' – ' + fmt(cEnd) },
-    prev: { start: iso(pStart), end: iso(pEnd), label: prvLabel, range: fmt(pStart) + ' – ' + fmt(pEnd) }
+    curr: { start: iso(cStart), end: iso(cEnd), label: curLabel, range: rng(cStart, cEnd) },
+    prev: { start: iso(pStart), end: iso(pEnd), label: prvLabel, range: rng(pStart, pEnd) }
   };
 }
 
@@ -8296,9 +8338,23 @@ function weekEndISO(wsISO) {
 function daySpan(startISO, endISO) {
   return Math.round((new Date(endISO + 'T00:00:00') - new Date(startISO + 'T00:00:00')) / 86400000) + 1;
 }
-function rangeLabel(startISO, endISO) {
-  const f = s => new Date(s + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
-  return f(startISO) + ' – ' + f(endISO);
+function rangeLabel(startISO, endISO, withYear) {
+  const f = (v, y) => new Date(v + 'T00:00:00').toLocaleDateString('en-AU',
+    y ? { day: 'numeric', month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' });
+  if (!withYear) return f(startISO, false) + ' – ' + f(endISO, false);
+  const yr = v => new Date(v + 'T00:00:00').getFullYear();
+  return yr(startISO) === yr(endISO)
+    ? f(startISO, false) + ' – ' + f(endISO, true)
+    : f(startISO, true) + ' – ' + f(endISO, true);
+}
+
+// Label two ranges together, adding years only when they'd otherwise be
+// ambiguous — March 2026 against March 2025 both read "1 Mar – 31 Mar".
+function rangeLabelPair(a1, a2, b1, b2) {
+  const yr = v => new Date(v + 'T00:00:00').getFullYear();
+  const thisYear = new Date().getFullYear();
+  const needY = [a1, a2, b1, b2].some(v => yr(v) !== thisYear) || yr(a1) !== yr(b1);
+  return [rangeLabel(a1, a2, needY), rangeLabel(b1, b2, needY)];
 }
 
 // Show only the rows the chosen comparison actually uses.
@@ -8365,6 +8421,85 @@ function setStylistTrendBasis(basis) {
   renderStylistTrend();
 }
 
+function setStylistTrendMode(mode) {
+  setStudioPref('trendMode', mode);
+  renderStylistTrend();
+}
+
+// Remember the picked weeks / dates so the tile comes back the way it was left.
+function setStylistTrendPick() {
+  const v = id => (document.getElementById(id) || {}).value || '';
+  setStudioPref('trendWeekA',  v('sty-trend-week-a'));
+  setStudioPref('trendWeekB',  v('sty-trend-week-b'));
+  setStudioPref('trendAStart', v('sty-trend-a-start'));
+  setStudioPref('trendAEnd',   v('sty-trend-a-end'));
+  setStudioPref('trendBStart', v('sty-trend-b-start'));
+  setStudioPref('trendBEnd',   v('sty-trend-b-end'));
+  renderStylistTrend();
+}
+
+function styTrendFillWeeks() {
+  const weeks = getAvailableWeeks();
+  const withData = getWeeksWithEntries();
+  const order = withData.concat(weeks.filter(w => withData.indexOf(w) === -1));
+  [['sty-trend-week-a', 'trendWeekA', 0], ['sty-trend-week-b', 'trendWeekB', 1]].forEach(pair => {
+    const el = document.getElementById(pair[0]);
+    if (!el) return;
+    el.innerHTML = weeks.map(w => `<option value="${w}">${weekLabel(w)}</option>`).join('');
+    const saved = getStudioPref(pair[1], '');
+    if (saved && weeks.indexOf(saved) !== -1) el.value = saved;
+    else if (order[pair[2]]) el.value = order[pair[2]];
+  });
+}
+
+function styTrendFillDates() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const back = n => { const d = new Date(today); d.setDate(d.getDate() - n); return toLocalISO(d); };
+  [['sty-trend-a-start', 'trendAStart', back(13)],
+   ['sty-trend-a-end',   'trendAEnd',   toLocalISO(today)],
+   ['sty-trend-b-start', 'trendBStart', back(27)],
+   ['sty-trend-b-end',   'trendBEnd',   back(14)]].forEach(t => {
+    const el = document.getElementById(t[0]);
+    if (el && !el.value) el.value = getStudioPref(t[1], '') || t[2];
+  });
+}
+
+// One comparison card: current range on top, earlier range beneath, delta chip.
+function styTrendCard(who, headLabel, rangeText, aStart, aEnd, bStart, bEnd, hint) {
+  const cur = aggregateStylistRange(who, aStart, aEnd);
+  const prv = aggregateStylistRange(who, bStart, bEnd);
+  const head = `<div class="sty-trend-head">${headLabel}</div>
+      <div class="sty-trend-range">${rangeText}</div>`;
+
+  if (cur.clients === 0 && prv.clients === 0 && cur.total === 0 && prv.total === 0) {
+    return `<div class="sty-trend-card">${head}
+      <div class="sty-trend-empty">No days logged for ${who} in either period.</div>
+    </div>`;
+  }
+
+  const rows = [
+    { label: 'Clients',      a: cur.clients, b: prv.clients, fmt: v => v.toLocaleString() },
+    { label: 'Revenue',      a: cur.total,   b: prv.total,   fmt: v => '$' + Math.round(v).toLocaleString() },
+    { label: 'Rebook %',     a: rebookPct(cur.retR, cur.ret),  b: rebookPct(prv.retR, prv.ret),  fmt: v => v.toFixed(1) + '%' },
+    { label: 'New rebook %', a: rebookPct(cur.newR, cur.newC), b: rebookPct(prv.newR, prv.newC), fmt: v => v.toFixed(1) + '%' },
+  ];
+
+  return `<div class="sty-trend-card">${head}
+    ${hint ? `<div class="sty-trend-hint">${hint}</div>` : ''}
+    ${rows.map(row => {
+      const d = trendDelta(row.a, row.b);
+      return `<div class="sty-trend-row">
+        <div class="sty-trend-metric">${row.label}</div>
+        <div class="sty-trend-vals">
+          <span class="sty-trend-now">${row.fmt(row.a)}</span>
+          <span class="sty-trend-was">was ${row.fmt(row.b)}</span>
+        </div>
+        <span class="compare-delta ${d.cls}">${d.text}</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
 function renderStylistTrend() {
   const out = document.getElementById('sty-trend-body');
   if (!out) return;
@@ -8376,8 +8511,18 @@ function renderStylistTrend() {
     sel.innerHTML = STYLISTS.map(s => `<option value="${s.name}"${s.name === who ? ' selected' : ''}>${s.name}</option>`).join('');
   }
 
+  const mode = getStudioPref('trendMode', 'rolling');
+  const modeSel = document.getElementById('sty-trend-mode');
+  if (modeSel) modeSel.value = mode;
+
+  // Show only the controls the chosen comparison uses
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+  show('sty-trend-rolling-row', mode === 'rolling');
+  show('sty-trend-weeks-row',   mode === 'weeks');
+  show('sty-trend-custom-row',  mode === 'custom');
+
   const basis = getStudioPref('trendBasis', 'todate');
-  ['todate','full'].forEach(b => {
+  ['todate', 'full'].forEach(b => {
     const btn = document.getElementById('sty-trend-basis-' + b);
     if (btn) btn.className = b === basis ? 'btn btn-primary' : 'btn btn-ghost';
   });
@@ -8388,46 +8533,48 @@ function renderStylistTrend() {
   }
   if (!who) { out.innerHTML = '<div class="chart-empty">Select a stylist above.</div>'; return; }
 
-  const cards = ['week','month','year'].map(kind => {
+  // ── Pick two weeks ──
+  if (mode === 'weeks') {
+    styTrendFillWeeks();
+    const wA = (document.getElementById('sty-trend-week-a') || {}).value || '';
+    const wB = (document.getElementById('sty-trend-week-b') || {}).value || '';
+    if (!wA || !wB) { out.innerHTML = '<div class="chart-empty">Pick two weeks above.</div>'; return; }
+    if (wA === wB)  { out.innerHTML = '<div class="chart-empty">Pick two different weeks.</div>'; return; }
+    const wl = rangeLabelPair(wA, weekEndISO(wA), wB, weekEndISO(wB));
+    out.innerHTML = '<div class="sty-trend-grid one">' +
+      styTrendCard(who, wl[0] + ' vs ' + wl[1], 'Two full weeks, Monday to Sunday',
+                   wA, weekEndISO(wA), wB, weekEndISO(wB), '') + '</div>';
+    return;
+  }
+
+  // ── Pick dates ──
+  if (mode === 'custom') {
+    styTrendFillDates();
+    const v = id => (document.getElementById(id) || {}).value || '';
+    let a1 = v('sty-trend-a-start'), a2 = v('sty-trend-a-end');
+    let b1 = v('sty-trend-b-start'), b2 = v('sty-trend-b-end');
+    if (!a1 || !a2 || !b1 || !b2) { out.innerHTML = '<div class="chart-empty">Pick a start and end date for both ranges.</div>'; return; }
+    if (a1 > a2) { const t = a1; a1 = a2; a2 = t; }
+    if (b1 > b2) { const t = b1; b1 = b2; b2 = t; }
+    const dA = daySpan(a1, a2), dB = daySpan(b1, b2);
+    const hint = dA === dB ? '' :
+      `Different lengths, so the totals aren't directly comparable.`;
+    const rangeText = dA === dB
+      ? `${dA} day${dA === 1 ? '' : 's'} each`
+      : `${dA} day${dA === 1 ? '' : 's'} vs ${dB} day${dB === 1 ? '' : 's'}`;
+    const cl = rangeLabelPair(a1, a2, b1, b2);
+    out.innerHTML = '<div class="sty-trend-grid one">' +
+      styTrendCard(who, cl[0] + ' vs ' + cl[1], rangeText, a1, a2, b1, b2, hint) + '</div>';
+    return;
+  }
+
+  // ── Rolling: week, month and year at a glance ──
+  const cards = ['week', 'month', 'year'].map(kind => {
     const r = stylistPeriodRange(kind, basis);
-    const cur = aggregateStylistRange(who, r.curr.start, r.curr.end);
-    const prv = aggregateStylistRange(who, r.prev.start, r.prev.end);
-
-    if (cur.clients === 0 && prv.clients === 0 && cur.total === 0 && prv.total === 0) {
-      return `<div class="sty-trend-card">
-        <div class="sty-trend-head">vs ${r.prev.label}</div>
-        <div class="sty-trend-range">${r.curr.range} vs ${r.prev.range}</div>
-        <div class="sty-trend-empty">No days logged for ${who} in either period.</div>
-      </div>`;
-    }
-
-    const rows = [
-      { label: 'Clients', a: cur.clients, b: prv.clients,
-        fmt: v => v.toLocaleString() },
-      { label: 'Revenue', a: cur.total, b: prv.total,
-        fmt: v => '$' + Math.round(v).toLocaleString() },
-      { label: 'Rebook %', a: rebookPct(cur.retR, cur.ret), b: rebookPct(prv.retR, prv.ret),
-        fmt: v => v.toFixed(1) + '%' },
-      { label: 'New rebook %', a: rebookPct(cur.newR, cur.newC), b: rebookPct(prv.newR, prv.newC),
-        fmt: v => v.toFixed(1) + '%' },
-    ];
-
-    return `<div class="sty-trend-card">
-      <div class="sty-trend-head">vs ${r.prev.label}</div>
-      <div class="sty-trend-range">${r.curr.range} vs ${r.prev.range}</div>
-      ${basis === 'full' && r.basis === 'todate' ? '<div class="sty-trend-hint">Always like for like — a part week can\'t be judged against a full one.</div>' : ''}
-      ${rows.map(row => {
-        const d = trendDelta(row.a, row.b);
-        return `<div class="sty-trend-row">
-          <div class="sty-trend-metric">${row.label}</div>
-          <div class="sty-trend-vals">
-            <span class="sty-trend-now">${row.fmt(row.a)}</span>
-            <span class="sty-trend-was">was ${row.fmt(row.b)}</span>
-          </div>
-          <span class="compare-delta ${d.cls}">${d.text}</span>
-        </div>`;
-      }).join('')}
-    </div>`;
+    const hint = (basis === 'full' && r.basis === 'todate')
+      ? 'Always like for like — a part week can\'t be judged against a full one.' : '';
+    return styTrendCard(who, 'vs ' + r.prev.label, r.curr.range + ' vs ' + r.prev.range,
+                        r.curr.start, r.curr.end, r.prev.start, r.prev.end, hint);
   }).join('');
 
   out.innerHTML = `<div class="sty-trend-grid">${cards}</div>
@@ -8435,7 +8582,6 @@ function renderStylistTrend() {
       ? 'Like for like: each earlier period is trimmed to the same number of days elapsed.'
       : 'Full periods: the complete previous month and year. The week stays like for like.'}</div>`;
 }
-
 
 // ===================== STYLIST MANAGEMENT =====================
 let editingStyleist = null; // name being edited
