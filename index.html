@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
 <meta name="sums-build" content="2026.08.06-0620">
-<meta name="lumin-build" content="2026.08.17-1504"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="lumin-build" content="2026.08.17-1522"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -832,6 +832,7 @@ body::before {
 .sty-trend-was { font-size:12px; color: var(--muted2); font-family: var(--mono); }
 .sty-trend-empty { font-size:14px; color: var(--muted2); padding: 10px 0; }
 .sty-trend-note { font-size:13px; color: var(--muted2); margin-top: 12px; }
+.sty-trend-hint { font-size:12px; color: var(--muted2); font-style: italic; margin-bottom: 8px; }
 .sty-trend-head-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 @media (max-width: 900px) { .sty-trend-grid { grid-template-columns: 1fr; } }
 .compare-prompt { text-align:center; padding:60px 20px; color:var(--muted); }
@@ -3472,26 +3473,64 @@ try {
 
 
     <!-- Stylist vs Period selectors -->
-    <div id="cmp-sty-selectors" class="compare-selectors" style="display:none">
-      <div class="compare-select-group">
-        <div class="compare-select-label a">Stylist</div>
-        <select class="compare-select a" id="cmp-sty-who" aria-label="Stylist to compare" onchange="renderCompare()"></select>
+    <div id="cmp-sty-selectors" style="display:none">
+      <div class="compare-selectors">
+        <div class="compare-select-group">
+          <div class="compare-select-label a">Stylist</div>
+          <select class="compare-select a" id="cmp-sty-who" aria-label="Stylist to compare" onchange="renderCompare()"></select>
+        </div>
+        <div class="compare-vs">vs</div>
+        <div class="compare-select-group">
+          <div class="compare-select-label b">Compare to</div>
+          <select class="compare-select b" id="cmp-sty-period" aria-label="Period to compare against" onchange="styPeriodChanged()">
+            <option value="week">Last week</option>
+            <option value="month">Last month</option>
+            <option value="year">Last year</option>
+            <option value="weeks">Pick two weeks...</option>
+            <option value="custom">Pick dates...</option>
+          </select>
+        </div>
+        <div class="compare-select-group" id="cmp-sty-basis-group">
+          <div class="compare-select-label" style="color:var(--muted)">Basis</div>
+          <select class="compare-select" id="cmp-sty-basis" aria-label="Comparison basis" onchange="renderCompare()">
+            <option value="todate">Same days elapsed</option>
+            <option value="full">Full previous period</option>
+          </select>
+        </div>
       </div>
-      <div class="compare-vs">vs</div>
-      <div class="compare-select-group">
-        <div class="compare-select-label b">Compare to</div>
-        <select class="compare-select b" id="cmp-sty-period" aria-label="Period to compare against" onchange="renderCompare()">
-          <option value="week">Last week</option>
-          <option value="month">Last month</option>
-          <option value="year">Last year</option>
-        </select>
+
+      <!-- Pick two weeks -->
+      <div class="compare-selectors" id="cmp-sty-weeks-row" style="display:none;margin-top:12px">
+        <div class="compare-select-group">
+          <div class="compare-select-label a">Week A</div>
+          <select class="compare-select a" id="cmp-sty-week-a" aria-label="Stylist comparison week A" onchange="renderCompare()"></select>
+        </div>
+        <div class="compare-vs">vs</div>
+        <div class="compare-select-group">
+          <div class="compare-select-label b">Week B</div>
+          <select class="compare-select b" id="cmp-sty-week-b" aria-label="Stylist comparison week B" onchange="renderCompare()"></select>
+        </div>
       </div>
-      <div class="compare-select-group">
-        <div class="compare-select-label" style="color:var(--muted)">Basis</div>
-        <select class="compare-select" id="cmp-sty-basis" aria-label="Comparison basis" onchange="renderCompare()">
-          <option value="todate">Same days elapsed</option>
-          <option value="full">Full previous period</option>
-        </select>
+
+      <!-- Pick any two date ranges -->
+      <div class="compare-selectors" id="cmp-sty-custom-row" style="display:none;margin-top:12px">
+        <div class="compare-select-group">
+          <div class="compare-select-label a">Range A</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="date" class="filter-date" id="cmp-sty-a-start" aria-label="Range A start date" onchange="renderCompare()">
+            <span style="color:var(--muted);font-size:13px">to</span>
+            <input type="date" class="filter-date" id="cmp-sty-a-end" aria-label="Range A end date" onchange="renderCompare()">
+          </div>
+        </div>
+        <div class="compare-vs">vs</div>
+        <div class="compare-select-group">
+          <div class="compare-select-label b">Range B</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="date" class="filter-date" id="cmp-sty-b-start" aria-label="Range B start date" onchange="renderCompare()">
+            <span style="color:var(--muted);font-size:13px">to</span>
+            <input type="date" class="filter-date" id="cmp-sty-b-end" aria-label="Range B end date" onchange="renderCompare()">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -7691,6 +7730,7 @@ function setCmpMode(mode) {
       sel.innerHTML = STYLISTS.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
       if (prev && STYLISTS.some(s => s.name === prev)) sel.value = prev;
     }
+    styUpdateRows();
   }
 
   if (mode === 'yoy') {
@@ -7754,6 +7794,15 @@ function getAvailableWeeks() {
   set[toLocalISO(weekStartMon(toLocalISO(new Date())))] = true; // include current week
   return Object.keys(set).sort().reverse();
 }
+// Week starts that actually have entries, newest first. Unlike
+// getAvailableWeeks() this doesn't bolt the current week on, so it can be
+// used to default a picker to weeks that will show real numbers.
+function getWeeksWithEntries() {
+  const set = {};
+  allEntries().forEach(e => { if (e.date) set[toLocalISO(weekStartMon(e.date))] = true; });
+  return Object.keys(set).sort().reverse();
+}
+
 // Aggregate a week's entries into the shared compare stats shape.
 function aggregateWeek(wsISO) {
   const start = wsISO;
@@ -7896,24 +7945,68 @@ function renderCompare() {
     const basis = document.getElementById('cmp-sty-basis')?.value || 'todate';
 
     if (!who) {
-      out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">👤</div><p>Select a stylist above to compare their recent performance</p></div>';
+      out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">👤</div><p>Select a stylist above to compare their performance</p></div>';
       return;
     }
 
-    const r = stylistPeriodRange(kind, basis);
-    const dA = aggregateStylistRange(who, r.curr.start, r.curr.end);
-    const dB = aggregateStylistRange(who, r.prev.start, r.prev.end);
+    let aStart, aEnd, bStart, bEnd, labelA, labelB, noteText;
+
+    if (kind === 'weeks') {
+      const wA = document.getElementById('cmp-sty-week-a')?.value;
+      const wB = document.getElementById('cmp-sty-week-b')?.value;
+      if (!wA || !wB) {
+        out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">↕</div><p>Select two weeks above to compare</p></div>';
+        return;
+      }
+      if (wA === wB) {
+        out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">🤔</div><p>Select two different weeks to compare</p></div>';
+        return;
+      }
+      aStart = wA; aEnd = weekEndISO(wA);
+      bStart = wB; bEnd = weekEndISO(wB);
+      labelA = weekLabel(wA); labelB = weekLabel(wB);
+      noteText = 'two full weeks, Monday to Sunday';
+
+    } else if (kind === 'custom') {
+      let a1 = document.getElementById('cmp-sty-a-start')?.value;
+      let a2 = document.getElementById('cmp-sty-a-end')?.value;
+      let b1 = document.getElementById('cmp-sty-b-start')?.value;
+      let b2 = document.getElementById('cmp-sty-b-end')?.value;
+      if (!a1 || !a2 || !b1 || !b2) {
+        out.innerHTML = '<div class="compare-prompt"><div style="font-size:38px">📅</div><p>Pick a start and end date for both ranges</p></div>';
+        return;
+      }
+      if (a1 > a2) { const t = a1; a1 = a2; a2 = t; }
+      if (b1 > b2) { const t = b1; b1 = b2; b2 = t; }
+      aStart = a1; aEnd = a2; bStart = b1; bEnd = b2;
+      labelA = rangeLabel(a1, a2); labelB = rangeLabel(b1, b2);
+      const dA = daySpan(a1, a2), dB = daySpan(b1, b2);
+      noteText = dA === dB
+        ? `${dA} day${dA === 1 ? '' : 's'} each`
+        : `${dA} day${dA === 1 ? '' : 's'} vs ${dB} day${dB === 1 ? '' : 's'} — the ranges are different lengths, so the totals aren't directly comparable`;
+
+    } else {
+      const r = stylistPeriodRange(kind, basis);
+      aStart = r.curr.start; aEnd = r.curr.end;
+      bStart = r.prev.start; bEnd = r.prev.end;
+      labelA = `${r.curr.label} · ${r.curr.range}`;
+      labelB = `${r.prev.label} · ${r.prev.range}`;
+      noteText = r.basis === 'full'
+        ? 'compared against the complete previous period'
+        : (basis === 'full'
+            ? 'a part-finished week can\'t be judged against a complete one, so this stays like for like'
+            : 'the earlier period is trimmed to the same number of days elapsed, so the comparison is like for like');
+    }
+
+    const dA = aggregateStylistRange(who, aStart, aEnd);
+    const dB = aggregateStylistRange(who, bStart, bEnd);
 
     if (dA.clients === 0 && dB.clients === 0 && dA.total === 0 && dB.total === 0) {
       out.innerHTML = `<div class="compare-prompt"><div style="font-size:38px">📭</div><p>No days logged for <strong>${who}</strong> in either period</p></div>`;
       return;
     }
 
-    const labelA = `${r.curr.label} · ${r.curr.range}`;
-    const labelB = `${r.prev.label} · ${r.prev.range}`;
-    const note = `<div style="font-size:13px;color:var(--muted);margin-bottom:16px">${who} · ${basis === 'todate'
-      ? 'the earlier period is trimmed to the same number of days elapsed, so the comparison is like for like'
-      : 'compared against the complete previous period'}</div>`;
+    const note = `<div style="font-size:13px;color:var(--muted);margin-bottom:16px">${who} · ${noteText}</div>`;
     out.innerHTML = note + renderCompareOutput(dA, dB, labelA, labelB, 'var(--accent)', 'var(--blue)');
     return;
   }
@@ -8139,6 +8232,11 @@ function aggregateStylistRange(name, startISO, endISO) {
 // so a half-finished month isn't judged against a complete one.
 // basis 'full'  compares the whole previous period against the current one.
 function stylistPeriodRange(kind, basis) {
+  // A part-finished week measured against a complete one isn't a comparison
+  // anyone wants: the studio is shut Sundays and Mondays, so 'full' would
+  // report a 100% collapse every weekend. The week is always like for like.
+  // 'full' still means what it says for the month and year.
+  if (kind === 'week') basis = 'todate';
   const today = new Date(); today.setHours(0,0,0,0);
   const iso = d => toLocalISO(d);
   const shift = (d, days) => { const x = new Date(d); x.setDate(x.getDate() + days); return x; };
@@ -8168,7 +8266,7 @@ function stylistPeriodRange(kind, basis) {
   const curLabel = unit === 'year' ? 'This year' : unit === 'month' ? 'This month' : 'This week';
   const prvLabel = unit === 'year' ? 'Last year' : unit === 'month' ? 'Last month' : 'Last week';
   return {
-    unit,
+    unit, basis,
     curr: { start: iso(cStart), end: iso(cEnd), label: curLabel, range: fmt(cStart) + ' – ' + fmt(cEnd) },
     prev: { start: iso(pStart), end: iso(pEnd), label: prvLabel, range: fmt(pStart) + ' – ' + fmt(pEnd) }
   };
@@ -8186,6 +8284,67 @@ function trendDelta(a, b, higherBetter) {
 }
 
 function rebookPct(r, total) { return total > 0 ? (r / total * 100) : 0; }
+
+// ── Stylist vs Period: selector plumbing ─────────────────────────────────
+// The Sunday that closes the Monday-start week beginning wsISO.
+function weekEndISO(wsISO) {
+  const d = new Date(wsISO + 'T00:00:00');
+  d.setDate(d.getDate() + 6);
+  return toLocalISO(d);
+}
+// Inclusive day count, so 1 Aug to 7 Aug reads as 7 days rather than 6.
+function daySpan(startISO, endISO) {
+  return Math.round((new Date(endISO + 'T00:00:00') - new Date(startISO + 'T00:00:00')) / 86400000) + 1;
+}
+function rangeLabel(startISO, endISO) {
+  const f = s => new Date(s + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  return f(startISO) + ' – ' + f(endISO);
+}
+
+// Show only the rows the chosen comparison actually uses.
+function styUpdateRows() {
+  const kind = document.getElementById('cmp-sty-period')?.value || 'week';
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+  // Basis only means something for the rolling presets; picked weeks and
+  // picked dates already say exactly which days they cover.
+  show('cmp-sty-basis-group', kind === 'week' || kind === 'month' || kind === 'year');
+  show('cmp-sty-weeks-row', kind === 'weeks');
+  show('cmp-sty-custom-row', kind === 'custom');
+  if (kind === 'weeks') styFillWeeks();
+  if (kind === 'custom') styFillDates();
+}
+
+function styPeriodChanged() { styUpdateRows(); renderCompare(); }
+
+function styFillWeeks() {
+  const weeks = getAvailableWeeks();        // everything stays selectable,
+  const withData = getWeeksWithEntries();   // but default to weeks with numbers
+  // Weeks with entries first, then anything else, so A and B can never land
+  // on the same week just because only one week has been logged so far.
+  const order = withData.concat(weeks.filter(w => withData.indexOf(w) === -1));
+  ['cmp-sty-week-a', 'cmp-sty-week-b'].forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">Select week...</option>' +
+      weeks.map(w => `<option value="${w}">${weekLabel(w)}</option>`).join('');
+    // Default to the two most recent weeks that have entries: the current
+    // week is usually part-finished or closed, and opening on an empty A
+    // side makes the comparison look broken. Still selectable by hand.
+    if (prev && weeks.includes(prev)) sel.value = prev;
+    else if (order[idx]) sel.value = order[idx];
+  });
+}
+
+// Seed the pickers with the last fortnight vs the fortnight before, so the
+// mode opens on something useful rather than four empty boxes.
+function styFillDates() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const back = n => { const d = new Date(today); d.setDate(d.getDate() - n); return toLocalISO(d); };
+  const seed = (id, v) => { const el = document.getElementById(id); if (el && !el.value) el.value = v; };
+  seed('cmp-sty-a-start', back(13)); seed('cmp-sty-a-end', toLocalISO(today));
+  seed('cmp-sty-b-start', back(27)); seed('cmp-sty-b-end', back(14));
+}
 
 // ── Dashboard tile: one stylist vs last week / last month / last year ─────
 function stylistTrendSelected() {
@@ -8256,6 +8415,7 @@ function renderStylistTrend() {
     return `<div class="sty-trend-card">
       <div class="sty-trend-head">vs ${r.prev.label}</div>
       <div class="sty-trend-range">${r.curr.range} vs ${r.prev.range}</div>
+      ${basis === 'full' && r.basis === 'todate' ? '<div class="sty-trend-hint">Always like for like — a part week can\'t be judged against a full one.</div>' : ''}
       ${rows.map(row => {
         const d = trendDelta(row.a, row.b);
         return `<div class="sty-trend-row">
@@ -8273,7 +8433,7 @@ function renderStylistTrend() {
   out.innerHTML = `<div class="sty-trend-grid">${cards}</div>
     <div class="sty-trend-note">${basis === 'todate'
       ? 'Like for like: each earlier period is trimmed to the same number of days elapsed.'
-      : 'Full periods: the complete previous week, month and year.'}</div>`;
+      : 'Full periods: the complete previous month and year. The week stays like for like.'}</div>`;
 }
 
 
