@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.08.17-1601">
-<meta name="lumin-build" content="2026.08.17-1601"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.08.18-1351">
+<meta name="lumin-build" content="2026.08.18-1351"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -505,6 +505,8 @@ body {
 }
 .form-input:focus { border-color: var(--accent); }
 .form-input.auto-total { pointer-events: none; background: transparent; border-style: dashed; color: var(--muted); }
+.mini-input.auto-total { pointer-events: none; background: transparent; border-style: dashed; color: var(--muted); }
+.mini-input.mini-input-bad { border-color: var(--red); color: var(--red); }
 .form-section {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -6842,7 +6844,7 @@ function showEntryForm(iso, dayIdx) {
       <div class="stylist-inputs">
         <div class="mini-group"><div class="mini-label">Ret. Clients</div><input class="mini-input" aria-label="${s} returning clients" id="s_${s}_ret" type="number" min="0" placeholder="0" value="${vRet}"></div>
         <div class="mini-group"><div class="mini-label">Ret. Rebook</div><input class="mini-input" aria-label="${s} returning rebooked" id="s_${s}_retR" type="number" min="0" placeholder="0" value="${vRetR}"></div>
-        <div class="mini-group"><div class="mini-label">Ret. Not Reb.</div><input class="mini-input" aria-label="${s} returning not rebooked" id="s_${s}_retNR" type="number" min="0" placeholder="0" value="${vRetNR}"></div>
+        <div class="mini-group"><div class="mini-label">Ret. Not Reb.</div><input class="mini-input auto-total" aria-label="${s} returning not rebooked (calculated)" id="s_${s}_retNR" type="number" min="0" placeholder="0" value="${vRetNR}" readonly tabindex="-1" title="Calculated: Ret. Clients minus Ret. Rebook"></div>
         <div class="mini-group"><div class="mini-label">New Clients</div><input class="mini-input" aria-label="${s} new clients" id="s_${s}_new" type="number" min="0" placeholder="0" value="${vNew}"></div>
         <div class="mini-group"><div class="mini-label">New Rebook</div><input class="mini-input" aria-label="${s} new rebooked" id="s_${s}_newR" type="number" min="0" placeholder="0" value="${vNewR}"></div>
         <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" aria-label="${s} service dollars" id="s_${s}_svc" type="number" min="0" placeholder="0" value="${vSvc}"></div>
@@ -6851,6 +6853,7 @@ function showEntryForm(iso, dayIdx) {
       </div>
     </div>`;
   }).join('');
+  entrySyncRetNotRebooked();
   entrySyncStoreTotals();
 }
 
@@ -6877,6 +6880,23 @@ function entryHasBreakdown() {
     return el && parseFloat(el.value) > 0;
   }));
 }
+// Ret. Not Reb. is always Ret. Clients minus Ret. Rebook, never typed.
+function entrySyncRetNotRebooked() {
+  STYLISTS.forEach(st => {
+    const retEl  = document.getElementById('s_' + st.name + '_ret');
+    const retREl = document.getElementById('s_' + st.name + '_retR');
+    const nrEl   = document.getElementById('s_' + st.name + '_retNR');
+    if (!retEl || !retREl || !nrEl) return;
+    const ret  = parseFloat(retEl.value)  || 0;
+    const retR = parseFloat(retREl.value) || 0;
+    const diff = ret - retR;
+    nrEl.value = diff > 0 ? diff : ((ret || retR) ? 0 : '');
+    // More rebooked than seen is a typo, not a negative. Flag it on the field
+    // that's wrong rather than silently clamping and burying it in the data.
+    retREl.classList.toggle('mini-input-bad', retR > ret);
+  });
+}
+
 function entrySyncStoreTotals() {
   if (!entryHasBreakdown()) return;   // legacy day with store-level totals only
   ENTRY_STORE_FIELDS.forEach(({ top, f }) => {
@@ -6887,7 +6907,10 @@ function entrySyncStoreTotals() {
   });
 }
 document.addEventListener('input', (e) => {
-  if (e.target && e.target.closest && e.target.closest('#stylist-entry-grid')) entrySyncStoreTotals();
+  if (e.target && e.target.closest && e.target.closest('#stylist-entry-grid')) {
+    entrySyncRetNotRebooked();
+    entrySyncStoreTotals();
+  }
 });
 
 let entryEnabledDays = new Set(getWorkingDays()); // seeded from the studio's working days setting
@@ -6964,7 +6987,8 @@ function saveEntryData() {
   const sd = {};
   STYLISTS.forEach(st => {
     const s = st.name;
-    const ret = v(`s_${s}_ret`), retR = v(`s_${s}_retR`), retNR = v(`s_${s}_retNR`);
+    const ret = v(`s_${s}_ret`), retR = v(`s_${s}_retR`);
+    const retNR = Math.max(ret - retR, 0);   // derived, never typed
     const newC = v(`s_${s}_new`), newR = v(`s_${s}_newR`);
     const svc = v(`s_${s}_svc`);
     const stProd = v(`s_${s}_prod`);
