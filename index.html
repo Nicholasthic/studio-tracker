@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.08.18-1425">
-<meta name="lumin-build" content="2026.08.18-1425"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.08.18-1530">
+<meta name="lumin-build" content="2026.08.18-1530"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -154,11 +154,28 @@ html[data-theme="money"] .kpi-value {
 @keyframes money-shimmer { from { background-position: 225% 0; } to { background-position: -125% 0; } }
 .landing-reveal {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translateY(32px) scale(.988);
   transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
   will-change: opacity, transform;
 }
 .landing-reveal.landing-in { opacity: 1; transform: none; }
+
+/* Pain-point blocks. Same cascade treatment as the acronym letters. */
+.pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(288px, 1fr)); gap: 34px 40px; text-align: left; }
+.pain-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .6s cubic-bezier(.22,.61,.36,1), transform .6s cubic-bezier(.22,.61,.36,1);
+}
+.landing-in .pain-item { opacity: 1; transform: none; }
+.landing-in .pain-item:nth-child(1) { transition-delay: .06s; }
+.landing-in .pain-item:nth-child(2) { transition-delay: .14s; }
+.landing-in .pain-item:nth-child(3) { transition-delay: .22s; }
+.landing-in .pain-item:nth-child(4) { transition-delay: .30s; }
+.landing-in .pain-item:nth-child(5) { transition-delay: .38s; }
+.landing-in .pain-item:nth-child(6) { transition-delay: .46s; }
+.pain-q { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--accent); margin-bottom: 10px; line-height: 1.3; }
+.pain-a { color: var(--muted); line-height: 1.65; margin: 0; font-size: 15px; }
 
 /* The name, spelled out. Letters cascade in once the block itself lands. */
 .sums-acronym { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
@@ -189,6 +206,7 @@ html[data-theme="money"] .kpi-value {
   html[data-theme="money"] .kpi-value { animation: none; background: none; -webkit-text-fill-color: currentColor; }
   .landing-reveal { opacity: 1; transform: none; transition: none; }
   .sums-acronym-item { opacity: 1; transform: none; transition: none; }
+  .pain-item { opacity: 1; transform: none; transition: none; }
   #landing-fx { display: none; }
 }
 /* ── Lucky Break: a Money theme exclusive ── */
@@ -2806,6 +2824,7 @@ try {
 <!-- ===================== LANDING OVERLAY ===================== -->
 <div id="landing-overlay" style="position:fixed;inset:0;z-index:100000;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:72px 24px 60px;font-family:var(--font);color:var(--text)">
   <canvas id="landing-fx" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+  <div id="landing-progress" aria-hidden="true" style="position:fixed;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.45;transform:scaleX(0);transform-origin:0 50%;pointer-events:none;z-index:2"></div>
   <div id="landing-content" style="max-width:1080px;width:100%;text-align:center;position:relative;z-index:1">
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
       <svg width="56" height="56" viewBox="0 0 120 120" aria-hidden="true">
@@ -2832,20 +2851,40 @@ try {
       </div>
       <p style="font-size:16px;color:var(--muted);max-width:540px;margin:30px auto 0;line-height:1.6">Every number your studio makes, added up and handed back to you in plain language.</p>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:36px;margin-bottom:64px;text-align:left">
-      <div>
-        <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Daily entries</div>
-        <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">Log the day's revenue, products, and clients in seconds. Auto-saves as you go, splits per-stylist, and rolls up to weekly &amp; yearly views.</p>
+    <div style="margin-bottom:70px">
+      <div class="sums-eyebrow">Built around the questions you actually ask</div>
+      <div class="pain-grid">
+        <div class="pain-item">
+          <div class="pain-q">"Am I actually making money this month?"</div>
+          <p class="pain-a">Your fixed costs sit against live revenue, so you watch the breakeven point coming instead of finding out in July. Full P&amp;L, with GST tracked as you go.</p>
+        </div>
+        <div class="pain-item">
+          <div class="pain-q">"Which stylist should I be worried about?"</div>
+          <p class="pain-a">Revenue, rebook rate, new clients and product sales for every stylist, side by side. Compare anyone against last week, last month or last year.</p>
+        </div>
+        <div class="pain-item">
+          <div class="pain-q">"Why aren't clients coming back?"</div>
+          <p class="pain-a">Rebook rate is tracked every single day, split between returning and new. The ones who stopped coming are listed by name, so you can win them back.</p>
+        </div>
+        <div class="pain-item">
+          <div class="pain-q">"Tax time is a nightmare."</div>
+          <p class="pain-a">GST, BAS and your P&amp;L build themselves as you enter each day. Export the lot and send it straight to your accountant.</p>
+        </div>
+        <div class="pain-item">
+          <div class="pain-q">"Can my team see this without seeing the money?"</div>
+          <p class="pain-a">Staff log in with their own PIN and see only their own stats and the leaderboard, counted in clients rather than dollars. The revenue stays yours.</p>
+        </div>
+        <div class="pain-item">
+          <div class="pain-q">"Should I hire, or let someone go?"</div>
+          <p class="pain-a">Compare weeks, months, years and stylists against each other. Set goals per person, track hours, plan the roster, hold stock above reorder level, and invoice contractors from the same numbers.</p>
+        </div>
       </div>
-      <div>
-        <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Stylist performance</div>
-        <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">See every stylist's revenue, retention, new clients, and product sales: leaderboards, individual pages, and contractor invoices included.</p>
-      </div>
-      <div>
-        <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Live cloud sync</div>
-        <p style="color:var(--muted);line-height:1.6;margin:0;font-size:15px">Your data syncs across every device the moment you save. Work from the front desk, the office, or your phone, and never lose a number.</p>
-      </div>
+      <p style="font-size:14px;color:var(--muted2);margin:34px auto 0;max-width:560px;line-height:1.6">Entries take seconds and save themselves, and everything syncs across every device the moment you save. Front desk, office, or your phone.</p>
     </div>
+    <div id="landing-pricing" style="margin-bottom:92px"></div>
+    <!-- Booking integrations "Coming soon" panel: hidden until the feature
+         actually ships. Delete this comment wrapper to bring it back. -->
+    <!--
     <div style="background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:22px 26px;margin-bottom:60px;text-align:left">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div style="font-family:var(--serif);font-style:italic;font-size:18px;color:var(--accent)">Booking integrations</div>
@@ -2853,6 +2892,7 @@ try {
       </div>
       <p style="color:var(--muted);line-height:1.6;margin:0;font-size:14px">Auto-sync with Timely, Fresha, Phorest and more. Your daily entries flow in automatically: no manual entry, no missed clients.</p>
     </div>
+    -->
     <div style="padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div style="font-size:13px;color:var(--muted2)">Made for studios that care about their numbers.</div>
       <div style="font-size:13px;color:var(--muted2)">
@@ -15525,7 +15565,9 @@ function lfxFrame() {
   LFX.blobs.forEach(b => {
     b.a += b.sp;
     const x = b.x + Math.cos(b.a) * b.rx;
-    const y = b.y + Math.sin(b.a * 0.8) * b.ry;
+    // Washes lag the scroll a little; the figures below move faster. The
+    // difference is what reads as depth rather than a flat sheet sliding.
+    const y = b.y + Math.sin(b.a * 0.8) * b.ry - (LFX.scroll || 0) * 0.10;
     const r = b.r * (1 + Math.sin(b.a * 0.5) * 0.08);
     const col = P[b.tone];
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
@@ -15547,9 +15589,14 @@ function lfxFrame() {
     if (p.y < -30) { p.y = LFX.h + 30; p.x = Math.random() * LFX.w; p.txt = lfxPickNum(); }
     if (p.x < -70) p.x = LFX.w + 70;
     else if (p.x > LFX.w + 70) p.x = -70;
+    // Offset for scroll at draw time only, wrapped, so the field keeps
+    // filling the screen however far down the page you are.
+    const span = LFX.h + 80;
+    let dy = p.y - (LFX.scroll || 0) * 0.28;
+    dy = ((dy % span) + span) % span - 40;
     ctx.font = p.size.toFixed(1) + 'px ' + LFX.font;
     ctx.fillStyle = `rgba(${A[0]},${A[1]},${A[2]},${p.al})`;
-    ctx.fillText(p.txt, p.x, p.y);
+    ctx.fillText(p.txt, p.x, dy);
   });
 
   LFX.raf = requestAnimationFrame(lfxFrame);
@@ -15609,9 +15656,23 @@ function landingRevealContent() {
     });
     clearTimeout(_lfxStaggerTimer);
     _lfxStaggerTimer = setTimeout(() => { _lfxStagger = 0; }, 350);
-  }, { root: root, rootMargin: '0px 0px -10% 0px', threshold: 0.06 });
+  }, { root: root, rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
 
   kids.forEach(el => LFX.io.observe(el));
+
+  // Anything pinned to the very bottom can land inside the rootMargin inset
+  // and never intersect at all: at full scroll the footer's top sat 6px below
+  // the trigger line, so it stayed invisible permanently. Reaching the end of
+  // the scroll reveals whatever is left, so nothing can be stranded.
+  if (LFX.onScrollEnd) root.removeEventListener('scroll', LFX.onScrollEnd);
+  LFX.onScrollEnd = () => {
+    if (root.scrollTop + root.clientHeight >= root.scrollHeight - 8) {
+      kids.forEach(el => el.classList.add('landing-in'));
+      root.removeEventListener('scroll', LFX.onScrollEnd);
+      LFX.onScrollEnd = null;
+    }
+  };
+  root.addEventListener('scroll', LFX.onScrollEnd, { passive: true });
 
   // Failsafe. Observer callbacks are delivered as part of the rendering
   // steps, so anything that stalls those (a backgrounded tab, a browser
@@ -15626,6 +15687,36 @@ function landingRevealContent() {
   }, 1400);
 }
 
+// Built from SUMS_TIERS at runtime rather than hard-coded in the markup, so
+// the landing page can never advertise a price the app no longer charges.
+function landingRenderPricing() {
+  const host = document.getElementById('landing-pricing');
+  if (!host || typeof pricingTilesHTML !== 'function') return;
+  if (host.getAttribute('data-filled') === '1') return;
+  host.innerHTML =
+    '<div class="sums-eyebrow">Simple pricing</div>' +
+    '<div style="font-family:var(--serif);font-style:italic;font-size:30px;color:var(--text);margin:0 0 10px;line-height:1.2">Pick the plan that fits your studio.</div>' +
+    '<p style="font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 30px;line-height:1.6">Every plan starts with 7 days free. No card needed to look around, and you can change plan or cancel whenever you like.</p>' +
+    '<div style="text-align:left">' + pricingTilesHTML('', { cta: 'signup' }) + '</div>' +
+    '<div style="font-size:13px;color:var(--muted2);margin-top:20px">Prices in AUD. Secure checkout via Stripe.</div>';
+  host.setAttribute('data-filled', '1');
+}
+
+// One passive listener feeds both the progress line and the canvas parallax,
+// so scrolling costs a single property read rather than a handler per effect.
+function landingBindScroll() {
+  const root = document.getElementById('landing-overlay');
+  if (!root || LFX.onScrollPar) return;
+  LFX.onScrollPar = () => {
+    LFX.scroll = root.scrollTop;
+    const max = root.scrollHeight - root.clientHeight;
+    const bar = document.getElementById('landing-progress');
+    if (bar) bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(root.scrollTop / max, 1) : 0) + ')';
+  };
+  root.addEventListener('scroll', LFX.onScrollPar, { passive: true });
+  LFX.onScrollPar();
+}
+
 function landingIsOpen() {
   const el = document.getElementById('landing-overlay');
   return !!el && getComputedStyle(el).display !== 'none';
@@ -15638,12 +15729,12 @@ document.addEventListener('visibilitychange', () => {
 });
 // The landing is on screen at load for signed-out visitors, before any
 // landingShow() call, so kick it off once the DOM has settled.
-setTimeout(() => { if (landingIsOpen()) { landingFXStart(); landingRevealContent(); } }, 0);
+setTimeout(() => { if (landingIsOpen()) { landingRenderPricing(); landingFXStart(); landingRevealContent(); landingBindScroll(); } }, 0);
 
 function landingShow() {
   const el = document.getElementById('landing-overlay');
   if (el) el.style.display = 'flex';
-  try { landingFXStart(); landingRevealContent(); } catch (e) {}
+  try { landingRenderPricing(); landingFXStart(); landingRevealContent(); landingBindScroll(); } catch (e) {}
 }
 function landingHide() {
   const el = document.getElementById('landing-overlay');
@@ -15953,7 +16044,8 @@ async function openCustomerPortal() {
     alert('Portal failed: ' + (data.error || 'Unknown error'));
   } catch (e) { alert('Portal failed: ' + (e.message || e)); }
 }
-function pricingTilesHTML(highlightTier) {
+function pricingTilesHTML(highlightTier, opts) {
+  const signup = !!(opts && opts.cta === 'signup');
   return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">' +
     SUMS_TIERS.map(t => {
       const isCurrent = highlightTier === t.id;
@@ -15968,8 +16060,10 @@ function pricingTilesHTML(highlightTier) {
         '<ul style="margin:0 0 18px 0;padding:0;list-style:none;font-size:13px;color:var(--text);line-height:1.7">' +
           t.features.map(f => '<li style="padding-left:18px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">✓</span>' + f + '</li>').join('') +
         '</ul>' +
-        '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Start free trial, then $' + t.monthly + '/mo</button>' +
-        '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Annual: free week, then $' + t.annual + '/yr</button>' +
+        (signup
+          ? '<button class="btn btn-primary" style="width:100%" onclick="landingOpenAuth(\'signup\')">Start 7 days free</button>'
+          : '<button class="btn btn-primary" style="width:100%;margin-bottom:8px" onclick="startCheckout(\'' + t.id + '\', \'monthly\')">Start free trial, then $' + t.monthly + '/mo</button>' +
+            '<button class="btn btn-ghost" style="width:100%" onclick="startCheckout(\'' + t.id + '\', \'annual\')">Annual: free week, then $' + t.annual + '/yr</button>') +
       '</div>';
     }).join('') +
   '</div>';
