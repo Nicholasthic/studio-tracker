@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.08.18-1351">
-<meta name="lumin-build" content="2026.08.18-1351"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.08.18-1421">
+<meta name="lumin-build" content="2026.08.18-1421"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -152,8 +152,18 @@ html[data-theme="money"] .kpi-value {
   animation: money-shimmer 4.5s linear infinite;
 }
 @keyframes money-shimmer { from { background-position: 225% 0; } to { background-position: -125% 0; } }
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+  will-change: opacity, transform;
+}
+.landing-reveal.landing-in { opacity: 1; transform: none; }
+
 @media (prefers-reduced-motion: reduce) {
   html[data-theme="money"] .kpi-value { animation: none; background: none; -webkit-text-fill-color: currentColor; }
+  .landing-reveal { opacity: 1; transform: none; transition: none; }
+  #landing-fx { display: none; }
 }
 /* ── Lucky Break: a Money theme exclusive ── */
 #nav-luckybreak { display: none !important; }
@@ -2769,7 +2779,8 @@ try {
 
 <!-- ===================== LANDING OVERLAY ===================== -->
 <div id="landing-overlay" style="position:fixed;inset:0;z-index:100000;background:linear-gradient(180deg,var(--bg) 0%,var(--surface) 100%);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:72px 24px 60px;font-family:var(--font);color:var(--text)">
-  <div style="max-width:1080px;width:100%;text-align:center">
+  <canvas id="landing-fx" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0"></canvas>
+  <div id="landing-content" style="max-width:1080px;width:100%;text-align:center;position:relative;z-index:1">
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
       <svg width="56" height="56" viewBox="0 0 120 120" aria-hidden="true">
         <rect width="120" height="120" rx="28" fill="#2B2320"/>
@@ -15361,8 +15372,245 @@ function landingOpenAuth(mode) {
   cloudConnectPrompt();
   setTimeout(() => { if (typeof cloudSetMode === 'function') cloudSetMode(mode || 'signin'); }, 30);
 }
-function landingShow() { const el = document.getElementById('landing-overlay'); if (el) el.style.display = 'flex'; }
-function landingHide() { const el = document.getElementById('landing-overlay'); if (el) el.style.display = 'none'; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// LANDING AMBIENCE
+// A slow drift of motes over three soft, breathing washes of colour.
+// Colours are read from the live theme so it suits every palette rather
+// than being hard-coded to one; it idles whenever the landing isn't on
+// screen or the tab is in the background; and it draws nothing at all if
+// the visitor has asked for reduced motion.
+// ═══════════════════════════════════════════════════════════════════════
+const LFX = { raf: 0, io: null, parts: [], blobs: [], w: 0, h: 0, t: 0, pal: null, palAt: -999, font: "'DM Mono', monospace" };
+
+// The sort of figures the app actually shows: takings, rebook rates, head
+// counts. Rendered in the mono face every number in the app already uses.
+const LFX_NUMS = ['$1,240', '72%', '18', '$860', '94%', '$2,450', '31', '68%', '$540', '12',
+                  '$3,120', '45%', '27', '$1,980', '83%', '$720', '9', '56%', '$1,110', '24',
+                  '$640', '61%', '15', '$2,310'];
+// Deal from a shuffled bag rather than picking at random: on a field this
+// sparse, the same figure showing twice at once reads as a glitch.
+let _lfxBag = [];
+function lfxPickNum() {
+  if (!_lfxBag.length) {
+    _lfxBag = LFX_NUMS.slice();
+    for (let i = _lfxBag.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      const t = _lfxBag[i]; _lfxBag[i] = _lfxBag[j]; _lfxBag[j] = t;
+    }
+  }
+  return _lfxBag.pop();
+}
+
+function landingReduceMotion() {
+  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+}
+
+// Theme vars can be hex or rgb(); tolerate both and fall back to ink.
+function lfxRGB(col) {
+  col = String(col || '').trim();
+  if (col.charAt(0) === '#') {
+    let h = col.slice(1);
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    const n = parseInt(h.slice(0, 6), 16);
+    if (isFinite(n)) return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    return [0, 0, 0];
+  }
+  const m = col.match(/(-?[\d.]+)/g);
+  return m && m.length >= 3 ? [parseInt(m[0], 10), parseInt(m[1], 10), parseInt(m[2], 10)] : [0, 0, 0];
+}
+
+function lfxPalette() {
+  const cs = getComputedStyle(document.documentElement);
+  const pick = n => (cs.getPropertyValue(n) || '').trim();
+  return {
+    a: lfxRGB(pick('--accent') || '#000'),
+    b: lfxRGB(pick('--accent2') || pick('--accent') || '#000'),
+    m: lfxRGB(pick('--muted2') || pick('--muted') || '#666'),
+  };
+}
+
+function lfxSize() {
+  const c = document.getElementById('landing-fx');
+  if (!c) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  LFX.w = c.clientWidth || window.innerWidth;
+  LFX.h = c.clientHeight || window.innerHeight;
+  c.width = Math.round(LFX.w * dpr);
+  c.height = Math.round(LFX.h * dpr);
+  const ctx = c.getContext('2d');
+  if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function lfxSeed() {
+  // Scale the mote count to the area, with a hard ceiling so a large
+  // desktop window doesn't put a phone-class GPU to work for a backdrop.
+  // Figures carry far more ink than a dot did, so there are fewer of them.
+  const n = Math.max(9, Math.min(24, Math.round((LFX.w * LFX.h) / 58000)));
+  LFX.font = (getComputedStyle(document.documentElement).getPropertyValue('--mono') || '').trim()
+             || "'DM Mono', monospace";
+  LFX.parts = [];
+  _lfxBag = [];                      // fresh bag per seed, so a resize can't repeat
+  for (let i = 0; i < n; i++) {
+    LFX.parts.push({
+      x: Math.random() * LFX.w,
+      y: Math.random() * LFX.h,
+      size: 11 + Math.random() * 11,
+      txt: lfxPickNum(),
+      vy: 0.07 + Math.random() * 0.20,
+      sway: 0.10 + Math.random() * 0.28,
+      ph: Math.random() * 1000,
+      al: 0.10 + Math.random() * 0.20,
+    });
+  }
+  const big = Math.max(LFX.w, LFX.h);
+  LFX.blobs = [
+    { x: LFX.w * 0.24, y: LFX.h * 0.18, r: big * 0.44, rx: 110, ry: 76, a: 0.0, sp: 0.0016, al: 0.10,  tone: 'a' },
+    { x: LFX.w * 0.79, y: LFX.h * 0.33, r: big * 0.37, rx: 140, ry: 96, a: 2.1, sp: 0.0011, al: 0.085, tone: 'm' },
+    { x: LFX.w * 0.52, y: LFX.h * 0.80, r: big * 0.41, rx: 122, ry: 82, a: 4.0, sp: 0.0009, al: 0.075, tone: 'b' },
+  ];
+}
+
+function lfxFrame() {
+  const c = document.getElementById('landing-fx');
+  if (!c) { LFX.raf = 0; return; }
+  const ctx = c.getContext('2d');
+  if (!ctx) { LFX.raf = 0; return; }
+  LFX.t++;
+
+  // Re-read the palette every few seconds so switching theme carries over.
+  if (LFX.t - LFX.palAt > 150) { LFX.pal = lfxPalette(); LFX.palAt = LFX.t; }
+  const P = LFX.pal;
+
+  ctx.clearRect(0, 0, LFX.w, LFX.h);
+
+  // Soft washes. Big radial gradients are already smooth, so there's no
+  // need for an expensive ctx.filter blur to get the diffused look.
+  LFX.blobs.forEach(b => {
+    b.a += b.sp;
+    const x = b.x + Math.cos(b.a) * b.rx;
+    const y = b.y + Math.sin(b.a * 0.8) * b.ry;
+    const r = b.r * (1 + Math.sin(b.a * 0.5) * 0.08);
+    const col = P[b.tone];
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${col[0]},${col[1]},${col[2]},${b.al})`);
+    g.addColorStop(1, `rgba(${col[0]},${col[1]},${col[2]},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  });
+
+  // Motes drifting up, with a gentle lateral sway.
+  const A = P.m;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  LFX.parts.forEach(p => {
+    p.y -= p.vy;
+    p.x += Math.sin((LFX.t + p.ph) * 0.004) * p.sway;
+    // Off the top: respawn at the bottom as a different figure, so the same
+    // number never visibly cycles past twice.
+    if (p.y < -30) { p.y = LFX.h + 30; p.x = Math.random() * LFX.w; p.txt = lfxPickNum(); }
+    if (p.x < -70) p.x = LFX.w + 70;
+    else if (p.x > LFX.w + 70) p.x = -70;
+    ctx.font = p.size.toFixed(1) + 'px ' + LFX.font;
+    ctx.fillStyle = `rgba(${A[0]},${A[1]},${A[2]},${p.al})`;
+    ctx.fillText(p.txt, p.x, p.y);
+  });
+
+  LFX.raf = requestAnimationFrame(lfxFrame);
+}
+
+function landingFXStart() {
+  const c = document.getElementById('landing-fx');
+  if (!c || LFX.raf) return;
+  if (landingReduceMotion()) { c.style.display = 'none'; return; }
+  LFX.t = 0; LFX.palAt = -999;
+  lfxSize();
+  lfxSeed();
+  LFX.raf = requestAnimationFrame(lfxFrame);
+}
+
+function landingFXStop() {
+  if (LFX.raf) { cancelAnimationFrame(LFX.raf); LFX.raf = 0; }
+}
+
+// Each block fades up as it comes into view, the first screen included.
+// The overlay is the scrolling element, not the document, so it has to be
+// the observer root or nothing below the fold would ever trigger.
+let _lfxStagger = 0, _lfxStaggerTimer = 0, _lfxFailsafe = 0, _lfxIoAlive = false;
+function landingRevealContent() {
+  const wrap = document.getElementById('landing-content');
+  const root = document.getElementById('landing-overlay');
+  if (!wrap) return;
+  const kids = [].slice.call(wrap.children);
+
+  if (LFX.io) { LFX.io.disconnect(); LFX.io = null; }
+
+  // No observer support, or the visitor wants no motion: just show it all.
+  if (landingReduceMotion() || !('IntersectionObserver' in window)) {
+    kids.forEach(el => { el.classList.remove('landing-reveal'); el.style.transitionDelay = ''; });
+    return;
+  }
+
+  kids.forEach(el => {
+    el.classList.remove('landing-in');
+    el.classList.add('landing-reveal');
+    el.style.transitionDelay = '';
+  });
+
+  _lfxIoAlive = false;
+  LFX.io = new IntersectionObserver((entries, obs) => {
+    _lfxIoAlive = true;              // it's delivering; the failsafe stands down
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      // Blocks arriving together are staggered; the counter resets between
+      // batches so a lone block scrolled to later doesn't inherit a delay.
+      en.target.style.transitionDelay = Math.min(_lfxStagger++, 6) * 80 + 'ms';
+      en.target.classList.add('landing-in');
+      obs.unobserve(en.target);
+    });
+    clearTimeout(_lfxStaggerTimer);
+    _lfxStaggerTimer = setTimeout(() => { _lfxStagger = 0; }, 350);
+  }, { root: root, rootMargin: '0px 0px -10% 0px', threshold: 0.06 });
+
+  kids.forEach(el => LFX.io.observe(el));
+
+  // Failsafe. Observer callbacks are delivered as part of the rendering
+  // steps, so anything that stalls those (a backgrounded tab, a browser
+  // quirk) would leave the page sitting at opacity 0, and a marketing page
+  // must never be blank. Only fires if the observer has delivered nothing at
+  // all — otherwise it would pre-reveal the below-fold blocks and there'd be
+  // nothing left to animate on scroll.
+  clearTimeout(_lfxFailsafe);
+  _lfxFailsafe = setTimeout(() => {
+    if (_lfxIoAlive) return;
+    kids.forEach(el => el.classList.add('landing-in'));
+  }, 1400);
+}
+
+function landingIsOpen() {
+  const el = document.getElementById('landing-overlay');
+  return !!el && getComputedStyle(el).display !== 'none';
+}
+
+window.addEventListener('resize', () => { if (LFX.raf) { lfxSize(); lfxSeed(); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) landingFXStop();
+  else if (landingIsOpen()) landingFXStart();
+});
+// The landing is on screen at load for signed-out visitors, before any
+// landingShow() call, so kick it off once the DOM has settled.
+setTimeout(() => { if (landingIsOpen()) { landingFXStart(); landingRevealContent(); } }, 0);
+
+function landingShow() {
+  const el = document.getElementById('landing-overlay');
+  if (el) el.style.display = 'flex';
+  try { landingFXStart(); landingRevealContent(); } catch (e) {}
+}
+function landingHide() {
+  const el = document.getElementById('landing-overlay');
+  if (el) el.style.display = 'none';
+  try { landingFXStop(); } catch (e) {}   // don't animate behind a hidden overlay
+}
 function cloudConnectPrompt() {
   if (!sbClient) { alert('Cloud library not loaded. Check your internet connection and reload.'); return; }
   _cloudAuthMode = 'signin';
