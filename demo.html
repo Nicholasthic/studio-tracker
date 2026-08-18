@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.08.18-1421">
-<meta name="lumin-build" content="2026.08.18-1421"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.08.18-1425">
+<meta name="lumin-build" content="2026.08.18-1425"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -160,9 +160,35 @@ html[data-theme="money"] .kpi-value {
 }
 .landing-reveal.landing-in { opacity: 1; transform: none; }
 
+/* The name, spelled out. Letters cascade in once the block itself lands. */
+.sums-acronym { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+.sums-acronym-item {
+  min-width: 74px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .6s cubic-bezier(.22,.61,.36,1), transform .6s cubic-bezier(.22,.61,.36,1);
+}
+.landing-in .sums-acronym-item { opacity: 1; transform: none; }
+.landing-in .sums-acronym-item:nth-child(1) { transition-delay: .10s; }
+.landing-in .sums-acronym-item:nth-child(2) { transition-delay: .22s; }
+.landing-in .sums-acronym-item:nth-child(3) { transition-delay: .34s; }
+.landing-in .sums-acronym-item:nth-child(4) { transition-delay: .46s; }
+.sums-letter { font-family: var(--serif); font-style: italic; font-size: 54px; line-height: 1; color: var(--accent); }
+.sums-word { font-size: 15px; color: var(--muted); margin-top: 9px; }
+.sums-eyebrow {
+  font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted2); margin-bottom: 26px;
+}
+@media (max-width: 640px) {
+  .sums-acronym { gap: 20px; }
+  .sums-letter { font-size: 40px; }
+  .sums-acronym-item { min-width: 62px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html[data-theme="money"] .kpi-value { animation: none; background: none; -webkit-text-fill-color: currentColor; }
   .landing-reveal { opacity: 1; transform: none; transition: none; }
+  .sums-acronym-item { opacity: 1; transform: none; transition: none; }
   #landing-fx { display: none; }
 }
 /* ── Lucky Break: a Money theme exclusive ── */
@@ -2796,6 +2822,16 @@ try {
       <button class="btn btn-ghost" style="padding:14px 32px;font-size:16px" onclick="window.open('demo.html','_blank')">Try the Demo</button>
     </div>
     <div style="font-size:13px;color:var(--muted2);margin:0 auto 88px">The demo is a full walkthrough with sample data. No sign-up needed.</div>
+    <div style="margin-bottom:92px">
+      <div class="sums-eyebrow">What sums stands for</div>
+      <div class="sums-acronym">
+        <div class="sums-acronym-item"><div class="sums-letter">S</div><div class="sums-word">Sums</div></div>
+        <div class="sums-acronym-item"><div class="sums-letter">U</div><div class="sums-word">Up</div></div>
+        <div class="sums-acronym-item"><div class="sums-letter">M</div><div class="sums-word">My</div></div>
+        <div class="sums-acronym-item"><div class="sums-letter">S</div><div class="sums-word">Studio</div></div>
+      </div>
+      <p style="font-size:16px;color:var(--muted);max-width:540px;margin:30px auto 0;line-height:1.6">Every number your studio makes, added up and handed back to you in plain language.</p>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:36px;margin-bottom:64px;text-align:left">
       <div>
         <div style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--accent);margin-bottom:10px">Daily entries</div>
@@ -15547,7 +15583,10 @@ function landingRevealContent() {
 
   // No observer support, or the visitor wants no motion: just show it all.
   if (landingReduceMotion() || !('IntersectionObserver' in window)) {
-    kids.forEach(el => { el.classList.remove('landing-reveal'); el.style.transitionDelay = ''; });
+    // Add landing-in rather than stripping landing-reveal: nested bits like
+    // the acronym letters key off .landing-in on their parent, so removing
+    // the class outright would leave them stuck at opacity 0.
+    kids.forEach(el => { el.classList.add('landing-reveal', 'landing-in'); el.style.transitionDelay = ''; });
     return;
   }
 
