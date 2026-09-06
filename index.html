@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.08.20-1702">
-<meta name="lumin-build" content="2026.08.20-1702"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.06-1100">
+<meta name="lumin-build" content="2026.09.06-1100"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3189,6 +3189,93 @@ body.manager-view .owner-only { display: none !important; }
   .ts-day-table tbody tr:last-child { border-bottom: none; }
 }
 </style>
+<style id="staffroi-css">
+/* ===== STAFF ROI (owner-only) — self-contained palette, app fonts ===== */
+.roi{--sroi-canvas:#E7E9E3;--sroi-surface:#F7F8F4;--sroi-panel:#233230;--sroi-panel-2:#2E403D;
+ --sroi-ink:#1C2321;--sroi-muted:#5F6D69;--sroi-rule:#CBD2C8;--sroi-rule-dk:#41544F;
+ --sroi-brass:#A8791F;--sroi-parch:#E6E4D8;
+ background:var(--sroi-canvas);color:var(--sroi-ink);font-family:var(--font);
+ font-size:15px;line-height:1.55;padding:18px 14px 34px;border-radius:14px}
+.roi *{box-sizing:border-box}
+.roi input,.roi select,.roi button{font-family:var(--font)}
+
+.roi .sroi-locked{max-width:44ch;margin:60px auto;text-align:center}
+.roi .sroi-locked h2{font-size:20px;margin:0 0 8px}
+.roi .sroi-locked p{color:var(--sroi-muted);margin:0}
+
+.roi .sroi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+ max-width:920px;margin:0 auto 16px;flex-wrap:wrap}
+.roi .sroi-top h1{font-weight:800;letter-spacing:-.02em;
+ font-size:clamp(24px,5.5vw,32px);line-height:1.05;margin:0 0 4px}
+.roi .sroi-top p{margin:0;color:var(--sroi-muted);font-size:14px;max-width:52ch}
+.roi .sroi-period{border:1px solid var(--sroi-rule);border-radius:2px;background:#fff;padding:8px 10px;
+ font-size:13px;font-weight:700;color:var(--sroi-ink)}
+
+.roi .sroi-board{max-width:920px;margin:0 auto 16px;display:grid;gap:8px;
+ grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.roi .sroi-card{text-align:left;background:var(--sroi-surface);border:1px solid var(--sroi-rule);border-radius:2px;
+ padding:11px 12px;display:flex;flex-direction:column;gap:2px;cursor:pointer;color:var(--sroi-ink)}
+.roi .sroi-card.on{border-color:var(--sroi-panel);box-shadow:inset 3px 0 0 var(--sroi-brass)}
+.roi .sroi-card .nm{font-size:13px;font-weight:700;color:var(--sroi-muted)}
+.roi .sroi-card .pf{font-size:22px;font-weight:800;letter-spacing:-.02em;font-family:var(--mono)}
+.roi .sroi-card .pf.up{color:#2F6B4F}.roi .sroi-card .pf.dn{color:#9A3B2E}
+.roi .sroi-card .sub{font-size:12.5px;color:var(--sroi-muted)}
+
+.roi .sroi-panel{max-width:920px;margin:0 auto;background:var(--sroi-panel);color:var(--sroi-parch);border-radius:2px;
+ box-shadow:0 18px 40px -24px rgba(28,35,33,.6)}
+.roi .sroi-verdict{padding:18px 18px 16px;border-bottom:1px solid var(--sroi-rule-dk)}
+.roi .sroi-verdict small{font-size:12.5px;color:#9FB0AB;display:block;margin-bottom:4px}
+.roi .sroi-big{font-weight:800;letter-spacing:-.03em;font-family:var(--mono);
+ font-size:clamp(32px,8vw,44px);line-height:1}
+.roi .sroi-big.up{color:#8FCFA6}.roi .sroi-big.dn{color:#E5907F}
+.roi .sroi-yr{font-size:12.5px;color:#9FB0AB;margin-top:6px}
+
+.roi .sroi-gauge{padding:16px 18px;border-bottom:1px solid var(--sroi-rule-dk)}
+.roi .sroi-gauge p{margin:0 0 14px;font-size:13.5px;color:#9FB0AB}
+.roi .sroi-meter{position:relative;height:30px}
+.roi .sroi-track{position:absolute;left:0;right:0;top:8px;height:14px;background:var(--sroi-panel-2);
+ border:1px solid var(--sroi-rule-dk)}
+.roi .sroi-fill{position:absolute;left:0;top:0;bottom:0;background:var(--sroi-brass);transition:width .18s ease}
+.roi .sroi-fill.ok{background:#57996F}
+.roi .sroi-mark{position:absolute;top:0;width:2px;height:30px;background:var(--sroi-parch)}
+.roi .sroi-mark span{position:absolute;bottom:-17px;transform:translateX(-50%);white-space:nowrap;
+ font-size:10.5px;font-weight:700;color:var(--sroi-parch)}
+.roi .sroi-scale{display:flex;justify-content:space-between;font-size:10.5px;color:#7E908B;margin-top:20px}
+
+.roi .sroi-rows{padding:4px 18px 16px;display:grid;gap:0;grid-template-columns:1fr}
+@media(min-width:720px){.roi .sroi-rows{grid-template-columns:1fr 1fr;column-gap:28px}}
+.roi .sroi-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;
+ border-bottom:1px solid var(--sroi-rule-dk);font-size:13.5px}
+.roi .sroi-row span{color:#9FB0AB}
+.roi .sroi-row b{font-weight:700;font-size:16px;color:var(--sroi-parch);font-family:var(--mono)}
+.roi .sroi-row.key b{font-size:20px;color:#fff}
+
+.roi .sroi-assump{max-width:920px;margin:14px auto 0;background:var(--sroi-surface);
+ border:1px solid var(--sroi-rule);border-radius:2px}
+.roi .sroi-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;
+ background:none;border:0;padding:12px 14px;cursor:pointer;font-size:13px;font-weight:700;color:var(--sroi-ink)}
+.roi .sroi-toggle em{font-style:normal;font-weight:500;color:var(--sroi-muted);font-size:12.5px}
+.roi .sroi-ass-b{padding:0 14px 12px;border-top:1px solid var(--sroi-rule)}
+.roi .sroi-reset{margin:12px 0 0;background:none;border:1px solid var(--sroi-rule);border-radius:2px;
+ padding:6px 10px;font-size:12.5px;font-weight:700;color:var(--sroi-muted);cursor:pointer}
+.roi .sroi-grp{margin-top:14px}
+.roi .sroi-grp h3{font-size:12.5px;font-weight:700;margin:0 0 2px;color:var(--sroi-muted)}
+.roi .sroi-fld{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;
+ border-bottom:1px solid var(--sroi-rule)}
+.roi .sroi-grp .sroi-fld:last-child{border-bottom:0}
+.roi .sroi-fld-l{display:flex;flex-direction:column;min-width:0;font-size:14px}
+.roi .sroi-fld-l em{font-style:normal;font-size:11.5px;color:var(--sroi-muted)}
+.roi .sroi-fld-i{display:flex;align-items:center;gap:3px;border:1px solid var(--sroi-rule);border-radius:2px;
+ background:#fff;padding:0 7px}
+.roi .sroi-fld-i.edited{border-color:var(--sroi-brass);box-shadow:inset 0 -2px 0 var(--sroi-brass)}
+.roi .sroi-fld-i:focus-within{border-color:var(--sroi-brass)}
+.roi .sroi-fld-i b{font-weight:500;font-size:12.5px;color:var(--sroi-muted)}
+.roi .sroi-fld-i input{width:70px;border:0;background:transparent;text-align:right;font-size:15px;
+ font-weight:700;color:var(--sroi-ink);padding:7px 0;-moz-appearance:textfield;font-family:var(--mono)}
+.roi .sroi-fld-i input:focus{outline:none}
+.roi .sroi-fld-i input::-webkit-outer-spin-button,.roi .sroi-fld-i input::-webkit-inner-spin-button{
+ -webkit-appearance:none;margin:0}
+</style>
 <script>
 // Apply the saved colour theme + light/dark mode before first paint so there's no flash
 try {
@@ -3416,6 +3503,10 @@ try {
       </svg>
       Tax &amp; BAS
     </button>
+    <button class="nav-item owner-only" onclick="showPage('staffroi')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="5" cy="4.5" r="2.3" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 13c0-2.4 1.9-4.3 4.3-4.3 1 0 1.9.3 2.6.9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 12.5 11.5 9l1.5 1.5 2-3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Staff ROI
+    </button>
     <div class="nav-section-label">Settings</div>
     <button class="nav-item" onclick="showPage('pinmgmt')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v1.7M8 12.8v1.7M14.5 8h-1.7M3.2 8H1.5M12.6 3.4l-1.2 1.2M4.6 11.4l-1.2 1.2M12.6 12.6l-1.2-1.2M4.6 4.6 3.4 3.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -3630,7 +3721,7 @@ try {
     <div class="day-toggle-row" id="day-toggle-row" role="group" aria-label="Days open">
       <span class="day-toggle-label">Show days:</span>
       <label class="day-toggle weekend" id="dt-0"><input type="checkbox" onchange="toggleDay(0,this)"><span class="day-toggle-inner">Sun</span></label>
-      <label class="day-toggle" id="dt-1"><input type="checkbox" onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
+      <label class="day-toggle active" id="dt-1"><input type="checkbox" checked onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
       <label class="day-toggle active" id="dt-2"><input type="checkbox" checked onchange="toggleDay(2,this)"><span class="day-toggle-inner">Tue</span></label>
       <label class="day-toggle active" id="dt-3"><input type="checkbox" checked onchange="toggleDay(3,this)"><span class="day-toggle-inner">Wed</span></label>
       <label class="day-toggle active" id="dt-4"><input type="checkbox" checked onchange="toggleDay(4,this)"><span class="day-toggle-inner">Thu</span></label>
@@ -4595,6 +4686,13 @@ try {
       Company: 25% base-rate company tax. Sole trader: individual marginal income-tax rates, with an optional 2% Medicare levy. GST 10% when registered. Super Guarantee 12% from 1 Jul 2025.
     </div>
 
+  </div>
+
+
+
+  <!-- ======================== STAFF ROI ======================== -->
+  <div class="page" id="page-staffroi">
+    <div class="roi" id="staffroi-root"></div>
   </div>
 
 
@@ -5584,7 +5682,7 @@ function showPage(id) {
     try { if (typeof saveEntryData === 'function') saveEntryData(); } catch (e) {}
   }
   // Owner-only pages — Manager and Stylist roles get bounced to the dashboard
-  if ((id === 'pl' || id === 'taxbas') && pinSessionUser !== 'admin') id = 'dashboard';
+  if ((id === 'pl' || id === 'taxbas' || id === 'staffroi') && pinSessionUser !== 'admin') id = 'dashboard';
   // Tier soft gates — Solo plan blocks team-only pages with an upgrade prompt
   if (id === 'leaderboard' && typeof canUseLeaderboard === 'function' && !canUseLeaderboard()) {
     showPricingModal('The Leaderboard ranks your whole team. Upgrade to Studio to unlock it, plus unlimited stylists, contractor invoicing, and more.');
@@ -5604,7 +5702,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -5619,6 +5717,7 @@ function showPage(id) {
   if (id === 'export') renderExportPage();
   if (id === 'pl') renderPL();
   if (id === 'taxbas') renderTaxBAS();
+  if (id === 'staffroi') renderStaffROI();
   if (id === 'goals') renderGoals();
   if (id === 'timesheets') { renderTSStaffChips(); renderTimesheets(); }
   if (id === 'roster') { rosterInitStaff(); rosterRenderAll(); }
@@ -6053,19 +6152,57 @@ function setWeeklyFilter(f) {
 }
 
 // ===================== WEEK DAYS STATE =====================
-let activeDays = new Set([2,3,4,5,6]); // Tue–Sat checked by default
+// Which weekdays the Weekly view lists day-by-day. Saved per studio so a choice
+// survives a reload instead of snapping back every session. Week totals cover the
+// whole Mon–Sun week regardless of this, so hiding a day never hides its takings.
+const DEFAULT_ACTIVE_DAYS = [1,2,3,4,5,6]; // Mon–Sat
+let activeDays = null; // resolved lazily, once the active studio is known
+
+function loadActiveDays() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(studioKey('ejActiveDays')) || 'null');
+    if (!Array.isArray(arr)) return new Set(DEFAULT_ACTIVE_DAYS);
+    const days = arr.map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6);
+    return new Set(days);
+  } catch { return new Set(DEFAULT_ACTIVE_DAYS); }
+}
+function saveActiveDays() {
+  try { localStorage.setItem(studioKey('ejActiveDays'), JSON.stringify([...activeDays].sort())); } catch {}
+}
+function getActiveDays() {
+  if (!activeDays) activeDays = loadActiveDays();
+  return activeDays;
+}
+// Called when the active studio changes so the next render picks up that studio's choice.
+function resetActiveDays() { activeDays = null; }
+
+// Push the saved state onto the checkboxes so the controls match what's rendered.
+function syncDayToggles() {
+  const days = getActiveDays();
+  for (let i = 0; i < 7; i++) {
+    const label = document.getElementById('dt-' + i);
+    if (!label) continue;
+    const cb = label.querySelector('input[type=checkbox]');
+    const on = days.has(i);
+    if (cb) cb.checked = on;
+    label.classList.toggle('active', on);
+    label.classList.toggle('weekend', !on && (i === 0 || i === 6));
+  }
+}
 
 function toggleDay(dayIdx, cb) {
+  const days = getActiveDays();
   const label = document.getElementById('dt-' + dayIdx);
   if (cb.checked) {
-    activeDays.add(dayIdx);
+    days.add(dayIdx);
     label.classList.add('active');
     label.classList.remove('weekend');
   } else {
-    activeDays.delete(dayIdx);
+    days.delete(dayIdx);
     label.classList.remove('active');
     if (dayIdx === 0 || dayIdx === 6) label.classList.add('weekend');
   }
+  saveActiveDays();
   renderWeekly();
 }
 
@@ -6643,11 +6780,13 @@ function renderWeekly() {
         `<button class="filter-btn ${activeWeeklyFilter === m ? 'active' : ''}" onclick="setWeeklyFilter('${m}')">${m}</button>`
       ).join('');
   }
+  syncDayToggles();
+  const dayFilter = getActiveDays();
   const allEnt = filteredEntries(activeWeeklyFilter);
   // Filter by active days
   const entries = allEnt.filter(e => {
     const d = new Date(e.date + 'T00:00:00');
-    return activeDays.has(d.getDay());
+    return dayFilter.has(d.getDay());
   });
 
   const weeks = {};
@@ -6675,25 +6814,29 @@ function renderWeekly() {
       d.setDate(monday.getDate() + i);
       const iso = toLocalISO(d);
       const dayIdx = d.getDay();
-      const isActive = activeDays.has(dayIdx);
+      const isActive = dayFilter.has(dayIdx);
       const entry = w.allEntries.find(e => e.date === iso);
       days7.push({ date: iso, dayIdx, isActive, entry, d });
     }
 
-    const es = w.entries; // filtered days only
-    const totalC = es.reduce((s,e) => s + (e.ret||0) + (e.newC||0), 0);
-    const totalR = es.reduce((s,e) => s + (e.total||0), 0);
+    const es = w.entries; // day filter applied — drives the day-by-day table below
+    // Header totals always cover the full Mon–Sun week, so they match the dashboard
+    // and the weekly export. The day toggles filter what's listed, not what's counted.
+    const wk = w.allEntries;
+    const hiddenWithData = wk.filter(e => !es.includes(e) && ((e.total||0) > 0 || (e.ret||0) + (e.newC||0) > 0));
+    const totalC = wk.reduce((s,e) => s + (e.ret||0) + (e.newC||0), 0);
+    const totalR = wk.reduce((s,e) => s + (e.total||0), 0);
     const studioRate = getStudioRate() / 100;
-    const totalContractorGross = es.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
+    const totalContractorGross = wk.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
     const totalContractor = totalContractorGross * studioRate; // studio's 30% invoice amount
     // Extra weekly totals
-    const totalRetW    = es.reduce((s,e) => s + (e.ret  || 0), 0);
-    const totalNewW    = es.reduce((s,e) => s + (e.newC || 0), 0);
-    const totalRetRW   = es.reduce((s,e) => s + (e.retR || 0), 0);
-    const totalNewRW   = es.reduce((s,e) => s + (e.newR || 0), 0);
-    const totalSvcW    = es.reduce((s,e) => s + (e.svc  || 0), 0);
-    const totalProdW   = es.reduce((s,e) => s + (e.prod || 0), 0);
-    const totalProdQtyW = es.reduce((s,e) => s + (e.prodQty || 0), 0);
+    const totalRetW    = wk.reduce((s,e) => s + (e.ret  || 0), 0);
+    const totalNewW    = wk.reduce((s,e) => s + (e.newC || 0), 0);
+    const totalRetRW   = wk.reduce((s,e) => s + (e.retR || 0), 0);
+    const totalNewRW   = wk.reduce((s,e) => s + (e.newR || 0), 0);
+    const totalSvcW    = wk.reduce((s,e) => s + (e.svc  || 0), 0);
+    const totalProdW   = wk.reduce((s,e) => s + (e.prod || 0), 0);
+    const totalProdQtyW = wk.reduce((s,e) => s + (e.prodQty || 0), 0);
     const retPctW = totalRetW > 0 ? (totalRetRW / totalRetW * 100).toFixed(0) : null;
     const newPctW = totalNewW > 0 ? (totalNewRW / totalNewW * 100).toFixed(0) : null;
 
@@ -6754,6 +6897,12 @@ function renderWeekly() {
 
     const emptyMsg = es.length === 0 ? `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px;font-size:14px">No data for visible days this week</td></tr>` : '';
 
+    // Days with takings that the day filter is hiding. Their money is still in the
+    // totals above, so say so rather than letting the table look like it disagrees.
+    const hiddenNote = hiddenWithData.length === 0 ? '' : `<div style="padding:10px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)">
+      ${hiddenWithData.length} day${hiddenWithData.length === 1 ? '' : 's'} hidden by the day filter (${hiddenWithData.map(e => DAY_NAMES[new Date(e.date + 'T00:00:00').getDay()]).join(', ')}) &mdash; still counted in the totals above.
+    </div>`;
+
     return `<div class="week-card">
       <div class="week-header">
         <div>
@@ -6782,6 +6931,7 @@ function renderWeekly() {
           <tbody>${rows}${emptyMsg}</tbody>
         </table>
       </div>
+      ${hiddenNote}
     </div>`;
   }).join('');
 
@@ -11178,6 +11328,394 @@ function exportInvoicePDF() {
   openPDF(`Contractor Invoice · ${cFilter==='all'?'All Contractors':cFilter}`,`${periodLabel} · ${rate}% studio rate`,INVOICE_EXPORT_HEADERS,rows,[['Total gross',`$${totalGross.toFixed(2)}`],['Total commission due',`$${totalInvoice.toFixed(2)}`,'total']]);
 }
 
+// ===================== STAFF ROI (owner-only) =====================
+// Staff cost vs return calculator. Inputs derive from the same aggregates that
+// feed Stylist Performance (per-entry e.sd rollups) and Timesheets
+// (ejTimesheets hours), plus pay rates, Tax & BAS super rate, and P&L fixed
+// expenses. Anything the tracker doesn't record falls back to a flagged
+// default the owner can override; overrides persist per stylist in ejStaffROI.
+
+const SROI_OWNER_ROLE = 'admin'; // the owner PIN's pinSessionUser value
+
+const SROI_FALLBACK = {
+  hourlyRate: 34, paidHours: 30, leaveLoading: 13, superRate: 12,
+  workCover: 1, payrollTax: 0, commission: 0,
+  bookableHours: 28, utilisation: 65, avgServicePrice: 95, avgServiceMins: 45,
+  consumables: 6, retailAttach: 20, avgRetailSale: 45, retailMargin: 55,
+  overhead: 150, targetProfit: 400,
+};
+
+const SROI_PERIODS = [
+  { id: '4w',  label: 'Last 4 weeks', weeks: 4 },
+  { id: '8w',  label: 'Last 8 weeks', weeks: 8 },
+  { id: '13w', label: 'Last quarter', weeks: 13 },
+];
+
+let sroiPeriodId = '4w';
+let sroiActiveName = null;
+let sroiOpen = false;
+
+// Contractors carry their own costs, so the wage model only fits employees.
+function sroiStaff() {
+  const emp = STYLISTS.filter(s => !s.isContractor);
+  return emp.length ? emp : STYLISTS;
+}
+
+function sroiLoadOverrides() {
+  try { return JSON.parse(localStorage.getItem(studioKey('ejStaffROI')) || '{}') || {}; } catch { return {}; }
+}
+function sroiSaveOverrides(all) {
+  localStorage.setItem(studioKey('ejStaffROI'), JSON.stringify(all));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejStaffROI'));
+}
+
+// Period aggregates for one stylist: the Stylist Performance rollup (clients,
+// service $, product $ and qty from each entry's e.sd) + the Timesheets rollup
+// (same calcHours as the Timesheets page).
+function sroiAggregates(name, weeks) {
+  const end = new Date(); end.setHours(0, 0, 0, 0);
+  const start = new Date(end); start.setDate(end.getDate() - weeks * 7 + 1);
+  const startISO = toLocalISO(start), endISO = toLocalISO(end);
+
+  let services = 0, svcRev = 0, retailRev = 0, retailTx = 0;
+  allEntries().forEach(e => {
+    if (!e.sd || !e.date || e.date < startISO || e.date > endISO) return;
+    const sd = e.sd[name];
+    if (!sd) return;
+    services  += sd.c || 0;
+    svcRev    += sd.svc || 0;
+    retailRev += sd.prod || 0;
+    retailTx  += sd.prodQty || 0;
+  });
+
+  let tsHours = 0, hasTS = false;
+  const ts = loadTSData();
+  Object.keys(ts).forEach(k => {
+    // keys are `${staffName}__${dateISO}`; the date is always the last 10 chars
+    const date = k.slice(-10);
+    if (k.slice(0, -12) !== name || date < startISO || date > endISO) return;
+    const row = ts[k] || {};
+    const h = (row.hours != null && isFinite(row.hours))
+      ? row.hours
+      : calcHours(row.start || '', row.end || '', parseFloat(row.break) || 0);
+    if (h != null && isFinite(h) && h > 0) { tsHours += h; hasTS = true; }
+  });
+
+  return { services, svcRev, retailRev, retailTx, tsHours: hasTS ? tsHours : undefined };
+}
+
+function sroiSuperRate() {
+  try {
+    const todayISO = toLocalISO(new Date());
+    const q = getAuQuarters().find(x => todayISO >= x.startISO && todayISO <= x.endISO);
+    return getTaxBASRates(q ? q.key : '').superRate;
+  } catch { return undefined; }
+}
+
+// Weekly share of P&L fixed expenses per employed head
+function sroiWeeklyOverheadPerHead() {
+  try {
+    const fixed = loadFixedExpenses();
+    const monthly = Object.values(fixed).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+    if (monthly <= 0) return undefined;
+    return (monthly * 12 / 52) / Math.max(1, sroiStaff().length);
+  } catch { return undefined; }
+}
+
+// Returns { value, source } per field. source is "tracker" or "default";
+// anything left undefined falls back to SROI_FALLBACK and gets flagged.
+function sroiDeriveInputs(name, period) {
+  const w = period.weeks || 1;
+  const t = sroiAggregates(name, w);
+
+  const paidHours = t.tsHours != null ? t.tsHours / w : undefined;
+  // Hours on the clock are hours the chair is bookable
+  const bookableHours = paidHours;
+  const servicesPerWeek = t.services > 0 ? t.services / w : undefined;
+  const rate = getPayRate(name);
+
+  return sroiPack({
+    hourlyRate: rate > 0 ? rate : undefined,
+    paidHours,
+    leaveLoading: undefined,       // employment type (casual vs permanent) not tracked
+    superRate: sroiSuperRate(),    // Tax & BAS super guarantee rate
+    workCover: undefined,          // not tracked
+    payrollTax: undefined,         // not tracked
+    commission: undefined,         // employee commission not tracked
+
+    bookableHours,
+    // Real appointment counts + the assumed appointment length back out how
+    // full the chair runs; booked minutes themselves aren't tracked
+    utilisation: bookableHours && servicesPerWeek
+      ? (servicesPerWeek * SROI_FALLBACK.avgServiceMins / 60) / bookableHours * 100
+      : undefined,
+    avgServicePrice: t.services && t.svcRev ? t.svcRev / t.services : undefined,
+    avgServiceMins: undefined,     // appointment lengths not tracked
+    consumables: undefined,        // product cost per service not tracked
+
+    retailAttach: t.services && t.retailTx ? (t.retailTx / t.services) * 100 : undefined,
+    avgRetailSale: t.retailTx && t.retailRev ? t.retailRev / t.retailTx : undefined,
+    retailMargin: undefined,       // product cost prices not tracked
+
+    overhead: sroiWeeklyOverheadPerHead(),
+    targetProfit: undefined,
+  });
+}
+
+function sroiPack(raw) {
+  const out = {};
+  for (const k of Object.keys(SROI_FALLBACK)) {
+    const v = raw[k];
+    const ok = v != null && isFinite(v);
+    out[k] = { value: ok ? Number(v) : SROI_FALLBACK[k], source: ok ? 'tracker' : 'default' };
+  }
+  return out;
+}
+
+function sroiCalculate(v) {
+  const pct = (n) => (Number(n) || 0) / 100;
+
+  const loadFactor =
+    (1 + pct(v.leaveLoading)) *
+    (1 + pct(v.superRate) + pct(v.workCover) + pct(v.payrollTax));
+  const loadedRate = (Number(v.hourlyRate) || 0) * loadFactor;
+  const wageCost = loadedRate * (Number(v.paidHours) || 0);
+
+  const productiveHours = (Number(v.bookableHours) || 0) * pct(v.utilisation);
+  const mins = Number(v.avgServiceMins) || 1;
+  const services = (productiveHours * 60) / mins;
+
+  const price = Number(v.avgServicePrice) || 0;
+  const retailPerService = pct(v.retailAttach) * (Number(v.avgRetailSale) || 0);
+  const retailGP = retailPerService * pct(v.retailMargin);
+
+  const contribution = price - (Number(v.consumables) || 0) + retailGP;
+  const contributionNet = contribution - price * pct(v.commission);
+
+  const serviceRevenue = services * price;
+  const commissionCost = serviceRevenue * pct(v.commission);
+  const staffCost = wageCost + commissionCost;
+
+  const grossReturn = services * contribution;
+  const overhead = Number(v.overhead) || 0;
+  const profit = grossReturn - staffCost - overhead;
+
+  const breakEvenServices =
+    contributionNet > 0 ? (wageCost + overhead) / contributionNet : Infinity;
+  const breakEvenHours = (breakEvenServices * mins) / 60;
+  const breakEvenUtil =
+    (Number(v.bookableHours) || 0) > 0
+      ? (breakEvenHours / v.bookableHours) * 100
+      : Infinity;
+
+  const maxRate =
+    (Number(v.paidHours) || 0) > 0
+      ? (grossReturn - commissionCost - overhead - (Number(v.targetProfit) || 0)) /
+        (loadFactor * v.paidHours)
+      : 0;
+
+  return {
+    loadedRate, wageCost, staffCost, services, grossReturn, profit,
+    returnMultiple: staffCost > 0 ? grossReturn / staffCost : 0,
+    breakEvenServices, breakEvenUtil, maxRate,
+    profitPerService: services > 0 ? profit / services : 0,
+  };
+}
+
+const sroiMoney = (n, dp = 0) =>
+  (isFinite(n) ? n : 0).toLocaleString('en-AU', {
+    style: 'currency', currency: 'AUD',
+    minimumFractionDigits: dp, maximumFractionDigits: dp,
+  });
+const sroiNum = (n, dp = 1) => (isFinite(n) ? n.toFixed(dp) : '-');
+
+const SROI_GROUPS = [
+  { title: 'What you pay them', fields: [
+    ['hourlyRate', 'Hourly rate', '$', '/hr', 0.5],
+    ['paidHours', 'Paid hours', '', 'hrs/wk', 1],
+    ['leaveLoading', 'Leave and absence', '', '%', 0.5],
+    ['superRate', 'Super', '', '%', 0.5],
+    ['workCover', 'WorkCover', '', '%', 0.1],
+    ['payrollTax', 'Payroll tax', '', '%', 0.1],
+    ['commission', 'Commission on services', '', '%', 1],
+  ]},
+  { title: 'What their book does', fields: [
+    ['bookableHours', 'Bookable hours', '', 'hrs/wk', 1],
+    ['utilisation', 'Utilisation', '', '%', 1],
+    ['avgServicePrice', 'Average service price', '$', '', 5],
+    ['avgServiceMins', 'Average appointment', '', 'min', 5],
+    ['consumables', 'Product per service', '$', '', 0.5],
+  ]},
+  { title: 'Retail they sell', fields: [
+    ['retailAttach', 'Clients who buy', '', '%', 5],
+    ['avgRetailSale', 'Average sale', '$', '', 5],
+    ['retailMargin', 'Your margin on it', '', '%', 5],
+  ]},
+  { title: 'Overheads and target', fields: [
+    ['overhead', 'Overhead carried', '$', '/wk', 25],
+    ['targetProfit', 'Profit you want', '$', '/wk', 50],
+  ]},
+];
+
+function sroiResolve(name, derived, overridesAll) {
+  const d = derived[name] || {};
+  const o = overridesAll[name] || {};
+  const out = {};
+  for (const k of Object.keys(SROI_FALLBACK)) {
+    out[k] = (o[k] != null) ? o[k] : (d[k] ? d[k].value : SROI_FALLBACK[k]);
+  }
+  return out;
+}
+
+function sroiSetPeriod(id) { sroiPeriodId = id; renderStaffROI(); }
+function sroiSelect(i) {
+  const s = sroiStaff()[i];
+  if (s) { sroiActiveName = s.name; renderStaffROI(); }
+}
+function sroiToggleAssump() { sroiOpen = !sroiOpen; renderStaffROI(); }
+
+function sroiSetField(k, val) {
+  if (!sroiActiveName) return;
+  const all = sroiLoadOverrides();
+  if (!all[sroiActiveName]) all[sroiActiveName] = {};
+  const n = parseFloat(val);
+  if (val === '' || !isFinite(n)) delete all[sroiActiveName][k];  // blank reverts to tracker figure
+  else all[sroiActiveName][k] = n;
+  if (Object.keys(all[sroiActiveName]).length === 0) delete all[sroiActiveName];
+  sroiSaveOverrides(all);
+  renderStaffROI();
+}
+
+function sroiClearOverrides() {
+  if (!sroiActiveName) return;
+  const all = sroiLoadOverrides();
+  delete all[sroiActiveName];
+  sroiSaveOverrides(all);
+  renderStaffROI();
+}
+
+function renderStaffROI() {
+  const root = document.getElementById('staffroi-root');
+  if (!root) return;
+
+  if (pinSessionUser !== SROI_OWNER_ROLE) {
+    root.innerHTML =
+      '<div class="sroi-locked"><h2>Owner access only</h2>' +
+      '<p>This section holds wage and margin figures for every stylist. Sign in with the owner PIN to open it.</p></div>';
+    return;
+  }
+
+  const staff = sroiStaff();
+  if (!staff.length) {
+    root.innerHTML =
+      '<div class="sroi-locked"><h2>No stylists yet</h2>' +
+      '<p>Add stylists on the Stylists page, then come back here to see what each one costs and returns.</p></div>';
+    return;
+  }
+
+  const period = SROI_PERIODS.find(p => p.id === sroiPeriodId) || SROI_PERIODS[0];
+  const overridesAll = sroiLoadOverrides();
+  const derived = {};
+  staff.forEach(s => { derived[s.name] = sroiDeriveInputs(s.name, period); });
+
+  if (!sroiActiveName || !staff.some(s => s.name === sroiActiveName)) sroiActiveName = staff[0].name;
+
+  const ranked = staff
+    .map((s, i) => ({ s, i, r: sroiCalculate(sroiResolve(s.name, derived, overridesAll)) }))
+    .sort((a, b) => b.r.profit - a.r.profit);
+
+  const inputs = sroiResolve(sroiActiveName, derived, overridesAll);
+  const r = sroiCalculate(inputs);
+
+  const util = Number(inputs.utilisation) || 0;
+  const be = r.breakEvenUtil;
+  const beClamped = Math.max(0, Math.min(100, isFinite(be) ? be : 100));
+  const activeOverrides = overridesAll[sroiActiveName] || {};
+  const dirty = Object.keys(activeOverrides).length > 0;
+  const excluded = STYLISTS.length - staff.length;
+
+  const boardHTML = ranked.map(x =>
+    '<button class="sroi-card' + (x.s.name === sroiActiveName ? ' on' : '') + '" onclick="sroiSelect(' + x.i + ')">' +
+      '<span class="nm">' + x.s.name + '</span>' +
+      '<span class="pf ' + (x.r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(x.r.profit) + '</span>' +
+      '<span class="sub">' + sroiNum(x.r.returnMultiple, 2) + 'x wage · ' + sroiNum(x.r.breakEvenUtil, 0) + '% to break even</span>' +
+    '</button>').join('');
+
+  const rowHTML = (label, v, key1) =>
+    '<div class="sroi-row' + (key1 ? ' key' : '') + '"><span>' + label + '</span><b>' + v + '</b></div>';
+
+  const assumpBody = !sroiOpen ? '' :
+    '<div class="sroi-ass-b">' +
+      (dirty ? '<button class="sroi-reset" onclick="sroiClearOverrides()">Reset to tracker figures</button>' : '') +
+      SROI_GROUPS.map(g =>
+        '<div class="sroi-grp"><h3>' + g.title + '</h3>' +
+        g.fields.map(f => {
+          const k = f[0], label = f[1], prefix = f[2], suffix = f[3], step = f[4];
+          const isOver = activeOverrides[k] != null;
+          const src = derived[sroiActiveName] && derived[sroiActiveName][k] ? derived[sroiActiveName][k].source : 'default';
+          const shown = Math.round((Number(inputs[k]) || 0) * 100) / 100;
+          return '<label class="sroi-fld">' +
+            '<span class="sroi-fld-l">' + label +
+              '<em>' + (isOver ? 'edited' : src === 'tracker' ? 'from tracker' : 'not tracked, using default') + '</em>' +
+            '</span>' +
+            '<span class="sroi-fld-i' + (isOver ? ' edited' : '') + '">' +
+              (prefix ? '<b>' + prefix + '</b>' : '') +
+              '<input type="number" step="' + step + '" value="' + shown + '" onchange="sroiSetField(\'' + k + '\', this.value)">' +
+              (suffix ? '<b>' + suffix + '</b>' : '') +
+            '</span>' +
+          '</label>';
+        }).join('') +
+        '</div>').join('') +
+    '</div>';
+
+  root.innerHTML =
+    '<header class="sroi-top">' +
+      '<div><h1>Staff cost vs return</h1>' +
+      '<p>Loaded wage against what each book brings in. Figures pulled from ' + period.label.toLowerCase() +
+      (excluded > 0 ? '. Contractors are left out: they carry their own costs.' : '.') + '</p></div>' +
+      '<select class="sroi-period" onchange="sroiSetPeriod(this.value)" aria-label="Staff ROI period">' +
+        SROI_PERIODS.map(p => '<option value="' + p.id + '"' + (p.id === period.id ? ' selected' : '') + '>' + p.label + '</option>').join('') +
+      '</select>' +
+    '</header>' +
+
+    '<div class="sroi-board">' + boardHTML + '</div>' +
+
+    '<div class="sroi-panel">' +
+      '<div class="sroi-verdict">' +
+        '<small>' + sroiActiveName + ' · weekly profit after wage and overhead</small>' +
+        '<div class="sroi-big ' + (r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(r.profit) + '</div>' +
+        '<div class="sroi-yr">' + sroiMoney(r.profit * 52) + ' a year at this rate</div>' +
+      '</div>' +
+      '<div class="sroi-gauge">' +
+        '<p>' + (isFinite(be) && be <= 100
+          ? 'Chair needs to run ' + sroiNum(be, 0) + '% full to cover the wage. Sitting at ' + sroiNum(util, 0) + '%.'
+          : 'Cannot break even at this price and hours.') + '</p>' +
+        '<div class="sroi-meter">' +
+          '<div class="sroi-track"><div class="sroi-fill' + (r.profit > 0 ? ' ok' : '') + '" style="width:' + Math.max(0, Math.min(100, util)) + '%"></div></div>' +
+          '<div class="sroi-mark" style="left:' + beClamped + '%"><span>break even</span></div>' +
+        '</div>' +
+        '<div class="sroi-scale"><span>0%</span><span>50%</span><span>100%</span></div>' +
+      '</div>' +
+      '<div class="sroi-rows">' +
+        rowHTML('True cost per paid hour', sroiMoney(r.loadedRate, 2), true) +
+        rowHTML('Real weekly cost', sroiMoney(r.staffCost)) +
+        rowHTML('Gross return', sroiMoney(r.grossReturn)) +
+        rowHTML('Return per $1 of wage', sroiNum(r.returnMultiple, 2) + 'x') +
+        rowHTML('Appointments a week', sroiNum(r.services, 1)) +
+        rowHTML('Appointments to break even', isFinite(r.breakEvenServices) ? sroiNum(r.breakEvenServices, 1) : '-') +
+        rowHTML('Profit per appointment', sroiMoney(r.profitPerService, 2)) +
+        rowHTML('Most you can pay per hour', sroiMoney(r.maxRate, 2), true) +
+      '</div>' +
+    '</div>' +
+
+    '<div class="sroi-assump">' +
+      '<button class="sroi-toggle" onclick="sroiToggleAssump()">' +
+        '<span>Assumptions</span>' +
+        '<em>' + (dirty ? 'edited' : 'from tracker') + ' ' + (sroiOpen ? '−' : '+') + '</em>' +
+      '</button>' + assumpBody +
+    '</div>';
+}
+
 // ===================== P&L =====================
 const EXPENSE_CATEGORIES = [
   { id: 'rent',         label: 'Rent / Studio Lease' },
@@ -11466,6 +12004,7 @@ function switchStudio(id) {
   if (el && studio) el.textContent = studio.name;
 
   // Reload all studio-scoped in-memory data
+  resetActiveDays();
   entryEnabledDays = new Set(getWorkingDays());
   userEntries = loadStorage();
   STYLISTS = (() => {
@@ -15040,7 +15579,7 @@ async function cloudPushKind(kind) {
 const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
-  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
+  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
   'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
@@ -15247,6 +15786,7 @@ function reloadActiveStudioData() {
     try { localStorage.setItem('ejActiveStudio', activeStudio); } catch (e) {}
   }
   updateBrandingFromStudio();
+  resetActiveDays();
   userEntries = loadStorage();
   try {
     const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
@@ -15715,6 +16255,7 @@ async function cloudFirstTimeSetup(studioName) {
     const color = (typeof STUDIO_COLORS !== 'undefined' && STUDIO_COLORS.length) ? STUDIO_COLORS[0] : '#b8967a';
     STUDIOS = [{ id: newId, name: studioName, color: color }];
     activeStudio = newId;
+    resetActiveDays();
     STYLISTS = [];
     userEntries = [];
     localStorage.setItem('ejStudios', JSON.stringify(STUDIOS));
