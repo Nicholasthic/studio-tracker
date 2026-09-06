@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.06-1100">
-<meta name="lumin-build" content="2026.09.06-1100"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.07-0904">
+<meta name="lumin-build" content="2026.09.07-0904"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11329,11 +11329,13 @@ function exportInvoicePDF() {
 }
 
 // ===================== STAFF ROI (owner-only) =====================
-// Staff cost vs return calculator. Inputs derive from the same aggregates that
-// feed Stylist Performance (per-entry e.sd rollups) and Timesheets
-// (ejTimesheets hours), plus pay rates, Tax & BAS super rate, and P&L fixed
-// expenses. Anything the tracker doesn't record falls back to a flagged
-// default the owner can override; overrides persist per stylist in ejStaffROI.
+// Staff cost vs return calculator, staff-only: wages, on-costs and commission
+// against the stylist's own takings. Studio overheads are NOT in the maths
+// (P&L fixed expenses only feed a context line). Inputs derive from the same
+// aggregates that feed Stylist Performance (per-entry e.sd rollups) and
+// Timesheets (ejTimesheets hours), plus pay rates and the Tax & BAS super
+// rate. Anything the tracker doesn't record falls back to a flagged default
+// the owner can override; overrides persist per stylist in ejStaffROI.
 
 const SROI_OWNER_ROLE = 'admin'; // the owner PIN's pinSessionUser value
 
@@ -11342,7 +11344,7 @@ const SROI_FALLBACK = {
   workCover: 1, payrollTax: 0, commission: 0,
   bookableHours: 28, utilisation: 65, avgServicePrice: 95, avgServiceMins: 45,
   consumables: 6, retailAttach: 20, avgRetailSale: 45, retailMargin: 55,
-  overhead: 150, targetProfit: 400,
+  targetProfit: 400,
 };
 
 const SROI_PERIODS = [
@@ -11457,7 +11459,6 @@ function sroiDeriveInputs(name, period) {
     avgRetailSale: t.retailTx && t.retailRev ? t.retailRev / t.retailTx : undefined,
     retailMargin: undefined,       // product cost prices not tracked
 
-    overhead: sroiWeeklyOverheadPerHead(),
     targetProfit: undefined,
   });
 }
@@ -11496,12 +11497,13 @@ function sroiCalculate(v) {
   const commissionCost = serviceRevenue * pct(v.commission);
   const staffCost = wageCost + commissionCost;
 
+  // Staff-only view: studio overheads deliberately excluded. This answers
+  // "do they earn more than they cost?", not "does the studio profit overall?"
   const grossReturn = services * contribution;
-  const overhead = Number(v.overhead) || 0;
-  const profit = grossReturn - staffCost - overhead;
+  const profit = grossReturn - staffCost;
 
   const breakEvenServices =
-    contributionNet > 0 ? (wageCost + overhead) / contributionNet : Infinity;
+    contributionNet > 0 ? wageCost / contributionNet : Infinity;
   const breakEvenHours = (breakEvenServices * mins) / 60;
   const breakEvenUtil =
     (Number(v.bookableHours) || 0) > 0
@@ -11510,7 +11512,7 @@ function sroiCalculate(v) {
 
   const maxRate =
     (Number(v.paidHours) || 0) > 0
-      ? (grossReturn - commissionCost - overhead - (Number(v.targetProfit) || 0)) /
+      ? (grossReturn - commissionCost - (Number(v.targetProfit) || 0)) /
         (loadFactor * v.paidHours)
       : 0;
 
@@ -11551,9 +11553,8 @@ const SROI_GROUPS = [
     ['avgRetailSale', 'Average sale', '$', '', 5],
     ['retailMargin', 'Your margin on it', '', '%', 5],
   ]},
-  { title: 'Overheads and target', fields: [
-    ['overhead', 'Overhead carried', '$', '/wk', 25],
-    ['targetProfit', 'Profit you want', '$', '/wk', 50],
+  { title: 'Target', fields: [
+    ['targetProfit', 'Profit you want from them', '$', '/wk', 50],
   ]},
 ];
 
@@ -11630,6 +11631,7 @@ function renderStaffROI() {
   const util = Number(inputs.utilisation) || 0;
   const be = r.breakEvenUtil;
   const beClamped = Math.max(0, Math.min(100, isFinite(be) ? be : 100));
+  const ovhd = sroiWeeklyOverheadPerHead(); // shown for context only, never counted
   const activeOverrides = overridesAll[sroiActiveName] || {};
   const dirty = Object.keys(activeOverrides).length > 0;
   const excluded = STYLISTS.length - staff.length;
@@ -11671,7 +11673,7 @@ function renderStaffROI() {
   root.innerHTML =
     '<header class="sroi-top">' +
       '<div><h1>Staff cost vs return</h1>' +
-      '<p>Loaded wage against what each book brings in. Figures pulled from ' + period.label.toLowerCase() +
+      '<p>What each stylist costs you against what their book brings in. Studio overheads are not counted, only the stylist. Figures pulled from ' + period.label.toLowerCase() +
       (excluded > 0 ? '. Contractors are left out: they carry their own costs.' : '.') + '</p></div>' +
       '<select class="sroi-period" onchange="sroiSetPeriod(this.value)" aria-label="Staff ROI period">' +
         SROI_PERIODS.map(p => '<option value="' + p.id + '"' + (p.id === period.id ? ' selected' : '') + '>' + p.label + '</option>').join('') +
@@ -11682,9 +11684,12 @@ function renderStaffROI() {
 
     '<div class="sroi-panel">' +
       '<div class="sroi-verdict">' +
-        '<small>' + sroiActiveName + ' · weekly profit after wage and overhead</small>' +
+        '<small>' + sroiActiveName + ' · weekly profit after wages and on-costs</small>' +
         '<div class="sroi-big ' + (r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(r.profit) + '</div>' +
         '<div class="sroi-yr">' + sroiMoney(r.profit * 52) + ' a year at this rate</div>' +
+        (ovhd != null
+          ? '<div class="sroi-yr">Studio overheads stay in the P&L, not counted here. An even split would put ' + sroiMoney(ovhd) + ' a week on this chair.</div>'
+          : '') +
       '</div>' +
       '<div class="sroi-gauge">' +
         '<p>' + (isFinite(be) && be <= 100
