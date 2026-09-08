@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.08.20-1702">
-<meta name="lumin-build" content="2026.08.20-1702"><!-- legacy tag so pre-rebrand clients still see the update banner -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='58' y='84' text-anchor='middle' font-family='Didot,Georgia,serif' font-style='italic' font-size='66' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="sums-build" content="2026.09.09-0020">
+<meta name="lumin-build" content="2026.09.09-0020"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
 <style>
 :root {
@@ -29,8 +29,11 @@
   --blue: #41607a;
   --purple: #6e5c7e;
   --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --serif: 'ALTA', 'EB Garamond', Georgia, serif;
-  --mono: 'DM Mono', monospace;
+  /* Modern pass (2026-09): one typeface everywhere. --serif and --mono are
+     kept as tokens so nothing breaks, but they now resolve to Helvetica too.
+     The Terminal theme still overrides them to DM Mono - that's its identity. */
+  --serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --mono: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 /* ── COLOUR THEMES ─────────────────────────────────────────
    Default (no attribute) is the cream/brown palette above.
@@ -3188,6 +3191,892 @@ body.manager-view .owner-only { display: none !important; }
   .ts-day-table tbody tr:nth-child(even) td { padding: 0; }
   .ts-day-table tbody tr:last-child { border-bottom: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   LUXE POLISH LAYER (2026-09)
+   Appended overrides that refine depth, typography and touch
+   across every theme. Token-driven: theme palettes above are
+   untouched, so all 8 themes + dark mode inherit this free.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --shadow-1: 0 1px 2px rgba(43,35,32,0.04), 0 6px 18px rgba(43,35,32,0.05);
+  --shadow-2: 0 2px 6px rgba(43,35,32,0.06), 0 16px 38px rgba(43,35,32,0.10);
+  --shadow-3: 0 8px 20px rgba(43,35,32,0.12), 0 28px 70px rgba(43,35,32,0.20);
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+  --ring: 0 0 0 3px var(--accent-light);
+}
+html[data-mode="dark"] {
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.30), 0 6px 18px rgba(0,0,0,0.26);
+  --shadow-2: 0 2px 6px rgba(0,0,0,0.34), 0 16px 38px rgba(0,0,0,0.40);
+  --shadow-3: 0 8px 20px rgba(0,0,0,0.42), 0 28px 70px rgba(0,0,0,0.55);
+}
+
+/* ── Cards: soft resting depth, gentle lift on hover ── */
+.kpi-card, .chart-card, .form-section, .week-card, .month-card,
+.compare-metric, .breakeven-card, .export-card, .invoice-card,
+.perf-table-wrap, .help-acc {
+  box-shadow: var(--shadow-1);
+  border-radius: 14px;
+  transition: box-shadow 0.25s var(--ease-luxe), border-color 0.25s var(--ease-luxe), transform 0.25s var(--ease-luxe);
+}
+.kpi-card:hover, .chart-card:hover {
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
+}
+
+/* ── KPI figures: larger serif numerals, tighter tracking ── */
+.kpi-value { font-size: 34px; letter-spacing: -0.015em; }
+.kpi-card::before { height: 3px; }
+
+/* ── Topbar: translucent glass over content on scroll ── */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .topbar {
+    background: color-mix(in srgb, var(--surface) 84%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    backdrop-filter: blur(14px) saturate(1.15);
+  }
+}
+
+/* ── Buttons: unified radius, lift + press feedback ── */
+.btn {
+  border-radius: 9px;
+  transition: background 0.18s var(--ease-luxe), box-shadow 0.18s var(--ease-luxe), transform 0.18s var(--ease-luxe), border-color 0.18s var(--ease-luxe);
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { box-shadow: 0 1px 2px rgba(0,0,0,0.10), 0 5px 14px var(--accent-light); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.12), 0 9px 22px var(--accent-light); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost:hover { border-color: var(--muted2); }
+
+/* ── Sidebar nav: roomier targets, smoother state changes ── */
+.nav-item {
+  padding: 10px 12px;
+  border-radius: 9px;
+  transition: background 0.18s var(--ease-luxe), color 0.18s var(--ease-luxe);
+}
+.nav-item.active { box-shadow: inset 0 0 0 1px var(--accent-light); }
+
+/* ── Filter pills: settled active state ── */
+.filter-btn { transition: background 0.18s var(--ease-luxe), color 0.18s var(--ease-luxe), border-color 0.18s var(--ease-luxe), box-shadow 0.18s var(--ease-luxe); }
+.filter-btn.active { box-shadow: 0 2px 8px var(--accent-light); }
+.filter-btn:active { transform: scale(0.97); }
+
+/* ── Inputs: visible focus ring in every theme ── */
+.form-input:focus, .mini-input:focus, .studio-modal input:focus,
+.filter-date:focus, .add-stylist-input:focus, .invoice-select:focus,
+.invoice-input:focus, .export-select:focus, .compare-select.a:focus,
+.studio-select:focus {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+.form-input, .mini-input, .studio-modal input {
+  transition: border-color 0.18s var(--ease-luxe), box-shadow 0.18s var(--ease-luxe);
+}
+
+/* ── Keyboard focus: clear ring without touching mouse flow ── */
+:where(button, [role="button"], a, summary, .nav-item, .filter-btn):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Tables: airier headers, calmer row hover ── */
+.data-table th { font-size: 12px; letter-spacing: 0.12em; padding: 10px 12px; }
+.data-table td { padding: 13px 12px; }
+.data-table tbody tr { transition: background 0.15s ease; }
+
+/* ── Modal: deep elevation + soft scrim blur ── */
+.studio-modal { box-shadow: var(--shadow-3); border-radius: 16px; }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .studio-modal-overlay {
+    background: rgba(20, 16, 12, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* ── Toast + save blip: floating, not stuck to the edge ── */
+.toast { border-radius: 10px; box-shadow: var(--shadow-2); }
+.save-blip { box-shadow: var(--shadow-1); }
+
+/* ── Page entrance: quiet fade-rise on tab switch ── */
+@keyframes luxePageIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page.active { animation: luxePageIn 0.28s var(--ease-luxe); }
+
+/* ── Scrollbars: slightly wider, themed thumb ── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted2); }
+
+/* ── Reduced motion: strip the new movement, keep the depth ── */
+@media (prefers-reduced-motion: reduce) {
+  .page.active { animation: none; }
+  .kpi-card:hover, .chart-card:hover, .btn:active, .btn-primary:hover,
+  .btn-primary:active, .filter-btn:active { transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TIMELY-STYLE DASHBOARD (Business / Staff tabs, summary band,
+   period chart, staff table). Token-driven like everything else.
+   ═══════════════════════════════════════════════════════════ */
+.dash-tabs {
+  display: inline-flex;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 3px;
+  margin-bottom: 16px;
+  gap: 2px;
+}
+.dash-tab {
+  padding: 8px 26px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s var(--ease-luxe), color 0.18s var(--ease-luxe), box-shadow 0.18s var(--ease-luxe);
+}
+.dash-tab.active { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow-1); }
+
+/* ── Hero card ── */
+.tl-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-1);
+  padding: 24px 20px 28px;
+}
+.tl-periodbar { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 20px; }
+.tl-period-label { font-size: 14px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); }
+.tl-step {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 17px; line-height: 1;
+  cursor: pointer;
+  transition: all 0.18s var(--ease-luxe);
+}
+.tl-step:hover:not(:disabled) { color: var(--text); border-color: var(--muted); }
+.tl-step:disabled { opacity: 0.25; cursor: default; }
+
+.tl-band { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; }
+.tl-band .tl-col { padding: 4px 16px 0; }
+.tl-band .tl-col + .tl-col { border-left: 1px solid var(--border); }
+.tl-label { font-size: 12px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+.tl-big { font-family: var(--serif); font-size: 40px; line-height: 1.15; margin-top: 8px; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.tl-deltarow { min-height: 22px; margin: 2px 0 10px; }
+.tl-delta { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.tl-delta.up { color: var(--green); }
+.tl-delta.down { color: var(--red); }
+.tl-subs { font-size: 14px; color: var(--muted); line-height: 1.9; }
+.tl-subs .tl-delta { font-size: 12.5px; margin-left: 2px; }
+
+.tl-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.tl-mcol { padding: 0 22px; }
+.tl-mcol + .tl-mcol { border-left: 1px solid var(--border); }
+.tl-mcol.center { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.tl-mstat + .tl-mstat { margin-top: 16px; }
+.tl-mval { font-family: var(--serif); font-size: 27px; line-height: 1.2; margin: 3px 0 1px; font-variant-numeric: tabular-nums; }
+.tl-mval.small { font-size: 21px; }
+.tl-donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.tl-donut { position: relative; width: 72px; height: 72px; }
+.tl-donut-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 17px; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.tl-target { font-size: 12px; color: var(--muted); }
+.tl-target.up { color: var(--green); font-weight: 600; }
+.tl-target.down { color: var(--red); }
+
+/* ── Period sales chart ── */
+.tl-chart-card { padding: 22px 20px 16px; }
+.tl-chart-head { text-align: center; margin-bottom: 18px; }
+.tl-chart-sub { font-size: 13px; color: var(--muted); margin-top: 5px; font-variant-numeric: tabular-nums; }
+.tl-chart { position: relative; padding-bottom: 40px; }
+.tl-chart-grid { position: absolute; left: 0; right: 0; bottom: 40px; height: 170px; pointer-events: none; }
+.tl-gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--border); }
+.tl-gridline span {
+  position: absolute; left: 0; top: -8px;
+  font-size: 11px; color: var(--muted);
+  background: var(--surface); padding-right: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.tl-chart-bars { display: flex; align-items: flex-end; gap: 5px; position: relative; z-index: 1; padding: 0 6px 0 44px; }
+.tl-bar-col {
+  position: relative; flex: 1; min-width: 0;
+  display: flex; align-items: flex-end; justify-content: center;
+  height: 100%; border-radius: 8px;
+  cursor: default;
+}
+.tl-bar-col.today { background: var(--accent-light); box-shadow: inset 0 0 0 1px var(--border2); }
+.tl-bar-stack { display: flex; flex-direction: column; width: min(62%, 26px); }
+.tl-bar-stack > div:first-child { border-radius: 3px 3px 0 0; }
+.tl-bar-svc { background: var(--green); }
+.tl-bar-prod { background: var(--green); opacity: 0.35; }
+.tl-bar-label {
+  position: absolute; top: 100%; left: 0; right: 0;
+  margin-top: 7px;
+  display: flex; flex-direction: column; align-items: center;
+  font-size: 11px; color: var(--muted); line-height: 1.35;
+  letter-spacing: 0.03em; text-transform: uppercase;
+}
+.tl-legend { display: flex; gap: 20px; justify-content: center; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.tl-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+
+/* ── Staff table ── */
+.tl-staff-head {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+  padding: 4px 20px;
+  margin-bottom: 8px;
+}
+.tl-sort {
+  background: none; border: none;
+  font-family: var(--font);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+  text-align: left; cursor: pointer;
+  padding: 8px 18px;
+}
+.tl-sort:hover { color: var(--text); }
+.tl-staff-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-1);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  transition: box-shadow 0.25s var(--ease-luxe), transform 0.25s var(--ease-luxe);
+}
+.tl-staff-row:hover { box-shadow: var(--shadow-2); }
+.tl-staff-who { display: flex; gap: 14px; align-items: center; min-width: 0; }
+.tl-avatar {
+  width: 48px; height: 48px; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 17px; font-weight: 600; font-style: italic;
+}
+.tl-staff-name { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+.tl-staff-link {
+  background: none; border: none; padding: 0;
+  font-family: var(--font); font-size: 13px;
+  color: var(--blue); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.tl-cell { border-left: 1px solid var(--border); padding: 2px 18px; min-width: 0; }
+.tl-cell-big { font-family: var(--serif); font-size: 24px; margin-bottom: 3px; font-variant-numeric: tabular-nums; }
+.tl-cell-sub { font-size: 13px; color: var(--muted); margin-bottom: 4px; line-height: 1.4; }
+.tl-staff-note { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* ── Responsive ── */
+@media (max-width: 920px) {
+  .tl-band { grid-template-columns: 1fr; gap: 22px; }
+  .tl-band .tl-col + .tl-col { border-left: none; border-top: 1px solid var(--border); padding-top: 20px; }
+  .tl-metrics { grid-template-columns: 1fr 1fr; gap: 22px 0; }
+  .tl-mcol:nth-child(3) { border-left: none; }
+  .tl-staff-head { display: none; }
+  .tl-staff-row { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .tl-staff-who { grid-column: 1 / -1; }
+  .tl-cell { border-left: none; padding: 0; }
+  .tl-chart-bars { padding-left: 40px; gap: 3px; }
+  .tl-bar-label { font-size: 9.5px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODERN PASS (2026-09)
+   One typeface (Helvetica, via the font tokens above), weight
+   instead of italic flourish, and a contrast bump so numbers
+   and inputs read instantly. Terminal theme keeps DM Mono.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Contrast bump: darker secondary text and stronger hairlines on the
+   default palette. Named themes and theme+dark combos keep their own
+   values (their selectors outrank :root). */
+:root {
+  --muted: #4c473f;
+  --muted2: #5a544a;
+  --border: rgba(0,0,0,0.15);
+  --border2: rgba(0,0,0,0.32);
+}
+html[data-mode="dark"] {
+  --muted: #c2b9ab;
+  --muted2: #b0a695;
+  --border: rgba(255,255,255,0.14);
+  --border2: rgba(255,255,255,0.32);
+}
+
+/* No italics anywhere: headings carry hierarchy through weight now.
+   The attribute selector catches JS-rendered fragments styled inline. */
+.logo-name, .topbar-title, .section-title, .chart-title, .week-title,
+.form-section-title, .help-group-title, .help-acc summary, .tl-avatar,
+.pain-q, .sums-letter, .week-nav-label, .month-name, .note-cell,
+.sty-trend-hint, .stylist-name, .ts-summary-name, .ts-staff-name,
+.pl-row-fixed, .pl-section-subtitle, .ts-week-label, .ts-off-label {
+  font-style: normal;
+}
+[style*="font-style:italic"], [style*="font-style: italic"] { font-style: normal !important; }
+
+.logo-name { font-weight: 700; letter-spacing: -0.01em; }
+.topbar-title { font-weight: 700; letter-spacing: -0.015em; font-size: 21px; }
+.section-title { font-weight: 700; letter-spacing: -0.01em; }
+.chart-title, .week-title, .form-section-title, .breakeven-title { font-weight: 600; }
+.help-group-title, .help-acc summary { font-weight: 600; }
+
+/* Numbers: bold, tight, tabular, full-contrast ink */
+.kpi-value, .tl-big, .tl-mval, .tl-cell-big {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.kpi-value { font-size: 31px; }
+.tl-big { font-size: 37px; }
+.tl-donut-num { font-weight: 700; font-size: 16px; }
+.progress-val, .week-stat span, .breakeven-stat-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Labels: heavier caps so they anchor the numbers */
+.kpi-label, .tl-label, .nav-section-label { font-weight: 700; }
+.form-label { color: var(--text); font-weight: 700; }
+.mini-label { color: var(--text); font-weight: 600; font-size: 12.5px; }
+
+/* Inputs: white field, thick border, semibold value - built to be read
+   at arm's length while typing in the day's figures */
+.form-input, .mini-input, .studio-modal input, .filter-date, .studio-select,
+.compare-select, .invoice-input, .invoice-select, .export-select, .add-stylist-input {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.form-input { font-size: 17px; }
+.mini-input { font-size: 16px; padding: 8px 9px; }
+.form-input::placeholder, .mini-input::placeholder, .studio-modal input::placeholder { color: var(--muted2); font-weight: 400; }
+/* Auto-calculated totals were ghosted; keep the dashed border as the
+   "computed" cue but make the figure itself full strength */
+.form-input.auto-total, .mini-input.auto-total {
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 700;
+  border-style: dashed;
+}
+
+/* Tables: firmer numerals and headers */
+.data-table td { font-weight: 500; }
+.data-table th { color: var(--muted); }
+.data-table .mono { font-family: var(--font); font-weight: 600; }
+
+/* Controls: modern weight */
+.btn, .filter-btn { font-weight: 600; }
+
+/* ── Design accents: clean, not sterile ── */
+/* Brand rule across the top of the hero */
+.tl-hero { border-top: 3px solid var(--accent); }
+
+/* Comparison deltas become tinted pill chips */
+.tl-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12.5px;
+}
+.tl-delta.up { background: rgba(79,116,87,0.14); background: color-mix(in srgb, var(--green) 15%, transparent); }
+.tl-delta.down { background: rgba(158,74,58,0.12); background: color-mix(in srgb, var(--red) 13%, transparent); }
+.tl-subs .tl-delta { padding: 1px 7px; font-size: 11.5px; }
+
+/* Active nav item gets a brand bar */
+.nav-item { position: relative; }
+.nav-item.active { box-shadow: none; }
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 22%; bottom: 22%;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* Staff avatars: solid brand circles */
+.tl-avatar { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+/* Donut number matches its ring's weight */
+.tl-donut-wrap .tl-delta { margin-top: 2px; }
+
+/* ═══════════════════════════════════════════════════════════
+   TIMESHEETS CLEANUP (2026-09)
+   One row per day; leave + notes tuck behind the ⋯ toggle.
+   Horizontal −/+ steppers with filled inputs, today and
+   weekend rows visually distinct, export actions in a menu.
+   ═══════════════════════════════════════════════════════════ */
+.ts-week-nav { flex-wrap: wrap; row-gap: 10px; }
+.ts-week-nav-btn {
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 18px; line-height: 1;
+  padding: 0;
+}
+.ts-week-heading { min-width: 150px; text-align: center; }
+.ts-week-label { font-weight: 700; }
+
+/* Day pairs: separator sits above each day, so a detail row stays
+   visually attached to its own day when opened */
+.ts-day-table td { border-bottom: none; }
+.ts-day-table .ts-main-row td { border-top: 1px solid var(--border); padding-top: 10px; padding-bottom: 10px; }
+.ts-day-table .ts-main-row:first-child td { border-top: none; }
+.ts-day-table .ts-detail-row:hover td { background: transparent; }
+.ts-row-wknd td { background: var(--surface2); }
+.ts-row-wknd .ts-day-w, .ts-row-wknd .ts-day-d { color: var(--muted); }
+.ts-main-row.ts-row-today td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.ts-row-today .ts-day-w { color: var(--accent); }
+.ts-day-w { font-weight: 700; margin-right: 7px; }
+.ts-day-d { color: var(--muted); font-size: 14px; }
+.ts-leave-badge {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+}
+.ts-leave-badge.al { background: rgba(65,96,122,0.18); color: var(--blue); }
+.ts-leave-badge.pl { background: rgba(201,140,74,0.22); color: #a06428; }
+
+/* Steppers: − [time] + in a row, with real buttons */
+.ts-time-stepper { flex-direction: row; align-items: center; gap: 4px; }
+.ts-step-btn {
+  width: 26px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 15px; font-weight: 600;
+  padding: 0;
+}
+.ts-step-btn:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+
+/* Filled, high-contrast fields to match the rest of the modern pass */
+.ts-time-input, .ts-break-input {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 8px;
+  font-family: var(--font);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 5px 4px;
+  width: 60px;
+}
+.ts-time-input:focus, .ts-break-input:focus { border-color: var(--accent); box-shadow: var(--ring); }
+.ts-notes-input {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--text);
+}
+.ts-notes-input:focus { border-color: var(--accent); box-shadow: var(--ring); }
+.ts-hours-val { font-size: 16px; font-variant-numeric: tabular-nums; }
+
+.ts-detail-toggle {
+  width: 28px; height: 28px;
+  margin-left: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+  padding: 0;
+}
+.ts-detail-toggle:hover { color: var(--text); border-color: var(--border2); }
+.ts-detail-toggle.has-detail { color: var(--accent); border-color: var(--accent); }
+.ts-clear-btn {
+  width: 28px; height: 28px;
+  margin-left: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(158,74,58,0.12);
+  border: 1px solid rgba(158,74,58,0.3);
+  border-radius: 7px;
+  color: var(--red);
+  font-size: 14px; font-weight: 600; line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+  padding: 0;
+}
+.ts-clear-btn:hover { background: rgba(158,74,58,0.24); }
+
+/* Export dropdown */
+.ts-export-wrap { position: relative; }
+.ts-export-menu {
+  display: none;
+  position: absolute;
+  right: 0; top: calc(100% + 6px);
+  min-width: 190px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  box-shadow: var(--shadow-2);
+  padding: 6px;
+  z-index: 200;
+}
+.ts-export-menu.open { display: block; }
+.ts-export-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-family: var(--font);
+  font-size: 14px; font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+.ts-export-menu button:hover { background: var(--surface2); }
+
+/* ═══════════════════════════════════════════════════════════
+   ADD ENTRY CLEANUP (2026-09)
+   Auto totals read as a calculated strip, stylist blocks are
+   grouped Returning / New / Sales with live per-stylist totals,
+   and the save bar sticks to the bottom with the day total.
+   ═══════════════════════════════════════════════════════════ */
+.entry-autos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  background: var(--surface2);
+  border: 1.5px dashed var(--border2);
+  border-radius: 12px;
+}
+.entry-auto-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.entry-auto-val {
+  background: none;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  font-family: var(--font);
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.entry-auto-note { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
+
+/* Stylist blocks: header with live total, grouped field rows */
+.stylist-block { padding: 16px; }
+.stylist-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.stylist-block-head .stylist-name { margin-bottom: 0; }
+.stylist-day-total {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+.sb-group + .sb-group { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+.sb-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.sb-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+/* Save bar: sticks to the bottom while scrolling the long form */
+#entry-actions {
+  position: sticky;
+  bottom: 14px;
+  z-index: 40;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow-2);
+  flex-wrap: wrap;
+}
+.entry-total-live {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.entry-total-live strong {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .entry-autos { grid-template-columns: 1fr 1fr; }
+  #entry-actions { bottom: 8px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COLOR REFRESH (2026-09)
+   Lighter, calmer canvas in every light theme, and clearer
+   status colors. Theme accents and all dark modes keep their
+   own values (their selectors outrank these), and the Money
+   theme keeps its casino green/gold. Red now means only
+   "negative / danger": the contractor identity moved to the
+   purple token so nothing routine looks like an error.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #f2f3f5;
+  --surface2: #f7f8f9;
+  --surface3: #ebedef;
+  --green: #2e7d4f;
+  --red: #b4472f;
+  --blue: #3d6a8f;
+  --purple: #6f5c92;
+}
+html[data-theme="blue"]    { --bg: #eef2f6; --surface2: #f6f9fb; --surface3: #e9eff4; }
+html[data-theme="orange"]  { --bg: #f6efe3; --surface2: #fbf6ec; --surface3: #f2e9d9; }
+html[data-theme="pink"]    { --bg: #f6eef0; --surface2: #fbf5f6; --surface3: #f1e7e9; }
+html[data-theme="sage"]    { --bg: #eff3e9; --surface2: #f7f9f3; --surface3: #e9efe0; }
+html[data-theme="mono"]    { --bg: #f3f3f3; --surface2: #ffffff; --surface3: #ececec; }
+html[data-theme="terminal"]{ --bg: #edf4ed; --surface2: #f6faf6; --surface3: #e6efe6; }
+html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6eee2; }
+
+/* ═══════════════════════════════════════════════════════════
+   TRENDS TAB (2026-09)
+   Owner's verdict view: every metric vs last week and last
+   month, judged to-date, with unmissable up/down pills.
+   ═══════════════════════════════════════════════════════════ */
+.trend-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.trend-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-1);
+  padding: 20px 22px;
+  border-top: 3px solid var(--border2);
+}
+.trend-tile.up { border-top-color: var(--green); }
+.trend-tile.down { border-top-color: var(--red); }
+.trend-tile-big {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 8px 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+.trend-tile.up .trend-tile-big { color: var(--green); }
+.trend-tile.down .trend-tile-big { color: var(--red); }
+.trend-tile-sub { font-size: 13.5px; color: var(--muted); }
+
+.trend-table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-1);
+  padding: 6px 20px 14px;
+}
+.trend-head, .trend-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+}
+.trend-head {
+  padding: 14px 0 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.trend-head span { display: block; font-weight: 500; letter-spacing: 0.02em; text-transform: none; font-size: 11.5px; color: var(--muted2); margin-top: 2px; }
+.trend-group {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 16px 0 6px;
+  border-bottom: 1px solid var(--border);
+}
+.trend-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.trend-row:last-child { border-bottom: none; }
+.trend-name { font-size: 15px; font-weight: 600; }
+.trend-cell { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.trend-val { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 62px; }
+.trend-prev { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.trend-pill.up { color: var(--green); background: rgba(46,125,79,0.13); background: color-mix(in srgb, var(--green) 14%, transparent); }
+.trend-pill.down { color: var(--red); background: rgba(180,71,47,0.12); background: color-mix(in srgb, var(--red) 13%, transparent); }
+.trend-pill.flat { color: var(--muted); background: var(--surface3); font-weight: 600; }
+.trend-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.6; }
+
+@media (max-width: 820px) {
+  .trend-hero { grid-template-columns: 1fr; }
+  .trend-head { display: none; }
+  .trend-row { grid-template-columns: 1fr; gap: 6px; padding: 12px 0; }
+  .trend-cell { justify-content: flex-start; }
+  .trend-pill { margin-left: auto; }
+  .trend-cell::before { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted2); width: 26px; flex-shrink: 0; }
+  .trend-row .trend-cell:nth-child(2)::before { content: 'WK'; }
+  .trend-row .trend-cell:nth-child(3)::before { content: 'MO'; }
+}
+</style>
+<style id="staffroi-css">
+/* ===== STAFF ROI (owner-only) — rides the app tokens since the 2026-09
+   modern pass, so it follows every theme and dark mode. The verdict panel
+   stays deliberately dark in both modes; brass marks profit highlights. ===== */
+.roi{--sroi-canvas:transparent;--sroi-surface:var(--surface);--sroi-panel:#212528;--sroi-panel-2:#2b3034;
+ --sroi-ink:var(--text);--sroi-muted:var(--muted);--sroi-rule:var(--border);--sroi-rule-dk:#3c4247;
+ --sroi-brass:#A8791F;--sroi-parch:#eceff1;
+ background:var(--sroi-canvas);color:var(--sroi-ink);font-family:var(--font);
+ font-size:15px;line-height:1.55;padding:0 0 34px;border-radius:14px}
+.roi *{box-sizing:border-box}
+.roi input,.roi select,.roi button{font-family:var(--font)}
+
+.roi .sroi-locked{max-width:44ch;margin:60px auto;text-align:center}
+.roi .sroi-locked h2{font-size:20px;margin:0 0 8px}
+.roi .sroi-locked p{color:var(--sroi-muted);margin:0}
+
+.roi .sroi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+ max-width:920px;margin:0 auto 16px;flex-wrap:wrap}
+.roi .sroi-top h1{font-weight:800;letter-spacing:-.02em;
+ font-size:clamp(24px,5.5vw,32px);line-height:1.05;margin:0 0 4px}
+.roi .sroi-top p{margin:0;color:var(--sroi-muted);font-size:14px;max-width:52ch}
+.roi .sroi-period{border:1px solid var(--sroi-rule);border-radius:2px;background:var(--sroi-surface);padding:8px 10px;
+ font-size:13px;font-weight:700;color:var(--sroi-ink)}
+
+.roi .sroi-board{max-width:920px;margin:0 auto 16px;display:grid;gap:8px;
+ grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.roi .sroi-card{text-align:left;background:var(--sroi-surface);border:1px solid var(--sroi-rule);border-radius:2px;
+ padding:11px 12px;display:flex;flex-direction:column;gap:2px;cursor:pointer;color:var(--sroi-ink)}
+.roi .sroi-card.on{border-color:var(--sroi-panel);box-shadow:inset 3px 0 0 var(--sroi-brass)}
+.roi .sroi-card .nm{font-size:13px;font-weight:700;color:var(--sroi-muted)}
+.roi .sroi-card .pf{font-size:22px;font-weight:800;letter-spacing:-.02em;font-family:var(--mono)}
+.roi .sroi-card .pf.up{color:#2F6B4F}.roi .sroi-card .pf.dn{color:#9A3B2E}
+.roi .sroi-card .sub{font-size:12.5px;color:var(--sroi-muted)}
+
+.roi .sroi-panel{max-width:920px;margin:0 auto;background:var(--sroi-panel);color:var(--sroi-parch);border-radius:2px;
+ box-shadow:0 18px 40px -24px rgba(28,35,33,.6)}
+.roi .sroi-verdict{padding:18px 18px 16px;border-bottom:1px solid var(--sroi-rule-dk)}
+.roi .sroi-verdict small{font-size:12.5px;color:#9FB0AB;display:block;margin-bottom:4px}
+.roi .sroi-big{font-weight:800;letter-spacing:-.03em;font-family:var(--mono);
+ font-size:clamp(32px,8vw,44px);line-height:1}
+.roi .sroi-big.up{color:#8FCFA6}.roi .sroi-big.dn{color:#E5907F}
+.roi .sroi-yr{font-size:12.5px;color:#9FB0AB;margin-top:6px}
+
+.roi .sroi-gauge{padding:16px 18px;border-bottom:1px solid var(--sroi-rule-dk)}
+.roi .sroi-gauge p{margin:0 0 14px;font-size:13.5px;color:#9FB0AB}
+.roi .sroi-meter{position:relative;height:30px}
+.roi .sroi-track{position:absolute;left:0;right:0;top:8px;height:14px;background:var(--sroi-panel-2);
+ border:1px solid var(--sroi-rule-dk)}
+.roi .sroi-fill{position:absolute;left:0;top:0;bottom:0;background:var(--sroi-brass);transition:width .18s ease}
+.roi .sroi-fill.ok{background:#57996F}
+.roi .sroi-mark{position:absolute;top:0;width:2px;height:30px;background:var(--sroi-parch)}
+.roi .sroi-mark span{position:absolute;bottom:-17px;transform:translateX(-50%);white-space:nowrap;
+ font-size:10.5px;font-weight:700;color:var(--sroi-parch)}
+.roi .sroi-scale{display:flex;justify-content:space-between;font-size:10.5px;color:#7E908B;margin-top:20px}
+
+.roi .sroi-rows{padding:4px 18px 16px;display:grid;gap:0;grid-template-columns:1fr}
+@media(min-width:720px){.roi .sroi-rows{grid-template-columns:1fr 1fr;column-gap:28px}}
+.roi .sroi-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;
+ border-bottom:1px solid var(--sroi-rule-dk);font-size:13.5px}
+.roi .sroi-row span{color:#9FB0AB}
+.roi .sroi-row b{font-weight:700;font-size:16px;color:var(--sroi-parch);font-family:var(--mono)}
+.roi .sroi-row.key b{font-size:20px;color:#fff}
+
+.roi .sroi-assump{max-width:920px;margin:14px auto 0;background:var(--sroi-surface);
+ border:1px solid var(--sroi-rule);border-radius:2px}
+.roi .sroi-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;
+ background:none;border:0;padding:12px 14px;cursor:pointer;font-size:13px;font-weight:700;color:var(--sroi-ink)}
+.roi .sroi-toggle em{font-style:normal;font-weight:500;color:var(--sroi-muted);font-size:12.5px}
+.roi .sroi-ass-b{padding:0 14px 12px;border-top:1px solid var(--sroi-rule)}
+.roi .sroi-reset{margin:12px 0 0;background:none;border:1px solid var(--sroi-rule);border-radius:2px;
+ padding:6px 10px;font-size:12.5px;font-weight:700;color:var(--sroi-muted);cursor:pointer}
+.roi .sroi-grp{margin-top:14px}
+.roi .sroi-grp h3{font-size:12.5px;font-weight:700;margin:0 0 2px;color:var(--sroi-muted)}
+.roi .sroi-fld{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;
+ border-bottom:1px solid var(--sroi-rule)}
+.roi .sroi-grp .sroi-fld:last-child{border-bottom:0}
+.roi .sroi-fld-l{display:flex;flex-direction:column;min-width:0;font-size:14px}
+.roi .sroi-fld-l em{font-style:normal;font-size:11.5px;color:var(--sroi-muted)}
+.roi .sroi-fld-i{display:flex;align-items:center;gap:3px;border:1px solid var(--sroi-rule);border-radius:2px;
+ background:#fff;padding:0 7px}
+.roi .sroi-fld-i.edited{border-color:var(--sroi-brass);box-shadow:inset 0 -2px 0 var(--sroi-brass)}
+.roi .sroi-fld-i:focus-within{border-color:var(--sroi-brass)}
+.roi .sroi-fld-i b{font-weight:500;font-size:12.5px;color:var(--sroi-muted)}
+.roi .sroi-fld-i input{width:70px;border:0;background:transparent;text-align:right;font-size:15px;
+ font-weight:700;color:var(--sroi-ink);padding:7px 0;-moz-appearance:textfield;font-family:var(--mono)}
+.roi .sroi-fld-i input:focus{outline:none}
+.roi .sroi-fld-i input::-webkit-outer-spin-button,.roi .sroi-fld-i input::-webkit-inner-spin-button{
+ -webkit-appearance:none;margin:0}
+
+/* Modern pass alignment: app-scale corner radius and card depth */
+.roi .sroi-card,.roi .sroi-panel,.roi .sroi-assump,.roi .sroi-period,.roi .sroi-reset{border-radius:12px}
+.roi .sroi-card{box-shadow:var(--shadow-1)}
+.roi .sroi-card.on{box-shadow:var(--shadow-1),inset 3px 0 0 var(--sroi-brass)}
+.roi .sroi-panel{box-shadow:var(--shadow-2)}
 </style>
 <script>
 // Apply the saved colour theme + light/dark mode before first paint so there's no flash
@@ -3209,7 +4098,7 @@ try {
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:64px;gap:14px">
       <svg width="56" height="56" viewBox="0 0 120 120" aria-hidden="true">
         <rect width="120" height="120" rx="28" fill="#2B2320"/>
-        <text x="58" y="84" fill="#F4EFE8" font-family="Didot, 'EB Garamond', Georgia, serif" font-style="italic" font-size="66" text-anchor="middle">s.</text>
+        <text x="60" y="82" fill="#F4EFE8" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="62" text-anchor="middle">s.</text>
       </svg>
       <div style="font-family:var(--serif);font-style:italic;font-size:34px;color:var(--accent);letter-spacing:0.5px;line-height:1">sums.</div>
     </div>
@@ -3416,6 +4305,10 @@ try {
       </svg>
       Tax &amp; BAS
     </button>
+    <button class="nav-item owner-only" onclick="showPage('staffroi')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="5" cy="4.5" r="2.3" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 13c0-2.4 1.9-4.3 4.3-4.3 1 0 1.9.3 2.6.9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 12.5 11.5 9l1.5 1.5 2-3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Staff ROI
+    </button>
     <div class="nav-section-label">Settings</div>
     <button class="nav-item" onclick="showPage('pinmgmt')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v1.7M8 12.8v1.7M14.5 8h-1.7M3.2 8H1.5M12.6 3.4l-1.2 1.2M4.6 11.4l-1.2 1.2M12.6 12.6l-1.2-1.2M4.6 4.6 3.4 3.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -3451,18 +4344,37 @@ try {
 
   <!-- ======================== DASHBOARD ======================== -->
   <div class="page active" id="page-dashboard">
+    <div class="dash-tabs" role="tablist" aria-label="Dashboard views">
+      <button class="dash-tab active" id="dash-tab-business" role="tab" aria-selected="true" onclick="dashSetTab('business')">Business</button>
+      <button class="dash-tab" id="dash-tab-staff" role="tab" aria-selected="false" onclick="dashSetTab('staff')">Staff</button>
+      <button class="dash-tab" id="dash-tab-trends" role="tab" aria-selected="false" onclick="dashSetTab('trends')">Trends</button>
+    </div>
     <div class="filter-row" id="dash-filter"></div>
 
     <div class="dash-toolbar">
       <button class="btn btn-ghost dash-edit-btn" id="dash-edit-btn" onclick="dashToggleEdit()">Edit layout</button>
     </div>
-    <div class="dash-hint">Drag <strong>⠿</strong> to reorder sections. Tap <strong>Hide</strong> to remove a section, or tap any stat card to hide it. Saved on this device. <button onclick="dashResetLayout()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;font-family:var(--font);text-decoration:underline">Reset to default</button></div>
+    <div class="dash-hint">Drag <strong>⠿</strong> to reorder sections. Tap <strong>Hide</strong> to remove a section. Saved on this device. <button onclick="dashResetLayout()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;font-family:var(--font);text-decoration:underline">Reset to default</button></div>
 
     <div class="dash-widgets" id="dash-widgets">
 
       <div class="dash-widget wfull" data-w="kpis">
         <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Key stats</span><button class="dash-hide" onclick="dashToggleWidget('kpis')">Hide</button></div>
         <div class="kpi-grid" id="kpi-grid"></div>
+      </div>
+
+      <div class="dash-widget wfull" data-w="dailychart">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Sales chart</span><button class="dash-hide" onclick="dashToggleWidget('dailychart')">Hide</button></div>
+        <div class="chart-card full tl-chart-card">
+          <div id="dash-period-chart"></div>
+        </div>
+      </div>
+
+      <div class="dash-widget wfull" data-w="prodchart">
+        <div class="dash-widget-bar"><span class="dash-drag">⠿</span><span class="dash-wname">Productivity chart</span><button class="dash-hide" onclick="dashToggleWidget('prodchart')">Hide</button></div>
+        <div class="chart-card full tl-chart-card">
+          <div id="dash-prod-chart"></div>
+        </div>
       </div>
 
       <div class="dash-widget" data-w="chart-clients">
@@ -3592,6 +4504,9 @@ try {
       </div>
 
     </div>
+
+    <div id="dash-staff" style="display:none"></div>
+    <div id="dash-trends" style="display:none"></div>
   </div>
 
   <!-- ======================== WEEKLY ======================== -->
@@ -3630,7 +4545,7 @@ try {
     <div class="day-toggle-row" id="day-toggle-row" role="group" aria-label="Days open">
       <span class="day-toggle-label">Show days:</span>
       <label class="day-toggle weekend" id="dt-0"><input type="checkbox" onchange="toggleDay(0,this)"><span class="day-toggle-inner">Sun</span></label>
-      <label class="day-toggle" id="dt-1"><input type="checkbox" onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
+      <label class="day-toggle active" id="dt-1"><input type="checkbox" checked onchange="toggleDay(1,this)"><span class="day-toggle-inner">Mon</span></label>
       <label class="day-toggle active" id="dt-2"><input type="checkbox" checked onchange="toggleDay(2,this)"><span class="day-toggle-inner">Tue</span></label>
       <label class="day-toggle active" id="dt-3"><input type="checkbox" checked onchange="toggleDay(3,this)"><span class="day-toggle-inner">Wed</span></label>
       <label class="day-toggle active" id="dt-4"><input type="checkbox" checked onchange="toggleDay(4,this)"><span class="day-toggle-inner">Thu</span></label>
@@ -3714,21 +4629,21 @@ try {
           <label class="form-label" for="entry-notes">Notes</label>
           <input type="text" class="form-input" id="entry-notes" placeholder="e.g. Angel sick, public holiday...">
         </div>
-        <div class="form-group">
-          <label class="form-label" for="entry-product">Product $ (auto)</label>
-          <input type="number" class="form-input auto-total" id="entry-product" placeholder="0" min="0" readonly tabindex="-1">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="entry-product-qty">Product Qty (auto)</label>
-          <input type="number" class="form-input auto-total" id="entry-product-qty" placeholder="0" min="0" readonly tabindex="-1">
-        </div>
-        <div class="form-group full">
-          <label class="form-label" for="entry-service">Service $ (auto)</label>
-          <input type="number" class="form-input auto-total" id="entry-service" placeholder="0" min="0" readonly tabindex="-1">
-        </div>
       </div>
-      <div style="font-size:13px;color:var(--muted);margin-top:10px">
-        Store totals are calculated automatically from the stylist breakdown below, so there's no need to type them.
+      <div class="entry-autos">
+        <div class="entry-auto-tile">
+          <label class="entry-auto-label" for="entry-service">Service $</label>
+          <input type="number" class="entry-auto-val" id="entry-service" placeholder="0" min="0" readonly tabindex="-1">
+        </div>
+        <div class="entry-auto-tile">
+          <label class="entry-auto-label" for="entry-product">Product $</label>
+          <input type="number" class="entry-auto-val" id="entry-product" placeholder="0" min="0" readonly tabindex="-1">
+        </div>
+        <div class="entry-auto-tile">
+          <label class="entry-auto-label" for="entry-product-qty">Product Qty</label>
+          <input type="number" class="entry-auto-val" id="entry-product-qty" placeholder="0" min="0" readonly tabindex="-1">
+        </div>
+        <div class="entry-auto-note">Calculated live from the stylist breakdown below - no need to type these.</div>
       </div>
     </div>
 
@@ -3738,12 +4653,12 @@ try {
     </div>
 
     <div class="form-section" id="entry-contractor-section" style="display:none">
-      <div class="form-section-title" style="color:var(--red)">Contractor</div>
+      <div class="form-section-title" style="color:var(--purple)">Contractor</div>
       <div style="font-size:14px;color:var(--muted);margin-bottom:14px">Contractor figures are subtracted from weekly net totals. They still appear in the daily gross.</div>
       <div class="form-grid" style="margin-bottom:14px">
         <div class="form-group">
           <label class="form-label" for="c_name">Contractor Name</label>
-          <input type="text" class="form-input" id="c_name" placeholder="e.g. Sarah" style="border-color:rgba(224,92,92,0.4)"
+          <input type="text" class="form-input" id="c_name" placeholder="e.g. Sarah" style="border-color:rgba(111,92,146,0.45)"
             oninput="saveContractorName(this.value)">
         </div>
         <div class="form-group" style="align-self:flex-end">
@@ -3751,8 +4666,8 @@ try {
         </div>
       </div>
       <div class="stylist-grid">
-        <div class="stylist-block" style="border-color:rgba(224,92,92,0.25)">
-          <div class="stylist-name" style="color:var(--red)" id="contractor-name-label">Contractor</div>
+        <div class="stylist-block" style="border-color:rgba(111,92,146,0.35)">
+          <div class="stylist-name" style="color:var(--purple)" id="contractor-name-label">Contractor</div>
           <div class="stylist-inputs">
             <div class="mini-group"><div class="mini-label">Clients</div><input class="mini-input" aria-label="Contractor clients" id="c_clients" type="number" min="0" placeholder="0"></div>
             <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" aria-label="Contractor service dollars" id="c_svc" type="number" min="0" placeholder="0"></div>
@@ -3767,6 +4682,7 @@ try {
       <button class="btn btn-primary" onclick="saveEntry()">Save Day</button>
       <button class="btn btn-ghost" onclick="clearEntry()">Clear</button>
       <span id="entry-auto-saved" role="status" aria-live="polite" style="font-size:14px;color:var(--muted);opacity:0;transition:opacity .25s ease;margin-left:6px"></span>
+      <div class="entry-total-live">Day total <strong id="entry-day-total">$0</strong></div>
     </div>
     <input type="hidden" id="entry-date">
   </div>
@@ -3808,13 +4724,13 @@ try {
       </div>
     </div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
-      <span style="color:var(--red)">★</span> = Contractor: their figures are subtracted from weekly net totals. Toggle with the star icon.
+      <span style="color:var(--purple)">★</span> = Contractor: their figures are subtracted from weekly net totals. Toggle with the star icon.
     </div>
     <div class="stylist-roster avatar-colors" id="stylist-roster"></div>
     <div class="add-stylist-row">
       <input class="add-stylist-input" id="new-stylist-name" aria-label="New stylist name" placeholder="New stylist name..." onkeydown="if(event.key==='Enter')addStylist()">
       <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap;cursor:pointer">
-        <input type="checkbox" id="new-stylist-contractor" style="accent-color:var(--red)"> Contractor
+        <input type="checkbox" id="new-stylist-contractor" style="accent-color:var(--purple)"> Contractor
       </label>
       <button class="btn btn-primary" onclick="addStylist()">+ Add Stylist</button>
     </div>
@@ -4390,7 +5306,7 @@ try {
       <!-- Contractor Invoice -->
       <div class="export-card">
         <div class="export-card-header">
-          <div class="export-card-icon" style="background:rgba(224,92,92,0.12)"><span aria-hidden="true">🧾</span></div>
+          <div class="export-card-icon" style="background:rgba(111,92,146,0.12)"><span aria-hidden="true">🧾</span></div>
           <div class="export-card-title">Contractor Invoice</div>
         </div>
         <div class="export-card-desc">Weekly contractor invoice: gross, commission deduction, amount due.</div>
@@ -4595,6 +5511,13 @@ try {
       Company: 25% base-rate company tax. Sole trader: individual marginal income-tax rates, with an optional 2% Medicare levy. GST 10% when registered. Super Guarantee 12% from 1 Jul 2025.
     </div>
 
+  </div>
+
+
+
+  <!-- ======================== STAFF ROI ======================== -->
+  <div class="page" id="page-staffroi">
+    <div class="roi" id="staffroi-root"></div>
   </div>
 
 
@@ -5107,22 +6030,26 @@ try {
       </div>
     </div>
 
-    <!-- Week navigation -->
+    <!-- Week navigation + actions -->
     <div class="ts-week-nav">
-      <button class="ts-week-nav-btn" onclick="tsNavWeek(-1)">← Prev</button>
-      <div>
+      <button class="ts-week-nav-btn" onclick="tsNavWeek(-1)" aria-label="Previous week">‹</button>
+      <div class="ts-week-heading">
         <div class="ts-week-label" id="ts-week-label">—</div>
         <div class="ts-week-cycle" id="ts-week-cycle">Pay cycle: Tue – Mon</div>
       </div>
-      <button class="ts-week-nav-btn" onclick="tsNavWeek(1)">Next →</button>
+      <button class="ts-week-nav-btn" onclick="tsNavWeek(1)" aria-label="Next week">›</button>
       <div style="flex:1"></div>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="prefillFromLastWeek()">↩ Copy Last Week</button>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="tsShowAll()">Show All</button>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="tsHideAll()">Hide All</button>
-            <button class="btn btn-primary" style="font-size:14px;background:var(--green)" onclick="calcAllHours()">⟳ Calculate Hours</button>
-      <button class="btn btn-ghost" style="font-size:14px" onclick="exportTimesheetCSV()">⬇ Export CSV</button>
-      <button class="btn btn-ghost" style="font-size:14px;background:rgba(90,127,94,0.12);color:var(--green);border-color:rgba(90,127,94,0.3)" onclick="exportUpSheetsCSV()" title="Export UpSheets-compatible CSV for Xero Payroll">⬇ Xero Payroll CSV</button>
-      <button class="btn btn-primary" style="font-size:14px" onclick="printTimesheet()">⬇ Print</button>
+      <button class="btn btn-ghost" style="font-size:14px" onclick="prefillFromLastWeek()">↩ Copy last week</button>
+      <button class="btn btn-ghost" style="font-size:14px" id="ts-collapse-toggle" onclick="tsToggleAllCards()">Collapse all</button>
+      <div class="ts-export-wrap">
+        <button class="btn btn-ghost" style="font-size:14px" onclick="tsExportMenuToggle(event)" aria-haspopup="true" aria-controls="ts-export-menu">⬇ Export ▾</button>
+        <div class="ts-export-menu" id="ts-export-menu">
+          <button onclick="exportTimesheetCSV()">Timesheet CSV</button>
+          <button onclick="exportUpSheetsCSV()" title="UpSheets-compatible CSV for Xero Payroll">Xero Payroll CSV</button>
+          <button onclick="printTimesheet()">Print / PDF</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="font-size:14px" onclick="calcAllHours()" title="Saves every entry on screen, including greyed-out prefills from last week">✓ Save week</button>
     </div>
 
     <!-- Summary KPIs -->
@@ -5321,11 +6248,14 @@ const BASE_MONTHLY = {};
 // Any month with user entries automatically appears
 function buildMONTHLY() {
   const result = {};
-  const base = activeStudio === 'ej' ? BASE_MONTHLY : {};
+  // Year-aware: aggregate the current calendar year, so this keeps working
+  // after 2026 rolls over. Base spreadsheet months only apply in their year.
+  const yr = new Date().getFullYear();
+  const base = (activeStudio === 'ej' && yr === BASE_YEAR) ? BASE_MONTHLY : {};
   // Seed base months (original studio only)
   MONTH_NAMES.forEach(m => { result[m] = base[m] ? {...base[m]} : null; });
   // Layer in user entries
-  userEntries.filter(e => e.date && e.date.startsWith('2026')).forEach(e => {
+  userEntries.filter(e => e.date && e.date.startsWith(yr + '-')).forEach(e => {
     const mIdx = parseInt(e.date.split('-')[1]) - 1;
     const mKey = MONTH_NAMES[mIdx];
     if (!mKey) return;
@@ -5584,7 +6514,7 @@ function showPage(id) {
     try { if (typeof saveEntryData === 'function') saveEntryData(); } catch (e) {}
   }
   // Owner-only pages — Manager and Stylist roles get bounced to the dashboard
-  if ((id === 'pl' || id === 'taxbas') && pinSessionUser !== 'admin') id = 'dashboard';
+  if ((id === 'pl' || id === 'taxbas' || id === 'staffroi') && pinSessionUser !== 'admin') id = 'dashboard';
   // Tier soft gates — Solo plan blocks team-only pages with an upgrade prompt
   if (id === 'leaderboard' && typeof canUseLeaderboard === 'function' && !canUseLeaderboard()) {
     showPricingModal('The Leaderboard ranks your whole team. Upgrade to Studio to unlock it, plus unlimited stylists, contractor invoicing, and more.');
@@ -5604,7 +6534,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -5619,6 +6549,7 @@ function showPage(id) {
   if (id === 'export') renderExportPage();
   if (id === 'pl') renderPL();
   if (id === 'taxbas') renderTaxBAS();
+  if (id === 'staffroi') renderStaffROI();
   if (id === 'goals') renderGoals();
   if (id === 'timesheets') { renderTSStaffChips(); renderTimesheets(); }
   if (id === 'roster') { rosterInitStaff(); rosterRenderAll(); }
@@ -5665,13 +6596,21 @@ function applyCustomRange() {
 }
 
 /* ── DASHBOARD LAYOUT (movable / hideable widgets, saved per device) ── */
-const DASH_WIDGETS = ['kpis','chart-clients','chart-revenue','chart-rebook','chart-newrebook','breakeven','stylist-trend','dailylog'];
+const DASH_WIDGETS = ['kpis','dailychart','prodchart','chart-clients','chart-revenue','chart-rebook','chart-newrebook','breakeven','stylist-trend','dailylog'];
 let dashEditing = false;
 let _dashLayoutInited = false;
 let _dashDragW = null;
 
 function loadDashPrefs() {
   try { return JSON.parse(localStorage.getItem('demo_ejDashLayout') || 'null') || {}; } catch (e) { return {}; }
+}
+// Devices that never customised their layout get a curated default: the old
+// monthly clients/revenue charts duplicate the new hero + sales chart, so
+// they start hidden. Edit layout > Show brings either back, which saves an
+// explicit hidden list and overrides this default from then on.
+const DASH_DEFAULT_HIDDEN = ['chart-clients','chart-revenue'];
+function dashHiddenList(p) {
+  return Array.isArray(p.hidden) ? p.hidden : DASH_DEFAULT_HIDDEN.slice();
 }
 function saveDashPrefs(p) {
   try { localStorage.setItem('demo_ejDashLayout', JSON.stringify(p)); } catch (e) {}
@@ -5690,7 +6629,7 @@ function applyDashWidgets() {
   DASH_WIDGETS.forEach(id => {
     if (!seen[id]) { const el = cont.querySelector('.dash-widget[data-w="' + id + '"]'); if (el) cont.appendChild(el); }
   });
-  const hidden = {}; (p.hidden || []).forEach(id => hidden[id] = 1);
+  const hidden = {}; dashHiddenList(p).forEach(id => hidden[id] = 1);
   cont.querySelectorAll('.dash-widget').forEach(el => {
     const id = el.getAttribute('data-w');
     const off = !!hidden[id];
@@ -5700,30 +6639,13 @@ function applyDashWidgets() {
   });
 }
 
-function applyKpiVisibility() {
-  const p = loadDashPrefs();
-  const hidden = {}; (p.kpiHidden || []).forEach(id => hidden[id] = 1);
-  document.querySelectorAll('#kpi-grid .kpi-card[data-kpi]').forEach(c => {
-    c.classList.toggle('kpi-off', !!hidden[c.getAttribute('data-kpi')]);
-  });
-}
-
 function dashToggleWidget(id) {
   const p = loadDashPrefs();
-  const set = {}; (p.hidden || []).forEach(x => set[x] = 1);
+  const set = {}; dashHiddenList(p).forEach(x => set[x] = 1);
   if (set[id]) delete set[id]; else set[id] = 1;
   p.hidden = Object.keys(set);
   saveDashPrefs(p);
   applyDashWidgets();
-}
-
-function dashToggleKpi(id) {
-  const p = loadDashPrefs();
-  const set = {}; (p.kpiHidden || []).forEach(x => set[x] = 1);
-  if (set[id]) delete set[id]; else set[id] = 1;
-  p.kpiHidden = Object.keys(set);
-  saveDashPrefs(p);
-  applyKpiVisibility();
 }
 
 function dashToggleEdit() {
@@ -5740,7 +6662,6 @@ function dashResetLayout() {
   delete p.order; delete p.hidden; delete p.kpiHidden;
   saveDashPrefs(p);
   applyDashWidgets();
-  applyKpiVisibility();
 }
 
 // Pointer-based drag reorder (works with touch + mouse)
@@ -5796,17 +6717,664 @@ function dashInitLayout() {
   if (!cont) return;
   _dashLayoutInited = true;
   cont.addEventListener('pointerdown', dashDragDown);
-  const kg = document.getElementById('kpi-grid');
-  if (kg) kg.addEventListener('click', function (e) {
-    if (!dashEditing) return;
-    const card = e.target.closest('.kpi-card[data-kpi]');
-    if (card) dashToggleKpi(card.getAttribute('data-kpi'));
-  });
   applyDashWidgets();
+}
+
+/* ── TIMELY-STYLE DASHBOARD (Business / Staff tabs, summary band,
+      period sales chart, staff table). Period logic rides on the
+      existing activeFilter + filteredEntries system. ── */
+let dashTab = 'business';
+let _dashStaffSort = { col: 'svc', dir: -1 };
+
+function dashSetTab(tab) {
+  dashTab = tab;
+  ['business','staff','trends'].forEach(t => {
+    const b = document.getElementById('dash-tab-' + t);
+    if (b) { b.classList.toggle('active', t === tab); b.setAttribute('aria-selected', t === tab); }
+  });
+  const w = document.getElementById('dash-widgets');
+  const st = document.getElementById('dash-staff');
+  const tr = document.getElementById('dash-trends');
+  const tools = document.querySelector('#page-dashboard .dash-toolbar');
+  const filt = document.getElementById('dash-filter');
+  if (w) w.style.display = tab === 'business' ? '' : 'none';
+  if (tools) tools.style.display = tab === 'business' ? '' : 'none';
+  if (st) st.style.display = tab === 'staff' ? '' : 'none';
+  if (tr) tr.style.display = tab === 'trends' ? '' : 'none';
+  // Trends always compares fixed to-date windows, so the period pills don't apply
+  if (filt) filt.style.display = tab === 'trends' ? 'none' : '';
+  if (tab === 'staff') renderDashStaff();
+  if (tab === 'trends') renderDashTrends();
+}
+
+/* ── TRENDS TAB: every metric vs last week and last month ──
+   Both comparisons are to-date (Tue-to-Tue, 9th-to-9th), so a
+   half-finished week or month never reads as a false slump. */
+function dashRangeTotals(startISO, endISO) {
+  const t = { svc:0, prod:0, total:0, ret:0, newC:0, retR:0, newR:0, prodQty:0, ctrGross:0, days:0 };
+  allEntries().forEach(e => {
+    if (!e.date || e.date < startISO || e.date > endISO) return;
+    t.svc += e.svc||0; t.prod += e.prod||0; t.total += e.total||0;
+    t.ret += e.ret||0; t.newC += e.newC||0; t.retR += e.retR||0; t.newR += e.newR||0;
+    t.prodQty += e.prodQty||0;
+    t.ctrGross += e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0;
+    if ((e.total||0) > 0) t.days++;
+  });
+  t.clients = t.ret + t.newC;
+  t.commission = Math.round(t.ctrGross * (getStudioRate()/100) * 100) / 100;
+  t.income = t.total + t.commission;
+  t.avgSale = t.clients > 0 ? t.total / t.clients : null;
+  t.avgDay = t.days > 0 ? t.total / t.days : null;
+  t.retRb = t.ret > 0 ? t.retR / t.ret * 100 : null;
+  t.newRb = t.newC > 0 ? t.newR / t.newC * 100 : null;
+  return t;
+}
+
+function trendPill(cur, prev, pts) {
+  if (cur == null || prev == null) return '<span class="trend-pill flat">no data</span>';
+  if (!prev && !cur) return '<span class="trend-pill flat">—</span>';
+  if (!prev) return '<span class="trend-pill up">▲ new</span>';
+  let diff, label;
+  if (pts) { diff = cur - prev; label = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' pts'; }
+  else { diff = (cur - prev) / prev * 100; label = (diff >= 0 ? '+' : '') + diff.toFixed(0) + '%'; }
+  if (Math.abs(diff) < 0.5) return '<span class="trend-pill flat">→ level</span>';
+  return `<span class="trend-pill ${diff >= 0 ? 'up' : 'down'}">${diff >= 0 ? '▲' : '▼'} ${label}</span>`;
+}
+
+function renderDashTrends() {
+  const el = document.getElementById('dash-trends');
+  if (!el) return;
+  const today = new Date();
+  const todayISO = toLocalISO(today);
+
+  // Week-to-date vs the same days of last week
+  const mon = getMondayOfWeek(todayISO);
+  const wk = dashRangeTotals(toLocalISO(mon), todayISO);
+  const lastMon = new Date(mon); lastMon.setDate(mon.getDate() - 7);
+  const lastSame = new Date(today); lastSame.setDate(today.getDate() - 7);
+  const lw = dashRangeTotals(toLocalISO(lastMon), toLocalISO(lastSame));
+
+  // Month-to-date vs the same day-span of last month
+  const mo = dashRangeTotals(todayISO.slice(0, 8) + '01', todayISO);
+  const pmFirst = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const pmDays = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+  const pmEnd = new Date(pmFirst.getFullYear(), pmFirst.getMonth(), Math.min(today.getDate(), pmDays));
+  const lm = dashRangeTotals(toLocalISO(pmFirst), toLocalISO(pmEnd));
+
+  const money = v => v == null ? '—' : '$' + Math.round(v).toLocaleString();
+  const num = v => v == null ? '—' : Math.round(v).toLocaleString();
+  const pct = v => v == null ? '—' : v.toFixed(0) + '%';
+
+  const METRICS = [
+    { group: 'Money' },
+    { label: 'Sales', get: t => t.total, fmt: money },
+    { label: 'Services', get: t => t.svc, fmt: money },
+    { label: 'Products', get: t => t.prod, fmt: money },
+    { label: 'Commission', get: t => t.commission, fmt: money },
+    { label: 'Studio income', get: t => t.income, fmt: money },
+    { label: 'Average sale', get: t => t.avgSale, fmt: money },
+    { label: 'Avg trading day', get: t => t.avgDay, fmt: money },
+    { group: 'Clients' },
+    { label: 'Total clients', get: t => t.clients, fmt: num },
+    { label: 'Returning', get: t => t.ret, fmt: num },
+    { label: 'New clients', get: t => t.newC, fmt: num },
+    { label: 'Units sold', get: t => t.prodQty, fmt: num },
+    { group: 'Rebooking' },
+    { label: 'Ret. rebook rate', get: t => t.retRb, fmt: pct, pts: true },
+    { label: 'New rebook rate', get: t => t.newRb, fmt: pct, pts: true },
+  ];
+
+  const fmtD = d => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  const heroTile = (title, cur, prev, sub) => {
+    const dir = (prev > 0) ? (cur >= prev ? 'up' : 'down') : 'flat';
+    const pc = prev > 0 ? Math.abs((cur - prev) / prev * 100).toFixed(0) : null;
+    const word = dir === 'up' ? 'UP' : dir === 'down' ? 'DOWN' : '—';
+    return `<div class="trend-tile ${dir}">
+      <div class="tl-label">${title}</div>
+      <div class="trend-tile-big">${pc != null ? `${word} ${pc}%` : 'No comparison yet'}</div>
+      <div class="trend-tile-sub">${money(cur)} vs ${money(prev)} · ${sub}</div>
+    </div>`;
+  };
+
+  const rows = METRICS.map(m => {
+    if (m.group) return `<div class="trend-group">${m.group}</div>`;
+    const wc = m.get(wk), wp = m.get(lw), mc = m.get(mo), mp = m.get(lm);
+    return `<div class="trend-row">
+      <div class="trend-name">${m.label}</div>
+      <div class="trend-cell">
+        <span class="trend-val">${m.fmt(wc)}</span>
+        <span class="trend-prev">last wk ${m.fmt(wp)}</span>
+        ${trendPill(wc, wp, m.pts)}
+      </div>
+      <div class="trend-cell">
+        <span class="trend-val">${m.fmt(mc)}</span>
+        <span class="trend-prev">last mo ${m.fmt(mp)}</span>
+        ${trendPill(mc, mp, m.pts)}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="trend-hero">
+      ${heroTile('Sales vs last week', wk.total, lw.total, `${fmtD(mon)} – today vs same days last week`)}
+      ${heroTile('Sales vs last month', mo.total, lm.total, `1st – today vs 1st – ${fmtD(pmEnd)}`)}
+    </div>
+    <div class="trend-table">
+      <div class="trend-head">
+        <div></div>
+        <div>This week <span>vs same point last week</span></div>
+        <div>This month <span>vs same point last month</span></div>
+      </div>
+      ${rows}
+    </div>
+    <div class="trend-note">Comparisons are to-date: ${fmtD(today)} against the same point of the previous week and month, so a period that isn't finished yet is judged fairly. Rebook rates compare in percentage points.</div>`;
+}
+
+// Calendar months (short names) a filter spans, for layering base monthly data
+function dashMonthsFor(filter) {
+  if (MONTH_NAMES.includes(filter)) return [filter];
+  const qs = { q1:[6,7,8], q2:[9,10,11], q3:[0,1,2], q4:[3,4,5] };
+  if (qs[filter]) return qs[filter].map(i => MONTH_NAMES[i]);
+  if (filter === 'ytd') return MONTH_NAMES.slice(0, new Date().getMonth() + 1);
+  if (filter === 'all' || filter === 'fy') return MONTH_NAMES.slice();
+  return []; // weeks + custom: daily entries only
+}
+
+// ISO date range a filter spans, or null for open-ended ('all')
+function dashRangeFor(filter) {
+  const yr = new Date().getFullYear();
+  if (MONTH_NAMES.includes(filter)) {
+    const mi = MONTH_NAMES.indexOf(filter);
+    const last = new Date(yr, mi + 1, 0).getDate();
+    const mm = String(mi + 1).padStart(2, '0');
+    return { start: `${yr}-${mm}-01`, end: `${yr}-${mm}-${String(last).padStart(2,'0')}` };
+  }
+  if (filter === 'thisweek' || filter === 'lastweek') {
+    const mon = getMondayOfWeek(toLocalISO(new Date()));
+    if (filter === 'lastweek') mon.setDate(mon.getDate() - 7);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    return { start: toLocalISO(mon), end: toLocalISO(sun) };
+  }
+  if (filter === 'ytd') return { start: `${yr}-01-01`, end: toLocalISO(new Date()) };
+  if (filter === 'fy') {
+    const s = new Date().getMonth() >= 6 ? `${yr}-07-01` : `${yr-1}-07-01`;
+    const e = new Date().getMonth() >= 6 ? `${yr+1}-06-30` : `${yr}-06-30`;
+    return { start: s, end: e };
+  }
+  const qs = { q1:[6,8], q2:[9,11], q3:[0,2], q4:[3,5] };
+  if (qs[filter]) {
+    const [a,b] = qs[filter];
+    const last = new Date(yr, b + 1, 0).getDate();
+    return { start: `${yr}-${String(a+1).padStart(2,'0')}-01`, end: `${yr}-${String(b+1).padStart(2,'0')}-${String(last).padStart(2,'0')}` };
+  }
+  if (filter === 'custom' && customRange.start && customRange.end) return { start: customRange.start, end: customRange.end };
+  return null;
+}
+
+// Bundle of everything a period needs: entries, base months, date range.
+// Entries are clamped to the period's real date range: month-name filters
+// match by name alone, which would drag last year's same-named month in.
+function dashDescriptor(filter) {
+  const range = dashRangeFor(filter);
+  let entries = filteredEntries(filter);
+  if (range) entries = entries.filter(e => e.date && e.date >= range.start && e.date <= range.end);
+  return {
+    filter,
+    monthKey: MONTH_NAMES.includes(filter) ? filter : null,
+    months: dashMonthsFor(filter),
+    range,
+    entries,
+  };
+}
+
+// Previous comparable period, or null when there is not one (all / ytd / fy)
+function dashPrevDescriptor(filter) {
+  if (MONTH_NAMES.includes(filter)) {
+    const i = MONTH_NAMES.indexOf(filter);
+    return i > 0 ? dashDescriptor(MONTH_NAMES[i-1]) : null;
+  }
+  if (filter === 'thisweek') return dashDescriptor('lastweek');
+  const qPrev = { q2:'q1', q3:'q2', q4:'q3' };
+  if (qPrev[filter]) return dashDescriptor(qPrev[filter]);
+  // lastweek + custom: same-length window immediately before
+  let range = null;
+  if (filter === 'lastweek' || filter === 'custom') {
+    const cur = dashRangeFor(filter);
+    if (!cur) return null;
+    const s = new Date(cur.start + 'T00:00:00'), e = new Date(cur.end + 'T00:00:00');
+    const days = Math.round((e - s) / 86400000) + 1;
+    const pe = new Date(s); pe.setDate(pe.getDate() - 1);
+    const ps = new Date(pe); ps.setDate(ps.getDate() - days + 1);
+    range = { start: toLocalISO(ps), end: toLocalISO(pe) };
+  }
+  if (!range) return null;
+  const all = allEntries();
+  return {
+    filter: null, monthKey: null, months: [], range,
+    entries: all.filter(e => e.date >= range.start && e.date <= range.end),
+  };
+}
+
+// Headline totals for a descriptor. Named months lean on MONTHLY (base + user
+// merged) so figures match the rest of the app; everything else sums entries.
+function dashTotalsFor(desc) {
+  if (!desc) return null;
+  const MONTHLY = buildMONTHLY();
+  const t = { svc:0, prod:0, total:0, ret:0, newC:0, retR:0, newR:0 };
+  if (desc.monthKey && MONTHLY[desc.monthKey]) {
+    const m = MONTHLY[desc.monthKey];
+    t.svc = m.svc||0; t.prod = m.prod||0; t.total = m.total||0;
+    t.ret = m.ret||0; t.newC = m.newC||0; t.retR = m.retR||0; t.newR = m.newR||0;
+  } else {
+    desc.entries.forEach(e => {
+      t.svc += e.svc||0; t.prod += e.prod||0; t.total += e.total||0;
+      t.ret += e.ret||0; t.newC += e.newC||0; t.retR += e.retR||0; t.newR += e.newR||0;
+    });
+  }
+  // Contractor + trading-day figures only live on daily entries
+  t.ctrGross = desc.entries.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
+  t.prodQty = desc.entries.reduce((s,e) => s + (e.prodQty||0), 0);
+  t.days = desc.entries.filter(e => (e.total||0) > 0).length;
+  t.clients = t.ret + t.newC;
+  t.commission = Math.round(t.ctrGross * (getStudioRate()/100) * 100) / 100;
+  t.income = Math.round((t.total + t.commission) * 100) / 100;
+  return t;
+}
+
+function tlMoney(n, cents) {
+  const opts = cents && !Number.isInteger(n) ? { minimumFractionDigits:2, maximumFractionDigits:2 } : { maximumFractionDigits:0 };
+  return '$' + (n||0).toLocaleString(undefined, opts);
+}
+
+// Timely-style comparison: arrow + previous period's value, green when up
+function tlDelta(cur, prev, fmt) {
+  if (prev == null) return '';
+  if (!prev && !cur) return '';
+  const up = cur >= prev;
+  const f = fmt || tlMoney;
+  return `<span class="tl-delta ${up ? 'up' : 'down'}" title="Previous period: ${f(prev)}">${up ? '↑' : '↓'} ${f(prev)}</span>`;
+}
+
+function tlDonut(pct, colorVar, prevPct) {
+  const p = Math.max(0, Math.min(100, pct||0));
+  const r = 30, c = 2 * Math.PI * r;
+  const delta = (prevPct != null && (prevPct || pct))
+    ? `<span class="tl-delta ${pct >= prevPct ? 'up' : 'down'}" title="Previous period: ${prevPct.toFixed(0)}%">${pct >= prevPct ? '↑' : '↓'} ${prevPct.toFixed(0)}%</span>` : '';
+  return `<div class="tl-donut-wrap">
+    <div class="tl-donut">
+      <svg viewBox="0 0 72 72" width="72" height="72" aria-hidden="true">
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--surface3)" stroke-width="7"/>
+        <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(${colorVar})" stroke-width="7" stroke-linecap="round"
+          stroke-dasharray="${(p/100*c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 36 36)"/>
+      </svg>
+      <div class="tl-donut-num">${p.toFixed(0)}%</div>
+    </div>
+    ${delta}
+  </div>`;
+}
+
+// Step the period with the ‹ › chevrons (months, weeks, quarters)
+function dashStepPeriod(dir) {
+  let next = null;
+  if (MONTH_NAMES.includes(activeFilter)) {
+    const i = MONTH_NAMES.indexOf(activeFilter) + dir;
+    if (i >= 0 && i < 12) next = MONTH_NAMES[i];
+  } else if (activeFilter === 'thisweek' && dir < 0) next = 'lastweek';
+  else if (activeFilter === 'lastweek' && dir > 0) next = 'thisweek';
+  else { const q = { q1:0, q2:1, q3:2, q4:3 };
+    if (q[activeFilter] != null) { const i = q[activeFilter] + dir; if (i >= 0 && i < 4) next = 'q' + (i+1); } }
+  if (next) { activeFilter = next; renderDashboard(); }
+}
+
+function dashCanStep(dir) {
+  if (MONTH_NAMES.includes(activeFilter)) { const i = MONTH_NAMES.indexOf(activeFilter) + dir; return i >= 0 && i < 12; }
+  if (activeFilter === 'thisweek') return dir < 0;
+  if (activeFilter === 'lastweek') return dir > 0;
+  const q = { q1:0, q2:1, q3:2, q4:3 };
+  if (q[activeFilter] != null) { const i = q[activeFilter] + dir; return i >= 0 && i < 4; }
+  return false;
+}
+
+// ── Period sales chart: daily stacked bars for short periods, monthly otherwise ──
+function renderDashPeriodChart(desc) {
+  const el = document.getElementById('dash-period-chart');
+  if (!el) return;
+  const MONTHLY = buildMONTHLY();
+  const today = toLocalISO(new Date());
+  let bars = [];
+  const spanDays = desc.range
+    ? Math.round((new Date(desc.range.end+'T00:00:00') - new Date(desc.range.start+'T00:00:00'))/86400000) + 1 : 999;
+
+  if (desc.range && spanDays <= 45) {
+    const byDate = {};
+    desc.entries.forEach(e => { if (e.date) byDate[e.date] = e; });
+    const d = new Date(desc.range.start + 'T00:00:00');
+    const end = new Date(desc.range.end + 'T00:00:00');
+    while (d <= end) {
+      const iso = toLocalISO(d);
+      const e = byDate[iso];
+      bars.push({
+        svc: e ? (e.svc||0) : 0, prod: e ? (e.prod||0) : 0,
+        l1: 'SMTWTFS'[d.getDay()], l2: String(d.getDate()),
+        today: iso === today,
+        tip: d.toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short' }),
+      });
+      d.setDate(d.getDate() + 1);
+    }
+  } else {
+    const months = (desc.months.length ? desc.months : MONTH_NAMES).filter(m => MONTHLY[m]);
+    bars = months.map(m => ({
+      svc: MONTHLY[m].svc||0, prod: MONTHLY[m].prod||0,
+      l1: m, l2: '', today: MONTH_NAMES[new Date().getMonth()] === m, tip: m,
+    }));
+  }
+
+  const max = Math.max(...bars.map(b => b.svc + b.prod), 0);
+  if (!max) {
+    el.innerHTML = '<div class="chart-empty" style="min-height:170px">No sales recorded in this period yet.</div>';
+    return;
+  }
+  // Round the scale up to a tidy ceiling for the gridlines
+  const pow = Math.pow(10, Math.max(1, String(Math.ceil(max)).length - 2));
+  const ceil = Math.ceil(max / pow) * pow;
+  const ticks = [0.25, 0.5, 0.75, 1].map(f => ceil * f);
+  const H = 170;
+
+  const dense = bars.length > 32;
+  el.innerHTML = `
+    <div class="tl-chart">
+      <div class="tl-chart-grid">
+        ${ticks.map(v => `<div class="tl-gridline" style="bottom:${(v/ceil*H).toFixed(1)}px"><span>${tlMoney(v)}</span></div>`).join('')}
+      </div>
+      <div class="tl-chart-bars" style="height:${H}px">
+        ${bars.map((b,i) => {
+          const sh = Math.round(b.svc/ceil*H), ph = Math.round(b.prod/ceil*H);
+          const label = dense && b.l2 && (i % 2 === 1) ? '' : `<span>${b.l1}</span><span>${b.l2}</span>`;
+          return `<div class="tl-bar-col ${b.today ? 'today' : ''}" title="${b.tip} · ${tlMoney(b.svc)} services, ${tlMoney(b.prod)} products">
+            <div class="tl-bar-stack">
+              ${ph ? `<div class="tl-bar-prod" style="height:${ph}px"></div>` : ''}
+              ${sh ? `<div class="tl-bar-svc" style="height:${sh}px"></div>` : ''}
+            </div>
+            <div class="tl-bar-label">${label}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="tl-legend">
+      <span><i style="background:var(--green)"></i> Services</span>
+      <span><i style="background:var(--green);opacity:.35"></i> Products</span>
+    </div>`;
+}
+
+// ── Productivity chart: timesheet hours per day, stacked by staff ──
+function dashHoursByDate(range) {
+  const ts = loadTSData();
+  const out = {};
+  Object.keys(ts).forEach(k => {
+    const date = k.slice(-10), name = k.slice(0, -12);
+    if (!name || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    if (range && (date < range.start || date > range.end)) return;
+    const row = ts[k] || {};
+    const h = (row.hours != null && isFinite(row.hours)) ? row.hours
+      : calcHours(row.start || '', row.end || '', parseFloat(row.break) || 0);
+    if (h != null && isFinite(h) && h > 0) {
+      if (!out[date]) out[date] = {};
+      out[date][name] = (out[date][name] || 0) + h;
+    }
+  });
+  return out;
+}
+
+// Same mid-tone staff palette as avatars/roster, but the black slot becomes
+// the theme accent so segments stay visible in dark mode.
+const DASH_PROD_COLORS = ['var(--accent)','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a','#378add','#ba7517'];
+
+function renderDashProdChart(desc) {
+  const el = document.getElementById('dash-prod-chart');
+  if (!el) return;
+  const byDate = dashHoursByDate(desc.range);
+  const dates = Object.keys(byDate).sort();
+  const head = `<div class="tl-chart-head"><div class="tl-label">Productivity</div>`;
+
+  if (!dates.length) {
+    el.innerHTML = `${head}</div>
+      <div class="chart-empty" style="min-height:150px;flex-direction:column;gap:10px">
+        <div>No timesheet hours in this period yet.</div>
+        <button class="btn btn-ghost" style="font-size:14px" onclick="showPage('timesheets')">Log hours on Timesheets</button>
+      </div>`;
+    return;
+  }
+
+  // Stable staff order + colours: timesheet staff first, then anyone else in the data
+  const staffNames = getAllTSStaff().map(s => s.name);
+  const seen = new Set(staffNames.map(n => n.toLowerCase()));
+  dates.forEach(d => Object.keys(byDate[d]).forEach(n => {
+    if (!seen.has(n.toLowerCase())) { staffNames.push(n); seen.add(n.toLowerCase()); }
+  }));
+  const colorOf = {};
+  staffNames.forEach((n, i) => colorOf[n] = DASH_PROD_COLORS[i % DASH_PROD_COLORS.length]);
+
+  const today = toLocalISO(new Date());
+  const fmtH = v => (Math.round(v * 10) / 10).toLocaleString();
+  const spanDays = desc.range
+    ? Math.round((new Date(desc.range.end+'T00:00:00') - new Date(desc.range.start+'T00:00:00'))/86400000) + 1 : 999;
+  let bars = [];
+
+  if (desc.range && spanDays <= 45) {
+    const d = new Date(desc.range.start + 'T00:00:00');
+    const end = new Date(desc.range.end + 'T00:00:00');
+    while (d <= end) {
+      const iso = toLocalISO(d);
+      const day = byDate[iso] || {};
+      const segs = staffNames.filter(n => day[n]).map(n => ({ n, h: day[n] }));
+      bars.push({
+        segs, total: segs.reduce((s,x) => s + x.h, 0),
+        l1: 'SMTWTFS'[d.getDay()], l2: String(d.getDate()),
+        today: iso === today,
+        tip: d.toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short' }),
+      });
+      d.setDate(d.getDate() + 1);
+    }
+  } else {
+    const byMonth = {};
+    dates.forEach(date => {
+      const key = date.slice(0, 7);
+      if (!byMonth[key]) byMonth[key] = {};
+      Object.keys(byDate[date]).forEach(n => { byMonth[key][n] = (byMonth[key][n] || 0) + byDate[date][n]; });
+    });
+    const curYear = String(new Date().getFullYear());
+    bars = Object.keys(byMonth).sort().map(key => {
+      const m = byMonth[key];
+      const segs = staffNames.filter(n => m[n]).map(n => ({ n, h: m[n] }));
+      const mName = MONTH_NAMES[parseInt(key.slice(5, 7), 10) - 1] || key;
+      const label = key.slice(0, 4) === curYear ? mName : mName + ' ' + key.slice(2, 4);
+      return { segs, total: segs.reduce((s,x) => s + x.h, 0), l1: label, l2: '', today: false, tip: label };
+    });
+  }
+
+  const max = Math.max(...bars.map(b => b.total), 0);
+  const ceil = Math.max(4, Math.ceil(max / 4) * 4);
+  const ticks = [0.25, 0.5, 0.75, 1].map(f => ceil * f);
+  const H = 150;
+
+  const totalHours = bars.reduce((s,b) => s + b.total, 0);
+  // Only count revenue from days that actually have hours logged, so partial
+  // timesheet coverage can't inflate the per-hour figure
+  const revenue = desc.entries.reduce((s,e) => s + (byDate[e.date] ? (e.total||0) : 0), 0);
+  const perHour = totalHours > 0 ? revenue / totalHours : null;
+  const summary = `${fmtH(totalHours)} hrs worked${perHour != null ? ' · ' + tlMoney(Math.round(perHour)) + ' revenue per timesheet hour' : ''}`;
+
+  const activeStaff = staffNames.filter(n => bars.some(b => b.segs.some(s => s.n === n)));
+  const dense = bars.length > 32;
+
+  el.innerHTML = `
+    ${head}<div class="tl-chart-sub">${summary}</div></div>
+    <div class="tl-chart">
+      <div class="tl-chart-grid" style="height:${H}px">
+        ${ticks.map(v => `<div class="tl-gridline" style="bottom:${(v/ceil*H).toFixed(1)}px"><span>${fmtH(v)} hrs</span></div>`).join('')}
+      </div>
+      <div class="tl-chart-bars" style="height:${H}px">
+        ${bars.map((b,i) => {
+          const label = dense && b.l2 && (i % 2 === 1) ? '' : `<span>${b.l1}</span><span>${b.l2}</span>`;
+          const tip = b.total > 0
+            ? `${b.tip} · ${fmtH(b.total)} hrs (${b.segs.map(s => s.n.split(' ')[0] + ' ' + fmtH(s.h)).join(', ')})`
+            : `${b.tip} · no hours`;
+          return `<div class="tl-bar-col ${b.today ? 'today' : ''}" title="${tip}">
+            <div class="tl-bar-stack">
+              ${b.segs.map(s => `<div style="height:${Math.max(2, Math.round(s.h/ceil*H))}px;background:${colorOf[s.n]}"></div>`).join('')}
+            </div>
+            <div class="tl-bar-label">${label}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="tl-legend">
+      ${activeStaff.map(n => `<span><i style="background:${colorOf[n]}"></i> ${n}</span>`).join('')}
+    </div>`;
+}
+
+// ── Staff tab: Timely-style per-stylist table ──
+function dashStaffAggregates(desc) {
+  const s = {};
+  STYLISTS.forEach(st => { s[st.name] = { svc:0, prod:0, clients:0, rebooked:0, hasData:false }; });
+  if (activeStudio === 'ej' && typeof STYLIST_MONTHLY !== 'undefined') {
+    desc.months.forEach(m => {
+      const md = STYLIST_MONTHLY[m]; if (!md) return;
+      STYLISTS.forEach(st => {
+        const d = md[st.name]; if (!d) return;
+        s[st.name].hasData = true;
+        s[st.name].clients += d.c||0;
+        s[st.name].svc += d.svc||0; s[st.name].prod += d.prod||0;
+        s[st.name].rebooked += (d.retR||0) + (d.newR||0);
+      });
+    });
+  }
+  desc.entries.forEach(e => {
+    if (!e.sd) return;
+    STYLISTS.forEach(st => {
+      const d = e.sd[st.name]; if (!d) return;
+      if (!(d.c || d.svc || d.prod || d.rr || d.nrr)) return;
+      s[st.name].hasData = true;
+      s[st.name].clients += d.c||0;
+      s[st.name].svc += d.svc||0; s[st.name].prod += d.prod||0;
+      s[st.name].rebooked += (d.rr||0) + (d.nrr||0);
+    });
+  });
+  return s;
+}
+
+// Average hour for one stylist: their sales on days they logged hours,
+// divided by those hours. Days without a timesheet don't count either way,
+// so partial timesheet coverage can't inflate the figure.
+function dashStaffAvgHour(name, entries, hoursByDate) {
+  let hours = 0; const dates = new Set();
+  Object.keys(hoursByDate).forEach(d => {
+    const h = hoursByDate[d][name];
+    if (h) { hours += h; dates.add(d); }
+  });
+  if (!hours) return { hours: null, avg: null };
+  let rev = 0;
+  entries.forEach(e => {
+    if (dates.has(e.date) && e.sd && e.sd[name]) rev += (e.sd[name].svc||0) + (e.sd[name].prod||0);
+  });
+  return { hours, avg: rev / hours };
+}
+
+function dashStaffSort(col) {
+  if (_dashStaffSort.col === col) _dashStaffSort.dir *= -1;
+  else _dashStaffSort = { col, dir: -1 };
+  renderDashStaff();
+}
+
+function renderDashStaff() {
+  const el = document.getElementById('dash-staff');
+  if (!el) return;
+  const desc = dashDescriptor(activeFilter);
+  const prev = dashPrevDescriptor(activeFilter);
+  const cur = dashStaffAggregates(desc);
+  const was = prev ? dashStaffAggregates(prev) : null;
+  const totSvc = STYLISTS.reduce((t,st) => t + cur[st.name].svc, 0);
+  const totProd = STYLISTS.reduce((t,st) => t + cur[st.name].prod, 0);
+
+  const hoursByDate = dashHoursByDate(desc.range);
+  const prevHoursByDate = prev ? dashHoursByDate(prev.range) : null;
+  const rows = STYLISTS.map(st => {
+    const c = cur[st.name];
+    const p = was ? was[st.name] : null;
+    const ah = dashStaffAvgHour(st.name, desc.entries, hoursByDate);
+    const pah = (p && prevHoursByDate) ? dashStaffAvgHour(st.name, prev.entries, prevHoursByDate) : { hours: null, avg: null };
+    const rb = c.clients > 0 ? c.rebooked / c.clients * 100 : null;
+    const prevRb = p && p.clients > 0 ? p.rebooked / p.clients * 100 : null;
+    return { st, c, p, hours: ah.hours, avgHr: ah.avg, prevAvgHr: pah.avg, rb, prevRb };
+  }).filter(r => r.c.hasData);
+
+  const sortVal = r => ({
+    svc: r.c.svc, prod: r.c.prod,
+    avg: r.avgHr != null ? r.avgHr : -1,
+    rebook: r.rb != null ? r.rb : -1,
+  })[_dashStaffSort.col] || 0;
+  rows.sort((a,b) => (sortVal(b) - sortVal(a)) * -_dashStaffSort.dir);
+
+  const arrow = col => _dashStaffSort.col === col ? (_dashStaffSort.dir === -1 ? ' ↓' : ' ↑') : ' ⇅';
+  const pctFmt = v => v.toFixed(0) + '%';
+  const initials = n => n.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase();
+
+  const header = `
+    <div class="tl-staff-head">
+      <div></div>
+      <button class="tl-sort" onclick="dashStaffSort('svc')">Services${arrow('svc')}</button>
+      <button class="tl-sort" onclick="dashStaffSort('prod')">Products${arrow('prod')}</button>
+      <button class="tl-sort" onclick="dashStaffSort('avg')">Average hour${arrow('avg')}</button>
+      <button class="tl-sort" onclick="dashStaffSort('rebook')">Rebooked${arrow('rebook')}</button>
+    </div>`;
+
+  const body = rows.map(r => `
+    <div class="tl-staff-row">
+      <div class="tl-staff-who">
+        <div class="tl-avatar">${initials(r.st.name)}</div>
+        <div>
+          <div class="tl-staff-name">${r.st.name}</div>
+          <button class="tl-staff-link" onclick="showPage('stylistperf')">Full performance</button>
+        </div>
+      </div>
+      <div class="tl-cell">
+        <div class="tl-cell-big">${tlMoney(r.c.svc)}</div>
+        <div class="tl-cell-sub">${totSvc > 0 ? Math.round(r.c.svc/totSvc*100) : 0}% of all service sales</div>
+        ${r.p ? tlDelta(r.c.svc, r.p.svc) : ''}
+      </div>
+      <div class="tl-cell">
+        <div class="tl-cell-big">${tlMoney(r.c.prod)}</div>
+        <div class="tl-cell-sub">${totProd > 0 ? Math.round(r.c.prod/totProd*100) : 0}% of all product sales</div>
+        ${r.p ? tlDelta(r.c.prod, r.p.prod) : ''}
+      </div>
+      <div class="tl-cell">
+        <div class="tl-cell-big">${r.avgHr != null ? tlMoney(Math.round(r.avgHr)) : '—'}</div>
+        <div class="tl-cell-sub">${r.hours != null ? r.hours.toLocaleString(undefined,{maximumFractionDigits:1}) + ' hrs on timesheets' : 'No timesheet hours'}</div>
+        ${r.prevAvgHr != null && r.avgHr != null ? tlDelta(r.avgHr, Math.round(r.prevAvgHr)) : ''}
+      </div>
+      <div class="tl-cell">
+        <div class="tl-cell-big">${r.rb != null ? pctFmt(r.rb) : '—'}</div>
+        <div class="tl-cell-sub">of ${r.c.clients.toLocaleString()} client${r.c.clients === 1 ? '' : 's'}</div>
+        ${r.rb != null && r.prevRb != null ? tlDelta(r.rb, r.prevRb, pctFmt) : ''}
+      </div>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="tl-periodbar">
+      <button class="tl-step" onclick="dashStepPeriod(-1)" ${dashCanStep(-1) ? '' : 'disabled'} aria-label="Previous period">‹</button>
+      <span class="tl-period-label">${filterLabel(activeFilter)}</span>
+      <button class="tl-step" onclick="dashStepPeriod(1)" ${dashCanStep(1) ? '' : 'disabled'} aria-label="Next period">›</button>
+    </div>
+    ${rows.length ? header + body : '<div class="chart-empty" style="min-height:160px">No stylist activity in this period yet. Per-stylist figures come from the stylist sections of your daily entries.</div>'}
+    ${rows.length ? '<div class="tl-staff-note">Comparisons show the previous period. Average hour needs hours logged on the Timesheets page.</div>' : ''}`;
 }
 
 function renderDashboard() {
   dashInitLayout();
+  // Build the monthly aggregate ONCE per render. The bare global MONTHLY is a
+  // proxy that re-aggregates every entry on every property access, so the
+  // chart loops below would otherwise rebuild it 100+ times per render.
+  const MONTHLY = buildMONTHLY();
   // First open this session: start on the owner's chosen default period
   if (!_dashDefaultApplied) {
     _dashDefaultApplied = true;
@@ -5879,56 +7447,97 @@ function renderDashboard() {
     displayClients = entries.reduce((s, e) => s + (e.ret || 0) + (e.newC || 0), 0);
   }
 
+  // ── Timely-style hero: period bar, summary band, metrics row ──
   const kpi = document.getElementById('kpi-grid');
+  const desc = dashDescriptor(activeFilter);
+  const prevDesc = dashPrevDescriptor(activeFilter);
+  const T = dashTotalsFor(desc);
+  const P = dashTotalsFor(prevDesc);
+  const retRbPct = T.ret > 0 ? T.retR / T.ret * 100 : 0;
+  const newRbPct = T.newC > 0 ? T.newR / T.newC * 100 : 0;
+  const prevRetRb = P && P.ret > 0 ? P.retR / P.ret * 100 : null;
+  const prevNewRb = P && P.newC > 0 ? P.newR / P.newC * 100 : null;
+  const avgSale = T.clients > 0 ? T.total / T.clients : 0;
+  const prevAvgSale = P && P.clients > 0 ? Math.round(P.total / P.clients) : null;
+  const nFmt = v => Math.round(v).toLocaleString();
+  kpi.className = 'tl-hero';
   kpi.innerHTML = `
-    <div class="kpi-card" data-kpi="clients">
-      <div class="kpi-label">Total Clients</div>
-      <div class="kpi-value">${displayClients.toLocaleString()}</div>
-      <div class="kpi-sub">${filterLabel(activeFilter)}</div>
+    <div class="tl-periodbar">
+      <button class="tl-step" onclick="dashStepPeriod(-1)" ${dashCanStep(-1) ? '' : 'disabled'} aria-label="Previous period">‹</button>
+      <span class="tl-period-label">${filterLabel(activeFilter)}</span>
+      <button class="tl-step" onclick="dashStepPeriod(1)" ${dashCanStep(1) ? '' : 'disabled'} aria-label="Next period">›</button>
     </div>
-    <div class="kpi-card" data-kpi="revenue">
-      <div class="kpi-label">Total Revenue</div>
-      <div class="kpi-value">$${displayRevenue.toLocaleString()}</div>
-      <div class="kpi-sub">${filterLabel(activeFilter)}</div>
+    <div class="tl-band">
+      <div class="tl-col">
+        <div class="tl-label">Sales</div>
+        <div class="tl-big">${tlMoney(T.total)}</div>
+        <div class="tl-deltarow">${P ? tlDelta(T.total, P.total) : '&nbsp;'}</div>
+        <div class="tl-subs">
+          <div>${tlMoney(T.svc)} services ${P ? tlDelta(T.svc, P.svc) : ''}</div>
+          <div>${tlMoney(T.prod)} products ${P ? tlDelta(T.prod, P.prod) : ''}</div>
+        </div>
+      </div>
+      <div class="tl-col">
+        <div class="tl-label">Commission</div>
+        <div class="tl-big">${tlMoney(T.commission, true)}</div>
+        <div class="tl-deltarow">${P ? tlDelta(T.commission, P.commission) : '&nbsp;'}</div>
+        <div class="tl-subs">
+          ${T.ctrGross > 0
+            ? `<div>${tlMoney(T.ctrGross)} contractor gross</div><div>${getStudioRate().toFixed(0)}% of contractor sales</div>`
+            : '<div>No contractor activity this period</div>'}
+        </div>
+      </div>
+      <div class="tl-col">
+        <div class="tl-label">Total</div>
+        <div class="tl-big">${tlMoney(T.income)}</div>
+        <div class="tl-deltarow">${P ? tlDelta(T.income, P.income) : '&nbsp;'}</div>
+        <div class="tl-subs">
+          <div>${tlMoney(Math.round(avgSale))} average sale ${prevAvgSale != null ? tlDelta(avgSale, prevAvgSale) : ''}</div>
+          <div>${T.days > 0 ? tlMoney(Math.round(T.total / T.days)) + ' avg across ' + T.days + ' trading day' + (T.days === 1 ? '' : 's') : 'No trading days logged'}</div>
+        </div>
+      </div>
     </div>
-    <div class="kpi-card" data-kpi="rebook">
-      <div class="kpi-label">Ret. Rebook Rate</div>
-      <div class="kpi-value">${retRebook.toFixed(1)}%</div>
-      <div class="kpi-sub kpi-trend ${retRebook >= getRebookTarget() ? 'up' : 'down'}">${retRebook >= getRebookTarget() ? '▲ On target' : '▼ Below ' + getRebookTarget() + '%'}</div>
+    <div class="tl-metrics">
+      <div class="tl-mcol">
+        <div class="tl-mstat">
+          <div class="tl-label">Clients</div>
+          <div class="tl-mval">${nFmt(T.clients)}</div>
+          ${P ? tlDelta(T.clients, P.clients, nFmt) : ''}
+        </div>
+        <div class="tl-mstat">
+          <div class="tl-label">Average sale</div>
+          <div class="tl-mval small">${tlMoney(Math.round(avgSale))}</div>
+          ${prevAvgSale != null ? tlDelta(avgSale, prevAvgSale) : ''}
+        </div>
+      </div>
+      <div class="tl-mcol">
+        <div class="tl-mstat">
+          <div class="tl-label">Returning</div>
+          <div class="tl-mval">${nFmt(T.ret)}</div>
+          ${P ? tlDelta(T.ret, P.ret, nFmt) : ''}
+        </div>
+        <div class="tl-mstat">
+          <div class="tl-label">New clients</div>
+          <div class="tl-mval small">${nFmt(T.newC)}</div>
+          ${P ? tlDelta(T.newC, P.newC, nFmt) : ''}
+        </div>
+      </div>
+      <div class="tl-mcol center">
+        <div class="tl-label">Ret. rebook</div>
+        ${tlDonut(retRbPct, '--accent', prevRetRb)}
+        <div class="tl-target ${retRbPct >= getRebookTarget() ? 'up' : 'down'}">${retRbPct >= getRebookTarget() ? 'On target' : 'Target ' + getRebookTarget() + '%'}</div>
+      </div>
+      <div class="tl-mcol center">
+        <div class="tl-label">New rebook</div>
+        ${tlDonut(newRbPct, '--blue', prevNewRb)}
+        <div class="tl-target">&nbsp;</div>
+      </div>
     </div>
-    <div class="kpi-card" data-kpi="avgday">
-      <div class="kpi-label">Avg Daily Revenue</div>
-      <div class="kpi-value">$${Math.round(avgDay).toLocaleString()}</div>
-      <div class="kpi-sub">${activeDays} trading days</div>
-    </div>
-    <div class="kpi-card" data-kpi="product">
-      <div class="kpi-label">Product Sales</div>
-      <div class="kpi-value">$${totalProd.toLocaleString()}</div>
-      <div class="kpi-sub">${totalProdQty.toLocaleString()} unit${totalProdQty === 1 ? '' : 's'} sold</div>
-    </div>
-    <div class="kpi-card" data-kpi="returning">
-      <div class="kpi-label">Returning Clients</div>
-      <div class="kpi-value">${totalRet.toLocaleString()}</div>
-      <div class="kpi-sub">${(totalRet+totalNew) > 0 ? (totalRet/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
-    </div>
-    <div class="kpi-card" data-kpi="new">
-      <div class="kpi-label">New Clients</div>
-      <div class="kpi-value">${totalNew.toLocaleString()}</div>
-      <div class="kpi-sub">${(totalRet+totalNew) > 0 ? (totalNew/(totalRet+totalNew)*100).toFixed(0) : 0}% of total</div>
-    </div>
-    ${hasCtr ? `
-    <div class="kpi-card" data-kpi="ctrgross" style="border-color:rgba(201,169,110,0.25)">
-      <div class="kpi-label" style="color:var(--accent)">Contractor Gross</div>
-      <div class="kpi-value">$${totalCtrGross.toLocaleString()}</div>
-      <div class="kpi-sub">Total contractor sales</div>
-    </div>
-    <div class="kpi-card" data-kpi="ctrdue" style="border-color:rgba(201,169,110,0.5);background:rgba(201,169,110,0.05)">
-      <div class="kpi-label" style="color:var(--accent)">Contractor Invoice Due</div>
-      <div class="kpi-value" style="color:var(--accent)">$${totalCtrInvoice.toLocaleString(undefined, Number.isInteger(totalCtrInvoice) ? {} : {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
-      <div class="kpi-sub">${(studioRate*100).toFixed(0)}% of contractor sales</div>
-    </div>` : ''}
   `;
-  applyKpiVisibility();
+  renderDashPeriodChart(desc);
+  renderDashProdChart(desc);
+  if (dashTab === 'staff') renderDashStaff();
+  if (dashTab === 'trends') renderDashTrends();
 
   // Monthly bar chart — clients
   const monthsWithData = MONTH_NAMES.filter(m => MONTHLY[m]);
@@ -6053,19 +7662,57 @@ function setWeeklyFilter(f) {
 }
 
 // ===================== WEEK DAYS STATE =====================
-let activeDays = new Set([2,3,4,5,6]); // Tue–Sat checked by default
+// Which weekdays the Weekly view lists day-by-day. Saved per studio so a choice
+// survives a reload instead of snapping back every session. Week totals cover the
+// whole Mon–Sun week regardless of this, so hiding a day never hides its takings.
+const DEFAULT_ACTIVE_DAYS = [1,2,3,4,5,6]; // Mon–Sat
+let activeDays = null; // resolved lazily, once the active studio is known
+
+function loadActiveDays() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(studioKey('ejActiveDays')) || 'null');
+    if (!Array.isArray(arr)) return new Set(DEFAULT_ACTIVE_DAYS);
+    const days = arr.map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6);
+    return new Set(days);
+  } catch { return new Set(DEFAULT_ACTIVE_DAYS); }
+}
+function saveActiveDays() {
+  try { localStorage.setItem(studioKey('ejActiveDays'), JSON.stringify([...activeDays].sort())); } catch {}
+}
+function getActiveDays() {
+  if (!activeDays) activeDays = loadActiveDays();
+  return activeDays;
+}
+// Called when the active studio changes so the next render picks up that studio's choice.
+function resetActiveDays() { activeDays = null; }
+
+// Push the saved state onto the checkboxes so the controls match what's rendered.
+function syncDayToggles() {
+  const days = getActiveDays();
+  for (let i = 0; i < 7; i++) {
+    const label = document.getElementById('dt-' + i);
+    if (!label) continue;
+    const cb = label.querySelector('input[type=checkbox]');
+    const on = days.has(i);
+    if (cb) cb.checked = on;
+    label.classList.toggle('active', on);
+    label.classList.toggle('weekend', !on && (i === 0 || i === 6));
+  }
+}
 
 function toggleDay(dayIdx, cb) {
+  const days = getActiveDays();
   const label = document.getElementById('dt-' + dayIdx);
   if (cb.checked) {
-    activeDays.add(dayIdx);
+    days.add(dayIdx);
     label.classList.add('active');
     label.classList.remove('weekend');
   } else {
-    activeDays.delete(dayIdx);
+    days.delete(dayIdx);
     label.classList.remove('active');
     if (dayIdx === 0 || dayIdx === 6) label.classList.add('weekend');
   }
+  saveActiveDays();
   renderWeekly();
 }
 
@@ -6643,11 +8290,13 @@ function renderWeekly() {
         `<button class="filter-btn ${activeWeeklyFilter === m ? 'active' : ''}" onclick="setWeeklyFilter('${m}')">${m}</button>`
       ).join('');
   }
+  syncDayToggles();
+  const dayFilter = getActiveDays();
   const allEnt = filteredEntries(activeWeeklyFilter);
   // Filter by active days
   const entries = allEnt.filter(e => {
     const d = new Date(e.date + 'T00:00:00');
-    return activeDays.has(d.getDay());
+    return dayFilter.has(d.getDay());
   });
 
   const weeks = {};
@@ -6675,25 +8324,29 @@ function renderWeekly() {
       d.setDate(monday.getDate() + i);
       const iso = toLocalISO(d);
       const dayIdx = d.getDay();
-      const isActive = activeDays.has(dayIdx);
+      const isActive = dayFilter.has(dayIdx);
       const entry = w.allEntries.find(e => e.date === iso);
       days7.push({ date: iso, dayIdx, isActive, entry, d });
     }
 
-    const es = w.entries; // filtered days only
-    const totalC = es.reduce((s,e) => s + (e.ret||0) + (e.newC||0), 0);
-    const totalR = es.reduce((s,e) => s + (e.total||0), 0);
+    const es = w.entries; // day filter applied — drives the day-by-day table below
+    // Header totals always cover the full Mon–Sun week, so they match the dashboard
+    // and the weekly export. The day toggles filter what's listed, not what's counted.
+    const wk = w.allEntries;
+    const hiddenWithData = wk.filter(e => !es.includes(e) && ((e.total||0) > 0 || (e.ret||0) + (e.newC||0) > 0));
+    const totalC = wk.reduce((s,e) => s + (e.ret||0) + (e.newC||0), 0);
+    const totalR = wk.reduce((s,e) => s + (e.total||0), 0);
     const studioRate = getStudioRate() / 100;
-    const totalContractorGross = es.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
+    const totalContractorGross = wk.reduce((s,e) => s + (e.contractor ? (e.contractor.svc||0) + (e.contractor.prod||0) : 0), 0);
     const totalContractor = totalContractorGross * studioRate; // studio's 30% invoice amount
     // Extra weekly totals
-    const totalRetW    = es.reduce((s,e) => s + (e.ret  || 0), 0);
-    const totalNewW    = es.reduce((s,e) => s + (e.newC || 0), 0);
-    const totalRetRW   = es.reduce((s,e) => s + (e.retR || 0), 0);
-    const totalNewRW   = es.reduce((s,e) => s + (e.newR || 0), 0);
-    const totalSvcW    = es.reduce((s,e) => s + (e.svc  || 0), 0);
-    const totalProdW   = es.reduce((s,e) => s + (e.prod || 0), 0);
-    const totalProdQtyW = es.reduce((s,e) => s + (e.prodQty || 0), 0);
+    const totalRetW    = wk.reduce((s,e) => s + (e.ret  || 0), 0);
+    const totalNewW    = wk.reduce((s,e) => s + (e.newC || 0), 0);
+    const totalRetRW   = wk.reduce((s,e) => s + (e.retR || 0), 0);
+    const totalNewRW   = wk.reduce((s,e) => s + (e.newR || 0), 0);
+    const totalSvcW    = wk.reduce((s,e) => s + (e.svc  || 0), 0);
+    const totalProdW   = wk.reduce((s,e) => s + (e.prod || 0), 0);
+    const totalProdQtyW = wk.reduce((s,e) => s + (e.prodQty || 0), 0);
     const retPctW = totalRetW > 0 ? (totalRetRW / totalRetW * 100).toFixed(0) : null;
     const newPctW = totalNewW > 0 ? (totalNewRW / totalNewW * 100).toFixed(0) : null;
 
@@ -6754,6 +8407,12 @@ function renderWeekly() {
 
     const emptyMsg = es.length === 0 ? `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px;font-size:14px">No data for visible days this week</td></tr>` : '';
 
+    // Days with takings that the day filter is hiding. Their money is still in the
+    // totals above, so say so rather than letting the table look like it disagrees.
+    const hiddenNote = hiddenWithData.length === 0 ? '' : `<div style="padding:10px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)">
+      ${hiddenWithData.length} day${hiddenWithData.length === 1 ? '' : 's'} hidden by the day filter (${hiddenWithData.map(e => DAY_NAMES[new Date(e.date + 'T00:00:00').getDay()]).join(', ')}) &mdash; still counted in the totals above.
+    </div>`;
+
     return `<div class="week-card">
       <div class="week-header">
         <div>
@@ -6782,6 +8441,7 @@ function renderWeekly() {
           <tbody>${rows}${emptyMsg}</tbody>
         </table>
       </div>
+      ${hiddenNote}
     </div>`;
   }).join('');
 
@@ -7246,21 +8906,38 @@ function showEntryForm(iso, dayIdx) {
     const vProd = sd ? (sd.prod||'') : '';
     const vProdQty = sd ? (sd.prodQty||'') : '';
     return `<div class="stylist-block">
-      <div class="stylist-name">${s}</div>
-      <div class="stylist-inputs">
-        <div class="mini-group"><div class="mini-label">Ret. Clients</div><input class="mini-input" aria-label="${s} returning clients" id="s_${s}_ret" type="number" min="0" placeholder="0" value="${vRet}"></div>
-        <div class="mini-group"><div class="mini-label">Ret. Rebook</div><input class="mini-input" aria-label="${s} returning rebooked" id="s_${s}_retR" type="number" min="0" placeholder="0" value="${vRetR}"></div>
-        <div class="mini-group"><div class="mini-label">Ret. Not Reb.</div><input class="mini-input auto-total" aria-label="${s} returning not rebooked (calculated)" id="s_${s}_retNR" type="number" min="0" placeholder="0" value="${vRetNR}" readonly tabindex="-1" title="Calculated: Ret. Clients minus Ret. Rebook"></div>
-        <div class="mini-group"><div class="mini-label">New Clients</div><input class="mini-input" aria-label="${s} new clients" id="s_${s}_new" type="number" min="0" placeholder="0" value="${vNew}"></div>
-        <div class="mini-group"><div class="mini-label">New Rebook</div><input class="mini-input" aria-label="${s} new rebooked" id="s_${s}_newR" type="number" min="0" placeholder="0" value="${vNewR}"></div>
-        <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" aria-label="${s} service dollars" id="s_${s}_svc" type="number" min="0" placeholder="0" value="${vSvc}"></div>
-        <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" aria-label="${s} product dollars" id="s_${s}_prod" type="number" min="0" placeholder="0" value="${vProd}"></div>
-        <div class="mini-group"><div class="mini-label">Product Qty</div><input class="mini-input" aria-label="${s} product quantity" id="s_${s}_prodQty" type="number" min="0" placeholder="0" value="${vProdQty}"></div>
+      <div class="stylist-block-head">
+        <div class="stylist-name">${s}</div>
+        <div class="stylist-day-total" id="sdt_${s}" title="${s}'s service + product total for the day"></div>
+      </div>
+      <div class="sb-group">
+        <div class="sb-group-label">Returning</div>
+        <div class="sb-fields">
+          <div class="mini-group"><div class="mini-label">Clients</div><input class="mini-input" aria-label="${s} returning clients" id="s_${s}_ret" type="number" min="0" placeholder="0" value="${vRet}"></div>
+          <div class="mini-group"><div class="mini-label">Rebooked</div><input class="mini-input" aria-label="${s} returning rebooked" id="s_${s}_retR" type="number" min="0" placeholder="0" value="${vRetR}"></div>
+          <div class="mini-group"><div class="mini-label">Not rebooked</div><input class="mini-input auto-total" aria-label="${s} returning not rebooked (calculated)" id="s_${s}_retNR" type="number" min="0" placeholder="0" value="${vRetNR}" readonly tabindex="-1" title="Calculated: Clients minus Rebooked"></div>
+        </div>
+      </div>
+      <div class="sb-group">
+        <div class="sb-group-label">New</div>
+        <div class="sb-fields">
+          <div class="mini-group"><div class="mini-label">Clients</div><input class="mini-input" aria-label="${s} new clients" id="s_${s}_new" type="number" min="0" placeholder="0" value="${vNew}"></div>
+          <div class="mini-group"><div class="mini-label">Rebooked</div><input class="mini-input" aria-label="${s} new rebooked" id="s_${s}_newR" type="number" min="0" placeholder="0" value="${vNewR}"></div>
+        </div>
+      </div>
+      <div class="sb-group">
+        <div class="sb-group-label">Sales</div>
+        <div class="sb-fields">
+          <div class="mini-group"><div class="mini-label">Service $</div><input class="mini-input" aria-label="${s} service dollars" id="s_${s}_svc" type="number" min="0" placeholder="0" value="${vSvc}"></div>
+          <div class="mini-group"><div class="mini-label">Product $</div><input class="mini-input" aria-label="${s} product dollars" id="s_${s}_prod" type="number" min="0" placeholder="0" value="${vProd}"></div>
+          <div class="mini-group"><div class="mini-label">Units</div><input class="mini-input" aria-label="${s} product quantity" id="s_${s}_prodQty" type="number" min="0" placeholder="0" value="${vProdQty}"></div>
+        </div>
       </div>
     </div>`;
   }).join('');
   entrySyncRetNotRebooked();
   entrySyncStoreTotals();
+  entrySyncLiveTotals();
 }
 
 // ── Store-total auto-calc ──
@@ -7312,10 +8989,29 @@ function entrySyncStoreTotals() {
     el.value = sum ? +sum.toFixed(2) : '';
   });
 }
+// Live figures in the block headers and the sticky save bar: each stylist's
+// service + product for the day, and the whole day's total.
+function entrySyncLiveTotals() {
+  STYLISTS.forEach(st => {
+    const el = document.getElementById('sdt_' + st.name);
+    if (!el) return;
+    const svc = parseFloat(document.getElementById('s_' + st.name + '_svc')?.value) || 0;
+    const prod = parseFloat(document.getElementById('s_' + st.name + '_prod')?.value) || 0;
+    el.textContent = (svc + prod) > 0 ? '$' + (svc + prod).toLocaleString() : '';
+  });
+  const dt = document.getElementById('entry-day-total');
+  if (dt) {
+    const svc = parseFloat(document.getElementById('entry-service')?.value) || 0;
+    const prod = parseFloat(document.getElementById('entry-product')?.value) || 0;
+    dt.textContent = '$' + (svc + prod).toLocaleString();
+  }
+}
+
 document.addEventListener('input', (e) => {
   if (e.target && e.target.closest && e.target.closest('#stylist-entry-grid')) {
     entrySyncRetNotRebooked();
     entrySyncStoreTotals();
+    entrySyncLiveTotals();
   }
 });
 
@@ -9052,7 +10748,7 @@ function renderStylistRoster() {
     const isContractor = st.isContractor;
     const entryCount = allEntries().filter(e => e.sd && e.sd[s]).length;
     const contractorBadge = isContractor
-      ? `<span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(224,92,92,0.15);color:var(--red);margin-right:4px">Contractor</span>`
+      ? `<span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:rgba(111,92,146,0.15);color:var(--purple);margin-right:4px">Contractor</span>`
       : '';
     const lb = getStylistLB(s);
     const lbToggles = isEditing ? '' : `
@@ -9079,7 +10775,7 @@ function renderStylistRoster() {
              <button class="icon-btn" onclick="cancelRename()" title="Cancel" aria-label="Cancel">✕</button>`
           : `${loadStylistPhoto(s) ? `<button class="icon-btn" onclick="removeStylistPhoto('${s}')" title="Remove photo" style="font-size:13px">✕ photo</button>` : ''}
              <button class="icon-btn" title="${isContractor ? 'Remove contractor role' : 'Mark as contractor'}" aria-label="${isContractor ? 'Remove contractor role' : 'Mark as contractor'}"
-               style="${isContractor ? 'color:var(--red);border-color:rgba(224,92,92,0.3)' : ''}"
+               style="${isContractor ? 'color:var(--purple);border-color:rgba(111,92,146,0.4)' : ''}"
                onclick="toggleContractor(${i})">
                ${isContractor ? '★' : '☆'}
              </button>
@@ -9776,6 +11472,36 @@ function tsHideAll() {
   });
 }
 
+// One toggle instead of separate Show All / Hide All buttons
+function tsToggleAllCards() {
+  if (tsCollapsed.size > 0) tsShowAll(); else tsHideAll();
+  tsSyncCollapseLabel();
+}
+function tsSyncCollapseLabel() {
+  const b = document.getElementById('ts-collapse-toggle');
+  if (b) b.textContent = tsCollapsed.size > 0 ? 'Expand all' : 'Collapse all';
+}
+
+// Per-day leave + notes live in a tucked-away detail row; the ⋯ button
+// shows it. Days that already have leave or a note start expanded.
+function tsDetailToggle(btn) {
+  const row = document.getElementById(btn.getAttribute('data-target'));
+  if (!row) return;
+  const open = row.style.display === 'none';
+  row.style.display = open ? '' : 'none';
+  btn.setAttribute('aria-expanded', open);
+}
+
+function tsExportMenuToggle(e) {
+  e.stopPropagation();
+  const m = document.getElementById('ts-export-menu');
+  if (m) m.classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  const m = document.getElementById('ts-export-menu');
+  if (m) m.classList.remove('open');
+});
+
 function prefillFromLastWeek() {
   const { days } = getTsCycleDays(tsWeekOffset);
   const { days: prevDays } = getTsCycleDays(tsWeekOffset - 1);
@@ -9949,11 +11675,12 @@ function calcAllHours() {
   }
 
   saveTSData(data);
-  updateTSSummary();
+  // Full re-render so shift counts, totals and prefill ghosts all refresh
+  renderTimesheets();
 
   var toast = document.getElementById('toast');
   if (toast) {
-    toast.textContent = 'Hours calculated ✓';
+    toast.textContent = 'Week saved ✓';
     toast.style.background = 'var(--green)';
     toast.style.display = 'block';
     setTimeout(function() { toast.style.display = 'none'; toast.textContent = 'Day saved ✓'; }, 2000);
@@ -10001,32 +11728,37 @@ function renderTimesheets() {
       const hTxt = h !== null ? fmtHours(h) : '—';
       const hCol = h !== null && h > 0 ? 'var(--green)' : 'var(--muted2)';
       const dayFmt = d.toLocaleDateString('en-AU', {weekday:'short', day:'numeric', month:'short'});
-      const daySty = isToday ? 'color:var(--accent);font-weight:600' : isWknd ? 'color:var(--muted)' : '';
+      const wd = d.toLocaleDateString('en-AU', {weekday:'short'});
+      const dm = d.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
       const hasData = !!(sv || ev);
-      const preIcon = isPre ? '<span style="font-size:11px;color:var(--muted2);margin-left:3px">↩</span>' : '';
-      const clearBtn = hasData ? `<button onclick="clearTSEntry(this.dataset.n,this.dataset.d)" aria-label="Clear entry" title="Remove entry" data-n="${name}" data-d="${iso}" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex-shrink:0;background:rgba(158,74,58,0.14);border:1px solid rgba(158,74,58,0.35);color:var(--red);cursor:pointer;font-size:15px;font-weight:600;line-height:1;border-radius:7px;padding:0;margin-left:6px" onmouseover="this.style.background='rgba(158,74,58,0.28)'" onmouseout="this.style.background='rgba(158,74,58,0.14)'">✕</button>` : '';
+      const safeN = name.replace(/ /g,'_');
+      const preIcon = isPre ? '<span style="font-size:11px;color:var(--muted2);margin-left:3px" title="Prefilled from last week - press Save week to keep">↩</span>' : '';
+      const clearBtn = hasData ? `<button class="ts-clear-btn" onclick="clearTSEntry(this.dataset.n,this.dataset.d)" aria-label="Clear entry" title="Remove entry" data-n="${name}" data-d="${iso}">✕</button>` : '';
 
       const stepperBtn = (n, d, f, dir) =>
-        `<button class="ts-step-btn" aria-label="${f==='start'?'Start':'Finish'} time ${dir>0?'up':'down'} 30 minutes" onclick="tsStep('${n}','${d}','${f}',${dir})" tabindex="-1">${dir>0?'▲':'▼'}</button>`;
+        `<button class="ts-step-btn" aria-label="${f==='start'?'Start':'Finish'} time ${dir>0?'later':'earlier'} by 30 minutes" onclick="tsStep('${n}','${d}','${f}',${dir})" tabindex="-1">${dir>0?'+':'−'}</button>`;
       // Leave days tint the whole day: blue for annual, amber for personal.
       const leave = ent.leave || null;
       const rowBg = leave === 'annual' ? 'background:rgba(65,96,122,0.16);' : leave === 'personal' ? 'background:rgba(201,140,74,0.18);' : '';
-      rows += `<tr style="${rowBg}${isPre?'opacity:0.55;':''}">
-        <td style="border-bottom:none;${daySty}">${dayFmt}${preIcon}</td>
-        <td style="border-bottom:none"><div class="ts-time-stepper">
-          ${stepperBtn(name,iso,'start',1)}
-          <input type="text" class="ts-time-input" aria-label="${name} ${dayFmt} start time" data-n="${name}" data-d="${iso}" data-f="start" value="${sv}" placeholder="09:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
+      const hasDetail = !!(leave || ent.notes);
+      const leaveBadge = leave === 'annual' ? '<span class="ts-leave-badge al">AL</span>' : leave === 'personal' ? '<span class="ts-leave-badge pl">PL</span>' : '';
+      const detailBtn = `<button class="ts-detail-toggle${hasDetail ? ' has-detail' : ''}" aria-label="Leave and notes for ${dayFmt}" aria-expanded="${hasDetail}" data-target="tsd-${safeN}-${iso}" onclick="tsDetailToggle(this)" title="Leave &amp; notes">⋯</button>`;
+      rows += `<tr class="ts-main-row${isToday ? ' ts-row-today' : ''}${isWknd ? ' ts-row-wknd' : ''}" style="${rowBg}${isPre?'opacity:0.55;':''}">
+        <td><span class="ts-day-w">${wd}</span><span class="ts-day-d">${dm}</span>${preIcon}${leaveBadge}</td>
+        <td><div class="ts-time-stepper">
           ${stepperBtn(name,iso,'start',-1)}
+          <input type="text" class="ts-time-input" aria-label="${name} ${dayFmt} start time" data-n="${name}" data-d="${iso}" data-f="start" value="${sv}" placeholder="09:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
+          ${stepperBtn(name,iso,'start',1)}
         </div></td>
-        <td style="border-bottom:none"><div class="ts-time-stepper">
-          ${stepperBtn(name,iso,'end',1)}
-          <input type="text" class="ts-time-input" aria-label="${name} ${dayFmt} finish time" data-n="${name}" data-d="${iso}" data-f="end" value="${ev}" placeholder="17:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
+        <td><div class="ts-time-stepper">
           ${stepperBtn(name,iso,'end',-1)}
+          <input type="text" class="ts-time-input" aria-label="${name} ${dayFmt} finish time" data-n="${name}" data-d="${iso}" data-f="end" value="${ev}" placeholder="17:00" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" oninput="tsLiveCalc(this)" onblur="tsBlur(this)">
+          ${stepperBtn(name,iso,'end',1)}
         </div></td>
-        <td style="border-bottom:none"><input type="number" class="ts-break-input" aria-label="${name} ${dayFmt} break minutes" data-n="${name}" data-d="${iso}" data-f="break" min="0" max="120" step="5" value="${bv}" placeholder="0" oninput="tsLiveCalc(this)" onblur="tsBlur(this)"> <span style="font-size:13px;color:var(--muted)">min</span></td>
-        <td style="border-bottom:none;white-space:nowrap"><span id="tsh-${name.replace(/ /g,'_')}-${iso}" style="font-family:var(--mono);font-size:15px;font-weight:${h!==null&&h>0?'600':'normal'};color:${hCol}">${hTxt}</span>${clearBtn}</td>
+        <td><input type="number" class="ts-break-input" aria-label="${name} ${dayFmt} break minutes" data-n="${name}" data-d="${iso}" data-f="break" min="0" max="120" step="5" value="${bv}" placeholder="0" oninput="tsLiveCalc(this)" onblur="tsBlur(this)"> <span style="font-size:13px;color:var(--muted)">min</span></td>
+        <td style="white-space:nowrap"><span id="tsh-${safeN}-${iso}" class="ts-hours-val" style="font-weight:${h!==null&&h>0?'700':'normal'};color:${hCol}">${hTxt}</span>${detailBtn}${clearBtn}</td>
       </tr>
-      <tr style="${rowBg}${isPre?'opacity:0.55;':''}">
+      <tr class="ts-detail-row" id="tsd-${safeN}-${iso}" style="${rowBg}${isPre?'opacity:0.55;':''}${hasDetail ? '' : 'display:none;'}">
         <td colspan="5" style="padding-top:0;padding-bottom:12px">
           <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
             <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" data-n="${name}" data-d="${iso}" ${leave==='annual'?'checked':''} onchange="tsSetLeave(this,'annual')" style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer">Annual leave</label>
@@ -10061,6 +11793,7 @@ function renderTimesheets() {
 
   grid.innerHTML = cards;
   updateTSSummary();
+  tsSyncCollapseLabel();
 }
 
 // Step a time field by ±30 min increments
@@ -11178,6 +12911,429 @@ function exportInvoicePDF() {
   openPDF(`Contractor Invoice · ${cFilter==='all'?'All Contractors':cFilter}`,`${periodLabel} · ${rate}% studio rate`,INVOICE_EXPORT_HEADERS,rows,[['Total gross',`$${totalGross.toFixed(2)}`],['Total commission due',`$${totalInvoice.toFixed(2)}`,'total']]);
 }
 
+// ===================== STAFF ROI (owner-only) =====================
+// Staff cost vs return calculator, staff-only: wages, on-costs and commission
+// against the stylist's own takings. Studio overheads are NOT in the maths
+// (P&L fixed expenses only feed a context line). Inputs derive from the same
+// aggregates that feed Stylist Performance (per-entry e.sd rollups) and
+// Timesheets (ejTimesheets hours), plus pay rates and the Tax & BAS super
+// rate. Anything the tracker doesn't record falls back to a flagged default
+// the owner can override; overrides persist per stylist in ejStaffROI.
+
+const SROI_OWNER_ROLE = 'admin'; // the owner PIN's pinSessionUser value
+
+const SROI_FALLBACK = {
+  hourlyRate: 34, paidHours: 30, leaveLoading: 13, superRate: 12,
+  workCover: 1, payrollTax: 0, commission: 0,
+  bookableHours: 28, utilisation: 65, avgServicePrice: 95, avgServiceMins: 45,
+  consumables: 6, retailAttach: 20, avgRetailSale: 45, retailMargin: 55,
+  targetProfit: 400,
+};
+
+const SROI_PERIODS = [
+  { id: '4w',  label: 'Last 4 weeks', weeks: 4 },
+  { id: '8w',  label: 'Last 8 weeks', weeks: 8 },
+  { id: '13w', label: 'Last quarter', weeks: 13 },
+];
+
+let sroiPeriodId = '4w';
+let sroiActiveName = null;
+let sroiOpen = false;
+
+// Contractors carry their own costs, so the wage model only fits employees.
+function sroiStaff() {
+  const emp = STYLISTS.filter(s => !s.isContractor);
+  return emp.length ? emp : STYLISTS;
+}
+
+function sroiLoadOverrides() {
+  try { return JSON.parse(localStorage.getItem(studioKey('ejStaffROI')) || '{}') || {}; } catch { return {}; }
+}
+function sroiSaveOverrides(all) {
+  localStorage.setItem(studioKey('ejStaffROI'), JSON.stringify(all));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejStaffROI'));
+}
+
+// Period aggregates for one stylist: the Stylist Performance rollup (clients,
+// service $, product $ and qty from each entry's e.sd) + the Timesheets rollup
+// (same calcHours as the Timesheets page).
+function sroiAggregates(name, weeks) {
+  const end = new Date(); end.setHours(0, 0, 0, 0);
+  const start = new Date(end); start.setDate(end.getDate() - weeks * 7 + 1);
+  const startISO = toLocalISO(start), endISO = toLocalISO(end);
+
+  let services = 0, svcRev = 0, retailRev = 0, retailTx = 0;
+  allEntries().forEach(e => {
+    if (!e.sd || !e.date || e.date < startISO || e.date > endISO) return;
+    const sd = e.sd[name];
+    if (!sd) return;
+    services  += sd.c || 0;
+    svcRev    += sd.svc || 0;
+    retailRev += sd.prod || 0;
+    retailTx  += sd.prodQty || 0;
+  });
+
+  let tsHours = 0, hasTS = false;
+  const tsDates = new Set(), tsWeekSet = new Set();
+  const ts = loadTSData();
+  Object.keys(ts).forEach(k => {
+    // keys are `${staffName}__${dateISO}`; the date is always the last 10 chars
+    const date = k.slice(-10);
+    if (k.slice(0, -12) !== name || date < startISO || date > endISO) return;
+    const row = ts[k] || {};
+    const h = (row.hours != null && isFinite(row.hours))
+      ? row.hours
+      : calcHours(row.start || '', row.end || '', parseFloat(row.break) || 0);
+    if (h != null && isFinite(h) && h > 0) {
+      tsHours += h; hasTS = true;
+      tsDates.add(date);
+      tsWeekSet.add(toLocalISO(getMondayOfWeek(date)));
+    }
+  });
+
+  // Services on timesheet-covered days only: pairing revenue-side weekly
+  // figures with the weeks that actually have hours keeps partial timesheet
+  // coverage from skewing paid hours and utilisation (same principle as the
+  // dashboard's average-hour fix).
+  let servicesTS = 0;
+  if (hasTS) {
+    allEntries().forEach(e => {
+      if (!e.sd || !e.date || !tsDates.has(e.date)) return;
+      const sd = e.sd[name];
+      if (sd) servicesTS += sd.c || 0;
+    });
+  }
+
+  return {
+    services, svcRev, retailRev, retailTx,
+    tsHours: hasTS ? tsHours : undefined,
+    tsWeeks: tsWeekSet.size,
+    servicesTS,
+  };
+}
+
+function sroiSuperRate() {
+  try {
+    const todayISO = toLocalISO(new Date());
+    const q = getAuQuarters().find(x => todayISO >= x.startISO && todayISO <= x.endISO);
+    return getTaxBASRates(q ? q.key : '').superRate;
+  } catch { return undefined; }
+}
+
+// Weekly share of P&L fixed expenses per employed head
+function sroiWeeklyOverheadPerHead() {
+  try {
+    const fixed = loadFixedExpenses();
+    const monthly = Object.values(fixed).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+    if (monthly <= 0) return undefined;
+    return (monthly * 12 / 52) / Math.max(1, sroiStaff().length);
+  } catch { return undefined; }
+}
+
+// Returns { value, source } per field. source is "tracker" or "default";
+// anything left undefined falls back to SROI_FALLBACK and gets flagged.
+function sroiDeriveInputs(name, period) {
+  const w = period.weeks || 1;
+  const t = sroiAggregates(name, w);
+
+  // Divide hours by the weeks that actually have timesheet data, not the
+  // whole window - otherwise two tracked weeks inside a four-week window
+  // halves the apparent working week and overstates the return on wages.
+  const paidHours = (t.tsHours != null && t.tsWeeks > 0) ? t.tsHours / t.tsWeeks : undefined;
+  // Hours on the clock are hours the chair is bookable
+  const bookableHours = paidHours;
+  // Utilisation must compare like with like: services from timesheet-covered
+  // days per tracked week. Without timesheets, fall back to the full window.
+  const servicesPerWeek = (t.tsHours != null && t.tsWeeks > 0)
+    ? (t.servicesTS > 0 ? t.servicesTS / t.tsWeeks : undefined)
+    : (t.services > 0 ? t.services / w : undefined);
+  const rate = getPayRate(name);
+
+  return sroiPack({
+    hourlyRate: rate > 0 ? rate : undefined,
+    paidHours,
+    leaveLoading: undefined,       // employment type (casual vs permanent) not tracked
+    superRate: sroiSuperRate(),    // Tax & BAS super guarantee rate
+    workCover: undefined,          // not tracked
+    payrollTax: undefined,         // not tracked
+    commission: undefined,         // employee commission not tracked
+
+    bookableHours,
+    // Real appointment counts + the assumed appointment length back out how
+    // full the chair runs; booked minutes themselves aren't tracked
+    utilisation: bookableHours && servicesPerWeek
+      ? (servicesPerWeek * SROI_FALLBACK.avgServiceMins / 60) / bookableHours * 100
+      : undefined,
+    avgServicePrice: t.services && t.svcRev ? t.svcRev / t.services : undefined,
+    avgServiceMins: undefined,     // appointment lengths not tracked
+    consumables: undefined,        // product cost per service not tracked
+
+    retailAttach: t.services && t.retailTx ? (t.retailTx / t.services) * 100 : undefined,
+    avgRetailSale: t.retailTx && t.retailRev ? t.retailRev / t.retailTx : undefined,
+    retailMargin: undefined,       // product cost prices not tracked
+
+    targetProfit: undefined,
+  });
+}
+
+function sroiPack(raw) {
+  const out = {};
+  for (const k of Object.keys(SROI_FALLBACK)) {
+    const v = raw[k];
+    const ok = v != null && isFinite(v);
+    out[k] = { value: ok ? Number(v) : SROI_FALLBACK[k], source: ok ? 'tracker' : 'default' };
+  }
+  return out;
+}
+
+function sroiCalculate(v) {
+  const pct = (n) => (Number(n) || 0) / 100;
+
+  const loadFactor =
+    (1 + pct(v.leaveLoading)) *
+    (1 + pct(v.superRate) + pct(v.workCover) + pct(v.payrollTax));
+  const loadedRate = (Number(v.hourlyRate) || 0) * loadFactor;
+  const wageCost = loadedRate * (Number(v.paidHours) || 0);
+
+  const productiveHours = (Number(v.bookableHours) || 0) * pct(v.utilisation);
+  const mins = Number(v.avgServiceMins) || 1;
+  const services = (productiveHours * 60) / mins;
+
+  const price = Number(v.avgServicePrice) || 0;
+  const retailPerService = pct(v.retailAttach) * (Number(v.avgRetailSale) || 0);
+  const retailGP = retailPerService * pct(v.retailMargin);
+
+  const contribution = price - (Number(v.consumables) || 0) + retailGP;
+  const contributionNet = contribution - price * pct(v.commission);
+
+  const serviceRevenue = services * price;
+  const commissionCost = serviceRevenue * pct(v.commission);
+  const staffCost = wageCost + commissionCost;
+
+  // Staff-only view: studio overheads deliberately excluded. This answers
+  // "do they earn more than they cost?", not "does the studio profit overall?"
+  const grossReturn = services * contribution;
+  const profit = grossReturn - staffCost;
+
+  const breakEvenServices =
+    contributionNet > 0 ? wageCost / contributionNet : Infinity;
+  const breakEvenHours = (breakEvenServices * mins) / 60;
+  const breakEvenUtil =
+    (Number(v.bookableHours) || 0) > 0
+      ? (breakEvenHours / v.bookableHours) * 100
+      : Infinity;
+
+  const maxRate =
+    (Number(v.paidHours) || 0) > 0
+      ? (grossReturn - commissionCost - (Number(v.targetProfit) || 0)) /
+        (loadFactor * v.paidHours)
+      : 0;
+
+  return {
+    loadedRate, wageCost, staffCost, services, grossReturn, profit,
+    returnMultiple: staffCost > 0 ? grossReturn / staffCost : 0,
+    breakEvenServices, breakEvenUtil, maxRate,
+    profitPerService: services > 0 ? profit / services : 0,
+  };
+}
+
+const sroiMoney = (n, dp = 0) =>
+  (isFinite(n) ? n : 0).toLocaleString('en-AU', {
+    style: 'currency', currency: 'AUD',
+    minimumFractionDigits: dp, maximumFractionDigits: dp,
+  });
+const sroiNum = (n, dp = 1) => (isFinite(n) ? n.toFixed(dp) : '-');
+
+const SROI_GROUPS = [
+  { title: 'What you pay them', fields: [
+    ['hourlyRate', 'Hourly rate', '$', '/hr', 0.5],
+    ['paidHours', 'Paid hours', '', 'hrs/wk', 1],
+    ['leaveLoading', 'Leave and absence', '', '%', 0.5],
+    ['superRate', 'Super', '', '%', 0.5],
+    ['workCover', 'WorkCover', '', '%', 0.1],
+    ['payrollTax', 'Payroll tax', '', '%', 0.1],
+    ['commission', 'Commission on services', '', '%', 1],
+  ]},
+  { title: 'What their book does', fields: [
+    ['bookableHours', 'Bookable hours', '', 'hrs/wk', 1],
+    ['utilisation', 'Utilisation', '', '%', 1],
+    ['avgServicePrice', 'Average service price', '$', '', 5],
+    ['avgServiceMins', 'Average appointment', '', 'min', 5],
+    ['consumables', 'Product per service', '$', '', 0.5],
+  ]},
+  { title: 'Retail they sell', fields: [
+    ['retailAttach', 'Clients who buy', '', '%', 5],
+    ['avgRetailSale', 'Average sale', '$', '', 5],
+    ['retailMargin', 'Your margin on it', '', '%', 5],
+  ]},
+  { title: 'Target', fields: [
+    ['targetProfit', 'Profit you want from them', '$', '/wk', 50],
+  ]},
+];
+
+function sroiResolve(name, derived, overridesAll) {
+  const d = derived[name] || {};
+  const o = overridesAll[name] || {};
+  const out = {};
+  for (const k of Object.keys(SROI_FALLBACK)) {
+    out[k] = (o[k] != null) ? o[k] : (d[k] ? d[k].value : SROI_FALLBACK[k]);
+  }
+  return out;
+}
+
+function sroiSetPeriod(id) { sroiPeriodId = id; renderStaffROI(); }
+function sroiSelect(i) {
+  const s = sroiStaff()[i];
+  if (s) { sroiActiveName = s.name; renderStaffROI(); }
+}
+function sroiToggleAssump() { sroiOpen = !sroiOpen; renderStaffROI(); }
+
+function sroiSetField(k, val) {
+  if (!sroiActiveName) return;
+  const all = sroiLoadOverrides();
+  if (!all[sroiActiveName]) all[sroiActiveName] = {};
+  const n = parseFloat(val);
+  if (val === '' || !isFinite(n)) delete all[sroiActiveName][k];  // blank reverts to tracker figure
+  else all[sroiActiveName][k] = n;
+  if (Object.keys(all[sroiActiveName]).length === 0) delete all[sroiActiveName];
+  sroiSaveOverrides(all);
+  renderStaffROI();
+}
+
+function sroiClearOverrides() {
+  if (!sroiActiveName) return;
+  const all = sroiLoadOverrides();
+  delete all[sroiActiveName];
+  sroiSaveOverrides(all);
+  renderStaffROI();
+}
+
+function renderStaffROI() {
+  const root = document.getElementById('staffroi-root');
+  if (!root) return;
+
+  if (pinSessionUser !== SROI_OWNER_ROLE) {
+    root.innerHTML =
+      '<div class="sroi-locked"><h2>Owner access only</h2>' +
+      '<p>This section holds wage and margin figures for every stylist. Sign in with the owner PIN to open it.</p></div>';
+    return;
+  }
+
+  const staff = sroiStaff();
+  if (!staff.length) {
+    root.innerHTML =
+      '<div class="sroi-locked"><h2>No stylists yet</h2>' +
+      '<p>Add stylists on the Stylists page, then come back here to see what each one costs and returns.</p></div>';
+    return;
+  }
+
+  const period = SROI_PERIODS.find(p => p.id === sroiPeriodId) || SROI_PERIODS[0];
+  const overridesAll = sroiLoadOverrides();
+  const derived = {};
+  staff.forEach(s => { derived[s.name] = sroiDeriveInputs(s.name, period); });
+
+  if (!sroiActiveName || !staff.some(s => s.name === sroiActiveName)) sroiActiveName = staff[0].name;
+
+  const ranked = staff
+    .map((s, i) => ({ s, i, r: sroiCalculate(sroiResolve(s.name, derived, overridesAll)) }))
+    .sort((a, b) => b.r.profit - a.r.profit);
+
+  const inputs = sroiResolve(sroiActiveName, derived, overridesAll);
+  const r = sroiCalculate(inputs);
+
+  const util = Number(inputs.utilisation) || 0;
+  const be = r.breakEvenUtil;
+  const beClamped = Math.max(0, Math.min(100, isFinite(be) ? be : 100));
+  const ovhd = sroiWeeklyOverheadPerHead(); // shown for context only, never counted
+  const activeOverrides = overridesAll[sroiActiveName] || {};
+  const dirty = Object.keys(activeOverrides).length > 0;
+  const excluded = STYLISTS.length - staff.length;
+
+  const boardHTML = ranked.map(x =>
+    '<button class="sroi-card' + (x.s.name === sroiActiveName ? ' on' : '') + '" onclick="sroiSelect(' + x.i + ')">' +
+      '<span class="nm">' + x.s.name + '</span>' +
+      '<span class="pf ' + (x.r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(x.r.profit) + '</span>' +
+      '<span class="sub">' + sroiNum(x.r.returnMultiple, 2) + 'x wage · ' + sroiNum(x.r.breakEvenUtil, 0) + '% to break even</span>' +
+    '</button>').join('');
+
+  const rowHTML = (label, v, key1) =>
+    '<div class="sroi-row' + (key1 ? ' key' : '') + '"><span>' + label + '</span><b>' + v + '</b></div>';
+
+  const assumpBody = !sroiOpen ? '' :
+    '<div class="sroi-ass-b">' +
+      (dirty ? '<button class="sroi-reset" onclick="sroiClearOverrides()">Reset to tracker figures</button>' : '') +
+      SROI_GROUPS.map(g =>
+        '<div class="sroi-grp"><h3>' + g.title + '</h3>' +
+        g.fields.map(f => {
+          const k = f[0], label = f[1], prefix = f[2], suffix = f[3], step = f[4];
+          const isOver = activeOverrides[k] != null;
+          const src = derived[sroiActiveName] && derived[sroiActiveName][k] ? derived[sroiActiveName][k].source : 'default';
+          const shown = Math.round((Number(inputs[k]) || 0) * 100) / 100;
+          return '<label class="sroi-fld">' +
+            '<span class="sroi-fld-l">' + label +
+              '<em>' + (isOver ? 'edited' : src === 'tracker' ? 'from tracker' : 'not tracked, using default') + '</em>' +
+            '</span>' +
+            '<span class="sroi-fld-i' + (isOver ? ' edited' : '') + '">' +
+              (prefix ? '<b>' + prefix + '</b>' : '') +
+              '<input type="number" step="' + step + '" value="' + shown + '" onchange="sroiSetField(\'' + k + '\', this.value)">' +
+              (suffix ? '<b>' + suffix + '</b>' : '') +
+            '</span>' +
+          '</label>';
+        }).join('') +
+        '</div>').join('') +
+    '</div>';
+
+  root.innerHTML =
+    '<header class="sroi-top">' +
+      '<div><h1>Staff cost vs return</h1>' +
+      '<p>What each stylist costs you against what their book brings in. Studio overheads are not counted, only the stylist. Figures pulled from ' + period.label.toLowerCase() +
+      (excluded > 0 ? '. Contractors are left out: they carry their own costs.' : '.') + '</p></div>' +
+      '<select class="sroi-period" onchange="sroiSetPeriod(this.value)" aria-label="Staff ROI period">' +
+        SROI_PERIODS.map(p => '<option value="' + p.id + '"' + (p.id === period.id ? ' selected' : '') + '>' + p.label + '</option>').join('') +
+      '</select>' +
+    '</header>' +
+
+    '<div class="sroi-board">' + boardHTML + '</div>' +
+
+    '<div class="sroi-panel">' +
+      '<div class="sroi-verdict">' +
+        '<small>' + sroiActiveName + ' · weekly profit after wages and on-costs</small>' +
+        '<div class="sroi-big ' + (r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(r.profit) + '</div>' +
+        '<div class="sroi-yr">' + sroiMoney(r.profit * 52) + ' a year at this rate</div>' +
+        (ovhd != null
+          ? '<div class="sroi-yr">Studio overheads stay in the P&L, not counted here. An even split would put ' + sroiMoney(ovhd) + ' a week on this chair.</div>'
+          : '') +
+      '</div>' +
+      '<div class="sroi-gauge">' +
+        '<p>' + (isFinite(be) && be <= 100
+          ? 'Chair needs to run ' + sroiNum(be, 0) + '% full to cover the wage. Sitting at ' + sroiNum(util, 0) + '%.'
+          : 'Cannot break even at this price and hours.') + '</p>' +
+        '<div class="sroi-meter">' +
+          '<div class="sroi-track"><div class="sroi-fill' + (r.profit > 0 ? ' ok' : '') + '" style="width:' + Math.max(0, Math.min(100, util)) + '%"></div></div>' +
+          '<div class="sroi-mark" style="left:' + beClamped + '%"><span>break even</span></div>' +
+        '</div>' +
+        '<div class="sroi-scale"><span>0%</span><span>50%</span><span>100%</span></div>' +
+      '</div>' +
+      '<div class="sroi-rows">' +
+        rowHTML('True cost per paid hour', sroiMoney(r.loadedRate, 2), true) +
+        rowHTML('Real weekly cost', sroiMoney(r.staffCost)) +
+        rowHTML('Gross return', sroiMoney(r.grossReturn)) +
+        rowHTML('Return per $1 of wage', sroiNum(r.returnMultiple, 2) + 'x') +
+        rowHTML('Appointments a week', sroiNum(r.services, 1)) +
+        rowHTML('Appointments to break even', isFinite(r.breakEvenServices) ? sroiNum(r.breakEvenServices, 1) : '-') +
+        rowHTML('Profit per appointment', sroiMoney(r.profitPerService, 2)) +
+        rowHTML('Most you can pay per hour', sroiMoney(r.maxRate, 2), true) +
+      '</div>' +
+    '</div>' +
+
+    '<div class="sroi-assump">' +
+      '<button class="sroi-toggle" onclick="sroiToggleAssump()">' +
+        '<span>Assumptions</span>' +
+        '<em>' + (dirty ? 'edited' : 'from tracker') + ' ' + (sroiOpen ? '−' : '+') + '</em>' +
+      '</button>' + assumpBody +
+    '</div>';
+}
+
 // ===================== P&L =====================
 const EXPENSE_CATEGORIES = [
   { id: 'rent',         label: 'Rent / Studio Lease' },
@@ -11466,6 +13622,7 @@ function switchStudio(id) {
   if (el && studio) el.textContent = studio.name;
 
   // Reload all studio-scoped in-memory data
+  resetActiveDays();
   entryEnabledDays = new Set(getWorkingDays());
   userEntries = loadStorage();
   STYLISTS = (() => {
@@ -13040,11 +15197,11 @@ function buildRouletteWheel() {
     parts += `<path d="M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${fill}" stroke="#d4af37" stroke-width="0.4"/>`;
     const am = (i + 0.5) * seg - 90, amr = am * Math.PI / 180;
     const tx = cx + 86 * Math.cos(amr), ty = cy + 86 * Math.sin(amr);
-    parts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" fill="#f2e6c8" font-size="7" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am + 90).toFixed(1)} ${tx.toFixed(2)} ${ty.toFixed(2)})">${num}</text>`;
+    parts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" fill="#f2e6c8" font-size="7" font-family="Helvetica,Arial,sans-serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am + 90).toFixed(1)} ${tx.toFixed(2)} ${ty.toFixed(2)})">${num}</text>`;
   }
   parts += `<circle cx="${cx}" cy="${cy}" r="70" fill="none" stroke="#d4af37" stroke-width="1"/>`;
   parts += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4af37" stroke-width="3"/>`;
-  parts += `<circle cx="${cx}" cy="${cy}" r="16" fill="#d4af37"/><text x="${cx}" y="${cy + 0.5}" fill="#1a1508" font-size="14" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle">$</text>`;
+  parts += `<circle cx="${cx}" cy="${cy}" r="16" fill="#d4af37"/><text x="${cx}" y="${cy + 0.5}" fill="#1a1508" font-size="14" font-family="Helvetica,Arial,sans-serif" text-anchor="middle" dominant-baseline="middle">$</text>`;
   svg.innerHTML = parts;
   svg.dataset.built = '1';
 }
@@ -13099,7 +15256,7 @@ function buildStylistWheel() {
   const sig = names.join('|');
   if (svg.dataset.sig === sig) return;
   if (!names.length) {
-    svg.innerHTML = '<text x="100" y="100" text-anchor="middle" fill="#888" font-size="11" font-family="Georgia,serif">Add stylists first</text>';
+    svg.innerHTML = '<text x="100" y="100" text-anchor="middle" fill="#888" font-size="11" font-family="Helvetica,Arial,sans-serif">Add stylists first</text>';
     svg.dataset.sig = sig;
     return;
   }
@@ -13117,10 +15274,10 @@ function buildStylistWheel() {
     const am = (i + 0.5) * seg - 90, amr = am * Math.PI / 180;
     const tx = cx + 66 * Math.cos(amr), ty = cy + 66 * Math.sin(amr);
     const label = names[i].length > 11 ? names[i].slice(0, 10) + '…' : names[i];
-    parts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" fill="#f2e6c8" font-size="9" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am + 90).toFixed(1)} ${tx.toFixed(2)} ${ty.toFixed(2)})">${lbEsc(label)}</text>`;
+    parts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" fill="#f2e6c8" font-size="9" font-family="Helvetica,Arial,sans-serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(${(am + 90).toFixed(1)} ${tx.toFixed(2)} ${ty.toFixed(2)})">${lbEsc(label)}</text>`;
   }
   parts += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d4af37" stroke-width="3"/>`;
-  parts += `<circle cx="${cx}" cy="${cy}" r="15" fill="#d4af37"/><text x="${cx}" y="${cy + 0.5}" fill="#1a1508" font-size="13" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle">$</text>`;
+  parts += `<circle cx="${cx}" cy="${cy}" r="15" fill="#d4af37"/><text x="${cx}" y="${cy + 0.5}" fill="#1a1508" font-size="13" font-family="Helvetica,Arial,sans-serif" text-anchor="middle" dominant-baseline="middle">$</text>`;
   svg.innerHTML = parts;
   svg.dataset.sig = sig;
 }
@@ -15040,7 +17197,7 @@ async function cloudPushKind(kind) {
 const CLOUD_GLOBAL_KEYS = ['demo_ejAdminPIN', 'demo_ejManagerPIN', 'demo_ejStaffPINs', 'demo_ejAutoLockMins', 'demo_ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
-  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS',
+  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
   'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
@@ -15247,6 +17404,7 @@ function reloadActiveStudioData() {
     try { localStorage.setItem('demo_ejActiveStudio', activeStudio); } catch (e) {}
   }
   updateBrandingFromStudio();
+  resetActiveDays();
   userEntries = loadStorage();
   try {
     const s = JSON.parse(localStorage.getItem(studioKey('ejStylists')));
@@ -15715,6 +17873,7 @@ async function cloudFirstTimeSetup(studioName) {
     const color = (typeof STUDIO_COLORS !== 'undefined' && STUDIO_COLORS.length) ? STUDIO_COLORS[0] : '#b8967a';
     STUDIOS = [{ id: newId, name: studioName, color: color }];
     activeStudio = newId;
+    resetActiveDays();
     STYLISTS = [];
     userEntries = [];
     localStorage.setItem('demo_ejStudios', JSON.stringify(STUDIOS));

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.09-0007">
-<meta name="lumin-build" content="2026.09.09-0007"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.09-0020">
+<meta name="lumin-build" content="2026.09.09-0020"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3984,12 +3984,14 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 }
 </style>
 <style id="staffroi-css">
-/* ===== STAFF ROI (owner-only) — self-contained palette, app fonts ===== */
-.roi{--sroi-canvas:#E7E9E3;--sroi-surface:#F7F8F4;--sroi-panel:#233230;--sroi-panel-2:#2E403D;
- --sroi-ink:#1C2321;--sroi-muted:#5F6D69;--sroi-rule:#CBD2C8;--sroi-rule-dk:#41544F;
- --sroi-brass:#A8791F;--sroi-parch:#E6E4D8;
+/* ===== STAFF ROI (owner-only) — rides the app tokens since the 2026-09
+   modern pass, so it follows every theme and dark mode. The verdict panel
+   stays deliberately dark in both modes; brass marks profit highlights. ===== */
+.roi{--sroi-canvas:transparent;--sroi-surface:var(--surface);--sroi-panel:#212528;--sroi-panel-2:#2b3034;
+ --sroi-ink:var(--text);--sroi-muted:var(--muted);--sroi-rule:var(--border);--sroi-rule-dk:#3c4247;
+ --sroi-brass:#A8791F;--sroi-parch:#eceff1;
  background:var(--sroi-canvas);color:var(--sroi-ink);font-family:var(--font);
- font-size:15px;line-height:1.55;padding:18px 14px 34px;border-radius:14px}
+ font-size:15px;line-height:1.55;padding:0 0 34px;border-radius:14px}
 .roi *{box-sizing:border-box}
 .roi input,.roi select,.roi button{font-family:var(--font)}
 
@@ -4002,7 +4004,7 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 .roi .sroi-top h1{font-weight:800;letter-spacing:-.02em;
  font-size:clamp(24px,5.5vw,32px);line-height:1.05;margin:0 0 4px}
 .roi .sroi-top p{margin:0;color:var(--sroi-muted);font-size:14px;max-width:52ch}
-.roi .sroi-period{border:1px solid var(--sroi-rule);border-radius:2px;background:#fff;padding:8px 10px;
+.roi .sroi-period{border:1px solid var(--sroi-rule);border-radius:2px;background:var(--sroi-surface);padding:8px 10px;
  font-size:13px;font-weight:700;color:var(--sroi-ink)}
 
 .roi .sroi-board{max-width:920px;margin:0 auto 16px;display:grid;gap:8px;
@@ -4069,6 +4071,12 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 .roi .sroi-fld-i input:focus{outline:none}
 .roi .sroi-fld-i input::-webkit-outer-spin-button,.roi .sroi-fld-i input::-webkit-inner-spin-button{
  -webkit-appearance:none;margin:0}
+
+/* Modern pass alignment: app-scale corner radius and card depth */
+.roi .sroi-card,.roi .sroi-panel,.roi .sroi-assump,.roi .sroi-period,.roi .sroi-reset{border-radius:12px}
+.roi .sroi-card{box-shadow:var(--shadow-1)}
+.roi .sroi-card.on{box-shadow:var(--shadow-1),inset 3px 0 0 var(--sroi-brass)}
+.roi .sroi-panel{box-shadow:var(--shadow-2)}
 </style>
 <script>
 // Apply the saved colour theme + light/dark mode before first paint so there's no flash
@@ -12966,6 +12974,7 @@ function sroiAggregates(name, weeks) {
   });
 
   let tsHours = 0, hasTS = false;
+  const tsDates = new Set(), tsWeekSet = new Set();
   const ts = loadTSData();
   Object.keys(ts).forEach(k => {
     // keys are `${staffName}__${dateISO}`; the date is always the last 10 chars
@@ -12975,10 +12984,32 @@ function sroiAggregates(name, weeks) {
     const h = (row.hours != null && isFinite(row.hours))
       ? row.hours
       : calcHours(row.start || '', row.end || '', parseFloat(row.break) || 0);
-    if (h != null && isFinite(h) && h > 0) { tsHours += h; hasTS = true; }
+    if (h != null && isFinite(h) && h > 0) {
+      tsHours += h; hasTS = true;
+      tsDates.add(date);
+      tsWeekSet.add(toLocalISO(getMondayOfWeek(date)));
+    }
   });
 
-  return { services, svcRev, retailRev, retailTx, tsHours: hasTS ? tsHours : undefined };
+  // Services on timesheet-covered days only: pairing revenue-side weekly
+  // figures with the weeks that actually have hours keeps partial timesheet
+  // coverage from skewing paid hours and utilisation (same principle as the
+  // dashboard's average-hour fix).
+  let servicesTS = 0;
+  if (hasTS) {
+    allEntries().forEach(e => {
+      if (!e.sd || !e.date || !tsDates.has(e.date)) return;
+      const sd = e.sd[name];
+      if (sd) servicesTS += sd.c || 0;
+    });
+  }
+
+  return {
+    services, svcRev, retailRev, retailTx,
+    tsHours: hasTS ? tsHours : undefined,
+    tsWeeks: tsWeekSet.size,
+    servicesTS,
+  };
 }
 
 function sroiSuperRate() {
@@ -13005,10 +13036,17 @@ function sroiDeriveInputs(name, period) {
   const w = period.weeks || 1;
   const t = sroiAggregates(name, w);
 
-  const paidHours = t.tsHours != null ? t.tsHours / w : undefined;
+  // Divide hours by the weeks that actually have timesheet data, not the
+  // whole window - otherwise two tracked weeks inside a four-week window
+  // halves the apparent working week and overstates the return on wages.
+  const paidHours = (t.tsHours != null && t.tsWeeks > 0) ? t.tsHours / t.tsWeeks : undefined;
   // Hours on the clock are hours the chair is bookable
   const bookableHours = paidHours;
-  const servicesPerWeek = t.services > 0 ? t.services / w : undefined;
+  // Utilisation must compare like with like: services from timesheet-covered
+  // days per tracked week. Without timesheets, fall back to the full window.
+  const servicesPerWeek = (t.tsHours != null && t.tsWeeks > 0)
+    ? (t.servicesTS > 0 ? t.servicesTS / t.tsWeeks : undefined)
+    : (t.services > 0 ? t.services / w : undefined);
   const rate = getPayRate(name);
 
   return sroiPack({
