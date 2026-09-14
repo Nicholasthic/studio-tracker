@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.09-0020">
-<meta name="lumin-build" content="2026.09.09-0020"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.14-1634">
+<meta name="lumin-build" content="2026.09.14-1634"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3982,6 +3982,98 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
   .trend-row .trend-cell:nth-child(2)::before { content: 'WK'; }
   .trend-row .trend-cell:nth-child(3)::before { content: 'MO'; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   PURCHASES LOG (2026-09)
+   Manager-friendly expense capture that feeds the P&L.
+   ═══════════════════════════════════════════════════════════ */
+.purch-form {
+  display: grid;
+  grid-template-columns: 150px minmax(180px, 1fr) 200px 120px auto;
+  gap: 14px;
+  align-items: end;
+}
+.purch-form .form-input { min-width: 0; width: 100%; }
+.purch-form .btn { white-space: nowrap; padding-top: 11px; padding-bottom: 11px; }
+.purch-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.purch-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.purch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+.purch-chip strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.purch-chip.total { background: var(--accent-light); border-color: var(--border2); color: var(--text); font-weight: 600; }
+.purch-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto 110px 36px;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 4px;
+  border-top: 1px solid var(--border);
+}
+.purch-row:first-child { border-top: none; }
+.purch-date { font-size: 13.5px; color: var(--muted); white-space: nowrap; }
+.purch-item { font-size: 15px; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.purch-by { display: block; font-size: 12px; font-weight: 400; color: var(--muted2); margin-top: 1px; }
+.purch-cat-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface3);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.purch-amount { font-size: 16px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Compare page: swap arrows + quick preset */
+.compare-vs-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; align-self: end; padding-bottom: 2px; }
+.cmp-swap {
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.18s var(--ease-luxe);
+}
+.cmp-swap:hover { color: var(--text); border-color: var(--muted); transform: rotate(180deg); }
+.cmp-preset { font-size: 14px; align-self: end; margin-left: 6px; }
+@media (max-width: 1200px) {
+  .purch-form { grid-template-columns: 150px 1fr 1fr; }
+  .purch-form-item { grid-column: 2 / -1; }
+  .purch-form-btn .btn { width: 100%; }
+}
+@media (max-width: 760px) {
+  .purch-form { grid-template-columns: 1fr 1fr; }
+  .purch-form-item { grid-column: 1 / -1; }
+  .purch-form-btn { grid-column: 1 / -1; }
+  .purch-form-btn .btn { width: 100%; }
+  .purch-row { grid-template-columns: 1fr auto 32px; }
+  .purch-date { grid-column: 1 / 2; }
+  .purch-item { grid-column: 1 / -1; grid-row: 2; }
+  .purch-cat-badge { justify-self: start; grid-row: 3; }
+  .purch-amount { grid-row: 1; grid-column: 2; }
+}
 </style>
 <style id="staffroi-css">
 /* ===== STAFF ROI (owner-only) — rides the app tokens since the 2026-09
@@ -4284,6 +4376,10 @@ try {
       Roster Planner
     </button>
     <div class="nav-section-label">Finance</div>
+    <button class="nav-item" onclick="showPage('purchases')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M3 5h10l-1 9H4L3 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 7V4a2 2 0 014 0v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Purchases
+    </button>
     <button class="nav-item" onclick="showPage('invoice')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="2" y="1" width="12" height="14" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Contractor Invoice
@@ -4687,6 +4783,48 @@ try {
     <input type="hidden" id="entry-date">
   </div>
 
+  <!-- ======================== PURCHASES (admin + manager) ======================== -->
+  <div class="page" id="page-purchases">
+    <div class="form-section">
+      <div class="form-section-title">Log a purchase</div>
+      <div class="purch-form">
+        <div class="form-group">
+          <label class="form-label" for="purch-date">Date</label>
+          <input type="date" class="form-input" id="purch-date">
+        </div>
+        <div class="form-group purch-form-item">
+          <label class="form-label" for="purch-item">Item / supplier</label>
+          <input type="text" class="form-input" id="purch-item" placeholder="e.g. Brow wax refills, BeautyPro" onkeydown="if(event.key==='Enter')addPurchase()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="purch-cat">Category</label>
+          <select class="form-input" id="purch-cat"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="purch-amount">Amount $</label>
+          <input type="number" class="form-input" id="purch-amount" min="0" step="0.01" placeholder="0.00" onkeydown="if(event.key==='Enter')addPurchase()">
+        </div>
+        <div class="form-group purch-form-btn">
+          <button class="btn btn-primary" onclick="addPurchase()">+ Add purchase</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page.</div>
+    </div>
+
+    <div class="form-section">
+      <div class="purch-list-head">
+        <div class="form-section-title" style="margin-bottom:0">Purchases</div>
+        <div class="tl-periodbar" style="margin:0">
+          <button class="tl-step" onclick="purchNavMonth(-1)" aria-label="Previous month">‹</button>
+          <span class="tl-period-label" id="purch-month-label">—</span>
+          <button class="tl-step" id="purch-next-btn" onclick="purchNavMonth(1)" aria-label="Next month">›</button>
+        </div>
+      </div>
+      <div class="purch-cats" id="purch-cat-chips"></div>
+      <div id="purch-list"></div>
+    </div>
+  </div>
+
   <!-- ======================== STYLISTS ======================== -->
   <div class="page" id="page-stylists">
     <div id="stylist-period-bar" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:16px"></div>
@@ -4773,7 +4911,10 @@ try {
           <div class="compare-select-label a">Week A</div>
           <select class="compare-select a" id="cmp-week-a" aria-label="Comparison week A" onchange="renderCompare()"></select>
         </div>
-        <div class="compare-vs">vs</div>
+        <div class="compare-vs-wrap">
+          <div class="compare-vs">vs</div>
+          <button class="cmp-swap" onclick="cmpSwap('cmp-week-a','cmp-week-b')" title="Swap the two weeks" aria-label="Swap the two weeks">⇄</button>
+        </div>
         <div class="compare-select-group">
           <div class="compare-select-label b">Week B</div>
           <select class="compare-select b" id="cmp-week-b" aria-label="Comparison week B" onchange="renderCompare()"></select>
@@ -4801,7 +4942,10 @@ try {
           <option value="Dec">December</option>
         </select>
       </div>
-      <div class="compare-vs">vs</div>
+      <div class="compare-vs-wrap">
+        <div class="compare-vs">vs</div>
+        <button class="cmp-swap" onclick="cmpSwap('cmp-a','cmp-b')" title="Swap the two months" aria-label="Swap the two months">⇄</button>
+      </div>
       <div class="compare-select-group">
         <div class="compare-select-label b">Month B</div>
         <select class="compare-select b" id="cmp-b" aria-label="Comparison month B" onchange="renderCompare()">
@@ -4820,6 +4964,7 @@ try {
           <option value="Dec">December</option>
         </select>
       </div>
+      <button class="btn btn-ghost cmp-preset" onclick="monthThisVsLast()">⚡ This month vs last month</button>
     </div>
 
     <!-- Studio vs Studio selectors -->
@@ -6515,6 +6660,8 @@ function showPage(id) {
   }
   // Owner-only pages — Manager and Stylist roles get bounced to the dashboard
   if ((id === 'pl' || id === 'taxbas' || id === 'staffroi') && pinSessionUser !== 'admin') id = 'dashboard';
+  // Purchases log is for the owner and manager, never stylists
+  if (id === 'purchases' && pinSessionUser !== 'admin' && pinSessionUser !== 'manager') id = 'dashboard';
   // Tier soft gates — Solo plan blocks team-only pages with an upgrade prompt
   if (id === 'leaderboard' && typeof canUseLeaderboard === 'function' && !canUseLeaderboard()) {
     showPricingModal('The Leaderboard ranks your whole team. Upgrade to Studio to unlock it, plus unlimited stylists, contractor invoicing, and more.');
@@ -6534,7 +6681,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', purchases:'Purchases', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -6545,6 +6692,7 @@ function showPage(id) {
   if (id === 'compare') renderCompare();
   if (id === 'stylistperf') renderStylistPerf();
   if (id === 'clientlog') renderClientLog();
+  if (id === 'purchases') renderPurchases();
   if (id === 'invoice') { renderBizDetails(); renderInvoice(); }
   if (id === 'export') renderExportPage();
   if (id === 'pl') renderPL();
@@ -6986,20 +7134,30 @@ function tlMoney(n, cents) {
   return '$' + (n||0).toLocaleString(undefined, opts);
 }
 
-// Timely-style comparison: arrow + previous period's value, green when up
-function tlDelta(cur, prev, fmt) {
-  if (prev == null) return '';
+// The little comparison bubble under dashboard figures. The owner picks its
+// style in Studio preferences (Account & Settings): 'pct' shows percentage
+// change (default), 'diff' shows the dollar/count change, 'prev' shows the
+// previous period's figure. Rates (rebook %) always compare in points,
+// because a percentage of a percentage misleads. Hover shows the previous
+// figure whichever style is on.
+function tlDelta(cur, prev, fmt, isRate) {
+  if (prev == null || cur == null) return '';
   if (!prev && !cur) return '';
   const up = cur >= prev;
   const f = fmt || tlMoney;
-  return `<span class="tl-delta ${up ? 'up' : 'down'}" title="Previous period: ${f(prev)}">${up ? '↑' : '↓'} ${f(prev)}</span>`;
+  const style = getStudioPref('deltaStyle', 'pct');
+  let label;
+  if (style === 'prev') label = f(prev);
+  else if (isRate) label = Math.abs(cur - prev).toFixed(1).replace(/\.0$/, '') + ' pts';
+  else if (style === 'pct' && prev > 0) label = Math.abs((cur - prev) / prev * 100).toFixed(0) + '%';
+  else label = f(Math.abs(cur - prev));
+  return `<span class="tl-delta ${up ? 'up' : 'down'}" title="Previous period: ${f(prev)}">${up ? '↑' : '↓'} ${label}</span>`;
 }
 
 function tlDonut(pct, colorVar, prevPct) {
   const p = Math.max(0, Math.min(100, pct||0));
   const r = 30, c = 2 * Math.PI * r;
-  const delta = (prevPct != null && (prevPct || pct))
-    ? `<span class="tl-delta ${pct >= prevPct ? 'up' : 'down'}" title="Previous period: ${prevPct.toFixed(0)}%">${pct >= prevPct ? '↑' : '↓'} ${prevPct.toFixed(0)}%</span>` : '';
+  const delta = tlDelta(pct, prevPct, v => v.toFixed(0) + '%', true);
   return `<div class="tl-donut-wrap">
     <div class="tl-donut">
       <svg viewBox="0 0 72 72" width="72" height="72" aria-hidden="true">
@@ -7355,7 +7513,7 @@ function renderDashStaff() {
       <div class="tl-cell">
         <div class="tl-cell-big">${r.rb != null ? pctFmt(r.rb) : '—'}</div>
         <div class="tl-cell-sub">of ${r.c.clients.toLocaleString()} client${r.c.clients === 1 ? '' : 's'}</div>
-        ${r.rb != null && r.prevRb != null ? tlDelta(r.rb, r.prevRb, pctFmt) : ''}
+        ${r.rb != null && r.prevRb != null ? tlDelta(r.rb, r.prevRb, pctFmt, true) : ''}
       </div>
     </div>`).join('');
 
@@ -7645,9 +7803,9 @@ function renderDashboard() {
       <td class="mono">${e.newC||0}</td>
       <td class="mono">${newPct}%</td>
       <td class="mono"><strong>${total}</strong></td>
-      <td class="mono">$${Math.max(0,(e.prod||0)-(ctr?(ctr.prod||0):0)).toLocaleString()}</td>
-      <td class="mono">$${Math.max(0,(e.svc||0)-(ctr?(ctr.svc||0):0)).toLocaleString()}</td>
-      <td class="mono"><strong>$${Math.max(0,(e.total||0)-cGross).toLocaleString()}</strong></td>
+      <td class="mono">$${(e.prod||0).toLocaleString()}</td>
+      <td class="mono">$${(e.svc||0).toLocaleString()}</td>
+      <td class="mono"><strong>$${(e.total||0).toLocaleString()}</strong></td>
       <td style="padding:8px 12px">${contractorCell}</td>
       <td class="mono">${e.stylists||0}</td>
       <td class="note-cell">${e.notes||''}</td>
@@ -9973,6 +10131,27 @@ function aggregateWeek(wsISO) {
   });
   return t;
 }
+// Swap the two sides of a comparison (works when both are chosen)
+function cmpSwap(aId, bId) {
+  const a = document.getElementById(aId), b = document.getElementById(bId);
+  if (!a || !b || !a.value || !b.value) return;
+  const t = a.value; a.value = b.value; b.value = t;
+  renderCompare();
+}
+
+// One click: latest month with data vs the month before it
+function monthThisVsLast() {
+  const MONTHLY = buildMONTHLY();
+  const withData = MONTH_NAMES.filter(m => MONTHLY[m]);
+  if (withData.length < 2) return;
+  const latest = withData[withData.length - 1];
+  const prev = withData[withData.length - 2];
+  const selA = document.getElementById('cmp-a'), selB = document.getElementById('cmp-b');
+  if (selA) selA.value = latest;
+  if (selB) selB.value = prev;
+  renderCompare();
+}
+
 function weekThisVsLast() {
   const weeks = getAvailableWeeks();
   const thisW = toLocalISO(weekStartMon(toLocalISO(new Date())));
@@ -13434,6 +13613,110 @@ function saveVariableDefaults() {
   setTimeout(()=>{toast.style.display='none';toast.textContent='Day saved ✓';},2000);
 }
 
+/* ── PURCHASES LOG (admin + manager) ──
+   Managers can't open the P&L, so this page gives them a place to log
+   expenses, product buys and supplies. Each month's log is folded into that
+   month's P&L variable expenses automatically (read-only rows there). */
+const PURCHASE_CATS = [
+  { id: 'products',  label: 'Products for resale' },
+  { id: 'supplies',  label: 'Supplies & consumables' },
+  { id: 'equipment', label: 'Equipment & tools' },
+  { id: 'other',     label: 'Other purchases' },
+];
+let purchMonthOffset = 0;   // months back from the current month
+
+function loadPurchases() { try { return JSON.parse(localStorage.getItem(studioKey('ejPurchases')) || '[]') || []; } catch { return []; } }
+function savePurchases(list) {
+  localStorage.setItem(studioKey('ejPurchases'), JSON.stringify(list));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejPurchases'));
+}
+function purchasesFor(year, monthName) {
+  const mi = MONTH_NAMES.indexOf(monthName) + 1;
+  if (!mi) return [];
+  const pref = `${year}-${String(mi).padStart(2, '0')}`;
+  return loadPurchases().filter(p => p.date && p.date.startsWith(pref));
+}
+function purchasesByCat(year, monthName) {
+  const out = {};
+  purchasesFor(year, monthName).forEach(p => {
+    const c = PURCHASE_CATS.some(x => x.id === p.cat) ? p.cat : 'other';
+    out[c] = (out[c] || 0) + (parseFloat(p.amount) || 0);
+  });
+  return out;
+}
+function purchasesMonthTotal(year, monthName) {
+  return purchasesFor(year, monthName).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+}
+const purchFmt = n => (n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function addPurchase() {
+  const dateEl = document.getElementById('purch-date');
+  const itemEl = document.getElementById('purch-item');
+  const amtEl = document.getElementById('purch-amount');
+  const date = dateEl?.value;
+  const item = itemEl?.value.trim();
+  const cat = document.getElementById('purch-cat')?.value || 'other';
+  const amount = parseFloat(amtEl?.value);
+  if (!date) { dateEl?.focus(); return; }
+  if (!item) { itemEl?.focus(); return; }
+  if (!(amount > 0)) { amtEl?.focus(); return; }
+  const by = pinSessionUser === 'admin' ? 'Owner' : pinSessionUser === 'manager' ? 'Manager' : (pinSessionUser || '');
+  const list = loadPurchases();
+  list.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by });
+  savePurchases(list);
+  itemEl.value = ''; amtEl.value = '';
+  // Show the month the purchase went into, so the new row is visibly there
+  const d = new Date(date + 'T00:00:00'), now = new Date();
+  purchMonthOffset = Math.max(0, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()));
+  renderPurchases();
+  itemEl.focus();
+}
+function deletePurchase(id) {
+  savePurchases(loadPurchases().filter(p => p.id !== id));
+  renderPurchases();
+  if (document.getElementById('page-pl')?.classList.contains('active')) renderPLMonth(activePLMonth);
+}
+function purchNavMonth(dir) {
+  purchMonthOffset = Math.max(0, purchMonthOffset - dir);
+  renderPurchases();
+}
+function renderPurchases() {
+  const dEl = document.getElementById('purch-date');
+  if (dEl && !dEl.value) dEl.value = toLocalISO(new Date());
+  const sel = document.getElementById('purch-cat');
+  if (sel && !sel.options.length) sel.innerHTML = PURCHASE_CATS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+
+  const now = new Date();
+  const m = new Date(now.getFullYear(), now.getMonth() - purchMonthOffset, 1);
+  const year = m.getFullYear(), monthName = MONTH_NAMES[m.getMonth()];
+  const lbl = document.getElementById('purch-month-label');
+  if (lbl) lbl.textContent = `${MONTH_FULL[m.getMonth()] || monthName} ${year}`;
+  const nextBtn = document.getElementById('purch-next-btn');
+  if (nextBtn) nextBtn.disabled = purchMonthOffset === 0;
+
+  const list = purchasesFor(year, monthName).sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
+  const byCat = purchasesByCat(year, monthName);
+  const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
+
+  const chips = document.getElementById('purch-cat-chips');
+  if (chips) chips.innerHTML =
+    `<span class="purch-chip total">Month total <strong>$${purchFmt(purchasesMonthTotal(year, monthName))}</strong></span>` +
+    PURCHASE_CATS.filter(c => byCat[c.id] > 0).map(c =>
+      `<span class="purch-chip">${c.label} <strong>$${purchFmt(byCat[c.id])}</strong></span>`).join('');
+
+  const el = document.getElementById('purch-list');
+  if (!el) return;
+  el.innerHTML = list.length ? list.map(p => `
+    <div class="purch-row">
+      <div class="purch-date">${new Date(p.date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+      <div class="purch-item">${String(p.item || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}${p.by ? `<span class="purch-by">logged by ${p.by}</span>` : ''}</div>
+      <span class="purch-cat-badge">${catName(p.cat)}</span>
+      <div class="purch-amount">$${purchFmt(p.amount)}</div>
+      <button class="ts-clear-btn" onclick="deletePurchase('${p.id}')" aria-label="Delete purchase" title="Delete purchase">✕</button>
+    </div>`).join('')
+    : `<div class="chart-empty" style="min-height:120px">No purchases logged for ${monthName} ${year} yet.</div>`;
+}
+
 function renderPL() {
   const yrData = getYearData(activeYear || BASE_YEAR);
   const availMonths = MONTH_NAMES.filter(m => yrData[m]);
@@ -13497,7 +13780,14 @@ function renderPLMonth(month) {
   }).join('');
   const varCustomRows = customVar.map((line,i)=>`<div class="pl-row"><div class="pl-row-label" style="flex:1"><input style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:15px;width:100%;outline:none;padding:2px 0" aria-label="Expense name" value="${line.label}" onchange="savePLCustomLabel('${monthKey}',${i},this.value,'variable')"></div><input class="pl-row-input" aria-label="Expense amount" type="number" min="0" placeholder="0.00" value="${line.amount||''}" onchange="savePLCustomAmount('${monthKey}',${i},this.value,'variable');updatePLTotals('${monthKey}')"><button onclick="deletePLCustom('${monthKey}',${i},'variable')" aria-label="Remove row" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></div>`).join('');
   customVar.forEach(l=>{if(l.amount>0) totalVar+=parseFloat(l.amount);});
-  if(varRows) varRows.innerHTML=varCatRows+varCustomRows;
+  // Purchases logged on the Purchases page (owner or manager) fold in here
+  // automatically as read-only rows, grouped by category
+  const purchCats = purchasesByCat(activeYear||BASE_YEAR, month);
+  const purchRows = PURCHASE_CATS.filter(c=>purchCats[c.id]>0).map(c=>{
+    totalVar += purchCats[c.id];
+    return `<div class="pl-row"><div class="pl-row-label">${c.label}</div><div class="pl-row-fixed">purchases log</div><div class="pl-row-value">$${fmt(purchCats[c.id])}</div><button onclick="showPage('purchases')" aria-label="Open the purchases log" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px;font-family:var(--font);text-decoration:underline;text-underline-offset:2px">view</button></div>`;
+  }).join('');
+  if(varRows) varRows.innerHTML=varCatRows+varCustomRows+purchRows;
   if(varTotal) varTotal.textContent='$'+fmt(totalVar);
 
   const totalExp=totalFixed+totalVar;
@@ -13565,6 +13855,7 @@ function getTotalFixedExpenses(month) {
   (monthData.custom||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
   VARIABLE_CATEGORIES.forEach(cat=>{ const val=monthData[cat.id]!==undefined?monthData[cat.id]:(varDefs[cat.id]||0); total+=parseFloat(val)||0; });
   (monthData.customVar||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
+  total += purchasesMonthTotal(activeYear||BASE_YEAR, month);   // Purchases page log
   return total;
 }
 
@@ -14366,6 +14657,7 @@ function renderStudioPrefs() {
   }
   const target = getRebookTarget();
   const dp = getStudioPref('defaultPeriod', 'all');
+  const ds = getStudioPref('deltaStyle', 'pct');
   const periods = [['all','All time'],['thisweek','This week'],['lastweek','Last week'],['ytd','Year to date'],['fy','Financial year'],['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const payStaff = (typeof getAllTSStaff === 'function') ? getAllTSStaff() : STYLISTS.map(s => ({ name: s.name }));
   const payRates = loadPayRates();
@@ -14404,6 +14696,19 @@ function renderStudioPrefs() {
           </select>
         </div>
         <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Which period the dashboard shows the first time you open the app each session.</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Comparison bubbles</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:15px;color:var(--text)">Show change as</span>
+          <select id="pref-delta-style" aria-label="Comparison bubble style" onchange="setStudioPref('deltaStyle', this.value)"
+            style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+            <option value="pct" ${ds==='pct'?'selected':''}>Percentage change (up 12%)</option>
+            <option value="diff" ${ds==='diff'?'selected':''}>Dollar / count change (up $1,240)</option>
+            <option value="prev" ${ds==='prev'?'selected':''}>Last period's figure ($10,300)</option>
+          </select>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">How the red and green bubbles under dashboard figures read. Rebook rates always compare in points, and hovering a bubble shows the previous period's figure whichever style is on.</div>
       </div>
       <div>
         <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Working days</div>
@@ -17197,7 +17502,7 @@ async function cloudPushKind(kind) {
 const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
-  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI',
+  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI','ejPurchases',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
   'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
