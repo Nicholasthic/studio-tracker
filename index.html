@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.14-1747">
-<meta name="lumin-build" content="2026.09.14-1747"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.14-1807">
+<meta name="lumin-build" content="2026.09.14-1807"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5002,7 +5002,8 @@ try {
     </div>
 
     <div id="entry-actions" style="display:none;gap:10px;align-items:center">
-      <button class="btn btn-primary" onclick="saveEntry()">Save Day</button>
+      <button class="btn btn-primary" onclick="saveEntryAndNext()" title="Save this day and jump straight to the next open day">Save &amp; next day →</button>
+      <button class="btn btn-ghost" onclick="saveEntry()">Save &amp; close</button>
       <button class="btn btn-ghost" onclick="clearEntry()">Clear</button>
       <span id="entry-auto-saved" role="status" aria-live="polite" style="font-size:14px;color:var(--muted);opacity:0;transition:opacity .25s ease;margin-left:6px"></span>
       <div class="entry-total-live">Day total <strong id="entry-day-total">$0</strong></div>
@@ -7223,25 +7224,78 @@ function trendPill(cur, prev, pts) {
   return `<span class="trend-pill ${diff >= 0 ? 'up' : 'down'}">${diff >= 0 ? '▲' : '▼'} ${label}</span>`;
 }
 
+function dashTrendsMode() {
+  try {
+    const saved = localStorage.getItem('ejTrendsMode');
+    if (saved) return saved;
+  } catch {}
+  // No explicit choice yet: this studio batch-enters the whole previous week
+  // in one sitting, so mid-week the "to date" view is empty. Default to the
+  // mode that actually has data.
+  try {
+    const todayISO = toLocalISO(new Date());
+    const monISO = toLocalISO(getMondayOfWeek(todayISO));
+    const hasThisWeek = allEntries().some(e => e.date && e.date >= monISO && e.date <= todayISO && (e.total || 0) > 0);
+    return hasThisWeek ? 'todate' : 'complete';
+  } catch { return 'todate'; }
+}
+function dashSetTrendsMode(m) {
+  try { localStorage.setItem('ejTrendsMode', m); } catch {}
+  renderDashTrends();
+}
+
 function renderDashTrends() {
   const el = document.getElementById('dash-trends');
   if (!el) return;
   const today = new Date();
   const todayISO = toLocalISO(today);
+  const mode = dashTrendsMode();
+  const iso = d => toLocalISO(d);
+  const fmtD = d => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
 
-  // Week-to-date vs the same days of last week
-  const mon = getMondayOfWeek(todayISO);
-  const wk = dashRangeTotals(toLocalISO(mon), todayISO);
-  const lastMon = new Date(mon); lastMon.setDate(mon.getDate() - 7);
-  const lastSame = new Date(today); lastSame.setDate(today.getDate() - 7);
-  const lw = dashRangeTotals(toLocalISO(lastMon), toLocalISO(lastSame));
+  let wk, lw, mo, lm, headW, headWsub, headM, headMsub, prevWLbl, prevMLbl, heroWtitle, heroWsub, heroMtitle, heroMsub, note;
 
-  // Month-to-date vs the same day-span of last month
-  const mo = dashRangeTotals(todayISO.slice(0, 8) + '01', todayISO);
-  const pmFirst = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const pmDays = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-  const pmEnd = new Date(pmFirst.getFullYear(), pmFirst.getMonth(), Math.min(today.getDate(), pmDays));
-  const lm = dashRangeTotals(toLocalISO(pmFirst), toLocalISO(pmEnd));
+  if (mode === 'complete') {
+    // Last FULL week (Mon-Sun) vs the week before it
+    const mon = getMondayOfWeek(todayISO);
+    const lastMon = new Date(mon); lastMon.setDate(mon.getDate() - 7);
+    const lastSun = new Date(mon); lastSun.setDate(mon.getDate() - 1);
+    const prevMon = new Date(lastMon); prevMon.setDate(lastMon.getDate() - 7);
+    const prevSun = new Date(lastMon); prevSun.setDate(lastMon.getDate() - 1);
+    wk = dashRangeTotals(iso(lastMon), iso(lastSun));
+    lw = dashRangeTotals(iso(prevMon), iso(prevSun));
+    // Last FULL month vs the month before it
+    const lmFirst = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lmLast = new Date(today.getFullYear(), today.getMonth(), 0);
+    const pmFirst2 = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+    const pmLast2 = new Date(today.getFullYear(), today.getMonth() - 1, 0);
+    mo = dashRangeTotals(iso(lmFirst), iso(lmLast));
+    lm = dashRangeTotals(iso(pmFirst2), iso(pmLast2));
+    headW = 'Last week'; headWsub = 'vs the week before';
+    headM = lmFirst.toLocaleDateString('en-AU', { month: 'long' }); headMsub = 'vs ' + pmFirst2.toLocaleDateString('en-AU', { month: 'long' });
+    prevWLbl = 'wk before'; prevMLbl = headMsub.replace('vs ', '');
+    heroWtitle = 'Sales · last week'; heroWsub = `${fmtD(lastMon)} – ${fmtD(lastSun)} vs ${fmtD(prevMon)} – ${fmtD(prevSun)}`;
+    heroMtitle = 'Sales · ' + headM; heroMsub = `${headM} vs ${prevMLbl}, both complete`;
+    note = `Comparing the last completed week and month against the ones before them - finished periods only, no partial days.`;
+  } else {
+    // To-date: this week/month so far vs the same point of the previous ones
+    const mon = getMondayOfWeek(todayISO);
+    wk = dashRangeTotals(iso(mon), todayISO);
+    const lastMon = new Date(mon); lastMon.setDate(mon.getDate() - 7);
+    const lastSame = new Date(today); lastSame.setDate(today.getDate() - 7);
+    lw = dashRangeTotals(iso(lastMon), iso(lastSame));
+    mo = dashRangeTotals(todayISO.slice(0, 8) + '01', todayISO);
+    const pmFirst = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const pmDays = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    const pmEnd = new Date(pmFirst.getFullYear(), pmFirst.getMonth(), Math.min(today.getDate(), pmDays));
+    lm = dashRangeTotals(iso(pmFirst), iso(pmEnd));
+    headW = 'This week'; headWsub = 'vs same point last week';
+    headM = 'This month'; headMsub = 'vs same point last month';
+    prevWLbl = 'last wk'; prevMLbl = 'last mo';
+    heroWtitle = 'Sales vs last week'; heroWsub = `${fmtD(mon)} – today vs same days last week`;
+    heroMtitle = 'Sales vs last month'; heroMsub = `1st – today vs 1st – ${fmtD(pmEnd)}`;
+    note = `Comparisons are to-date: ${fmtD(today)} against the same point of the previous week and month, so a period that isn't finished yet is judged fairly.`;
+  }
 
   const money = v => v == null ? '—' : '$' + Math.round(v).toLocaleString();
   const num = v => v == null ? '—' : Math.round(v).toLocaleString();
@@ -7266,7 +7320,6 @@ function renderDashTrends() {
     { label: 'New rebook rate', get: t => t.newRb, fmt: pct, pts: true },
   ];
 
-  const fmtD = d => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
   const heroTile = (title, cur, prev, sub) => {
     const dir = (prev > 0) ? (cur >= prev ? 'up' : 'down') : 'flat';
     const pc = prev > 0 ? Math.abs((cur - prev) / prev * 100).toFixed(0) : null;
@@ -7285,31 +7338,35 @@ function renderDashTrends() {
       <div class="trend-name">${m.label}</div>
       <div class="trend-cell">
         <span class="trend-val">${m.fmt(wc)}</span>
-        <span class="trend-prev">last wk ${m.fmt(wp)}</span>
+        <span class="trend-prev">${prevWLbl} ${m.fmt(wp)}</span>
         ${trendPill(wc, wp, m.pts)}
       </div>
       <div class="trend-cell">
         <span class="trend-val">${m.fmt(mc)}</span>
-        <span class="trend-prev">last mo ${m.fmt(mp)}</span>
+        <span class="trend-prev">${prevMLbl} ${m.fmt(mp)}</span>
         ${trendPill(mc, mp, m.pts)}
       </div>
     </div>`;
   }).join('');
 
   el.innerHTML = `
+    <div class="filter-row" style="margin-bottom:14px">
+      <button class="filter-btn ${mode === 'todate' ? 'active' : ''}" onclick="dashSetTrendsMode('todate')">To date</button>
+      <button class="filter-btn ${mode === 'complete' ? 'active' : ''}" onclick="dashSetTrendsMode('complete')">Last completed</button>
+    </div>
     <div class="trend-hero">
-      ${heroTile('Sales vs last week', wk.total, lw.total, `${fmtD(mon)} – today vs same days last week`)}
-      ${heroTile('Sales vs last month', mo.total, lm.total, `1st – today vs 1st – ${fmtD(pmEnd)}`)}
+      ${heroTile(heroWtitle, wk.total, lw.total, heroWsub)}
+      ${heroTile(heroMtitle, mo.total, lm.total, heroMsub)}
     </div>
     <div class="trend-table">
       <div class="trend-head">
         <div></div>
-        <div>This week <span>vs same point last week</span></div>
-        <div>This month <span>vs same point last month</span></div>
+        <div>${headW} <span>${headWsub}</span></div>
+        <div>${headM} <span>${headMsub}</span></div>
       </div>
       ${rows}
     </div>
-    <div class="trend-note">Comparisons are to-date: ${fmtD(today)} against the same point of the previous week and month, so a period that isn't finished yet is judged fairly. Rebook rates compare in percentage points.</div>`;
+    <div class="trend-note">${note} Rebook rates compare in percentage points.</div>`;
 }
 
 // Calendar months (short names) a filter spans, for layering base monthly data
@@ -9589,6 +9646,39 @@ function saveEntryData() {
   userEntries.push(entry);
   saveStorage(userEntries);
   return true;
+}
+
+// Batch-entry flow: save this day, then jump straight to the next open day
+// (skipping non-working days, rolling into the next week when needed) with
+// the form ready to type. Built for the Monday enter-the-whole-week session.
+function saveEntryAndNext() {
+  const cur = sv('entry-date');
+  if (!cur) { alert('Please select a date.'); return; }
+  if (!saveEntryData()) return;
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = 'Day saved ✓';
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 1200);
+  }
+  // Next open day after the one just saved
+  const d = new Date(cur + 'T00:00:00');
+  for (let i = 0; i < 7; i++) {
+    d.setDate(d.getDate() + 1);
+    if (entryEnabledDays.has(d.getDay())) break;
+  }
+  const nextISO = toLocalISO(d);
+  // Hop the week grid forward if the next day falls outside the shown week
+  const shown = getEntryWeekDates(entryWeekOffset);
+  if (!shown.days.some(x => toLocalISO(x) === nextISO)) {
+    entryWeekOffset += 1;
+    renderEntry();
+  }
+  selectEntryDay(nextISO, d.getDay());
+  setTimeout(() => {
+    document.getElementById('entry-day-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('entry-stylists')?.focus();
+  }, 120);
 }
 
 function saveEntry() {
