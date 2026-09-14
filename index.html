@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.14-2053">
-<meta name="lumin-build" content="2026.09.14-2053"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.14-2119">
+<meta name="lumin-build" content="2026.09.14-2119"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17688,6 +17688,26 @@ function getStylistActualsForPeriod(name, period, month) {
     combined.newNR     += sm.newNR || 0;
     combined.productRev += sm.prod || 0;
   });
+  // Layer in the per-stylist figures from daily entries (e.sd) - the base
+  // STYLIST_MONTHLY only covers historical pre-tracker months, so without
+  // this every tracked month reads as zero. Same merge the Stylist
+  // Performance page and dashboard Staff tab do.
+  const monthSet = new Set(months);
+  const yrPrefix = String(activeYear || BASE_YEAR);
+  allEntries().forEach(e => {
+    if (!e.sd || !e.date || !e.date.startsWith(yrPrefix)) return;
+    const mName = MONTH_NAMES[new Date(e.date + 'T00:00:00').getMonth()];
+    if (!monthSet.has(mName)) return;
+    const d = e.sd[name];
+    if (!d) return;
+    combined.revenue    += (d.svc || 0) + (d.prod || 0);
+    combined.clients    += d.c || 0;
+    combined.retR       += d.rr || 0;
+    combined.retNR      += d.rnr || 0;
+    combined.newR       += d.nrr || 0;
+    combined.newNR      += d.nnr || 0;
+    combined.productRev += d.prod || 0;
+  });
   const retTotal = combined.retR + combined.retNR;
   const newTotal = combined.newR + combined.newNR;
   combined.retRebookPct = retTotal > 0 ? Math.round((combined.retR / retTotal) * 100) : 0;
@@ -17709,12 +17729,14 @@ function getMonthsForPeriod(period, monthSel) {
   return availMonths;
 }
 
-function progressBar(actual, target, isPercent) {
+function progressBar(actual, target, isPercent, prefix) {
   if (!target || target <= 0) return `<div style="font-size:13px;color:var(--muted);font-style:italic">No target set</div>`;
   const pct = Math.min(200, (actual / target) * 100);
   const displayPct = Math.round(pct);
   const color = pct >= 100 ? 'var(--green)' : pct >= 75 ? 'var(--accent)' : pct >= 50 ? 'var(--blue)' : 'var(--red)';
-  const fmt = isPercent ? (n => n + '%') : (n => '$' + Math.round(n).toLocaleString('en-AU'));
+  // Counts (clients) carry no prefix; money metrics pass '$'
+  const p = prefix === undefined ? '$' : prefix;
+  const fmt = isPercent ? (n => n + '%') : (n => p + Math.round(n).toLocaleString('en-AU'));
   return `
     <div style="margin-top:6px">
       <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px">
@@ -17772,7 +17794,7 @@ function renderGoals() {
             <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px">
               <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">${m.label}</div>
               <div style="font-family:var(--mono);font-size:22px;font-weight:700;margin-top:6px">${isPct ? actual + '%' : (m.prefix + Math.round(actual).toLocaleString('en-AU') + m.suffix)}</div>
-              ${progressBar(actual, target, isPct)}
+              ${progressBar(actual, target, isPct, m.prefix)}
             </div>`;
         }).join('')}
       </div>
@@ -17797,7 +17819,7 @@ function renderGoals() {
               <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
                 <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">${m.label}</div>
                 <div style="font-family:var(--mono);font-size:18px;font-weight:700;margin-top:4px">${isPct ? actual + '%' : (m.prefix + Math.round(actual).toLocaleString('en-AU') + m.suffix)}</div>
-                ${progressBar(actual, target, isPct)}
+                ${progressBar(actual, target, isPct, m.prefix)}
               </div>`;
           }).join('')}
         </div>
