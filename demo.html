@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.09.09-0020">
-<meta name="lumin-build" content="2026.09.09-0020"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.14-1747">
+<meta name="lumin-build" content="2026.09.14-1747"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -2022,8 +2022,9 @@ tr:hover .row-actions { opacity: 1; }
   box-shadow: 0 24px 80px rgba(0,0,0,0.5);
   padding: 40px;
   color: #111;
-  font-family: -apple-system, 'Helvetica Neue', sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size:15px;
+  border-top: 3px solid #111;
 }
 /* Invoice preview inner styles */
 .inv-preview-frame .inv-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #111; }
@@ -2033,31 +2034,31 @@ tr:hover .row-actions { opacity: 1; }
 .inv-preview-frame .inv-label-big { font-size:32px;font-weight:800;letter-spacing:-.02em;color:#111;margin-bottom:10px; }
 .inv-preview-frame .inv-meta-table { font-size:14px;margin-left:auto;border-collapse:collapse; }
 .inv-preview-frame .inv-meta-table td { padding:3px 0 3px 20px;text-align:right; }
-.inv-preview-frame .inv-meta-table td:first-child { color:#999;text-align:left;padding-left:0; }
+.inv-preview-frame .inv-meta-table td:first-child { color:#6f6f6f;text-align:left;padding-left:0; }
 .inv-preview-frame .bill-to { margin-bottom:24px;padding:14px 18px;background:#f9f9f9;border-radius:8px; }
-.inv-preview-frame .section-label { font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:6px; }
+.inv-preview-frame .section-label { font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6f6f6f;margin-bottom:6px; }
 .inv-preview-frame .bill-to h2 { font-size:17px;font-weight:600; }
 .inv-preview-frame .week-block { margin-bottom:16px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden; }
 .inv-preview-frame .week-head { background:#f5f5f5;padding:10px 14px;display:flex;justify-content:space-between;font-weight:600;font-size:15px; }
-.inv-preview-frame .week-due-lbl { color:#b8860b; }
+.inv-preview-frame .week-due-lbl { color:#2e7d4f; font-variant-numeric:tabular-nums; }
 .inv-preview-frame table.lines { width:100%;border-collapse:collapse; }
-.inv-preview-frame table.lines th { text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:8px 12px;border-bottom:1px solid #e8e8e8; }
-.inv-preview-frame table.lines td { padding:9px 12px;font-size:14px;border-bottom:1px solid #f4f4f4; }
+.inv-preview-frame table.lines th { text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6f6f6f;padding:8px 12px;border-bottom:1px solid #e8e8e8; }
+.inv-preview-frame table.lines td { padding:9px 12px;font-size:14px;border-bottom:1px solid #f4f4f4;font-variant-numeric:tabular-nums; }
 .inv-preview-frame table.lines tr:last-child td { border-bottom:none; }
 .inv-preview-frame .totals-wrap { display:flex;justify-content:flex-end;margin:20px 0; }
 .inv-preview-frame .totals-box { width:320px; }
 .inv-preview-frame .t-row { display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:15px; }
 .inv-preview-frame .t-row.grand { border-bottom:none;font-size:18px;font-weight:700;padding-top:12px;border-top:2px solid #111;margin-top:4px; }
 .inv-preview-frame .t-label { color:#666; }
-.inv-preview-frame .t-amt { font-family:monospace;font-weight:600; }
-.inv-preview-frame .t-amt.due { color:#b8860b; }
-.inv-preview-frame .payment-box { background:#faf9f6;border:1px solid #e8e4d8;border-radius:8px;padding:16px 20px;margin-top:20px; }
-.inv-preview-frame .payment-box h3 { font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:10px; }
+.inv-preview-frame .t-amt { font-weight:600;font-variant-numeric:tabular-nums; }
+.inv-preview-frame .t-amt.due { color:#2e7d4f; }
+.inv-preview-frame .payment-box { background:#f7f8f9;border:1px solid #e3e5e8;border-radius:10px;padding:16px 20px;margin-top:20px; }
+.inv-preview-frame .payment-box h3 { font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6f6f6f;margin-bottom:10px; }
 .inv-preview-frame .pay-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px 24px; }
-.inv-preview-frame .pay-item .p-lbl { color:#999;font-size:12px;text-transform:uppercase;letter-spacing:.08em; }
+.inv-preview-frame .pay-item .p-lbl { color:#6f6f6f;font-size:12px;text-transform:uppercase;letter-spacing:.08em; }
 .inv-preview-frame .pay-item .p-val { font-weight:600;font-size:15px;margin-top:1px; }
-.inv-preview-frame .terms-line { margin-top:10px;font-size:14px;color:#666;border-top:1px solid #ece8e0;padding-top:8px; }
-.inv-preview-frame .inv-footer { margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:13px;color:#aaa;display:flex;justify-content:space-between; }
+.inv-preview-frame .terms-line { margin-top:10px;font-size:14px;color:#666;border-top:1px solid #e3e5e8;padding-top:8px; }
+.inv-preview-frame .inv-footer { margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:13px;color:#8a8a8a;display:flex;justify-content:space-between; }
 
 
 /* TIMESHEETS */
@@ -3664,19 +3665,36 @@ html[data-mode="dark"] {
 .ts-leave-badge.al { background: rgba(65,96,122,0.18); color: var(--blue); }
 .ts-leave-badge.pl { background: rgba(201,140,74,0.22); color: #a06428; }
 
-/* Steppers: − [time] + in a row, with real buttons */
-.ts-time-stepper { flex-direction: row; align-items: center; gap: 4px; }
+/* Steppers: quiet − [time] + glyphs, no button chrome */
+.ts-time-stepper { flex-direction: row; align-items: center; gap: 2px; }
 .ts-step-btn {
-  width: 26px; height: 30px;
+  width: 20px; height: 30px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted2);
   font-size: 15px; font-weight: 600;
   padding: 0;
+  cursor: pointer;
 }
-.ts-step-btn:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+.ts-step-btn:hover { color: var(--text); background: var(--surface2); }
+
+/* Card reorder arrows in the staff header */
+.ts-order-btns { display: inline-flex; gap: 2px; margin-left: 4px; }
+.ts-order-btn {
+  width: 24px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted2);
+  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
+}
+.ts-order-btn:hover:not(:disabled) { color: var(--text); background: var(--surface3); }
+.ts-order-btn:disabled { opacity: 0.25; cursor: default; }
 
 /* Filled, high-contrast fields to match the rest of the modern pass */
 .ts-time-input, .ts-break-input {
@@ -3699,6 +3717,11 @@ html[data-mode="dark"] {
 }
 .ts-notes-input:focus { border-color: var(--accent); box-shadow: var(--ring); }
 .ts-hours-val { font-size: 16px; font-variant-numeric: tabular-nums; }
+/* Fixed slots in the hours cell so the ⋯ and ✕ buttons line up vertically
+   down the whole card, whether or not a row has hours yet */
+.ts-hours-cell { display: flex; align-items: center; gap: 6px; }
+.ts-hours-cell .ts-hours-val { min-width: 64px; flex-shrink: 0; }
+.ts-hours-cell .ts-detail-toggle, .ts-hours-cell .ts-clear-btn { margin-left: 0; flex-shrink: 0; }
 
 .ts-detail-toggle {
   width: 28px; height: 28px;
@@ -3981,6 +4004,302 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
   .trend-cell::before { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted2); width: 26px; flex-shrink: 0; }
   .trend-row .trend-cell:nth-child(2)::before { content: 'WK'; }
   .trend-row .trend-cell:nth-child(3)::before { content: 'MO'; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PURCHASES LOG (2026-09)
+   Manager-friendly expense capture that feeds the P&L.
+   ═══════════════════════════════════════════════════════════ */
+.purch-form {
+  display: grid;
+  grid-template-columns: 150px minmax(180px, 1fr) 200px 120px auto;
+  gap: 14px;
+  align-items: end;
+}
+.purch-form .form-input { min-width: 0; width: 100%; }
+.purch-form .btn { white-space: nowrap; padding-top: 11px; padding-bottom: 11px; }
+.purch-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.purch-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.purch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+.purch-chip strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.purch-chip.total { background: var(--accent-light); border-color: var(--border2); color: var(--text); font-weight: 600; }
+.purch-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto 110px 36px;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 4px;
+  border-top: 1px solid var(--border);
+}
+.purch-row:first-child { border-top: none; }
+.purch-date { font-size: 13.5px; color: var(--muted); white-space: nowrap; }
+.purch-item { font-size: 15px; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.purch-by { display: block; font-size: 12px; font-weight: 400; color: var(--muted2); margin-top: 1px; }
+.purch-cat-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface3);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.purch-amount { font-size: 16px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ═══════════════════════════════════════════════════════════
+   YEARLY OVERVIEW (2026-09): modern-pass polish
+   ═══════════════════════════════════════════════════════════ */
+/* Year tabs read as pills, matching the period filter row below them */
+.year-tab {
+  border-radius: 999px;
+  padding: 7px 18px;
+  letter-spacing: 0;
+  transition: background 0.18s var(--ease-luxe), color 0.18s var(--ease-luxe), border-color 0.18s var(--ease-luxe), box-shadow 0.18s var(--ease-luxe);
+}
+.year-tab.active { box-shadow: 0 2px 8px var(--accent-light); }
+.year-tab.add-year { border-radius: 999px; }
+
+/* Month cards: caps label + bold figure, and the same hover lift as KPIs */
+.month-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.month-total {
+  font-weight: 700;
+  font-size: 27px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+}
+.month-card { padding: 18px; }
+.month-card:hover {
+  border-color: var(--border2);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
+}
+.month-rebook { font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .month-card:hover { transform: none; } }
+
+/* Year comparison cards: bold tabular figures, app-scale depth */
+.year-compare-card { border-radius: 14px; box-shadow: var(--shadow-1); }
+.year-compare-val { font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+/* Comparison deltas (yearly + Compare page): refreshed status tints */
+.compare-delta { font-size: 13px; font-weight: 700; }
+.compare-delta.up { background: rgba(46,125,79,0.13); background: color-mix(in srgb, var(--green) 14%, transparent); }
+.compare-delta.down { background: rgba(180,71,47,0.12); background: color-mix(in srgb, var(--red) 13%, transparent); }
+.compare-delta.neutral { background: var(--surface3); }
+
+/* ═══════════════════════════════════════════════════════════
+   ROSTER PLANNER (2026-09): modern-pass restyle + editable rooms
+   ═══════════════════════════════════════════════════════════ */
+.roster-setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 860px) { .roster-setup-grid { grid-template-columns: 1fr; } }
+.roster-room-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.roster-room-input { flex: 1; max-width: 240px; font-size: 15px; padding: 7px 11px; }
+.roster-title-input {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border: none;
+  border-bottom: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  padding: 2px 0 4px;
+  outline: none;
+  width: 100%;
+  font-family: var(--font);
+}
+.roster-title-input:focus { border-bottom-color: var(--accent); }
+.roster-week-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-1);
+  padding: 16px 18px;
+}
+.roster-table { border-collapse: collapse; width: 100%; min-width: 300px; table-layout: fixed; }
+.roster-th {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 7px 4px;
+  text-align: center;
+  border-bottom: 1px solid var(--border2);
+}
+.roster-th-room { width: 84px; text-align: left; }
+.roster-room-cell {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 7px;
+  background: var(--surface2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--border);
+}
+.roster-cell {
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  height: 44px;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+  padding: 2px 3px;
+  transition: background 0.15s ease;
+}
+.roster-cell:hover { background: var(--surface2); }
+.roster-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  min-height: 26px;
+}
+.roster-pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.roster-pill-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.roster-dd {
+  position: absolute;
+  z-index: 99;
+  top: 100%;
+  left: 0;
+  min-width: 140px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: var(--shadow-2);
+}
+.roster-dd-item {
+  padding: 8px 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  border-radius: 7px;
+}
+.roster-dd-clear {
+  padding: 8px 11px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  border-top: 1px solid var(--border);
+  margin-top: 3px;
+  border-radius: 0 0 7px 7px;
+}
+#roster-diff-btn.roster-diff-on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+  font-weight: 600;
+}
+
+/* Studio logo: replaces the studio name top-left when set, and heads the invoice */
+.sidebar-logo-img {
+  display: block;
+  max-height: 44px;
+  max-width: 172px;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 2px;
+}
+.pin-lock-logo-img {
+  display: block;
+  max-height: 56px;
+  max-width: 230px;
+  object-fit: contain;
+  margin: 0 auto 6px;
+}
+.pin-lock-logo { font-style: normal; }
+.inv-preview-frame .inv-logo {
+  display: block;
+  max-height: 64px;
+  max-width: 260px;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 10px;
+}
+
+/* Contractor invoice controls: everything on one horizontal line.
+   Top-align the groups so labels share a line and controls share the
+   next; the hint text under the % inputs then hangs below without
+   pushing its input out of line with the selects. */
+.invoice-controls { align-items: flex-start; gap: 12px 14px; }
+.invoice-control-label { white-space: nowrap; }
+.invoice-controls .rate-hint { max-width: 165px; }
+.invoice-controls .inv-fig-cell { padding: 10px 10px !important; }
+.invoice-controls .inv-fig-label { font-size: 11px; letter-spacing: 0.05em; }
+.invoice-controls .inv-fig-val { font-size: 15px; }
+.invoice-controls #inv-quick-total { font-size: 17px !important; }
+
+/* Compare page: swap arrows + quick preset */
+.compare-vs-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; align-self: end; padding-bottom: 2px; }
+.cmp-swap {
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.18s var(--ease-luxe);
+}
+.cmp-swap:hover { color: var(--text); border-color: var(--muted); transform: rotate(180deg); }
+.cmp-preset { font-size: 14px; align-self: end; margin-left: 6px; }
+@media (max-width: 1200px) {
+  .purch-form { grid-template-columns: 150px 1fr 1fr; }
+  .purch-form-item { grid-column: 2 / -1; }
+  .purch-form-btn .btn { width: 100%; }
+}
+@media (max-width: 760px) {
+  .purch-form { grid-template-columns: 1fr 1fr; }
+  .purch-form-item { grid-column: 1 / -1; }
+  .purch-form-btn { grid-column: 1 / -1; }
+  .purch-form-btn .btn { width: 100%; }
+  .purch-row { grid-template-columns: 1fr auto 32px; }
+  .purch-date { grid-column: 1 / 2; }
+  .purch-item { grid-column: 1 / -1; grid-row: 2; }
+  .purch-cat-badge { justify-self: start; grid-row: 3; }
+  .purch-amount { grid-row: 1; grid-column: 2; }
 }
 </style>
 <style id="staffroi-css">
@@ -4284,6 +4603,10 @@ try {
       Roster Planner
     </button>
     <div class="nav-section-label">Finance</div>
+    <button class="nav-item" onclick="showPage('purchases')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M3 5h10l-1 9H4L3 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 7V4a2 2 0 014 0v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Purchases
+    </button>
     <button class="nav-item" onclick="showPage('invoice')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="2" y="1" width="12" height="14" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Contractor Invoice
@@ -4570,7 +4893,7 @@ try {
       <div id="yearly-compare-kpis" class="year-compare-row"></div>
       <div class="chart-card" style="margin-bottom:24px">
         <div class="chart-title" id="yearly-compare-chart-title">Revenue · Month by Month</div>
-        <div style="height:160px" id="yearly-multi-chart"></div>
+        <div id="yearly-multi-chart"></div>
       </div>
     </div>
     <div class="kpi-grid" id="yearly-kpis"></div>
@@ -4687,6 +5010,48 @@ try {
     <input type="hidden" id="entry-date">
   </div>
 
+  <!-- ======================== PURCHASES (admin + manager) ======================== -->
+  <div class="page" id="page-purchases">
+    <div class="form-section">
+      <div class="form-section-title">Log a purchase</div>
+      <div class="purch-form">
+        <div class="form-group">
+          <label class="form-label" for="purch-date">Date</label>
+          <input type="date" class="form-input" id="purch-date">
+        </div>
+        <div class="form-group purch-form-item">
+          <label class="form-label" for="purch-item">Item / supplier</label>
+          <input type="text" class="form-input" id="purch-item" placeholder="e.g. Brow wax refills, BeautyPro" onkeydown="if(event.key==='Enter')addPurchase()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="purch-cat">Category</label>
+          <select class="form-input" id="purch-cat"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="purch-amount">Amount $</label>
+          <input type="number" class="form-input" id="purch-amount" min="0" step="0.01" placeholder="0.00" onkeydown="if(event.key==='Enter')addPurchase()">
+        </div>
+        <div class="form-group purch-form-btn">
+          <button class="btn btn-primary" onclick="addPurchase()">+ Add purchase</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page.</div>
+    </div>
+
+    <div class="form-section">
+      <div class="purch-list-head">
+        <div class="form-section-title" style="margin-bottom:0">Purchases</div>
+        <div class="tl-periodbar" style="margin:0">
+          <button class="tl-step" onclick="purchNavMonth(-1)" aria-label="Previous month">‹</button>
+          <span class="tl-period-label" id="purch-month-label">—</span>
+          <button class="tl-step" id="purch-next-btn" onclick="purchNavMonth(1)" aria-label="Next month">›</button>
+        </div>
+      </div>
+      <div class="purch-cats" id="purch-cat-chips"></div>
+      <div id="purch-list"></div>
+    </div>
+  </div>
+
   <!-- ======================== STYLISTS ======================== -->
   <div class="page" id="page-stylists">
     <div id="stylist-period-bar" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:16px"></div>
@@ -4773,7 +5138,10 @@ try {
           <div class="compare-select-label a">Week A</div>
           <select class="compare-select a" id="cmp-week-a" aria-label="Comparison week A" onchange="renderCompare()"></select>
         </div>
-        <div class="compare-vs">vs</div>
+        <div class="compare-vs-wrap">
+          <div class="compare-vs">vs</div>
+          <button class="cmp-swap" onclick="cmpSwap('cmp-week-a','cmp-week-b')" title="Swap the two weeks" aria-label="Swap the two weeks">⇄</button>
+        </div>
         <div class="compare-select-group">
           <div class="compare-select-label b">Week B</div>
           <select class="compare-select b" id="cmp-week-b" aria-label="Comparison week B" onchange="renderCompare()"></select>
@@ -4801,7 +5169,10 @@ try {
           <option value="Dec">December</option>
         </select>
       </div>
-      <div class="compare-vs">vs</div>
+      <div class="compare-vs-wrap">
+        <div class="compare-vs">vs</div>
+        <button class="cmp-swap" onclick="cmpSwap('cmp-a','cmp-b')" title="Swap the two months" aria-label="Swap the two months">⇄</button>
+      </div>
       <div class="compare-select-group">
         <div class="compare-select-label b">Month B</div>
         <select class="compare-select b" id="cmp-b" aria-label="Comparison month B" onchange="renderCompare()">
@@ -4820,6 +5191,7 @@ try {
           <option value="Dec">December</option>
         </select>
       </div>
+      <button class="btn btn-ghost cmp-preset" onclick="monthThisVsLast()">⚡ This month vs last month</button>
     </div>
 
     <!-- Studio vs Studio selectors -->
@@ -5126,22 +5498,21 @@ try {
         <div class="rate-hint" id="inv-rate-hint">Commission charged to contractor</div>
       </div>
       <div class="invoice-control-group">
-        <div class="invoice-control-label">Contractor Variable Costs %</div>
+        <div class="invoice-control-label">Contractor Costs %</div>
         <div style="display:flex;align-items:center;gap:8px">
           <input type="number" class="invoice-input" id="inv-var-rate" value="0" min="0" max="100" step="0.5" oninput="renderInvoice()">
           <span style="font-size:16px;color:var(--muted)">%</span>
         </div>
         <div class="rate-hint">Deducted from contractor's net before they keep the rest</div>
       </div>
-      <div style="flex:1"></div>
-      <div class="inv-actions-row" style="display:flex;align-items:flex-end;gap:24px">
+      <div class="inv-actions-row" style="display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;justify-content:flex-end;flex:1 1 auto;margin-left:auto">
         <div id="inv-figures-bar" style="display:flex;gap:0;align-items:stretch;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;overflow:hidden">
           <div class="inv-fig-cell" style="padding:12px 18px;border-right:1px solid var(--border)">
             <div class="inv-fig-label">Gross</div>
             <div class="inv-fig-val" id="inv-fig-gross">—</div>
           </div>
           <div class="inv-fig-cell" style="padding:12px 18px;border-right:1px solid var(--border)">
-            <div class="inv-fig-label">Commission (<span id="inv-fig-rate-lbl">30</span>%)</div>
+            <div class="inv-fig-label" title="At the commission rate set on the left">Commission<span id="inv-fig-rate-lbl" style="display:none">30</span></div>
             <div class="inv-fig-val" id="inv-fig-studio" style="color:var(--accent)">—</div>
           </div>
           <div class="inv-fig-cell" id="inv-fig-var-cell" style="padding:12px 18px;border-right:1px solid var(--border);display:none">
@@ -5157,12 +5528,10 @@ try {
             <div class="inv-fig-val" id="inv-quick-total" style="color:var(--green);font-size:20px">—</div>
           </div>
         </div>
-        <div class="inv-actions-btns" style="display:flex;flex-direction:column;gap:8px;align-self:flex-end">
-          <button class="btn btn-primary" onclick="previewInvoice()" style="flex-shrink:0">👁 Preview Invoice</button>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-ghost" onclick="printInvoice()" style="flex:1;font-size:14px">⬇ Save PDF</button>
-            <button class="btn btn-ghost" onclick="exportInvoiceFromPage()" style="flex:1;font-size:14px">⬇ CSV</button>
-          </div>
+        <div class="inv-actions-btns" style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-primary" onclick="previewInvoice()" style="flex-shrink:0;white-space:nowrap;font-size:14px">👁 Preview Invoice</button>
+          <button class="btn btn-ghost" onclick="printInvoice()" style="font-size:14px;white-space:nowrap" title="Save or print as PDF">⬇ PDF</button>
+          <button class="btn btn-ghost" onclick="exportInvoiceFromPage()" style="font-size:14px;white-space:nowrap" title="Export as CSV">⬇ CSV</button>
         </div>
       </div>
     </div>
@@ -5975,39 +6344,43 @@ try {
 
   <!-- ======================== ROSTER PLANNER ======================== -->
   <div class="page" id="page-roster">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
-      <div style="font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Shared Staff</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <input id="roster-staff-input" type="text" placeholder="Add staff name…" maxlength="24"
-          style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-family:var(--font);font-size:15px;color:var(--text);outline:none;flex:1;min-width:150px;max-width:220px"
-          onkeydown="if(event.key==='Enter')rosterAddStaff()">
-        <button class="btn btn-ghost" style="font-size:15px;padding:8px 14px" onclick="rosterAddStaff()">+ Add</button>
+    <div class="roster-setup-grid">
+      <div class="form-section" style="margin-bottom:0">
+        <div class="form-section-title" style="font-size:16px">Shared Staff</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <input id="roster-staff-input" type="text" class="form-input" placeholder="Add staff name…" maxlength="24"
+            style="flex:1;min-width:150px;max-width:220px;font-size:15px;padding:8px 12px"
+            onkeydown="if(event.key==='Enter')rosterAddStaff()">
+          <button class="btn btn-ghost" style="font-size:14px;padding:8px 14px" onclick="rosterAddStaff()">+ Add</button>
+        </div>
+        <div id="roster-staff-pool" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:10px">Up to 6 staff colours.</div>
       </div>
-      <div id="roster-staff-pool" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      <div class="form-section" style="margin-bottom:0">
+        <div class="form-section-title" style="font-size:16px">Rooms</div>
+        <div id="roster-rooms-list"></div>
+        <button class="btn btn-ghost" style="font-size:14px;padding:8px 14px;margin-top:10px" onclick="rosterAddRoom()">+ Add room</button>
+        <div style="font-size:13px;color:var(--muted);margin-top:10px">Rename a room and its assignments follow. Removing a room clears its cells.</div>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <button id="roster-diff-btn" onclick="rosterToggleDiff()"
-        style="height:32px;padding:0 14px;font-size:14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--font)">
-        ↕ Highlight Differences
-      </button>
-      <span style="font-size:14px;color:var(--muted)">Click any cell to assign staff · Up to 6 staff colours</span>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0;flex-wrap:wrap">
+      <button id="roster-diff-btn" class="btn btn-ghost" style="font-size:14px" onclick="rosterToggleDiff()">↕ Highlight differences</button>
+      <span style="font-size:14px;color:var(--muted)">Click any cell to assign staff.</span>
     </div>
     <div class="roster-week-grid">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div class="roster-week-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
           <svg fill="none" viewBox="0 0 16 16" width="15" height="15" style="color:var(--muted)"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v2M11 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input id="roster-title-a" type="text" value="Week A" maxlength="20"
-            style="font-size:15px;font-weight:500;border:none;border-bottom:1px solid var(--border2);background:transparent;color:var(--text);padding:2px 0;outline:none;width:100%">
+          <input id="roster-title-a" type="text" value="Week A" maxlength="20" class="roster-title-input">
         </div>
-        <div style="overflow-x:auto"><table id="roster-table-a" style="border-collapse:collapse;width:100%;min-width:280px;table-layout:fixed"></table></div>
+        <div style="overflow-x:auto"><table id="roster-table-a" class="roster-table"></table></div>
       </div>
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div class="roster-week-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
           <svg fill="none" viewBox="0 0 16 16" width="15" height="15" style="color:var(--muted)"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v2M11 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/></svg>
-          <input id="roster-title-b" type="text" value="Week B" maxlength="20"
-            style="font-size:15px;font-weight:500;border:none;border-bottom:1px solid var(--border2);background:transparent;color:var(--text);padding:2px 0;outline:none;width:100%">
+          <input id="roster-title-b" type="text" value="Week B" maxlength="20" class="roster-title-input">
         </div>
-        <div style="overflow-x:auto"><table id="roster-table-b" style="border-collapse:collapse;width:100%;min-width:280px;table-layout:fixed"></table></div>
+        <div style="overflow-x:auto"><table id="roster-table-b" class="roster-table"></table></div>
       </div>
     </div>
   </div>
@@ -6235,6 +6608,72 @@ function removeStylistPhoto(name) {
   deleteStylistPhoto(name);
   renderStylistRoster();
   renderStylistPage();
+}
+
+/* ── STUDIO LOGO (owner-set, per studio) ──
+   Shows on invoices and replaces the studio name in the sidebar.
+   Stored as a data URL under ejStudioLogo (synced). An empty string
+   means "removed" so the removal syncs to other devices too. */
+function loadStudioLogo() {
+  try { return localStorage.getItem(studioKey('ejStudioLogo')) || null; } catch { return null; }
+}
+function saveStudioLogo(dataUrl) {
+  try { localStorage.setItem(studioKey('ejStudioLogo'), dataUrl || ''); } catch {}
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejStudioLogo'));
+  applyStudioLogo();
+  if (typeof renderStudioPrefs === 'function') renderStudioPrefs();
+}
+function removeStudioLogo() { saveStudioLogo(''); }
+function uploadStudioLogo() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        // Resize for storage/sync; PNG keeps transparent backgrounds
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(480 / img.width, 160 / img.height, 1);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        saveStudioLogo(canvas.toDataURL('image/png'));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+function applyStudioLogo() {
+  const logo = loadStudioLogo();
+  // Swap a text element for the logo image (sidebar + PIN lock screen)
+  const swap = (textId, imgId, imgClass) => {
+    const nameEl = document.getElementById(textId);
+    if (!nameEl) return;
+    let img = document.getElementById(imgId);
+    if (logo) {
+      if (!img) {
+        img = document.createElement('img');
+        img.id = imgId;
+        img.className = imgClass;
+        img.alt = 'Studio logo';
+        nameEl.parentNode.insertBefore(img, nameEl);
+      }
+      img.src = logo;
+      img.style.display = 'block';
+      nameEl.style.display = 'none';
+    } else {
+      if (img) img.style.display = 'none';
+      nameEl.style.display = '';
+    }
+  };
+  swap('sidebar-logo-name', 'sidebar-logo-img', 'sidebar-logo-img');
+  swap('pin-lock-logo', 'pin-lock-logo-img', 'pin-lock-logo-img');
 }
 
 // Real data from spreadsheet — daily entries
@@ -6515,6 +6954,8 @@ function showPage(id) {
   }
   // Owner-only pages — Manager and Stylist roles get bounced to the dashboard
   if ((id === 'pl' || id === 'taxbas' || id === 'staffroi') && pinSessionUser !== 'admin') id = 'dashboard';
+  // Purchases log is for the owner and manager, never stylists
+  if (id === 'purchases' && pinSessionUser !== 'admin' && pinSessionUser !== 'manager') id = 'dashboard';
   // Tier soft gates — Solo plan blocks team-only pages with an upgrade prompt
   if (id === 'leaderboard' && typeof canUseLeaderboard === 'function' && !canUseLeaderboard()) {
     showPricingModal('The Leaderboard ranks your whole team. Upgrade to Studio to unlock it, plus unlimited stylists, contractor invoicing, and more.');
@@ -6534,7 +6975,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', purchases:'Purchases', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -6545,6 +6986,7 @@ function showPage(id) {
   if (id === 'compare') renderCompare();
   if (id === 'stylistperf') renderStylistPerf();
   if (id === 'clientlog') renderClientLog();
+  if (id === 'purchases') renderPurchases();
   if (id === 'invoice') { renderBizDetails(); renderInvoice(); }
   if (id === 'export') renderExportPage();
   if (id === 'pl') renderPL();
@@ -6986,20 +7428,30 @@ function tlMoney(n, cents) {
   return '$' + (n||0).toLocaleString(undefined, opts);
 }
 
-// Timely-style comparison: arrow + previous period's value, green when up
-function tlDelta(cur, prev, fmt) {
-  if (prev == null) return '';
+// The little comparison bubble under dashboard figures. The owner picks its
+// style in Studio preferences (Account & Settings): 'pct' shows percentage
+// change (default), 'diff' shows the dollar/count change, 'prev' shows the
+// previous period's figure. Rates (rebook %) always compare in points,
+// because a percentage of a percentage misleads. Hover shows the previous
+// figure whichever style is on.
+function tlDelta(cur, prev, fmt, isRate) {
+  if (prev == null || cur == null) return '';
   if (!prev && !cur) return '';
   const up = cur >= prev;
   const f = fmt || tlMoney;
-  return `<span class="tl-delta ${up ? 'up' : 'down'}" title="Previous period: ${f(prev)}">${up ? '↑' : '↓'} ${f(prev)}</span>`;
+  const style = getStudioPref('deltaStyle', 'pct');
+  let label;
+  if (style === 'prev') label = f(prev);
+  else if (isRate) label = Math.abs(cur - prev).toFixed(1).replace(/\.0$/, '') + ' pts';
+  else if (style === 'pct' && prev > 0) label = Math.abs((cur - prev) / prev * 100).toFixed(0) + '%';
+  else label = f(Math.abs(cur - prev));
+  return `<span class="tl-delta ${up ? 'up' : 'down'}" title="Previous period: ${f(prev)}">${up ? '↑' : '↓'} ${label}</span>`;
 }
 
 function tlDonut(pct, colorVar, prevPct) {
   const p = Math.max(0, Math.min(100, pct||0));
   const r = 30, c = 2 * Math.PI * r;
-  const delta = (prevPct != null && (prevPct || pct))
-    ? `<span class="tl-delta ${pct >= prevPct ? 'up' : 'down'}" title="Previous period: ${prevPct.toFixed(0)}%">${pct >= prevPct ? '↑' : '↓'} ${prevPct.toFixed(0)}%</span>` : '';
+  const delta = tlDelta(pct, prevPct, v => v.toFixed(0) + '%', true);
   return `<div class="tl-donut-wrap">
     <div class="tl-donut">
       <svg viewBox="0 0 72 72" width="72" height="72" aria-hidden="true">
@@ -7355,7 +7807,7 @@ function renderDashStaff() {
       <div class="tl-cell">
         <div class="tl-cell-big">${r.rb != null ? pctFmt(r.rb) : '—'}</div>
         <div class="tl-cell-sub">of ${r.c.clients.toLocaleString()} client${r.c.clients === 1 ? '' : 's'}</div>
-        ${r.rb != null && r.prevRb != null ? tlDelta(r.rb, r.prevRb, pctFmt) : ''}
+        ${r.rb != null && r.prevRb != null ? tlDelta(r.rb, r.prevRb, pctFmt, true) : ''}
       </div>
     </div>`).join('');
 
@@ -7645,9 +8097,9 @@ function renderDashboard() {
       <td class="mono">${e.newC||0}</td>
       <td class="mono">${newPct}%</td>
       <td class="mono"><strong>${total}</strong></td>
-      <td class="mono">$${Math.max(0,(e.prod||0)-(ctr?(ctr.prod||0):0)).toLocaleString()}</td>
-      <td class="mono">$${Math.max(0,(e.svc||0)-(ctr?(ctr.svc||0):0)).toLocaleString()}</td>
-      <td class="mono"><strong>$${Math.max(0,(e.total||0)-cGross).toLocaleString()}</strong></td>
+      <td class="mono">$${(e.prod||0).toLocaleString()}</td>
+      <td class="mono">$${(e.svc||0).toLocaleString()}</td>
+      <td class="mono"><strong>$${(e.total||0).toLocaleString()}</strong></td>
       <td style="padding:8px 12px">${contractorCell}</td>
       <td class="mono">${e.stylists||0}</td>
       <td class="note-cell">${e.notes||''}</td>
@@ -9973,6 +10425,27 @@ function aggregateWeek(wsISO) {
   });
   return t;
 }
+// Swap the two sides of a comparison (works when both are chosen)
+function cmpSwap(aId, bId) {
+  const a = document.getElementById(aId), b = document.getElementById(bId);
+  if (!a || !b || !a.value || !b.value) return;
+  const t = a.value; a.value = b.value; b.value = t;
+  renderCompare();
+}
+
+// One click: latest month with data vs the month before it
+function monthThisVsLast() {
+  const MONTHLY = buildMONTHLY();
+  const withData = MONTH_NAMES.filter(m => MONTHLY[m]);
+  if (withData.length < 2) return;
+  const latest = withData[withData.length - 1];
+  const prev = withData[withData.length - 2];
+  const selA = document.getElementById('cmp-a'), selB = document.getElementById('cmp-b');
+  if (selA) selA.value = latest;
+  if (selB) selB.value = prev;
+  renderCompare();
+}
+
 function weekThisVsLast() {
   const weeks = getAvailableWeeks();
   const thisW = toLocalISO(weekStartMon(toLocalISO(new Date())));
@@ -10951,7 +11424,7 @@ function renderYearCompare(years) {
 
   document.getElementById('yearly-compare-chart-title').textContent = `Revenue · ${allYears.join(' vs ')}`;
   document.getElementById('yearly-multi-chart').innerHTML = `
-    <div style="display:flex;gap:2px;height:140px;align-items:flex-end;margin-bottom:8px">
+    <div style="display:flex;gap:2px;align-items:flex-end;margin-bottom:10px">
       ${MONTH_NAMES.map(m => {
         const bars = allYears.map((yr, yi) => {
           const d = getYearData(yr);
@@ -10959,9 +11432,12 @@ function renderYearCompare(years) {
           const h = val ? Math.max(Math.round((val/maxMulti)*130), 3) : 2;
           return `<div style="flex:1;height:${h}px;background:${allColors[yi % allColors.length]};border-radius:2px 2px 0 0;opacity:${yr===activeYear?'1':'0.5'}" title="${yr} ${m}: $${val.toLocaleString()}"></div>`;
         }).join('');
-        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%">
-          <div style="flex:1;display:flex;align-items:flex-end;gap:1px;width:100%">${bars}</div>
-          <div style="font-size:11px;color:var(--muted)">${m}</div>
+        // Fixed-height bar lane + label on its own row: every bar shares one
+        // baseline and every month label sits at the same height, even when
+        // a bar hits the full scale
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0">
+          <div style="height:130px;display:flex;align-items:flex-end;gap:1px;width:100%">${bars}</div>
+          <div style="font-size:11px;color:var(--muted);white-space:nowrap">${m}</div>
         </div>`;
       }).join('')}
     </div>
@@ -11051,7 +11527,7 @@ function buildInvoiceHTML(forPrint) {
 
   return `
     <div class="inv-header">
-      <div class="inv-from"><h1>${fromName}</h1><p>${fromDetails}</p></div>
+      <div class="inv-from">${loadStudioLogo() ? `<img class="inv-logo" src="${loadStudioLogo()}" alt="${fromName}">` : `<h1>${fromName}</h1>`}<p>${fromDetails}</p></div>
       <div class="inv-meta">
         <div class="inv-label-big">INVOICE</div>
         <table class="inv-meta-table">
@@ -11348,6 +11824,13 @@ function getAllTSStaff() {
       result.push({ name, isContractor: false, colorIdx: null, source: 'ts' });
     }
   });
+  // Owner-set display order (Timesheets ↑↓ buttons). Names not in the saved
+  // order keep their natural position after the ordered ones (stable sort).
+  const order = loadTSOrder();
+  if (order.length) {
+    const pos = n => { const i = order.indexOf(n); return i === -1 ? order.length : i; };
+    result.sort((a, b) => pos(a.name) - pos(b.name));
+  }
   return result;
 }
 
@@ -11470,6 +11953,24 @@ function tsHideAll() {
     const card = document.getElementById('ts-card-' + safeId);
     if (card) card.classList.add('collapsed');
   });
+}
+
+// ── Staff card order (Timesheets ↑↓ buttons, saved per studio, synced) ──
+function loadTSOrder() {
+  try { return JSON.parse(localStorage.getItem(studioKey('ejTSStaffOrder')) || '[]') || []; } catch { return []; }
+}
+function saveTSOrder(names) {
+  localStorage.setItem(studioKey('ejTSStaffOrder'), JSON.stringify(names));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejTSStaffOrder'));
+}
+function tsMoveStaff(name, dir) {
+  const names = getAllTSStaff().map(s => s.name);
+  const i = names.indexOf(name);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= names.length) return;
+  [names[i], names[j]] = [names[j], names[i]];
+  saveTSOrder(names);
+  renderTimesheets();
 }
 
 // One toggle instead of separate Show All / Hide All buttons
@@ -11756,7 +12257,7 @@ function renderTimesheets() {
           ${stepperBtn(name,iso,'end',1)}
         </div></td>
         <td><input type="number" class="ts-break-input" aria-label="${name} ${dayFmt} break minutes" data-n="${name}" data-d="${iso}" data-f="break" min="0" max="120" step="5" value="${bv}" placeholder="0" oninput="tsLiveCalc(this)" onblur="tsBlur(this)"> <span style="font-size:13px;color:var(--muted)">min</span></td>
-        <td style="white-space:nowrap"><span id="tsh-${safeN}-${iso}" class="ts-hours-val" style="font-weight:${h!==null&&h>0?'700':'normal'};color:${hCol}">${hTxt}</span>${detailBtn}${clearBtn}</td>
+        <td style="white-space:nowrap"><div class="ts-hours-cell"><span id="tsh-${safeN}-${iso}" class="ts-hours-val" style="font-weight:${h!==null&&h>0?'700':'normal'};color:${hCol}">${hTxt}</span>${detailBtn}${clearBtn}</div></td>
       </tr>
       <tr class="ts-detail-row" id="tsd-${safeN}-${iso}" style="${rowBg}${isPre?'opacity:0.55;':''}${hasDetail ? '' : 'display:none;'}">
         <td colspan="5" style="padding-top:0;padding-bottom:12px">
@@ -11782,6 +12283,10 @@ function renderTimesheets() {
         ${tsAvatar}
         <div class="ts-staff-name">${name}</div>
         <div class="ts-staff-total"><span>Total: <span id="tst-${name.replace(/ /g,'_')}">${fmtHours(weekTot)}</span></span><span>${shifts} shift${shifts!==1?'s':''}</span></div>
+        <span class="ts-order-btns">
+          <button class="ts-order-btn" data-n="${name.replace(/"/g,'&quot;')}" ${si===0?'disabled':''} onclick="event.stopPropagation();tsMoveStaff(this.dataset.n,-1)" aria-label="Move ${name} up" title="Move up">↑</button>
+          <button class="ts-order-btn" data-n="${name.replace(/"/g,'&quot;')}" ${si===staff.length-1?'disabled':''} onclick="event.stopPropagation();tsMoveStaff(this.dataset.n,1)" aria-label="Move ${name} down" title="Move down">↓</button>
+        </span>
         <button class="ts-collapse-btn" aria-label="Collapse or expand timesheet">▾</button>
       </div>
       <table class="ts-day-table">
@@ -12473,45 +12978,46 @@ function printInvoice() {
 <html><head><meta charset="UTF-8"><title>Invoice ${invNum}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,'Helvetica Neue',sans-serif;color:#111;background:#fff;padding:40px;max-width:860px;margin:0 auto;font-size:15px}
+  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#111;background:#fff;padding:40px;max-width:860px;margin:0 auto;font-size:15px;border-top:4px solid #111}
   .inv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #111}
   .inv-from h1{font-size:22px;font-weight:700;margin-bottom:6px}
+  .inv-logo{display:block;max-height:64px;max-width:260px;object-fit:contain;object-position:left center;margin-bottom:10px}
   .inv-from p{color:#555;font-size:14px;line-height:1.7}
   .inv-meta{text-align:right}
   .inv-label-big{font-size:32px;font-weight:800;letter-spacing:-.02em;color:#111;margin-bottom:10px}
   .inv-meta-table{font-size:14px;margin-left:auto;border-collapse:collapse}
   .inv-meta-table td{padding:3px 0 3px 20px;text-align:right}
-  .inv-meta-table td:first-child{color:#999;text-align:left;padding-left:0}
+  .inv-meta-table td:first-child{color:#6f6f6f;text-align:left;padding-left:0}
   .bill-to{margin-bottom:24px;padding:14px 18px;background:#f9f9f9;border-radius:8px}
-  .section-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:6px}
+  .section-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6f6f6f;margin-bottom:6px}
   .bill-to h2{font-size:17px;font-weight:600}
   .week-block{margin-bottom:16px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
   .week-head{background:#f5f5f5;padding:10px 14px;display:flex;justify-content:space-between;font-weight:600;font-size:15px}
-  .week-due-lbl{color:#b8860b}
+  .week-due-lbl{color:#2e7d4f;font-variant-numeric:tabular-nums}
   table.lines{width:100%;border-collapse:collapse}
-  table.lines th{text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:8px 12px;border-bottom:1px solid #e8e8e8}
-  table.lines td{padding:9px 12px;font-size:14px;border-bottom:1px solid #f4f4f4}
+  table.lines th{text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6f6f6f;padding:8px 12px;border-bottom:1px solid #e8e8e8}
+  table.lines td{padding:9px 12px;font-size:14px;border-bottom:1px solid #f4f4f4;font-variant-numeric:tabular-nums}
   table.lines tr:last-child td{border-bottom:none}
   .totals-wrap{display:flex;justify-content:flex-end;margin:20px 0}
   .totals-box{width:320px}
   .t-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:15px}
   .t-row.grand{border-bottom:none;font-size:18px;font-weight:700;padding-top:12px;border-top:2px solid #111;margin-top:4px}
   .t-label{color:#666}
-  .t-amt{font-family:monospace;font-weight:600}
-  .t-amt.due{color:#b8860b}
-  .payment-box{background:#faf9f6;border:1px solid #e8e4d8;border-radius:8px;padding:16px 20px;margin-top:20px}
-  .payment-box h3{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:10px}
+  .t-amt{font-weight:600;font-variant-numeric:tabular-nums}
+  .t-amt.due{color:#2e7d4f}
+  .payment-box{background:#f7f8f9;border:1px solid #e3e5e8;border-radius:10px;padding:16px 20px;margin-top:20px}
+  .payment-box h3{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6f6f6f;margin-bottom:10px}
   .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px}
-  .pay-item .p-lbl{color:#999;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+  .pay-item .p-lbl{color:#6f6f6f;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
   .pay-item .p-val{font-weight:600;font-size:15px;margin-top:1px}
-  .terms-line{margin-top:10px;font-size:14px;color:#666;border-top:1px solid #ece8e0;padding-top:8px}
-  .footer{margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:13px;color:#aaa;display:flex;justify-content:space-between}
+  .terms-line{margin-top:10px;font-size:14px;color:#666;border-top:1px solid #e3e5e8;padding-top:8px}
+  .footer{margin-top:28px;padding-top:14px;border-top:1px solid #eee;font-size:13px;color:#8a8a8a;display:flex;justify-content:space-between}
   @media print{body{padding:20px}}
 </style></head><body>
 
 <div class="inv-header">
   <div class="inv-from">
-    <h1>${fromName}</h1>
+    ${loadStudioLogo() ? `<img class="inv-logo" src="${loadStudioLogo()}" alt="${fromName}">` : `<h1>${fromName}</h1>`}
     <p>${[biz['biz-abn']?'ABN: '+biz['biz-abn']:'', biz['biz-address']||'', biz['biz-phone']||'', biz['biz-email']||''].filter(Boolean).join('<br>')}</p>
   </div>
   <div class="inv-meta">
@@ -13434,6 +13940,110 @@ function saveVariableDefaults() {
   setTimeout(()=>{toast.style.display='none';toast.textContent='Day saved ✓';},2000);
 }
 
+/* ── PURCHASES LOG (admin + manager) ──
+   Managers can't open the P&L, so this page gives them a place to log
+   expenses, product buys and supplies. Each month's log is folded into that
+   month's P&L variable expenses automatically (read-only rows there). */
+const PURCHASE_CATS = [
+  { id: 'products',  label: 'Products for resale' },
+  { id: 'supplies',  label: 'Supplies & consumables' },
+  { id: 'equipment', label: 'Equipment & tools' },
+  { id: 'other',     label: 'Other purchases' },
+];
+let purchMonthOffset = 0;   // months back from the current month
+
+function loadPurchases() { try { return JSON.parse(localStorage.getItem(studioKey('ejPurchases')) || '[]') || []; } catch { return []; } }
+function savePurchases(list) {
+  localStorage.setItem(studioKey('ejPurchases'), JSON.stringify(list));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejPurchases'));
+}
+function purchasesFor(year, monthName) {
+  const mi = MONTH_NAMES.indexOf(monthName) + 1;
+  if (!mi) return [];
+  const pref = `${year}-${String(mi).padStart(2, '0')}`;
+  return loadPurchases().filter(p => p.date && p.date.startsWith(pref));
+}
+function purchasesByCat(year, monthName) {
+  const out = {};
+  purchasesFor(year, monthName).forEach(p => {
+    const c = PURCHASE_CATS.some(x => x.id === p.cat) ? p.cat : 'other';
+    out[c] = (out[c] || 0) + (parseFloat(p.amount) || 0);
+  });
+  return out;
+}
+function purchasesMonthTotal(year, monthName) {
+  return purchasesFor(year, monthName).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+}
+const purchFmt = n => (n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function addPurchase() {
+  const dateEl = document.getElementById('purch-date');
+  const itemEl = document.getElementById('purch-item');
+  const amtEl = document.getElementById('purch-amount');
+  const date = dateEl?.value;
+  const item = itemEl?.value.trim();
+  const cat = document.getElementById('purch-cat')?.value || 'other';
+  const amount = parseFloat(amtEl?.value);
+  if (!date) { dateEl?.focus(); return; }
+  if (!item) { itemEl?.focus(); return; }
+  if (!(amount > 0)) { amtEl?.focus(); return; }
+  const by = pinSessionUser === 'admin' ? 'Owner' : pinSessionUser === 'manager' ? 'Manager' : (pinSessionUser || '');
+  const list = loadPurchases();
+  list.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by });
+  savePurchases(list);
+  itemEl.value = ''; amtEl.value = '';
+  // Show the month the purchase went into, so the new row is visibly there
+  const d = new Date(date + 'T00:00:00'), now = new Date();
+  purchMonthOffset = Math.max(0, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()));
+  renderPurchases();
+  itemEl.focus();
+}
+function deletePurchase(id) {
+  savePurchases(loadPurchases().filter(p => p.id !== id));
+  renderPurchases();
+  if (document.getElementById('page-pl')?.classList.contains('active')) renderPLMonth(activePLMonth);
+}
+function purchNavMonth(dir) {
+  purchMonthOffset = Math.max(0, purchMonthOffset - dir);
+  renderPurchases();
+}
+function renderPurchases() {
+  const dEl = document.getElementById('purch-date');
+  if (dEl && !dEl.value) dEl.value = toLocalISO(new Date());
+  const sel = document.getElementById('purch-cat');
+  if (sel && !sel.options.length) sel.innerHTML = PURCHASE_CATS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+
+  const now = new Date();
+  const m = new Date(now.getFullYear(), now.getMonth() - purchMonthOffset, 1);
+  const year = m.getFullYear(), monthName = MONTH_NAMES[m.getMonth()];
+  const lbl = document.getElementById('purch-month-label');
+  if (lbl) lbl.textContent = `${MONTH_FULL[m.getMonth()] || monthName} ${year}`;
+  const nextBtn = document.getElementById('purch-next-btn');
+  if (nextBtn) nextBtn.disabled = purchMonthOffset === 0;
+
+  const list = purchasesFor(year, monthName).sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
+  const byCat = purchasesByCat(year, monthName);
+  const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
+
+  const chips = document.getElementById('purch-cat-chips');
+  if (chips) chips.innerHTML =
+    `<span class="purch-chip total">Month total <strong>$${purchFmt(purchasesMonthTotal(year, monthName))}</strong></span>` +
+    PURCHASE_CATS.filter(c => byCat[c.id] > 0).map(c =>
+      `<span class="purch-chip">${c.label} <strong>$${purchFmt(byCat[c.id])}</strong></span>`).join('');
+
+  const el = document.getElementById('purch-list');
+  if (!el) return;
+  el.innerHTML = list.length ? list.map(p => `
+    <div class="purch-row">
+      <div class="purch-date">${new Date(p.date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+      <div class="purch-item">${String(p.item || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}${p.by ? `<span class="purch-by">logged by ${p.by}</span>` : ''}</div>
+      <span class="purch-cat-badge">${catName(p.cat)}</span>
+      <div class="purch-amount">$${purchFmt(p.amount)}</div>
+      <button class="ts-clear-btn" onclick="deletePurchase('${p.id}')" aria-label="Delete purchase" title="Delete purchase">✕</button>
+    </div>`).join('')
+    : `<div class="chart-empty" style="min-height:120px">No purchases logged for ${monthName} ${year} yet.</div>`;
+}
+
 function renderPL() {
   const yrData = getYearData(activeYear || BASE_YEAR);
   const availMonths = MONTH_NAMES.filter(m => yrData[m]);
@@ -13497,7 +14107,14 @@ function renderPLMonth(month) {
   }).join('');
   const varCustomRows = customVar.map((line,i)=>`<div class="pl-row"><div class="pl-row-label" style="flex:1"><input style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:15px;width:100%;outline:none;padding:2px 0" aria-label="Expense name" value="${line.label}" onchange="savePLCustomLabel('${monthKey}',${i},this.value,'variable')"></div><input class="pl-row-input" aria-label="Expense amount" type="number" min="0" placeholder="0.00" value="${line.amount||''}" onchange="savePLCustomAmount('${monthKey}',${i},this.value,'variable');updatePLTotals('${monthKey}')"><button onclick="deletePLCustom('${monthKey}',${i},'variable')" aria-label="Remove row" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:0 4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></div>`).join('');
   customVar.forEach(l=>{if(l.amount>0) totalVar+=parseFloat(l.amount);});
-  if(varRows) varRows.innerHTML=varCatRows+varCustomRows;
+  // Purchases logged on the Purchases page (owner or manager) fold in here
+  // automatically as read-only rows, grouped by category
+  const purchCats = purchasesByCat(activeYear||BASE_YEAR, month);
+  const purchRows = PURCHASE_CATS.filter(c=>purchCats[c.id]>0).map(c=>{
+    totalVar += purchCats[c.id];
+    return `<div class="pl-row"><div class="pl-row-label">${c.label}</div><div class="pl-row-fixed">purchases log</div><div class="pl-row-value">$${fmt(purchCats[c.id])}</div><button onclick="showPage('purchases')" aria-label="Open the purchases log" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px;font-family:var(--font);text-decoration:underline;text-underline-offset:2px">view</button></div>`;
+  }).join('');
+  if(varRows) varRows.innerHTML=varCatRows+varCustomRows+purchRows;
   if(varTotal) varTotal.textContent='$'+fmt(totalVar);
 
   const totalExp=totalFixed+totalVar;
@@ -13565,6 +14182,7 @@ function getTotalFixedExpenses(month) {
   (monthData.custom||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
   VARIABLE_CATEGORIES.forEach(cat=>{ const val=monthData[cat.id]!==undefined?monthData[cat.id]:(varDefs[cat.id]||0); total+=parseFloat(val)||0; });
   (monthData.customVar||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
+  total += purchasesMonthTotal(activeYear||BASE_YEAR, month);   // Purchases page log
   return total;
 }
 
@@ -13613,6 +14231,7 @@ function renderSidebarStudios() {
     <div class="studio-pill-name" title="${s.name}">${s.name}</div>
     <button class="studio-pill-edit" onclick="event.stopPropagation();showRenameStudioModal('${s.id}')" title="Rename" aria-label="Rename studio">✎</button>
   </div>`).join('');
+  applyStudioLogo();
 }
 
 function switchStudio(id) {
@@ -13814,11 +14433,11 @@ function renderYearCompare(years) {
   const maxMulti=Math.max(...allYears.map(yr=>{const d=getYearData(yr);return Math.max(...MONTH_NAMES.map(m=>d[m]?.total||0));}),1);
   document.getElementById('yearly-compare-chart-title').textContent=`Revenue · ${allYears.join(' vs ')}`;
   document.getElementById('yearly-multi-chart').innerHTML=`
-    <div style="display:flex;gap:2px;height:140px;align-items:flex-end;margin-bottom:8px">
+    <div style="display:flex;gap:2px;align-items:flex-end;margin-bottom:10px">
       ${MONTH_NAMES.map(m=>{
         const bars=allYears.map((yr,yi)=>{const d=getYearData(yr);const val=d[m]?.total||0;const h=val?Math.max(Math.round((val/maxMulti)*130),3):2;
           return `<div style="flex:1;height:${h}px;background:${allColors[yi%allColors.length]};border-radius:2px 2px 0 0;opacity:${yr===activeYear?'1':'0.5'}" title="${yr} ${m}: $${val.toLocaleString()}"></div>`;}).join('');
-        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;gap:1px;width:100%">${bars}</div><div style="font-size:11px;color:var(--muted)">${m}</div></div>`;}).join('')}
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0"><div style="height:130px;display:flex;align-items:flex-end;gap:1px;width:100%">${bars}</div><div style="font-size:11px;color:var(--muted);white-space:nowrap">${m}</div></div>`;}).join('')}
     </div>
     <div style="display:flex;gap:14px;flex-wrap:wrap">
       ${allYears.map((yr,i)=>`<div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:500"><div style="width:10px;height:10px;border-radius:50%;background:${allColors[i%allColors.length]}"></div>${yr}</div>`).join('')}
@@ -13847,10 +14466,11 @@ function saveContractorName(name) {
 
 // ===================== ROSTER PLANNER =====================
 const ROSTER_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat'];
-const ROSTER_ROOMS = ['Room 1','Room 2','Room 3','Room 4'];
+const ROSTER_ROOMS = ['Room 1','Room 2','Room 3','Room 4'];   // default set for new studios
 const ROSTER_COLORS = ['#000000','#4a6880','#5a7f5e','#6e5c7e','#c9833a','#9e4a3a'];
 
 let rosterStaff = [];
+let rosterRooms = ROSTER_ROOMS.slice();
 let rosterA = {};
 let rosterB = {};
 let rosterShowDiff = false;
@@ -13863,10 +14483,13 @@ function rosterLoadData() {
     const s = JSON.parse(localStorage.getItem(rosterStorageKey('staff')) || 'null');
     if (s && Array.isArray(s)) rosterStaff = s;
     else rosterStaff = ['Ava', 'Mia', 'Chloe', 'Sophie'];
+    const r = JSON.parse(localStorage.getItem(rosterStorageKey('rooms')) || 'null');
+    rosterRooms = (r && Array.isArray(r) && r.length) ? r : ROSTER_ROOMS.slice();
     rosterA = JSON.parse(localStorage.getItem(rosterStorageKey('weekA')) || '{}');
     rosterB = JSON.parse(localStorage.getItem(rosterStorageKey('weekB')) || '{}');
   } catch {
     rosterStaff = ['Ava', 'Mia', 'Chloe', 'Sophie'];
+    rosterRooms = ROSTER_ROOMS.slice();
     rosterA = {}; rosterB = {};
   }
 }
@@ -13874,9 +14497,85 @@ function rosterLoadData() {
 function rosterSaveData() {
   try {
     localStorage.setItem(rosterStorageKey('staff'), JSON.stringify(rosterStaff));
+    localStorage.setItem(rosterStorageKey('rooms'), JSON.stringify(rosterRooms));
     localStorage.setItem(rosterStorageKey('weekA'), JSON.stringify(rosterA));
     localStorage.setItem(rosterStorageKey('weekB'), JSON.stringify(rosterB));
+    if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(rosterStorageKey('rooms'));
   } catch {}
+}
+
+/* ── Editable rooms. Cell keys embed the room name (room|day), so a
+      rename migrates every assignment and a removal clears them. ── */
+function rosterRenderRooms() {
+  const list = document.getElementById('roster-rooms-list');
+  if (!list) return;
+  list.innerHTML = '';
+  rosterRooms.forEach((room, i) => {
+    const row = document.createElement('div');
+    row.className = 'roster-room-row';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'form-input roster-room-input';
+    inp.value = room;
+    inp.maxLength = 20;
+    inp.setAttribute('aria-label', 'Room name');
+    inp.addEventListener('change', () => rosterRenameRoom(i, inp.value));
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+    const rm = document.createElement('button');
+    rm.className = 'ts-clear-btn';
+    rm.textContent = '✕';
+    rm.title = 'Remove room';
+    rm.setAttribute('aria-label', 'Remove ' + room);
+    rm.addEventListener('click', () => rosterRemoveRoom(i));
+    row.appendChild(inp);
+    row.appendChild(rm);
+    list.appendChild(row);
+  });
+}
+function rosterRenameRoom(i, newName) {
+  const oldName = rosterRooms[i];
+  const name = (newName || '').trim();
+  if (!name || name === oldName || rosterRooms.some((r, j) => j !== i && r === name)) {
+    rosterRenderRooms();   // revert empty or duplicate names
+    return;
+  }
+  // Migrate this room's assignments in both weeks to the new key
+  [rosterA, rosterB].forEach(r => {
+    ROSTER_DAYS.forEach(day => {
+      const oldKey = rosterCellKey(oldName, day);
+      if (r[oldKey] !== undefined) {
+        r[rosterCellKey(name, day)] = r[oldKey];
+        delete r[oldKey];
+      }
+    });
+  });
+  rosterRooms[i] = name;
+  rosterSaveData();
+  rosterRenderRooms();
+  rosterRenderAll();
+}
+function rosterAddRoom() {
+  if (rosterRooms.length >= 8) return;
+  let n = rosterRooms.length + 1;
+  let name = 'Room ' + n;
+  while (rosterRooms.includes(name)) name = 'Room ' + (++n);
+  rosterRooms.push(name);
+  rosterSaveData();
+  rosterRenderRooms();
+  rosterRenderAll();
+}
+function rosterRemoveRoom(i) {
+  const room = rosterRooms[i];
+  const hasAssignments = [rosterA, rosterB].some(r =>
+    ROSTER_DAYS.some(day => r[rosterCellKey(room, day)] !== undefined));
+  if (hasAssignments && !confirm('Remove ' + room + '? Its assignments in both weeks will be cleared.')) return;
+  [rosterA, rosterB].forEach(r => {
+    ROSTER_DAYS.forEach(day => { delete r[rosterCellKey(room, day)]; });
+  });
+  rosterRooms.splice(i, 1);
+  rosterSaveData();
+  rosterRenderRooms();
+  rosterRenderAll();
 }
 
 function rosterInitStaff() {
@@ -13945,28 +14644,29 @@ function rosterBuildTable(tableEl, roster, rosterOther, side) {
   const hr = document.createElement('tr');
   const thL = document.createElement('th');
   thL.textContent = '';
-  thL.style.cssText = 'text-align:left;width:56px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);padding:6px 4px;border-bottom:1px solid var(--border)';
+  thL.className = 'roster-th roster-th-room';
   hr.appendChild(thL);
   ROSTER_DAYS.forEach(d => {
     const th = document.createElement('th');
     th.textContent = d;
-    th.style.cssText = 'font-weight:500;font-size:13px;color:var(--muted);padding:6px 4px;text-align:center;border-bottom:1px solid var(--border)';
+    th.className = 'roster-th';
     hr.appendChild(th);
   });
   thead.appendChild(hr);
   tableEl.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-  ROSTER_ROOMS.forEach(room => {
+  rosterRooms.forEach(room => {
     const tr = document.createElement('tr');
     const tdL = document.createElement('td');
     tdL.textContent = room;
-    tdL.style.cssText = 'font-size:13px;font-weight:500;color:var(--muted);padding-left:5px;background:var(--surface2);white-space:nowrap;overflow:hidden;border:1px solid var(--border)';
+    tdL.className = 'roster-room-cell';
+    tdL.title = room;
     tr.appendChild(tdL);
 
     ROSTER_DAYS.forEach(day => {
       const td = document.createElement('td');
-      td.style.cssText = 'border:1px solid var(--border);height:42px;vertical-align:middle;cursor:pointer;position:relative;padding:2px 3px;';
+      td.className = 'roster-cell';
       const key = rosterCellKey(room, day);
       const val = roster[key];
       const valOther = rosterOther ? rosterOther[key] : undefined;
@@ -13978,9 +14678,9 @@ function rosterBuildTable(tableEl, roster, rosterOther, side) {
 
       if (val) {
         const color = rosterGetColor(val);
-        td.innerHTML = '<div style="display:flex;align-items:center;gap:4px;padding:3px 5px;border-radius:5px;min-height:26px">' +
-          '<span style="width:6px;height:6px;border-radius:50%;background:' + color + ';flex-shrink:0"></span>' +
-          '<span style="font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + val + '</span></div>';
+        td.innerHTML = '<div class="roster-pill" style="background:' + color + '14">' +
+          '<span class="roster-pill-dot" style="background:' + color + '"></span>' +
+          '<span class="roster-pill-name">' + val + '</span></div>';
       } else {
         td.innerHTML = '<div style="text-align:center;color:var(--muted2);font-size:12px;opacity:.45">—</div>';
       }
@@ -13995,6 +14695,7 @@ function rosterBuildTable(tableEl, roster, rosterOther, side) {
 
 function rosterRenderAll() {
   rosterRenderStaff();
+  rosterRenderRooms();
   rosterBuildTable(document.getElementById('roster-table-a'), rosterA, rosterB, 'a');
   rosterBuildTable(document.getElementById('roster-table-b'), rosterB, rosterA, 'b');
 }
@@ -14004,11 +14705,11 @@ function rosterOpenDD(td, roster, rosterOther, side, room, day) {
   const key = rosterCellKey(room, day);
   const dd = document.createElement('div');
   dd.id = 'roster-active-dd';
-  dd.style.cssText = 'position:absolute;z-index:99;top:100%;left:0;min-width:130px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:3px 0;box-shadow:0 4px 16px rgba(0,0,0,.1)';
+  dd.className = 'roster-dd';
 
   rosterStaff.forEach(s => {
     const item = document.createElement('div');
-    item.style.cssText = 'padding:7px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--text)';
+    item.className = 'roster-dd-item';
     item.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:' + rosterGetColor(s) + ';flex-shrink:0"></span>' + s;
     item.addEventListener('mouseenter', () => item.style.background = 'var(--surface2)');
     item.addEventListener('mouseleave', () => item.style.background = '');
@@ -14023,7 +14724,7 @@ function rosterOpenDD(td, roster, rosterOther, side, room, day) {
   });
 
   const cl = document.createElement('div');
-  cl.style.cssText = 'padding:7px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-top:1px solid var(--border)';
+  cl.className = 'roster-dd-clear';
   cl.textContent = 'Clear';
   cl.addEventListener('mouseenter', () => cl.style.background = 'var(--surface2)');
   cl.addEventListener('mouseleave', () => cl.style.background = '');
@@ -14049,11 +14750,7 @@ function rosterCloseDD() {
 function rosterToggleDiff() {
   rosterShowDiff = !rosterShowDiff;
   const btn = document.getElementById('roster-diff-btn');
-  if (btn) {
-    btn.style.borderColor = rosterShowDiff ? 'var(--accent)' : 'var(--border2)';
-    btn.style.color = rosterShowDiff ? 'var(--accent)' : 'var(--text)';
-    btn.style.background = rosterShowDiff ? 'rgba(0,0,0,0.08)' : 'var(--surface)';
-  }
+  if (btn) btn.classList.toggle('roster-diff-on', rosterShowDiff);
   rosterRenderAll();
 }
 
@@ -14118,6 +14815,7 @@ function avatarColor(i) {
 }
 
 function pinRenderWhoGrid() {
+  try { applyStudioLogo(); } catch (e) {}   // lock screen carries the logo too
   const grid = document.getElementById('pin-who-grid');
   if (!grid) return;
   // Source staff from the in-memory STYLISTS roster — the SAME list Manage PINs
@@ -14303,6 +15001,7 @@ function pinLoginSuccess(who) {
     if (sidebarStudio) sidebarStudio.style.display = 'none';
     const staffLogout = document.getElementById('staff-logout-bar');
     if (staffLogout) staffLogout.style.display = '';
+    try { applyStudioLogo(); } catch (e) {}
     showPage('leaderboard');
     renderLeaderboard(who);
   }
@@ -14366,6 +15065,8 @@ function renderStudioPrefs() {
   }
   const target = getRebookTarget();
   const dp = getStudioPref('defaultPeriod', 'all');
+  const ds = getStudioPref('deltaStyle', 'pct');
+  const logo = loadStudioLogo();
   const periods = [['all','All time'],['thisweek','This week'],['lastweek','Last week'],['ytd','Year to date'],['fy','Financial year'],['q1','Q1'],['q2','Q2'],['q3','Q3'],['q4','Q4']];
   const payStaff = (typeof getAllTSStaff === 'function') ? getAllTSStaff() : STYLISTS.map(s => ({ name: s.name }));
   const payRates = loadPayRates();
@@ -14404,6 +15105,30 @@ function renderStudioPrefs() {
           </select>
         </div>
         <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Which period the dashboard shows the first time you open the app each session.</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Comparison bubbles</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:15px;color:var(--text)">Show change as</span>
+          <select id="pref-delta-style" aria-label="Comparison bubble style" onchange="setStudioPref('deltaStyle', this.value)"
+            style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+            <option value="pct" ${ds==='pct'?'selected':''}>Percentage change (up 12%)</option>
+            <option value="diff" ${ds==='diff'?'selected':''}>Dollar / count change (up $1,240)</option>
+            <option value="prev" ${ds==='prev'?'selected':''}>Last period's figure ($10,300)</option>
+          </select>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">How the red and green bubbles under dashboard figures read. Rebook rates always compare in points, and hovering a bubble shows the previous period's figure whichever style is on.</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Studio logo</div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          ${logo
+            ? `<img src="${logo}" alt="Studio logo" style="max-height:48px;max-width:200px;object-fit:contain;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px">`
+            : '<span style="font-size:14px;color:var(--muted)">No logo yet</span>'}
+          <button class="btn btn-ghost" style="font-size:14px" onclick="uploadStudioLogo()">${logo ? 'Replace logo' : '⬆ Upload logo'}</button>
+          ${logo ? `<button class="btn btn-ghost" style="font-size:14px;color:var(--red);border-color:rgba(180,71,47,0.3)" onclick="removeStudioLogo()">Remove</button>` : ''}
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">Shows on your invoices and replaces the studio name in the top-left corner. A PNG with a transparent background looks best; it's resized automatically and syncs to your other devices.</div>
       </div>
       <div>
         <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Working days</div>
@@ -17197,10 +17922,10 @@ async function cloudPushKind(kind) {
 const CLOUD_GLOBAL_KEYS = ['demo_ejAdminPIN', 'demo_ejManagerPIN', 'demo_ejStaffPINs', 'demo_ejAutoLockMins', 'demo_ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
-  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI',
+  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI','ejPurchases','ejStudioLogo','ejTSStaffOrder',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
-  'ejYears','ejRoster_staff','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
+  'ejYears','ejRoster_staff','ejRoster_rooms','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
 ];
 function cloudIsStateKey(k) {
   if (!k) return false;
@@ -17394,7 +18119,9 @@ function updateBrandingFromStudio() {
     if (!st) return;
     const name = st.name || 'Studio';
     const pinLogo = document.getElementById('pin-lock-logo'); if (pinLogo) pinLogo.textContent = name;
+    try { applyStudioLogo(); } catch (e) {}
     const sideLogo = document.getElementById('sidebar-logo-name'); if (sideLogo) sideLogo.textContent = name;
+    try { applyStudioLogo(); } catch (e) {}
     const topbar = document.getElementById('topbar-studio-name'); if (topbar) topbar.textContent = name;
   } catch (e) {}
 }
