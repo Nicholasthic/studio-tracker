@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.14-2022">
-<meta name="lumin-build" content="2026.09.14-2022"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.14-2053">
+<meta name="lumin-build" content="2026.09.14-2053"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4269,6 +4269,9 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 .invoice-controls .inv-fig-val { font-size: 15px; }
 .invoice-controls #inv-quick-total { font-size: 17px !important; }
 
+/* Goals: derived week/day line under monthly targets */
+.goal-break { font-size: 12px; color: var(--muted2); margin-top: 4px; min-height: 15px; font-variant-numeric: tabular-nums; }
+
 /* Compare page: swap arrows + quick preset */
 .compare-vs-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; align-self: end; padding-bottom: 2px; }
 .cmp-swap {
@@ -5943,6 +5946,28 @@ try {
       </div>
       <div class="expense-settings-body open" id="goals-settings-body">
         <div style="font-size:14px;color:var(--muted);margin-bottom:14px">Set monthly targets. They auto-scale to quarters (×3) and YTD on the dashboard.</div>
+
+        <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:6px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)">Build Targets From Your History</div>
+        <div style="display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Base on</div>
+            <select id="goals-base" class="compare-select" style="min-width:190px" onchange="goalsSuggestPreview()">
+              <option value="last">Last month with data</option>
+              <option value="avg3">Average of last 3 months</option>
+              <option value="avg6">Average of last 6 months</option>
+              <option value="best">Best month this year</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Growth</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input id="goals-growth" type="number" step="1" min="-50" max="200" value="10" class="form-input" style="width:84px;text-align:right" oninput="goalsSuggestPreview()">
+              <span style="font-size:15px;color:var(--muted)">%</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="font-size:14px" onclick="goalsSuggestApply()">Fill targets ↓</button>
+        </div>
+        <div id="goals-suggest-preview" style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px"></div>
 
         <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:6px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)">Studio-Wide Monthly Targets</div>
         <div class="fixed-expense-grid" id="goals-studio-grid"></div>
@@ -17403,9 +17428,133 @@ function toggleGoalsSettings() {
   if (panel.style.display === 'none' || !panel.style.display) {
     panel.style.display = 'block';
     renderGoalsSettings();
+    goalsSuggestPreview();
+    goalsRefreshBreaks();
   } else {
     panel.style.display = 'none';
   }
+}
+
+/* ── Month → week → day equivalents for targets ──
+   Targets are stored monthly (single source of truth); the weekly and
+   per-day lines are derived views: weekly = monthly × 12/52, daily =
+   weekly ÷ the studio's configured working days per week. ── */
+function goalsWorkingDaysPerWeek() {
+  try {
+    const wd = getWorkingDays();
+    const n = wd.size !== undefined ? wd.size : wd.length;
+    return Math.max(1, n || 6);
+  } catch { return 6; }
+}
+function goalsBreakdownText(v, money) {
+  if (!(v > 0)) return '';
+  const wk = v * 12 / 52;
+  const day = wk / goalsWorkingDaysPerWeek();
+  const f = money
+    ? (n => '$' + Math.round(n).toLocaleString())
+    : (n => (Math.round(n * 10) / 10).toLocaleString());
+  return '≈ ' + f(wk) + '/week · ' + f(day) + '/day';
+}
+function goalsBreakLine(inp) {
+  const el = document.getElementById(inp.id + '-break');
+  if (el) el.textContent = goalsBreakdownText(parseFloat(inp.value) || 0, inp.dataset.money === '1');
+}
+function goalsRefreshBreaks() {
+  document.querySelectorAll('input[data-break="1"]').forEach(i => goalsBreakLine(i));
+}
+
+/* ── Suggested targets: prior months × a growth % ──
+   Picks a base period from real history, applies the growth figure to the
+   dollar and count targets, and fills the target inputs for review. Rebook
+   rates copy across unscaled (a % of a % misleads); per-stylist rebook
+   targets stay manual. Nothing is saved until Save Targets is pressed. */
+function goalsBaseMonths(baseId) {
+  const MONTHLY = buildMONTHLY();
+  const withData = MONTH_NAMES.filter(m => MONTHLY[m] && (MONTHLY[m].total || 0) > 0);
+  if (!withData.length) return [];
+  if (baseId === 'best') {
+    return [withData.reduce((a, b) => ((MONTHLY[a].total || 0) >= (MONTHLY[b].total || 0) ? a : b))];
+  }
+  // Exclude the current, unfinished month whenever there's older history
+  let pool = withData;
+  const curName = MONTH_NAMES[new Date().getMonth()];
+  if (pool.length > 1 && pool[pool.length - 1] === curName) pool = pool.slice(0, -1);
+  const n = baseId === 'avg6' ? 6 : baseId === 'avg3' ? 3 : 1;
+  return pool.slice(-n);
+}
+
+function goalsBaseFigures(baseId) {
+  const months = goalsBaseMonths(baseId);
+  if (!months.length) return null;
+  const MONTHLY = buildMONTHLY();
+  const t = { revenue: 0, productRev: 0, ret: 0, retR: 0, newC: 0, newR: 0 };
+  months.forEach(m => {
+    const d = MONTHLY[m];
+    t.revenue += d.total || 0; t.productRev += d.prod || 0;
+    t.ret += d.ret || 0; t.retR += d.retR || 0;
+    t.newC += d.newC || 0; t.newR += d.newR || 0;
+  });
+  const n = months.length;
+  return {
+    months,
+    revenue: t.revenue / n,
+    clients: (t.ret + t.newC) / n,
+    productRev: t.productRev / n,
+    retRebookPct: t.ret > 0 ? t.retR / t.ret * 100 : 0,
+    newRebookPct: t.newC > 0 ? t.newR / t.newC * 100 : 0,
+  };
+}
+
+function goalsGrowthPct() {
+  const v = parseFloat(document.getElementById('goals-growth')?.value);
+  return isFinite(v) ? Math.max(-50, Math.min(200, v)) : 0;
+}
+
+function goalsSuggestPreview(extra) {
+  const el = document.getElementById('goals-suggest-preview');
+  if (!el) return;
+  const base = goalsBaseFigures(document.getElementById('goals-base')?.value || 'last');
+  if (!base) { el.textContent = 'No monthly history yet - add some daily entries first.'; return; }
+  const g = goalsGrowthPct();
+  const f = 1 + g / 100;
+  el.innerHTML = `Based on <strong>${base.months.join(' + ')}</strong> at ${g >= 0 ? '+' : ''}${g}% growth: ` +
+    `revenue $${Math.round(base.revenue).toLocaleString()} → <strong>$${Math.round(base.revenue * f).toLocaleString()}</strong> <span style="white-space:nowrap">(${goalsBreakdownText(base.revenue * f, true)})</span> · ` +
+    `clients ${Math.round(base.clients)} → <strong>${Math.round(base.clients * f)}</strong> · ` +
+    `product $${Math.round(base.productRev).toLocaleString()} → <strong>$${Math.round(base.productRev * f).toLocaleString()}</strong>. ` +
+    `Rebook rates copy across as-is (${base.retRebookPct.toFixed(0)}% / ${base.newRebookPct.toFixed(0)}%).` +
+    (extra ? ` <strong style="color:var(--green)">${extra}</strong>` : '');
+}
+
+function goalsSuggestApply() {
+  const baseId = document.getElementById('goals-base')?.value || 'last';
+  const base = goalsBaseFigures(baseId);
+  if (!base) return;
+  const f = 1 + goalsGrowthPct() / 100;
+  const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setV('goal-studio-revenue', Math.round(base.revenue * f));
+  setV('goal-studio-clients', Math.round(base.clients * f));
+  setV('goal-studio-productRev', Math.round(base.productRev * f));
+  setV('goal-studio-retRebookPct', Math.min(100, Math.round(base.retRebookPct)));
+  setV('goal-studio-newRebookPct', Math.min(100, Math.round(base.newRebookPct)));
+  // Per-stylist: same growth applied to each stylist's own history over the
+  // same base months
+  const perMonth = base.months.map(m => dashStaffAggregates(dashDescriptor(m)));
+  STYLISTS.forEach(s => {
+    let rev = 0, cl = 0, prod = 0, any = false;
+    perMonth.forEach(agg => {
+      const d = agg[s.name];
+      if (!d || !d.hasData) return;
+      any = true; rev += d.svc + d.prod; cl += d.clients; prod += d.prod;
+    });
+    if (!any) return;
+    const n = base.months.length;
+    const safe = s.name.replace(/\s+/g, '_');
+    setV(`goal-stylist-${safe}-revenue`, Math.round(rev / n * f));
+    setV(`goal-stylist-${safe}-clients`, Math.round(cl / n * f));
+    setV(`goal-stylist-${safe}-productRev`, Math.round(prod / n * f));
+  });
+  goalsSuggestPreview('Filled - review below, then press Save Targets.');
+  goalsRefreshBreaks();
 }
 
 function renderGoalsSettings() {
@@ -17413,13 +17562,16 @@ function renderGoalsSettings() {
   const studioG = g.studio || {};
   const stylistG = g.stylists || {};
 
-  // Studio targets
+  // Studio targets. Dollar/count metrics carry a live "per week / per day"
+  // line under the monthly figure; rates don't divide.
+  const goalBreakable = id => id === 'revenue' || id === 'clients' || id === 'productRev';
   const sgrid = document.getElementById('goals-studio-grid');
   if (sgrid) {
     sgrid.innerHTML = GOAL_METRICS.map(m => `
       <div class="fixed-expense-item">
         <div class="fixed-expense-label">${m.label}</div>
-        <input class="fixed-expense-input" id="goal-studio-${m.id}" type="number" min="0" placeholder="${m.default}" value="${studioG[m.id] !== undefined ? studioG[m.id] : ''}">
+        <input class="fixed-expense-input" id="goal-studio-${m.id}" type="number" min="0" placeholder="${m.default}" value="${studioG[m.id] !== undefined ? studioG[m.id] : ''}"${goalBreakable(m.id) ? ` data-break="1" data-money="${m.prefix === '$' ? '1' : ''}" oninput="goalsBreakLine(this)"` : ''}>
+        ${goalBreakable(m.id) ? `<div class="goal-break" id="goal-studio-${m.id}-break"></div>` : ''}
       </div>`).join('');
   }
 
@@ -17438,7 +17590,8 @@ function renderGoalsSettings() {
               ${GOAL_METRICS.map(m => `
                 <div class="fixed-expense-item">
                   <div class="fixed-expense-label">${m.label}</div>
-                  <input class="fixed-expense-input" id="goal-stylist-${s.name.replace(/\s+/g,'_')}-${m.id}" type="number" min="0" placeholder="${Math.round(m.default / 4)}" value="${sg[m.id] !== undefined ? sg[m.id] : ''}">
+                  <input class="fixed-expense-input" id="goal-stylist-${s.name.replace(/\s+/g,'_')}-${m.id}" type="number" min="0" placeholder="${Math.round(m.default / 4)}" value="${sg[m.id] !== undefined ? sg[m.id] : ''}"${goalBreakable(m.id) ? ` data-break="1" data-money="${m.prefix === '$' ? '1' : ''}" oninput="goalsBreakLine(this)"` : ''}>
+                  ${goalBreakable(m.id) ? `<div class="goal-break" id="goal-stylist-${s.name.replace(/\s+/g,'_')}-${m.id}-break"></div>` : ''}
                 </div>`).join('')}
             </div>
           </div>`;
