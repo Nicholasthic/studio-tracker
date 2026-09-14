@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.14-1957">
-<meta name="lumin-build" content="2026.09.14-1957"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.14-2022">
+<meta name="lumin-build" content="2026.09.14-2022"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -7545,25 +7545,85 @@ function tlDonut(pct, colorVar, prevPct) {
 }
 
 // Step the period with the ‹ › chevrons (months, weeks, quarters)
+// A Monday-anchored 7-day custom range is treated as a scrollable "week
+// window", which is how the ‹ › chevrons walk back past Last Week forever.
+function dashCustomWeekStart() {
+  if (activeFilter !== 'custom' || !customRange.start || !customRange.end) return null;
+  const s = new Date(customRange.start + 'T00:00:00');
+  const e = new Date(customRange.end + 'T00:00:00');
+  if (s.getDay() !== 1) return null;
+  if (Math.round((e - s) / 86400000) !== 6) return null;
+  return s;
+}
+function dashSetWeekWindow(monday) {
+  const thisMon = getMondayOfWeek(toLocalISO(new Date()));
+  const diffWeeks = Math.round((thisMon - monday) / (7 * 86400000));
+  if (diffWeeks <= 0) { activeFilter = 'thisweek'; }
+  else if (diffWeeks === 1) { activeFilter = 'lastweek'; }
+  else {
+    const sun = new Date(monday); sun.setDate(monday.getDate() + 6);
+    customRange.start = toLocalISO(monday);
+    customRange.end = toLocalISO(sun);
+    activeFilter = 'custom';
+  }
+  renderDashboard();
+}
+
+// Single chevrons ALWAYS step by week (per Nicko): from any view they drop
+// into a scrollable Mon-Sun week window and walk it, back as far as data
+// goes. The « » doubles are the month steppers.
 function dashStepPeriod(dir) {
-  let next = null;
-  if (MONTH_NAMES.includes(activeFilter)) {
-    const i = MONTH_NAMES.indexOf(activeFilter) + dir;
-    if (i >= 0 && i < 12) next = MONTH_NAMES[i];
-  } else if (activeFilter === 'thisweek' && dir < 0) next = 'lastweek';
-  else if (activeFilter === 'lastweek' && dir > 0) next = 'thisweek';
-  else { const q = { q1:0, q2:1, q3:2, q4:3 };
-    if (q[activeFilter] != null) { const i = q[activeFilter] + dir; if (i >= 0 && i < 4) next = 'q' + (i+1); } }
-  if (next) { activeFilter = next; renderDashboard(); }
+  let mon = null;
+  if (activeFilter === 'thisweek') {
+    if (dir > 0) return;   // no future weeks
+    mon = getMondayOfWeek(toLocalISO(new Date()));
+    mon.setDate(mon.getDate() - 7);
+  } else if (activeFilter === 'lastweek') {
+    mon = getMondayOfWeek(toLocalISO(new Date()));
+    mon.setDate(mon.getDate() - 7 + dir * 7);
+  } else if (dashCustomWeekStart()) {
+    mon = dashCustomWeekStart();
+    mon.setDate(mon.getDate() + dir * 7);
+  } else {
+    // Month / quarter / YTD / anything else: ‹ lands on the last week that
+    // fits inside the period, › on the first week after it
+    const r = dashRangeFor(activeFilter);
+    const end = r ? new Date(r.end + 'T00:00:00') : new Date();
+    const probe = new Date(end);
+    probe.setDate(probe.getDate() + (dir < 0 ? -6 : 1));
+    mon = getMondayOfWeek(toLocalISO(probe));
+  }
+  if (mon) dashSetWeekWindow(mon);
 }
 
 function dashCanStep(dir) {
-  if (MONTH_NAMES.includes(activeFilter)) { const i = MONTH_NAMES.indexOf(activeFilter) + dir; return i >= 0 && i < 12; }
   if (activeFilter === 'thisweek') return dir < 0;
-  if (activeFilter === 'lastweek') return dir > 0;
-  const q = { q1:0, q2:1, q3:2, q4:3 };
-  if (q[activeFilter] != null) { const i = q[activeFilter] + dir; return i >= 0 && i < 4; }
-  return false;
+  return true;
+}
+
+// Double chevrons: jump a whole calendar month from wherever the view is
+function dashAnchorMonthIdx() {
+  if (MONTH_NAMES.includes(activeFilter)) return MONTH_NAMES.indexOf(activeFilter);
+  const r = dashRangeFor(activeFilter);
+  const d = r ? new Date(r.start + 'T00:00:00') : new Date();
+  return d.getMonth();
+}
+function dashStepMonth(dir) {
+  const i = dashAnchorMonthIdx() + dir;
+  if (i < 0 || i > 11) return;
+  activeFilter = MONTH_NAMES[i];
+  renderDashboard();
+}
+function dashCanStepMonth(dir) {
+  const i = dashAnchorMonthIdx() + dir;
+  return i >= 0 && i <= 11;
+}
+
+// Period label for the hero bar: week windows read as "Week of ..."
+function dashPeriodLabel() {
+  const wk = dashCustomWeekStart();
+  if (wk) return 'Week of ' + wk.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  return filterLabel(activeFilter);
 }
 
 // ── Period sales chart: daily stacked bars for short periods, monthly otherwise ──
@@ -7892,9 +7952,11 @@ function renderDashStaff() {
 
   el.innerHTML = `
     <div class="tl-periodbar">
+      <button class="tl-step" onclick="dashStepMonth(-1)" ${dashCanStepMonth(-1) ? '' : 'disabled'} aria-label="Back one month" title="Back a month">«</button>
       <button class="tl-step" onclick="dashStepPeriod(-1)" ${dashCanStep(-1) ? '' : 'disabled'} aria-label="Previous period">‹</button>
-      <span class="tl-period-label">${filterLabel(activeFilter)}</span>
+      <span class="tl-period-label">${dashPeriodLabel()}</span>
       <button class="tl-step" onclick="dashStepPeriod(1)" ${dashCanStep(1) ? '' : 'disabled'} aria-label="Next period">›</button>
+      <button class="tl-step" onclick="dashStepMonth(1)" ${dashCanStepMonth(1) ? '' : 'disabled'} aria-label="Forward one month" title="Forward a month">»</button>
     </div>
     ${rows.length ? header + body : '<div class="chart-empty" style="min-height:160px">No stylist activity in this period yet. Per-stylist figures come from the stylist sections of your daily entries.</div>'}
     ${rows.length ? '<div class="tl-staff-note">Comparisons show the previous period. Average hour needs hours logged on the Timesheets page.</div>' : ''}`;
@@ -7994,9 +8056,11 @@ function renderDashboard() {
   kpi.className = 'tl-hero';
   kpi.innerHTML = `
     <div class="tl-periodbar">
+      <button class="tl-step" onclick="dashStepMonth(-1)" ${dashCanStepMonth(-1) ? '' : 'disabled'} aria-label="Back one month" title="Back a month">«</button>
       <button class="tl-step" onclick="dashStepPeriod(-1)" ${dashCanStep(-1) ? '' : 'disabled'} aria-label="Previous period">‹</button>
-      <span class="tl-period-label">${filterLabel(activeFilter)}</span>
+      <span class="tl-period-label">${dashPeriodLabel()}</span>
       <button class="tl-step" onclick="dashStepPeriod(1)" ${dashCanStep(1) ? '' : 'disabled'} aria-label="Next period">›</button>
+      <button class="tl-step" onclick="dashStepMonth(1)" ${dashCanStepMonth(1) ? '' : 'disabled'} aria-label="Forward one month" title="Forward a month">»</button>
     </div>
     <div class="tl-band">
       <div class="tl-col">
