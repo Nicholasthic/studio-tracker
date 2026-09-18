@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.18-1317">
-<meta name="lumin-build" content="2026.09.18-1317"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.18-1333">
+<meta name="lumin-build" content="2026.09.18-1333"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5956,6 +5956,11 @@ try {
           <div style="font-size:14px;color:var(--muted);margin-bottom:12px">Same every month: rent, wages, subscriptions. Auto-fill each month, override per-month below.</div>
           <div class="fixed-expense-grid" id="fixed-expense-grid"></div>
           <button class="btn btn-ghost" style="font-size:14px" onclick="saveFixedExpenses()">Save Fixed Amounts</button>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);margin-top:14px;cursor:pointer">
+            <input type="checkbox" id="pl-auto-wages" onchange="plSetAutoWages(this.checked)">
+            Auto-fill Staff Wages from timesheets
+          </label>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5">Each month's timesheet hours × the hourly rates in Account &amp; Settings, plus super at the Tax &amp; BAS rate. Months with no timesheet hours keep the manual wages figure. Worked hours only: leave days aren't costed.</div>
         </div>
       </div>
 
@@ -6573,12 +6578,14 @@ try {
           <div class="help-h">P&amp;L</div>
           <ul>
             <li>A monthly profit and loss built from your daily entries, so revenue is always up to date.</li>
-            <li>Enter your <strong>fixed monthly expenses</strong> once (rent, wages, software, insurance and so on) and adjust the variable costs month by month.</li>
+            <li>Enter your <strong>fixed monthly expenses</strong> once (rent, software, insurance and so on) and adjust the variable costs month by month.</li>
+            <li><strong>Staff Wages fills itself from timesheets</strong>: the month's worked hours × each person's hourly rate (set in Account &amp; Settings), plus super at your Tax &amp; BAS rate, shown as read-only rows. Under the gross figure it also splits out the estimated <strong>net pay to staff vs PAYG withheld for the ATO</strong>, so you can see where the wage money actually goes. Months with no timesheet hours keep the manual figure, and you can switch the whole thing off in the Fixed Recurring Expenses panel.</li>
             <li>Instantly see each month's profit and how the margin is trending.</li>
           </ul>
           <div class="help-h">Tax &amp; BAS</div>
           <ul>
             <li>Running totals from your entries and expenses to make BAS time painless.</li>
+            <li>Gross wages and PAYG withheld now pre-fill from the timesheet wages too (the PAYG figure is an estimate; type over it with the exact payroll number if yours differs).</li>
             <li>Use it as a guide for what to set aside, and hand the summary to your bookkeeper.</li>
           </ul>
         </div>
@@ -15091,6 +15098,62 @@ function renderPL() {
   renderPLMonth(activePLMonth);
 }
 
+/* ── Auto wages from timesheets ──
+   Staff Wages in the P&L can fill itself: the month's timesheet hours ×
+   each person's hourly rate (Account & Settings), plus super at the Tax &
+   BAS guarantee rate. Worked hours only — leave days carry no hours so they
+   aren't costed. Months with no timesheet hours fall back to the manual
+   wages figure, so history from before timesheets stays intact. */
+function plAutoWagesOn() { return getStudioPref('plAutoWages', 'on') !== 'off'; }
+function plSetAutoWages(on) { setStudioPref('plAutoWages', on ? 'on' : 'off'); renderPLMonth(activePLMonth); }
+// PAYG withholding estimate: annualise each person's month, apply the
+// resident tax brackets (2025-26, tax-free threshold claimed) plus the 2%
+// Medicare levy, then take the month's share. Close to the ATO tables for
+// steady earners; marked "est." wherever it shows.
+function plEstAnnualTax(annual) {
+  let tax = 0;
+  if (annual > 190000) tax = 51638 + (annual - 190000) * 0.45;
+  else if (annual > 135000) tax = 31288 + (annual - 135000) * 0.37;
+  else if (annual > 45000) tax = 4288 + (annual - 45000) * 0.30;
+  else if (annual > 18200) tax = (annual - 18200) * 0.16;
+  if (annual > 27222) tax += annual * 0.02;   // Medicare levy
+  return tax;
+}
+function plWagesForMonth(year, monthName) {
+  const mi = MONTH_NAMES.indexOf(monthName) + 1;
+  if (!mi) return null;
+  const pref = `${year}-${String(mi).padStart(2, '0')}`;
+  const data = loadTSData();
+  const byStaff = {};
+  Object.keys(data).forEach(k => {
+    const sep = k.indexOf('__');
+    if (sep < 0) return;
+    const date = k.slice(sep + 2);
+    if (date.indexOf(pref) !== 0) return;
+    const e = data[k];
+    if (!e || !e.start || !e.end) return;
+    const h = calcHours(e.start, e.end, e.break || 0) || 0;
+    if (h > 0) { const name = k.slice(0, sep); byStaff[name] = (byStaff[name] || 0) + h; }
+  });
+  let hours = 0, base = 0, payg = 0;
+  const staff = [], missingRates = [];
+  Object.keys(byStaff).sort().forEach(name => {
+    const h = byStaff[name], rate = getPayRate(name);
+    hours += h;
+    if (rate > 0) {
+      const cost = h * rate;
+      const p = plEstAnnualTax(cost * 12) / 12;   // per person, so the tax-free threshold applies individually
+      base += cost; payg += p;
+      staff.push({ name, hours: h, rate, cost, payg: p });
+    }
+    else missingRates.push(name);
+  });
+  let superPct = 12;
+  try { const v = parseFloat(sroiSuperRate()); if (isFinite(v) && v >= 0) superPct = v; } catch (e) {}
+  const superAmt = base * superPct / 100;
+  return { hours, base, payg, net: base - payg, superPct, superAmt, total: base + superAmt, staff, missingRates };
+}
+
 function renderPLMonth(month) {
   if (!month) return;
   activePLMonth = month;
@@ -15116,7 +15179,24 @@ function renderPLMonth(month) {
   const expTotal = document.getElementById('pl-expense-total');
   const customFixed = monthData.custom || [];
   let totalFixed = 0;
+  const autoWagesCb = document.getElementById('pl-auto-wages');
+  if (autoWagesCb) autoWagesCb.checked = plAutoWagesOn();
+  const wagesTS = plAutoWagesOn() ? plWagesForMonth(activeYear||BASE_YEAR, month) : null;
   const fixedCatRows = EXPENSE_CATEGORIES.map(cat => {
+    // Staff Wages fills itself from timesheet hours × pay rates when the
+    // month has hours; otherwise the normal manual input stays
+    if (cat.id === 'wages' && wagesTS && wagesTS.hours > 0) {
+      totalFixed += wagesTS.base + wagesTS.superAmt;
+      const viewBtn = `<button onclick="showPage('timesheets')" aria-label="Open timesheets" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px;font-family:var(--font);text-decoration:underline;text-underline-offset:2px">view</button>`;
+      const missing = wagesTS.missingRates.length
+        ? `<div class="pl-row" style="border-top:none;padding-top:0"><div style="font-size:12.5px;color:var(--red);line-height:1.5">No hourly rate set for ${wagesTS.missingRates.join(', ')}, so their hours aren't costed yet. Set rates in Account &amp; Settings.</div></div>`
+        : '';
+      const paygSplit = wagesTS.payg > 0.005
+        ? `<div class="pl-row" style="border-top:none;padding-top:0"><div style="font-size:12.5px;color:var(--muted);line-height:1.5">Of the gross: <strong style="color:var(--text)">$${fmt(wagesTS.net)}</strong> net pay to staff, <strong style="color:var(--text)">$${fmt(wagesTS.payg)}</strong> PAYG withheld for the ATO <span style="color:var(--muted2)">(est., tax-free threshold claimed)</span></div></div>`
+        : '';
+      return `<div class="pl-row"><div class="pl-row-label">Staff Wages <span style="color:var(--muted);font-weight:400">· ${fmtHours(wagesTS.hours)} gross</span></div><div class="pl-row-fixed">timesheets</div><div class="pl-row-value">$${fmt(wagesTS.base)}</div>${viewBtn}</div>` + paygSplit +
+        `<div class="pl-row"><div class="pl-row-label">Superannuation <span style="color:var(--muted);font-weight:400">· ${wagesTS.superPct}% of wages</span></div><div class="pl-row-fixed">auto</div><div class="pl-row-value">$${fmt(wagesTS.superAmt)}</div></div>` + missing;
+    }
     const savedVal=monthData[cat.id]; const fixedVal=fixed[cat.id];
     const displayVal=savedVal!==undefined?savedVal:(fixedVal||'');
     const isFixed=fixedVal>0&&savedVal===undefined;
@@ -15212,7 +15292,10 @@ function getTotalFixedExpenses(month) {
   const fixed=loadFixedExpenses(); const varDefs=loadVariableDefaults();
   const plData=loadPLData(); const monthKey=`${activeYear||BASE_YEAR}-${month}`;
   const monthData=plData[monthKey]||{}; let total=0;
-  EXPENSE_CATEGORIES.forEach(cat=>{ const val=monthData[cat.id]!==undefined?monthData[cat.id]:(fixed[cat.id]||0); total+=parseFloat(val)||0; });
+  const wagesTS = plAutoWagesOn() ? plWagesForMonth(activeYear||BASE_YEAR, month) : null;
+  EXPENSE_CATEGORIES.forEach(cat=>{
+    if (cat.id === 'wages' && wagesTS && wagesTS.hours > 0) { total += wagesTS.total; return; }
+    const val=monthData[cat.id]!==undefined?monthData[cat.id]:(fixed[cat.id]||0); total+=parseFloat(val)||0; });
   (monthData.custom||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
   VARIABLE_CATEGORIES.forEach(cat=>{ const val=monthData[cat.id]!==undefined?monthData[cat.id]:(varDefs[cat.id]||0); total+=parseFloat(val)||0; });
   (monthData.customVar||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
@@ -17906,12 +17989,21 @@ function getTaxBASAutoValues(startISO, endISO) {
     d.setDate(1);
   }
 
-  let wages = 0, expenses = 0;
+  let wages = 0, expenses = 0, payg = 0;
   monthsInRange.forEach(mKey => {
     const md = plData[mKey] || {};
-    // Wages
-    const wagesVal = md.wages !== undefined ? md.wages : (fixed.wages || 0);
-    wages += parseFloat(wagesVal) || 0;
+    // Wages: when auto-wages is on and the month has timesheet hours, use the
+    // same gross + estimated PAYG the P&L shows; otherwise the manual figure
+    const dash = mKey.indexOf('-');
+    const wAuto = (typeof plAutoWagesOn === 'function' && plAutoWagesOn())
+      ? plWagesForMonth(parseInt(mKey.slice(0, dash), 10), mKey.slice(dash + 1)) : null;
+    if (wAuto && wAuto.hours > 0) {
+      wages += wAuto.base;
+      payg += wAuto.payg;
+    } else {
+      const wagesVal = md.wages !== undefined ? md.wages : (fixed.wages || 0);
+      wages += parseFloat(wagesVal) || 0;
+    }
     // Other fixed expense categories (excluding wages)
     EXPENSE_CATEGORIES.forEach(cat => {
       if (cat.id === 'wages') return;
@@ -17930,7 +18022,7 @@ function getTaxBASAutoValues(startISO, endISO) {
   return {
     revenue:  Math.round(revenueIncGST * 100) / 100,
     wages:    Math.round(wages * 100) / 100,
-    payg:     0, // tracker doesn't capture PAYG — user enters manually
+    payg:     Math.round(payg * 100) / 100,   // estimated from timesheet wages; override on the page for the exact payroll figure
     expenses: Math.round(expenses * 100) / 100,
   };
 }
