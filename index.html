@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.18-1238">
-<meta name="lumin-build" content="2026.09.18-1238"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.18-1303">
+<meta name="lumin-build" content="2026.09.18-1303"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4103,6 +4103,8 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 }
 .purch-rcpt-btn:hover { border-color: var(--muted); color: var(--text); }
 .purch-rcpt-btn.has-rcpt { border-style: solid; border-color: var(--green); color: var(--green); background: var(--accent-light); }
+#purch-form-section.dropping { outline: 2px dashed var(--green); outline-offset: -2px; background: var(--accent-light); }
+.purch-row.dropping { background: var(--accent-light); box-shadow: inset 0 0 0 2px var(--green); border-radius: 10px; }
 .purch-rcpt-view {
   width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
   border-radius: 8px; border: 1px solid var(--border); background: var(--surface2);
@@ -5143,7 +5145,7 @@ try {
 
   <!-- ======================== PURCHASES (admin + manager) ======================== -->
   <div class="page" id="page-purchases">
-    <div class="form-section">
+    <div class="form-section" id="purch-form-section" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchDropForm(event)">
       <div class="form-section-title">Log a purchase</div>
       <div class="purch-form">
         <div class="form-group">
@@ -5164,13 +5166,13 @@ try {
         </div>
         <div class="form-group purch-form-rcpt">
           <label class="form-label">Receipt</label>
-          <button type="button" class="purch-rcpt-btn" id="purch-rcpt-btn" onclick="purchPickReceipt()" title="Attach a photo of the receipt">📎 Attach photo</button>
+          <button type="button" class="purch-rcpt-btn" id="purch-rcpt-btn" onclick="purchPickReceipt()" title="Attach photos or PDFs of receipts (you can pick or drag in several at once)">📎 Attach photo / PDF</button>
         </div>
         <div class="form-group purch-form-btn">
           <button class="btn btn-primary" onclick="addPurchase()">+ Add purchase</button>
         </div>
       </div>
-      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page.</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page. Tip: drag receipt photos or PDFs from Finder straight onto this card. Drop a handful at once and they queue up, attaching one by one as you add each purchase. You can also drop a file onto a purchase below to attach it there.</div>
     </div>
 
     <div class="form-section">
@@ -5191,7 +5193,10 @@ try {
         <img id="purch-rcpt-img" alt="Receipt photo">
         <iframe id="purch-rcpt-pdf" title="Receipt PDF" hidden></iframe>
         <div class="purch-rcpt-actions">
-          <button class="btn btn-ghost" onclick="purchRemoveReceipt()">Remove receipt</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" onclick="purchRemoveReceipt()">Remove receipt</button>
+            <button class="btn btn-ghost" onclick="purchDownloadReceipt()">⬇ Download</button>
+          </div>
           <button class="btn btn-primary" onclick="purchCloseReceipt()">Close</button>
         </div>
       </div>
@@ -5843,6 +5848,21 @@ try {
         </div>
       </div>
 
+      <!-- Purchase Receipts (owner + manager) -->
+      <div class="export-card" id="export-receipts-card" hidden>
+        <div class="export-card-header">
+          <div class="export-card-icon" style="background:rgba(46,125,79,0.12)"><span aria-hidden="true">🧾</span></div>
+          <div class="export-card-title">Purchase Receipts</div>
+        </div>
+        <div class="export-card-desc">Every receipt for the period as named files in one zip, plus a purchases CSV, ready to upload to Xero or send to your bookkeeper.</div>
+        <div class="export-card-controls">
+          <select class="export-select" id="exp-receipts-period" aria-label="Receipts export period"></select>
+        </div>
+        <div class="export-btn-row">
+          <button class="export-btn csv" onclick="exportReceiptsZip()">⬇ ZIP</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -6359,6 +6379,44 @@ try {
         </div>
       </details>
 
+      <details class="help-acc">
+        <summary>Purchases &amp; receipts</summary>
+        <div class="help-acc-body">
+          <p>Where the owner or manager logs everything the studio buys: stock, supplies, equipment. Each purchase lands in that month's P&amp;L automatically, so nothing needs entering twice.</p>
+          <div class="help-h">1. Log a purchase</div>
+          <ol>
+            <li>In the left menu, under <strong>Finance</strong>, tap <strong>Purchases</strong>.</li>
+            <li>Fill in the date, what it was and who from, pick a category, and type the amount.</li>
+            <li>Press <strong>+ Add purchase</strong>. The list below and the month totals update straight away.</li>
+          </ol>
+          <div class="help-h">2. Attach the receipts</div>
+          <p>The easy weekly routine: photograph the receipts on your phone, <strong>AirDrop</strong> them to the studio computer, then <strong>drag them from Finder onto the Log a purchase card</strong>. You can drop a whole handful at once:</p>
+          <ol>
+            <li>The first one attaches immediately and the button shows how many more are waiting.</li>
+            <li>Each time you press <strong>+ Add purchase</strong>, the next receipt steps up by itself, so you just read each receipt off the screen, type its details, and add.</li>
+            <li>Press the <strong>✕</strong> on the receipt button to skip one that's out of order.</li>
+          </ol>
+          <ul>
+            <li>Forgot one? Drop a file straight <strong>onto a purchase in the list</strong> to attach it there, or tap the faint <strong>📎</strong> on that row.</li>
+            <li>The <strong>📎 Attach photo / PDF</strong> button also opens the normal file picker (you can select several at once), which is what to use on the iPad or a phone.</li>
+            <li>On a phone or iPad, tapping <strong>📎 Attach photo / PDF</strong> also offers <strong>Take Photo</strong>, so you can snap the receipt with the camera right there while logging the purchase, no AirDrop needed.</li>
+            <li>Photos are shrunk automatically to keep the app fast. Emailed <strong>PDF receipts</strong> work too, as long as they're under 600KB; bigger ones are easiest to screenshot and attach as a photo.</li>
+          </ul>
+          <div class="help-h">3. View, download or remove one</div>
+          <ol>
+            <li>Tap the <strong>🧾</strong> (photo) or <strong>📄</strong> (PDF) on any purchase to open the receipt.</li>
+            <li>From there you can <strong>Download</strong> it as a tidy named file (date, item and amount in the filename) or <strong>Remove</strong> it. Removing a receipt never deletes the purchase.</li>
+          </ol>
+          <div class="help-h">4. Send them to Xero or your bookkeeper</div>
+          <ol>
+            <li>Open <strong>Export Reports</strong> and find the <strong>Purchase Receipts</strong> card.</li>
+            <li>Pick a month (or a whole year) and press <strong>⬇ ZIP</strong>.</li>
+            <li>You get one zip holding every receipt as a named file, plus a <strong>purchases.csv</strong> listing every purchase for the period and which receipt file belongs to it. Upload it to Xero or email it on as-is.</li>
+          </ol>
+          <div class="help-tip">Receipts sync between devices like everything else. A faded 🧾 on a purchase means the photo was added on another device and hasn't arrived on this one yet: open the tracker on that device to let it sync, then it appears here too.</div>
+        </div>
+      </details>
+
       
 
       <div class="help-group-title">Staff pages</div>
@@ -6449,6 +6507,7 @@ try {
             <li><strong>Monthly Summary</strong> and <strong>Yearly Overview</strong>: the bigger picture.</li>
             <li><strong>Stylist Performance</strong>: per-person numbers.</li>
             <li><strong>Contractor Invoice</strong>: gross, commission deduction, and amount due.</li>
+            <li><strong>Purchase Receipts</strong>: a month's or year's receipts as named files in one zip, plus a purchases CSV, ready for Xero or your bookkeeper. See <em>Purchases &amp; receipts</em> under Everyday use for the full flow.</li>
           </ul>
         </div>
       </details>
@@ -13577,6 +13636,7 @@ function renderExportPage() {
   const names = [...new Set(entries.map(e => e.contractor.name || 'Contractor'))];
   const cSel = document.getElementById('exp-inv-contractor');
   if (cSel) cSel.innerHTML = '<option value="all">All Contractors</option>' + names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  if (typeof purchFillExportSelect === 'function') purchFillExportSelect();
 }
 
 function downloadCSV(filename, rows) {
@@ -14405,44 +14465,110 @@ function purchCompressReceipt(file, cb) {
   };
   reader.readAsDataURL(file);
 }
+function purchIngestFile(file, cb) {   // cb(dataUrl) or cb(null) if skipped
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '');
+  if (isPdf) {
+    // PDFs can't be recompressed like photos, so cap the size instead
+    if (file.size > 600 * 1024) {
+      alert(`"${file.name}" is over 600KB, which is too big to store in the tracker. Screenshot the receipt and attach it as a photo instead.`);
+      cb(null); return;
+    }
+    const reader = new FileReader();
+    reader.onload = ev => cb(ev.target.result);
+    reader.readAsDataURL(file);
+    return;
+  }
+  if (file.type && file.type.indexOf('image/') !== 0) {
+    alert(`"${file.name}" isn't a photo or PDF, so it was skipped.`);
+    cb(null); return;
+  }
+  purchCompressReceipt(file, cb);
+}
 function purchPickFile(cb) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*,application/pdf,.pdf';
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '');
-    if (isPdf) {
-      // PDFs can't be recompressed like photos, so cap the size instead
-      if (file.size > 600 * 1024) {
-        alert('That PDF is over 600KB, which is too big to store in the tracker. Screenshot the receipt and attach it as a photo instead.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = ev => cb(ev.target.result);
-      reader.readAsDataURL(file);
-      return;
-    }
-    purchCompressReceipt(file, cb);
-  };
+  input.onchange = e => { const file = e.target.files[0]; if (file) purchIngestFile(file, url => { if (url) cb(url); }); };
   input.click();
 }
 const purchRcptIsPdf = url => typeof url === 'string' && url.indexOf('data:application/pdf') === 0;
+
+/* Batch intake: receipts usually arrive as a pile of AirDropped files on the
+   studio computer, so several can be picked or dragged in at once. The first
+   becomes the pending receipt; the rest wait in a queue and auto-attach one
+   by one as each purchase is added. */
+let purchRcptQueue = [];
+function purchTakeFiles(fileList) {
+  const files = [...(fileList || [])];
+  const next = i => {
+    if (i >= files.length) { purchRenderRcptBtn(); return; }
+    purchIngestFile(files[i], url => {
+      if (url) { if (!purchPendingRcpt) purchPendingRcpt = url; else purchRcptQueue.push(url); }
+      next(i + 1);
+    });
+  };
+  next(0);
+}
+function purchDragOver(e) {
+  if (!e.dataTransfer) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  e.currentTarget.classList.add('dropping');
+}
+function purchDragLeave(e) { e.currentTarget.classList.remove('dropping'); }
+function purchDropForm(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dropping');
+  purchTakeFiles(e.dataTransfer.files);
+}
+function purchRowDrop(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.remove('dropping');
+  const files = [...(e.dataTransfer.files || [])];
+  if (!files.length) return;
+  purchIngestFile(files[0], url => {
+    if (!url || !purchSaveRcpt(id, url)) return;
+    const list = loadPurchases();
+    const p = list.find(x => x.id === id);
+    if (p) { p.rcpt = 1; savePurchases(list); }
+    renderPurchases();
+  });
+  if (files.length > 1) purchTakeFiles(files.slice(1));   // extras queue in the form
+}
+// A drop that misses its target must not navigate the whole app to the file
+document.addEventListener('dragover', e => {
+  const pg = document.getElementById('page-purchases');
+  if (pg && pg.classList.contains('active')) e.preventDefault();
+});
+document.addEventListener('drop', e => {
+  const pg = document.getElementById('page-purchases');
+  if (pg && pg.classList.contains('active')) e.preventDefault();
+});
 function purchPickReceipt() {
-  if (purchPendingRcpt) { purchPendingRcpt = null; purchRenderRcptBtn(); return; }
-  purchPickFile(url => { purchPendingRcpt = url; purchRenderRcptBtn(); });
+  if (purchPendingRcpt) { purchPendingRcpt = purchRcptQueue.shift() || null; purchRenderRcptBtn(); return; }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*,application/pdf,.pdf';
+  input.multiple = true;
+  input.onchange = e => purchTakeFiles(e.target.files);
+  input.click();
 }
 function purchRenderRcptBtn() {
   const b = document.getElementById('purch-rcpt-btn');
   if (!b) return;
   b.classList.toggle('has-rcpt', !!purchPendingRcpt);
-  b.textContent = purchPendingRcpt ? (purchRcptIsPdf(purchPendingRcpt) ? '📄 PDF attached · ✕' : '🧾 Attached · ✕') : '📎 Attach photo / PDF';
-  b.title = purchPendingRcpt ? 'Remove the attached receipt' : 'Attach a photo or PDF of the receipt';
+  const waiting = purchRcptQueue.length ? ` · ${purchRcptQueue.length} more waiting` : '';
+  b.textContent = purchPendingRcpt
+    ? (purchRcptIsPdf(purchPendingRcpt) ? '📄 PDF attached · ✕' : '🧾 Attached · ✕') + waiting
+    : '📎 Attach photo / PDF';
+  b.title = purchPendingRcpt
+    ? (purchRcptQueue.length ? 'Skip this receipt and move to the next dropped one' : 'Remove the attached receipt')
+    : 'Attach photos or PDFs of receipts (you can pick or drag in several at once)';
 }
 function purchSaveRcpt(id, url) {
   try { localStorage.setItem(purchRcptKey(id), url); } catch (e) {
-    alert('The receipt photo could not be saved — this device’s storage is full. The purchase itself is still logged.');
+    alert('The receipt photo could not be saved because this device’s storage is full. The purchase itself is still logged.');
     return false;
   }
   if (typeof cloudPushPhotosSoon === 'function') cloudPushPhotosSoon();
@@ -14500,6 +14626,140 @@ function purchRemoveReceipt() {
   renderPurchases();
 }
 
+/* Receipt download + bulk export. Receipts leave the tracker as ordinary
+   files (dated, named after the purchase) so they can go straight into Xero
+   or to the bookkeeper. Bulk export builds a store-only zip in plain JS:
+   JPEGs and PDFs are already compressed, and no library keeps the app
+   working offline. */
+function purchRcptBytes(url) {
+  const bin = atob(url.split(',')[1]);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+function purchRcptFileName(p, url) {
+  const ext = purchRcptIsPdf(url) ? 'pdf' : (url.indexOf('data:image/png') === 0 ? 'png' : 'jpg');
+  const base = `${p.date} ${String(p.item || 'receipt')}`.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+  return `${base} $${(parseFloat(p.amount) || 0).toFixed(2)}.${ext}`;
+}
+function purchTriggerDownload(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch {} }, 30000);
+}
+function purchDownloadReceipt() {
+  if (!purchRcptOpenId) return;
+  const url = purchLoadRcpt(purchRcptOpenId);
+  const p = loadPurchases().find(x => x.id === purchRcptOpenId);
+  if (!url || !p) return;
+  const type = purchRcptIsPdf(url) ? 'application/pdf' : (url.indexOf('data:image/png') === 0 ? 'image/png' : 'image/jpeg');
+  purchTriggerDownload(new Blob([purchRcptBytes(url)], { type }), purchRcptFileName(p, url));
+}
+function purchCRC32(bytes) {
+  let t = purchCRC32._t;
+  if (!t) {
+    t = purchCRC32._t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+  }
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) crc = t[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function purchBuildZip(files) {   // files: [{ name, bytes: Uint8Array }]
+  const enc = new TextEncoder();
+  const u16 = v => new Uint8Array([v & 255, (v >> 8) & 255]);
+  const u32 = v => new Uint8Array([v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]);
+  const d = new Date();
+  const dosTime = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF;
+  const dosDate = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+  const parts = [], central = [];
+  let offset = 0;
+  const push = arr => arr.forEach(p => { parts.push(p); offset += p.length; });
+  files.forEach(f => {
+    const nameB = enc.encode(f.name);
+    const crc = purchCRC32(f.bytes);
+    central.push({ nameB, crc, size: f.bytes.length, offset });
+    // flag 0x0800 = UTF-8 name, method 0 = stored
+    push([u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(dosTime), u16(dosDate),
+      u32(crc), u32(f.bytes.length), u32(f.bytes.length), u16(nameB.length), u16(0), nameB, f.bytes]);
+  });
+  const cdStart = offset;
+  central.forEach(c => push([u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(dosTime), u16(dosDate),
+    u32(c.crc), u32(c.size), u32(c.size), u16(c.nameB.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.offset), c.nameB]));
+  const cdSize = offset - cdStart;
+  push([u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cdSize), u32(cdStart), u16(0)]);
+  return new Blob(parts, { type: 'application/zip' });
+}
+function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (year)
+  const all = loadPurchases().filter(p => p.date && p.date.startsWith(prefix))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
+  const files = [], used = {};
+  const csvRows = [['Date', 'Item / supplier', 'Category', 'Amount', 'Logged by', 'Receipt file']];
+  let missing = 0;
+  all.forEach(p => {
+    const url = p.rcpt ? purchLoadRcpt(p.id) : null;
+    let name = '';
+    if (url) {
+      name = purchRcptFileName(p, url);
+      let n = 2;
+      while (used[name]) name = purchRcptFileName(p, url).replace(/(\.\w+)$/, ` (${n++})$1`);
+      used[name] = 1;
+      files.push({ name, bytes: purchRcptBytes(url) });
+    } else if (p.rcpt) { missing++; name = '(not synced to this device yet)'; }
+    csvRows.push([p.date, p.item || '', catName(p.cat), (parseFloat(p.amount) || 0).toFixed(2), p.by || '', name]);
+  });
+  return { files, csvRows, purchases: all.length, receipts: files.length, missing };
+}
+function exportReceiptsZip() {
+  const sel = document.getElementById('exp-receipts-period');
+  const v = sel && sel.value;
+  if (!v) { alert('No purchases logged yet, so there’s nothing to export.'); return; }
+  const b = purchReceiptBundle(v);
+  if (!b.purchases) { alert('No purchases logged for that period.'); return; }
+  const csv = b.csvRows.map(r => r.map(cell => {
+    const s = String(cell == null ? '' : cell);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  }).join(',')).join('\n');
+  b.files.unshift({ name: 'purchases.csv', bytes: new TextEncoder().encode(csv) });
+  let label = v;
+  if (v.length === 7) {
+    const mi = parseInt(v.slice(5), 10) - 1;
+    label = `${(typeof MONTH_FULL !== 'undefined' && MONTH_FULL[mi]) || MONTH_NAMES[mi]} ${v.slice(0, 4)}`;
+  }
+  purchTriggerDownload(purchBuildZip(b.files), `receipts ${label}.zip`);
+  if (b.missing) alert(`${b.missing} receipt${b.missing === 1 ? ' was' : 's were'} added on another device and ha${b.missing === 1 ? 'sn’t' : 'ven’t'} synced here yet, so ${b.missing === 1 ? 'it’s' : 'they’re'} not in the zip (listed in purchases.csv). Open the tracker on that device to sync, then export again.`);
+}
+function purchFillExportSelect() {
+  const sel = document.getElementById('exp-receipts-period');
+  const card = document.getElementById('export-receipts-card');
+  const allowed = pinSessionUser === 'admin' || pinSessionUser === 'manager';
+  if (card) card.hidden = !allowed;
+  if (!sel || !allowed) return;
+  const byMonth = {}, byYear = {};
+  loadPurchases().forEach(p => {
+    if (!p.date) return;
+    const m = p.date.slice(0, 7), y = p.date.slice(0, 4);
+    (byMonth[m] = byMonth[m] || { p: 0, r: 0 }).p++; if (p.rcpt) byMonth[m].r++;
+    (byYear[y] = byYear[y] || { p: 0, r: 0 }).p++; if (p.rcpt) byYear[y].r++;
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+  const years = Object.keys(byYear).sort().reverse();
+  const rc = n => `${n} receipt${n === 1 ? '' : 's'}`;
+  sel.innerHTML = months.map(m => {
+    const mi = parseInt(m.slice(5), 10) - 1;
+    const nm = (typeof MONTH_FULL !== 'undefined' && MONTH_FULL[mi]) || MONTH_NAMES[mi];
+    return `<option value="${m}">${nm} ${m.slice(0, 4)} · ${rc(byMonth[m].r)}</option>`;
+  }).join('') + years.map(y => `<option value="${y}">All of ${y} · ${rc(byYear[y].r)}</option>`).join('');
+  if (!months.length) sel.innerHTML = '<option value="">No purchases logged yet</option>';
+}
+
 function addPurchase() {
   const dateEl = document.getElementById('purch-date');
   const itemEl = document.getElementById('purch-item');
@@ -14516,7 +14776,7 @@ function addPurchase() {
   const rec = { id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by };
   if (purchPendingRcpt) {
     if (purchSaveRcpt(rec.id, purchPendingRcpt)) rec.rcpt = 1;
-    purchPendingRcpt = null;
+    purchPendingRcpt = purchRcptQueue.shift() || null;   // next dropped receipt steps up
     purchRenderRcptBtn();
   }
   list.push(rec);
@@ -14573,7 +14833,7 @@ function renderPurchases() {
     return `<button class="purch-rcpt-view" onclick="purchViewReceipt('${p.id}')" aria-label="View receipt" title="View receipt${purchRcptIsPdf(stored) ? ' (PDF)' : ''}">${icon}</button>`;
   };
   el.innerHTML = list.length ? list.map(p => `
-    <div class="purch-row">
+    <div class="purch-row" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchRowDrop(event,'${p.id}')">
       <div class="purch-date">${new Date(p.date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
       <div class="purch-item">${String(p.item || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}${p.by ? `<span class="purch-by">logged by ${p.by}</span>` : ''}</div>
       <span class="purch-cat-badge">${catName(p.cat)}</span>

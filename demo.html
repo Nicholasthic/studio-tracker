@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.09.14-1957">
-<meta name="lumin-build" content="2026.09.14-1957"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.18-1303">
+<meta name="lumin-build" content="2026.09.18-1303"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -3257,6 +3257,33 @@ html[data-mode="dark"] {
 }
 .nav-item.active { box-shadow: inset 0 0 0 1px var(--accent-light); }
 
+/* ── Pill-styled dropdowns in the dashboard filter row ── */
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 6px 30px 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  border: 1px solid var(--border2);
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  color: var(--muted);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.18s var(--ease-luxe), background-color 0.18s var(--ease-luxe), color 0.18s var(--ease-luxe);
+}
+.filter-select:hover { color: var(--text); border-color: var(--muted); }
+.filter-select.active {
+  border-color: var(--accent);
+  background-color: var(--accent-light);
+  color: var(--text);
+}
+.filter-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* ── Filter pills: settled active state ── */
 .filter-btn { transition: background 0.18s var(--ease-luxe), color 0.18s var(--ease-luxe), border-color 0.18s var(--ease-luxe), box-shadow 0.18s var(--ease-luxe); }
 .filter-btn.active { box-shadow: 0 2px 8px var(--accent-light); }
@@ -4012,7 +4039,7 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
    ═══════════════════════════════════════════════════════════ */
 .purch-form {
   display: grid;
-  grid-template-columns: 150px minmax(180px, 1fr) 200px 120px auto;
+  grid-template-columns: 150px minmax(180px, 1fr) 200px 120px auto auto;
   gap: 14px;
   align-items: end;
 }
@@ -4042,7 +4069,7 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 .purch-chip.total { background: var(--accent-light); border-color: var(--border2); color: var(--text); font-weight: 600; }
 .purch-row {
   display: grid;
-  grid-template-columns: 110px 1fr auto 110px 36px;
+  grid-template-columns: 110px 1fr auto 110px 32px 36px;
   gap: 12px;
   align-items: center;
   padding: 11px 4px;
@@ -4064,6 +4091,46 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
   white-space: nowrap;
 }
 .purch-amount { font-size: 16px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Receipt attach + view */
+.purch-rcpt-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  border: 1.5px dashed var(--border2); background: var(--surface2);
+  color: var(--muted); font-family: var(--font); font-size: 13.5px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.18s var(--ease-luxe);
+}
+.purch-rcpt-btn:hover { border-color: var(--muted); color: var(--text); }
+.purch-rcpt-btn.has-rcpt { border-style: solid; border-color: var(--green); color: var(--green); background: var(--accent-light); }
+#purch-form-section.dropping { outline: 2px dashed var(--green); outline-offset: -2px; background: var(--accent-light); }
+.purch-row.dropping { background: var(--accent-light); box-shadow: inset 0 0 0 2px var(--green); border-radius: 10px; }
+.purch-rcpt-view {
+  width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 8px; border: 1px solid var(--border); background: var(--surface2);
+  font-size: 15px; line-height: 1; cursor: pointer; padding: 0;
+  transition: all 0.18s var(--ease-luxe);
+}
+.purch-rcpt-view:hover { border-color: var(--muted); transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.purch-rcpt-view.add { opacity: 0.4; font-size: 14px; border-style: dashed; }
+.purch-rcpt-view.add:hover { opacity: 1; }
+.purch-rcpt-view.pending { opacity: 0.35; cursor: default; }
+.purch-rcpt-view.pending:hover { transform: none; box-shadow: none; border-color: var(--border); }
+.purch-rcpt-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(20, 22, 25, 0.55); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.purch-rcpt-modal[hidden] { display: none; }
+.purch-rcpt-box {
+  background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-3);
+  padding: 14px; max-width: min(560px, 92vw); max-height: 90vh;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.purch-rcpt-box img { max-width: 100%; max-height: calc(90vh - 120px); object-fit: contain; border-radius: 10px; background: var(--surface2); }
+.purch-rcpt-box iframe { width: min(560px, 86vw); height: calc(90vh - 120px); border: none; border-radius: 10px; background: var(--surface2); }
+.purch-rcpt-box img[hidden], .purch-rcpt-box iframe[hidden] { display: none; }
+.purch-rcpt-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 
 /* ═══════════════════════════════════════════════════════════
    YEARLY OVERVIEW (2026-09): modern-pass polish
@@ -4269,6 +4336,46 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 .invoice-controls .inv-fig-val { font-size: 15px; }
 .invoice-controls #inv-quick-total { font-size: 17px !important; }
 
+/* Capacity ticker: scrolling "when to hire" banner on the dashboard */
+.cap-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  margin-bottom: 14px;
+  padding-right: 6px;
+  overflow: hidden;
+}
+.cap-banner.warn { background: rgba(160,100,40,0.10); border-color: rgba(160,100,40,0.35); color: #7c4f1f; }
+.cap-banner.over { background: rgba(180,71,47,0.10); border-color: rgba(180,71,47,0.4); color: var(--red); }
+html[data-mode="dark"] .cap-banner.warn { color: #e0b184; }
+.cap-marquee { flex: 1; overflow: hidden; }
+.cap-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: capscroll 32s linear infinite;
+  will-change: transform;
+}
+.cap-marquee:hover .cap-track { animation-play-state: paused; }
+.cap-seg { padding: 10px 0; margin-right: 56px; font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+@keyframes capscroll { to { transform: translateX(-50%); } }
+.cap-close {
+  width: 26px; height: 26px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: 7px;
+  color: inherit; opacity: 0.6;
+  font-size: 13px; cursor: pointer; padding: 0;
+}
+.cap-close:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+@media (prefers-reduced-motion: reduce) {
+  .cap-track { animation: none; }
+  .cap-marquee { overflow-x: auto; }
+}
+
+/* Goals: derived week/day line under monthly targets */
+.goal-break { font-size: 12px; color: var(--muted2); margin-top: 4px; min-height: 15px; font-variant-numeric: tabular-nums; }
+
 /* Compare page: swap arrows + quick preset */
 .compare-vs-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; align-self: end; padding-bottom: 2px; }
 .cmp-swap {
@@ -4293,6 +4400,7 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 @media (max-width: 760px) {
   .purch-form { grid-template-columns: 1fr 1fr; }
   .purch-form-item { grid-column: 1 / -1; }
+  .purch-form-rcpt { grid-column: 1 / -1; }
   .purch-form-btn { grid-column: 1 / -1; }
   .purch-form-btn .btn { width: 100%; }
   .purch-row { grid-template-columns: 1fr auto 32px; }
@@ -4300,6 +4408,7 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
   .purch-item { grid-column: 1 / -1; grid-row: 2; }
   .purch-cat-badge { justify-self: start; grid-row: 3; }
   .purch-amount { grid-row: 1; grid-column: 2; }
+  .purch-row .purch-rcpt-view { grid-row: 3; grid-column: 2 / -1; justify-self: end; }
 }
 </style>
 <style id="staffroi-css">
@@ -4694,6 +4803,7 @@ try {
       <button class="dash-tab" id="dash-tab-staff" role="tab" aria-selected="false" onclick="dashSetTab('staff')">Staff</button>
       <button class="dash-tab" id="dash-tab-trends" role="tab" aria-selected="false" onclick="dashSetTab('trends')">Trends</button>
     </div>
+    <div id="dash-capacity-banner"></div>
     <div class="filter-row" id="dash-filter"></div>
 
     <div class="dash-toolbar">
@@ -5035,7 +5145,7 @@ try {
 
   <!-- ======================== PURCHASES (admin + manager) ======================== -->
   <div class="page" id="page-purchases">
-    <div class="form-section">
+    <div class="form-section" id="purch-form-section" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchDropForm(event)">
       <div class="form-section-title">Log a purchase</div>
       <div class="purch-form">
         <div class="form-group">
@@ -5054,11 +5164,15 @@ try {
           <label class="form-label" for="purch-amount">Amount $</label>
           <input type="number" class="form-input" id="purch-amount" min="0" step="0.01" placeholder="0.00" onkeydown="if(event.key==='Enter')addPurchase()">
         </div>
+        <div class="form-group purch-form-rcpt">
+          <label class="form-label">Receipt</label>
+          <button type="button" class="purch-rcpt-btn" id="purch-rcpt-btn" onclick="purchPickReceipt()" title="Attach photos or PDFs of receipts (you can pick or drag in several at once)">📎 Attach photo / PDF</button>
+        </div>
         <div class="form-group purch-form-btn">
           <button class="btn btn-primary" onclick="addPurchase()">+ Add purchase</button>
         </div>
       </div>
-      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page.</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page. Tip: drag receipt photos or PDFs from Finder straight onto this card. Drop a handful at once and they queue up, attaching one by one as you add each purchase. You can also drop a file onto a purchase below to attach it there.</div>
     </div>
 
     <div class="form-section">
@@ -5072,6 +5186,20 @@ try {
       </div>
       <div class="purch-cats" id="purch-cat-chips"></div>
       <div id="purch-list"></div>
+    </div>
+
+    <div class="purch-rcpt-modal" id="purch-rcpt-modal" hidden onclick="if(event.target===this)purchCloseReceipt()">
+      <div class="purch-rcpt-box">
+        <img id="purch-rcpt-img" alt="Receipt photo">
+        <iframe id="purch-rcpt-pdf" title="Receipt PDF" hidden></iframe>
+        <div class="purch-rcpt-actions">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" onclick="purchRemoveReceipt()">Remove receipt</button>
+            <button class="btn btn-ghost" onclick="purchDownloadReceipt()">⬇ Download</button>
+          </div>
+          <button class="btn btn-primary" onclick="purchCloseReceipt()">Close</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -5720,6 +5848,21 @@ try {
         </div>
       </div>
 
+      <!-- Purchase Receipts (owner + manager) -->
+      <div class="export-card" id="export-receipts-card" hidden>
+        <div class="export-card-header">
+          <div class="export-card-icon" style="background:rgba(46,125,79,0.12)"><span aria-hidden="true">🧾</span></div>
+          <div class="export-card-title">Purchase Receipts</div>
+        </div>
+        <div class="export-card-desc">Every receipt for the period as named files in one zip, plus a purchases CSV, ready to upload to Xero or send to your bookkeeper.</div>
+        <div class="export-card-controls">
+          <select class="export-select" id="exp-receipts-period" aria-label="Receipts export period"></select>
+        </div>
+        <div class="export-btn-row">
+          <button class="export-btn csv" onclick="exportReceiptsZip()">⬇ ZIP</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -5943,6 +6086,29 @@ try {
       </div>
       <div class="expense-settings-body open" id="goals-settings-body">
         <div style="font-size:14px;color:var(--muted);margin-bottom:14px">Set monthly targets. They auto-scale to quarters (×3) and YTD on the dashboard.</div>
+
+        <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:6px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)">Build Targets From Your History</div>
+        <div style="display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Base on</div>
+            <select id="goals-base" class="compare-select" style="min-width:190px" onchange="goalsSuggestPreview()">
+              <option value="last">Last month with data</option>
+              <option value="avg3">Average of last 3 months</option>
+              <option value="avg6">Average of last 6 months</option>
+              <option value="best">Best month this year</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Growth</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input id="goals-growth" type="number" step="1" min="-50" max="200" value="10" class="form-input" style="width:84px;text-align:right" oninput="goalsSuggestPreview()">
+              <span style="font-size:15px;color:var(--muted)">%</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="font-size:14px" onclick="goalsSuggestApply()">Fill targets ↓</button>
+        </div>
+        <div id="goals-suggest-preview" style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px"></div>
+        <div id="goals-capacity" style="margin-bottom:16px"></div>
 
         <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:6px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)">Studio-Wide Monthly Targets</div>
         <div class="fixed-expense-grid" id="goals-studio-grid"></div>
@@ -6213,6 +6379,44 @@ try {
         </div>
       </details>
 
+      <details class="help-acc">
+        <summary>Purchases &amp; receipts</summary>
+        <div class="help-acc-body">
+          <p>Where the owner or manager logs everything the studio buys: stock, supplies, equipment. Each purchase lands in that month's P&amp;L automatically, so nothing needs entering twice.</p>
+          <div class="help-h">1. Log a purchase</div>
+          <ol>
+            <li>In the left menu, under <strong>Finance</strong>, tap <strong>Purchases</strong>.</li>
+            <li>Fill in the date, what it was and who from, pick a category, and type the amount.</li>
+            <li>Press <strong>+ Add purchase</strong>. The list below and the month totals update straight away.</li>
+          </ol>
+          <div class="help-h">2. Attach the receipts</div>
+          <p>The easy weekly routine: photograph the receipts on your phone, <strong>AirDrop</strong> them to the studio computer, then <strong>drag them from Finder onto the Log a purchase card</strong>. You can drop a whole handful at once:</p>
+          <ol>
+            <li>The first one attaches immediately and the button shows how many more are waiting.</li>
+            <li>Each time you press <strong>+ Add purchase</strong>, the next receipt steps up by itself, so you just read each receipt off the screen, type its details, and add.</li>
+            <li>Press the <strong>✕</strong> on the receipt button to skip one that's out of order.</li>
+          </ol>
+          <ul>
+            <li>Forgot one? Drop a file straight <strong>onto a purchase in the list</strong> to attach it there, or tap the faint <strong>📎</strong> on that row.</li>
+            <li>The <strong>📎 Attach photo / PDF</strong> button also opens the normal file picker (you can select several at once), which is what to use on the iPad or a phone.</li>
+            <li>On a phone or iPad, tapping <strong>📎 Attach photo / PDF</strong> also offers <strong>Take Photo</strong>, so you can snap the receipt with the camera right there while logging the purchase, no AirDrop needed.</li>
+            <li>Photos are shrunk automatically to keep the app fast. Emailed <strong>PDF receipts</strong> work too, as long as they're under 600KB; bigger ones are easiest to screenshot and attach as a photo.</li>
+          </ul>
+          <div class="help-h">3. View, download or remove one</div>
+          <ol>
+            <li>Tap the <strong>🧾</strong> (photo) or <strong>📄</strong> (PDF) on any purchase to open the receipt.</li>
+            <li>From there you can <strong>Download</strong> it as a tidy named file (date, item and amount in the filename) or <strong>Remove</strong> it. Removing a receipt never deletes the purchase.</li>
+          </ol>
+          <div class="help-h">4. Send them to Xero or your bookkeeper</div>
+          <ol>
+            <li>Open <strong>Export Reports</strong> and find the <strong>Purchase Receipts</strong> card.</li>
+            <li>Pick a month (or a whole year) and press <strong>⬇ ZIP</strong>.</li>
+            <li>You get one zip holding every receipt as a named file, plus a <strong>purchases.csv</strong> listing every purchase for the period and which receipt file belongs to it. Upload it to Xero or email it on as-is.</li>
+          </ol>
+          <div class="help-tip">Receipts sync between devices like everything else. A faded 🧾 on a purchase means the photo was added on another device and hasn't arrived on this one yet: open the tracker on that device to let it sync, then it appears here too.</div>
+        </div>
+      </details>
+
       
 
       <div class="help-group-title">Staff pages</div>
@@ -6303,6 +6507,7 @@ try {
             <li><strong>Monthly Summary</strong> and <strong>Yearly Overview</strong>: the bigger picture.</li>
             <li><strong>Stylist Performance</strong>: per-person numbers.</li>
             <li><strong>Contractor Invoice</strong>: gross, commission deduction, and amount due.</li>
+            <li><strong>Purchase Receipts</strong>: a month's or year's receipts as named files in one zip, plus a purchases CSV, ready for Xero or your bookkeeper. See <em>Purchases &amp; receipts</em> under Everyday use for the full flow.</li>
           </ul>
         </div>
       </details>
@@ -7026,6 +7231,11 @@ function showPage(id) {
 }
 
 // ===================== DASHBOARD =====================
+function dashSetFilterVal(v) {
+  activeFilter = v;
+  renderDashboard();
+}
+
 function setFilter(f, btn) {
   activeFilter = f;
   document.querySelectorAll('#dash-filter .filter-btn').forEach(b => b.classList.remove('active'));
@@ -7545,25 +7755,85 @@ function tlDonut(pct, colorVar, prevPct) {
 }
 
 // Step the period with the ‹ › chevrons (months, weeks, quarters)
+// A Monday-anchored 7-day custom range is treated as a scrollable "week
+// window", which is how the ‹ › chevrons walk back past Last Week forever.
+function dashCustomWeekStart() {
+  if (activeFilter !== 'custom' || !customRange.start || !customRange.end) return null;
+  const s = new Date(customRange.start + 'T00:00:00');
+  const e = new Date(customRange.end + 'T00:00:00');
+  if (s.getDay() !== 1) return null;
+  if (Math.round((e - s) / 86400000) !== 6) return null;
+  return s;
+}
+function dashSetWeekWindow(monday) {
+  const thisMon = getMondayOfWeek(toLocalISO(new Date()));
+  const diffWeeks = Math.round((thisMon - monday) / (7 * 86400000));
+  if (diffWeeks <= 0) { activeFilter = 'thisweek'; }
+  else if (diffWeeks === 1) { activeFilter = 'lastweek'; }
+  else {
+    const sun = new Date(monday); sun.setDate(monday.getDate() + 6);
+    customRange.start = toLocalISO(monday);
+    customRange.end = toLocalISO(sun);
+    activeFilter = 'custom';
+  }
+  renderDashboard();
+}
+
+// Single chevrons ALWAYS step by week (per Nicko): from any view they drop
+// into a scrollable Mon-Sun week window and walk it, back as far as data
+// goes. The « » doubles are the month steppers.
 function dashStepPeriod(dir) {
-  let next = null;
-  if (MONTH_NAMES.includes(activeFilter)) {
-    const i = MONTH_NAMES.indexOf(activeFilter) + dir;
-    if (i >= 0 && i < 12) next = MONTH_NAMES[i];
-  } else if (activeFilter === 'thisweek' && dir < 0) next = 'lastweek';
-  else if (activeFilter === 'lastweek' && dir > 0) next = 'thisweek';
-  else { const q = { q1:0, q2:1, q3:2, q4:3 };
-    if (q[activeFilter] != null) { const i = q[activeFilter] + dir; if (i >= 0 && i < 4) next = 'q' + (i+1); } }
-  if (next) { activeFilter = next; renderDashboard(); }
+  let mon = null;
+  if (activeFilter === 'thisweek') {
+    if (dir > 0) return;   // no future weeks
+    mon = getMondayOfWeek(toLocalISO(new Date()));
+    mon.setDate(mon.getDate() - 7);
+  } else if (activeFilter === 'lastweek') {
+    mon = getMondayOfWeek(toLocalISO(new Date()));
+    mon.setDate(mon.getDate() - 7 + dir * 7);
+  } else if (dashCustomWeekStart()) {
+    mon = dashCustomWeekStart();
+    mon.setDate(mon.getDate() + dir * 7);
+  } else {
+    // Month / quarter / YTD / anything else: ‹ lands on the last week that
+    // fits inside the period, › on the first week after it
+    const r = dashRangeFor(activeFilter);
+    const end = r ? new Date(r.end + 'T00:00:00') : new Date();
+    const probe = new Date(end);
+    probe.setDate(probe.getDate() + (dir < 0 ? -6 : 1));
+    mon = getMondayOfWeek(toLocalISO(probe));
+  }
+  if (mon) dashSetWeekWindow(mon);
 }
 
 function dashCanStep(dir) {
-  if (MONTH_NAMES.includes(activeFilter)) { const i = MONTH_NAMES.indexOf(activeFilter) + dir; return i >= 0 && i < 12; }
   if (activeFilter === 'thisweek') return dir < 0;
-  if (activeFilter === 'lastweek') return dir > 0;
-  const q = { q1:0, q2:1, q3:2, q4:3 };
-  if (q[activeFilter] != null) { const i = q[activeFilter] + dir; return i >= 0 && i < 4; }
-  return false;
+  return true;
+}
+
+// Double chevrons: jump a whole calendar month from wherever the view is
+function dashAnchorMonthIdx() {
+  if (MONTH_NAMES.includes(activeFilter)) return MONTH_NAMES.indexOf(activeFilter);
+  const r = dashRangeFor(activeFilter);
+  const d = r ? new Date(r.start + 'T00:00:00') : new Date();
+  return d.getMonth();
+}
+function dashStepMonth(dir) {
+  const i = dashAnchorMonthIdx() + dir;
+  if (i < 0 || i > 11) return;
+  activeFilter = MONTH_NAMES[i];
+  renderDashboard();
+}
+function dashCanStepMonth(dir) {
+  const i = dashAnchorMonthIdx() + dir;
+  return i >= 0 && i <= 11;
+}
+
+// Period label for the hero bar: week windows read as "Week of ..."
+function dashPeriodLabel() {
+  const wk = dashCustomWeekStart();
+  if (wk) return 'Week of ' + wk.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  return filterLabel(activeFilter);
 }
 
 // ── Period sales chart: daily stacked bars for short periods, monthly otherwise ──
@@ -7892,16 +8162,78 @@ function renderDashStaff() {
 
   el.innerHTML = `
     <div class="tl-periodbar">
+      <button class="tl-step" onclick="dashStepMonth(-1)" ${dashCanStepMonth(-1) ? '' : 'disabled'} aria-label="Back one month" title="Back a month">«</button>
       <button class="tl-step" onclick="dashStepPeriod(-1)" ${dashCanStep(-1) ? '' : 'disabled'} aria-label="Previous period">‹</button>
-      <span class="tl-period-label">${filterLabel(activeFilter)}</span>
+      <span class="tl-period-label">${dashPeriodLabel()}</span>
       <button class="tl-step" onclick="dashStepPeriod(1)" ${dashCanStep(1) ? '' : 'disabled'} aria-label="Next period">›</button>
+      <button class="tl-step" onclick="dashStepMonth(1)" ${dashCanStepMonth(1) ? '' : 'disabled'} aria-label="Forward one month" title="Forward a month">»</button>
     </div>
     ${rows.length ? header + body : '<div class="chart-empty" style="min-height:160px">No stylist activity in this period yet. Per-stylist figures come from the stylist sections of your daily entries.</div>'}
     ${rows.length ? '<div class="tl-staff-note">Comparisons show the previous period. Average hour needs hours logged on the Timesheets page.</div>' : ''}`;
 }
 
+/* ── Capacity ticker: the "when to hire" banner on the dashboard ──
+   Compares the last COMPLETED month's revenue against the team's estimated
+   monthly capacity (goalsStylistStats). Hidden below 90%; amber at 90-100%
+   ("start planning"), red above 100% ("time to hire"), with any stylists at
+   their personal ceiling scrolling alongside. Computed once per session
+   (it walks the whole year), dismissable per session. ── */
+let _capBanner = null;
+function dashComputeCapacityBanner() {
+  if (_capBanner !== null) return _capBanner;
+  _capBanner = false;
+  try {
+    const stats = goalsStylistStats();
+    let teamCap = 0;
+    STYLISTS.forEach(s => { const e = stats[s.name]; if (e && e.capacity) teamCap += e.capacity; });
+    if (!(teamCap > 0)) return _capBanner;
+    const now = new Date();
+    const lmFirst = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lmLast = new Date(now.getFullYear(), now.getMonth(), 0);
+    const t = dashRangeTotals(toLocalISO(lmFirst), toLocalISO(lmLast));
+    if (!(t.total > 0)) return _capBanner;
+    const pct = t.total / teamCap * 100;
+    if (pct < 90) return _capBanner;
+    const money = n => '$' + Math.round(n).toLocaleString();
+    const lmName = lmFirst.toLocaleDateString('en-AU', { month: 'long' });
+    const segs = [];
+    if (pct > 100) {
+      segs.push(`▲ ${lmName} ran at ${pct.toFixed(0)}% of team capacity (${money(t.total)} vs ≈${money(teamCap)}/mo) - the team is over capacity, time to hire or add hours`);
+    } else {
+      segs.push(`● ${lmName} ran at ${pct.toFixed(0)}% of team capacity (${money(t.total)} of ≈${money(teamCap)}/mo) - little headroom left, start planning your next hire`);
+    }
+    if (lmFirst.getFullYear() === now.getFullYear()) {
+      const agg = dashStaffAggregates(dashDescriptor(MONTH_NAMES[lmFirst.getMonth()]));
+      STYLISTS.forEach(s => {
+        const e = stats[s.name], d = agg[s.name];
+        if (!e || !e.capacity || !d || !d.hasData) return;
+        const p = (d.svc + d.prod) / e.capacity * 100;
+        if (p >= 95) segs.push(`${s.name} is at ${p.toFixed(0)}% of their personal ceiling`);
+      });
+    }
+    const g = loadGoals();
+    if (g.studio && g.studio.revenue > teamCap) segs.push(`Saved revenue target ${money(g.studio.revenue)} exceeds team capacity`);
+    _capBanner = { cls: pct > 100 ? 'over' : 'warn', segs };
+  } catch (e) { _capBanner = false; }
+  return _capBanner;
+}
+function dashRenderCapacityBanner() {
+  const el = document.getElementById('dash-capacity-banner');
+  if (!el) return;
+  try { if (sessionStorage.getItem('dashCapBannerHide')) { el.innerHTML = ''; return; } } catch (e) {}
+  const b = dashComputeCapacityBanner();
+  if (!b) { el.innerHTML = ''; return; }
+  const content = b.segs.map(s => `<span class="cap-seg">${s}</span>`).join('');
+  el.innerHTML = `<div class="cap-banner ${b.cls}" role="status">
+    <div class="cap-marquee"><div class="cap-track">${content}${content}</div></div>
+    <button class="cap-close" aria-label="Hide capacity banner for this session" title="Hide for this session"
+      onclick="try{sessionStorage.setItem('dashCapBannerHide','1')}catch(e){};document.getElementById('dash-capacity-banner').innerHTML=''">✕</button>
+  </div>`;
+}
+
 function renderDashboard() {
   dashInitLayout();
+  dashRenderCapacityBanner();
   // Build the monthly aggregate ONCE per render. The bare global MONTHLY is a
   // proxy that re-aggregates every entry on every property access, so the
   // chart loops below would otherwise rebuild it 100+ times per render.
@@ -7919,23 +8251,27 @@ function renderDashboard() {
 
   const dashFilterEl = document.getElementById('dash-filter');
   if (dashFilterEl) {
-    const periodFilters = ['ytd','fy','q1','q2','q3','q4'];
+    // Compact filter row: the four everyday choices stay as pills, everything
+    // else folds into two pill-styled dropdowns. Replaces the old 20-pill
+    // three-line wall; the hero's chevrons handle stepping between periods.
+    const curMonthName = MONTH_NAMES[new Date().getMonth()];
+    const MORE_PERIODS = [['ytd','Year to date'],['fy','Financial year'],['q1','Q1 · Jul-Sep'],['q2','Q2 · Oct-Dec'],['q3','Q3 · Jan-Mar'],['q4','Q4 · Apr-Jun']];
+    const isMonthF = MONTH_NAMES.includes(activeFilter);
+    const isMoreF = MORE_PERIODS.some(([v]) => v === activeFilter);
     dashFilterEl.innerHTML =
       `<button class="filter-btn ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all',this)">All</button>` +
       `<button class="filter-btn ${activeFilter === 'thisweek' ? 'active' : ''}" onclick="setFilter('thisweek',this)">This Week</button>` +
       `<button class="filter-btn ${activeFilter === 'lastweek' ? 'active' : ''}" onclick="setFilter('lastweek',this)">Last Week</button>` +
+      `<button class="filter-btn ${activeFilter === curMonthName ? 'active' : ''}" onclick="dashSetFilterVal('${curMonthName}')">This Month</button>` +
       `<span class="filter-sep" aria-hidden="true"></span>` +
-      `<button class="filter-btn ${activeFilter === 'ytd' ? 'active' : ''}" onclick="setFilter('ytd',this)">YTD</button>` +
-      `<button class="filter-btn ${activeFilter === 'fy' ? 'active' : ''}" onclick="setFilter('fy',this)">Fin. Year</button>` +
-      `<span class="filter-sep" aria-hidden="true"></span>` +
-      ['q1','q2','q3','q4'].map(q =>
-        `<button class="filter-btn ${activeFilter === q ? 'active' : ''}" onclick="setFilter('${q}',this)">${q.toUpperCase()}</button>`
-      ).join('') +
-      `<span class="filter-sep" aria-hidden="true"></span>` +
-      allMonthsWithData.map(m =>
-        `<button class="filter-btn ${activeFilter === m ? 'active' : ''}" onclick="setFilter('${m}',this)">${m}</button>`
-      ).join('') +
-      `<span class="filter-sep" aria-hidden="true"></span>` +
+      `<select class="filter-select ${isMonthF ? 'active' : ''}" aria-label="Pick a month" onchange="if(this.value)dashSetFilterVal(this.value)">
+        <option value="">Month…</option>
+        ${allMonthsWithData.map(m => `<option value="${m}" ${activeFilter === m ? 'selected' : ''}>${MONTH_FULL[MONTH_NAMES.indexOf(m)] || m}</option>`).join('')}
+      </select>` +
+      `<select class="filter-select ${isMoreF ? 'active' : ''}" aria-label="Year and quarter periods" onchange="if(this.value)dashSetFilterVal(this.value)">
+        <option value="">Year / Qtr…</option>
+        ${MORE_PERIODS.map(([v,l]) => `<option value="${v}" ${activeFilter === v ? 'selected' : ''}>${l}</option>`).join('')}
+      </select>` +
       `<button class="filter-btn ${activeFilter === 'custom' ? 'active' : ''}" onclick="toggleCustomRange()">Custom</button>` +
       (customRangeOpen || activeFilter === 'custom' ? `<span style="display:inline-flex;align-items:center;gap:6px">
         <input type="date" class="filter-date" id="custom-range-start" value="${customRange.start||''}" onchange="applyCustomRange()">
@@ -7994,9 +8330,11 @@ function renderDashboard() {
   kpi.className = 'tl-hero';
   kpi.innerHTML = `
     <div class="tl-periodbar">
+      <button class="tl-step" onclick="dashStepMonth(-1)" ${dashCanStepMonth(-1) ? '' : 'disabled'} aria-label="Back one month" title="Back a month">«</button>
       <button class="tl-step" onclick="dashStepPeriod(-1)" ${dashCanStep(-1) ? '' : 'disabled'} aria-label="Previous period">‹</button>
-      <span class="tl-period-label">${filterLabel(activeFilter)}</span>
+      <span class="tl-period-label">${dashPeriodLabel()}</span>
       <button class="tl-step" onclick="dashStepPeriod(1)" ${dashCanStep(1) ? '' : 'disabled'} aria-label="Next period">›</button>
+      <button class="tl-step" onclick="dashStepMonth(1)" ${dashCanStepMonth(1) ? '' : 'disabled'} aria-label="Forward one month" title="Forward a month">»</button>
     </div>
     <div class="tl-band">
       <div class="tl-col">
@@ -8808,18 +9146,24 @@ function renderWeekly() {
 
   const weeklyFilterEl = document.getElementById('weekly-filter');
   if (weeklyFilterEl) {
+    // Same compact pattern as the dashboard: everyday pills + two pill
+    // dropdowns instead of a wall of twenty buttons
+    const curMonthName = MONTH_NAMES[new Date().getMonth()];
+    const MORE_PERIODS = [['ytd','Year to date'],['fy','Financial year'],['q1','Q1 · Jul-Sep'],['q2','Q2 · Oct-Dec'],['q3','Q3 · Jan-Mar'],['q4','Q4 · Apr-Jun']];
+    const isMonthF = MONTH_NAMES.includes(activeWeeklyFilter);
+    const isMoreF = MORE_PERIODS.some(([v]) => v === activeWeeklyFilter);
     weeklyFilterEl.innerHTML =
       `<button class="filter-btn ${activeWeeklyFilter === 'all' ? 'active' : ''}" onclick="setWeeklyFilter('all')">All</button>` +
-      `<button class="filter-btn ${activeWeeklyFilter === 'ytd' ? 'active' : ''}" onclick="setWeeklyFilter('ytd')">YTD</button>` +
-      `<button class="filter-btn ${activeWeeklyFilter === 'fy' ? 'active' : ''}" onclick="setWeeklyFilter('fy')">Fin. Year</button>` +
+      `<button class="filter-btn ${activeWeeklyFilter === curMonthName ? 'active' : ''}" onclick="setWeeklyFilter('${curMonthName}')">This Month</button>` +
       `<span class="filter-sep" aria-hidden="true"></span>` +
-      ['q1','q2','q3','q4'].map(q =>
-        `<button class="filter-btn ${activeWeeklyFilter === q ? 'active' : ''}" onclick="setWeeklyFilter('${q}')">${q.toUpperCase()}</button>`
-      ).join('') +
-      `<span class="filter-sep" aria-hidden="true"></span>` +
-      allMonthsWithData.map(m =>
-        `<button class="filter-btn ${activeWeeklyFilter === m ? 'active' : ''}" onclick="setWeeklyFilter('${m}')">${m}</button>`
-      ).join('');
+      `<select class="filter-select ${isMonthF ? 'active' : ''}" aria-label="Pick a month" onchange="if(this.value)setWeeklyFilter(this.value)">
+        <option value="">Month…</option>
+        ${allMonthsWithData.map(m => `<option value="${m}" ${activeWeeklyFilter === m ? 'selected' : ''}>${MONTH_FULL[MONTH_NAMES.indexOf(m)] || m}</option>`).join('')}
+      </select>` +
+      `<select class="filter-select ${isMoreF ? 'active' : ''}" aria-label="Year and quarter periods" onchange="if(this.value)setWeeklyFilter(this.value)">
+        <option value="">Year / Qtr…</option>
+        ${MORE_PERIODS.map(([v,l]) => `<option value="${v}" ${activeWeeklyFilter === v ? 'selected' : ''}>${l}</option>`).join('')}
+      </select>`;
   }
   syncDayToggles();
   const dayFilter = getActiveDays();
@@ -13292,6 +13636,7 @@ function renderExportPage() {
   const names = [...new Set(entries.map(e => e.contractor.name || 'Contractor'))];
   const cSel = document.getElementById('exp-inv-contractor');
   if (cSel) cSel.innerHTML = '<option value="all">All Contractors</option>' + names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  if (typeof purchFillExportSelect === 'function') purchFillExportSelect();
 }
 
 function downloadCSV(filename, rows) {
@@ -14093,6 +14438,328 @@ function purchasesMonthTotal(year, monthName) {
 }
 const purchFmt = n => (n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+/* Receipt photos: one compressed JPEG per purchase, stored under the existing
+   ejPhoto_* keys so they ride the photo backup sync (kept out of the
+   per-keystroke state sync because they're big). The purchase row carries a
+   tiny `rcpt` flag so other devices know a receipt exists even before the
+   photo itself has synced across. */
+let purchPendingRcpt = null;
+let purchRcptOpenId = null;
+const purchRcptKey = id => getPhotoKey('rcpt_' + id);
+function purchLoadRcpt(id) { try { return localStorage.getItem(purchRcptKey(id)) || null; } catch { return null; } }
+function purchCompressReceipt(file, cb) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      // 1400px keeps the fine print readable while staying small enough to sync
+      const max = 1400;
+      const scale = Math.min(max / img.width, max / img.height, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      cb(canvas.toDataURL('image/jpeg', 0.72));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function purchIngestFile(file, cb) {   // cb(dataUrl) or cb(null) if skipped
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '');
+  if (isPdf) {
+    // PDFs can't be recompressed like photos, so cap the size instead
+    if (file.size > 600 * 1024) {
+      alert(`"${file.name}" is over 600KB, which is too big to store in the tracker. Screenshot the receipt and attach it as a photo instead.`);
+      cb(null); return;
+    }
+    const reader = new FileReader();
+    reader.onload = ev => cb(ev.target.result);
+    reader.readAsDataURL(file);
+    return;
+  }
+  if (file.type && file.type.indexOf('image/') !== 0) {
+    alert(`"${file.name}" isn't a photo or PDF, so it was skipped.`);
+    cb(null); return;
+  }
+  purchCompressReceipt(file, cb);
+}
+function purchPickFile(cb) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*,application/pdf,.pdf';
+  input.onchange = e => { const file = e.target.files[0]; if (file) purchIngestFile(file, url => { if (url) cb(url); }); };
+  input.click();
+}
+const purchRcptIsPdf = url => typeof url === 'string' && url.indexOf('data:application/pdf') === 0;
+
+/* Batch intake: receipts usually arrive as a pile of AirDropped files on the
+   studio computer, so several can be picked or dragged in at once. The first
+   becomes the pending receipt; the rest wait in a queue and auto-attach one
+   by one as each purchase is added. */
+let purchRcptQueue = [];
+function purchTakeFiles(fileList) {
+  const files = [...(fileList || [])];
+  const next = i => {
+    if (i >= files.length) { purchRenderRcptBtn(); return; }
+    purchIngestFile(files[i], url => {
+      if (url) { if (!purchPendingRcpt) purchPendingRcpt = url; else purchRcptQueue.push(url); }
+      next(i + 1);
+    });
+  };
+  next(0);
+}
+function purchDragOver(e) {
+  if (!e.dataTransfer) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  e.currentTarget.classList.add('dropping');
+}
+function purchDragLeave(e) { e.currentTarget.classList.remove('dropping'); }
+function purchDropForm(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dropping');
+  purchTakeFiles(e.dataTransfer.files);
+}
+function purchRowDrop(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.remove('dropping');
+  const files = [...(e.dataTransfer.files || [])];
+  if (!files.length) return;
+  purchIngestFile(files[0], url => {
+    if (!url || !purchSaveRcpt(id, url)) return;
+    const list = loadPurchases();
+    const p = list.find(x => x.id === id);
+    if (p) { p.rcpt = 1; savePurchases(list); }
+    renderPurchases();
+  });
+  if (files.length > 1) purchTakeFiles(files.slice(1));   // extras queue in the form
+}
+// A drop that misses its target must not navigate the whole app to the file
+document.addEventListener('dragover', e => {
+  const pg = document.getElementById('page-purchases');
+  if (pg && pg.classList.contains('active')) e.preventDefault();
+});
+document.addEventListener('drop', e => {
+  const pg = document.getElementById('page-purchases');
+  if (pg && pg.classList.contains('active')) e.preventDefault();
+});
+function purchPickReceipt() {
+  if (purchPendingRcpt) { purchPendingRcpt = purchRcptQueue.shift() || null; purchRenderRcptBtn(); return; }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*,application/pdf,.pdf';
+  input.multiple = true;
+  input.onchange = e => purchTakeFiles(e.target.files);
+  input.click();
+}
+function purchRenderRcptBtn() {
+  const b = document.getElementById('purch-rcpt-btn');
+  if (!b) return;
+  b.classList.toggle('has-rcpt', !!purchPendingRcpt);
+  const waiting = purchRcptQueue.length ? ` · ${purchRcptQueue.length} more waiting` : '';
+  b.textContent = purchPendingRcpt
+    ? (purchRcptIsPdf(purchPendingRcpt) ? '📄 PDF attached · ✕' : '🧾 Attached · ✕') + waiting
+    : '📎 Attach photo / PDF';
+  b.title = purchPendingRcpt
+    ? (purchRcptQueue.length ? 'Skip this receipt and move to the next dropped one' : 'Remove the attached receipt')
+    : 'Attach photos or PDFs of receipts (you can pick or drag in several at once)';
+}
+function purchSaveRcpt(id, url) {
+  try { localStorage.setItem(purchRcptKey(id), url); } catch (e) {
+    alert('The receipt photo could not be saved because this device’s storage is full. The purchase itself is still logged.');
+    return false;
+  }
+  if (typeof cloudPushPhotosSoon === 'function') cloudPushPhotosSoon();
+  return true;
+}
+function purchAttachReceipt(id) {
+  purchPickFile(url => {
+    if (!purchSaveRcpt(id, url)) return;
+    const list = loadPurchases();
+    const p = list.find(x => x.id === id);
+    if (p) { p.rcpt = 1; savePurchases(list); }
+    renderPurchases();
+  });
+}
+let purchRcptBlobUrl = null;
+function purchViewReceipt(id) {
+  const url = purchLoadRcpt(id);
+  if (!url) return;
+  purchRcptOpenId = id;
+  const img = document.getElementById('purch-rcpt-img');
+  const pdf = document.getElementById('purch-rcpt-pdf');
+  if (purchRcptIsPdf(url)) {
+    // A blob URL renders in the iframe's built-in PDF viewer (data: URLs don't, reliably)
+    try {
+      const bin = atob(url.split(',')[1]);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      purchRcptBlobUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    } catch { purchRcptBlobUrl = null; }
+    if (pdf) { pdf.src = purchRcptBlobUrl || ''; pdf.hidden = false; }
+    if (img) img.hidden = true;
+  } else {
+    if (img) { img.src = url; img.hidden = false; }
+    if (pdf) pdf.hidden = true;
+  }
+  const modal = document.getElementById('purch-rcpt-modal');
+  if (modal) modal.hidden = false;
+}
+function purchCloseReceipt() {
+  const modal = document.getElementById('purch-rcpt-modal');
+  if (modal) modal.hidden = true;
+  const pdf = document.getElementById('purch-rcpt-pdf');
+  if (pdf) { pdf.src = 'about:blank'; pdf.hidden = true; }
+  if (purchRcptBlobUrl) { try { URL.revokeObjectURL(purchRcptBlobUrl); } catch {} purchRcptBlobUrl = null; }
+  purchRcptOpenId = null;
+}
+function purchRemoveReceipt() {
+  if (!purchRcptOpenId) return;
+  if (!confirm('Remove this receipt photo? The purchase itself stays logged.')) return;
+  try { localStorage.removeItem(purchRcptKey(purchRcptOpenId)); } catch {}
+  const list = loadPurchases();
+  const p = list.find(x => x.id === purchRcptOpenId);
+  if (p) { delete p.rcpt; savePurchases(list); }
+  purchCloseReceipt();
+  renderPurchases();
+}
+
+/* Receipt download + bulk export. Receipts leave the tracker as ordinary
+   files (dated, named after the purchase) so they can go straight into Xero
+   or to the bookkeeper. Bulk export builds a store-only zip in plain JS:
+   JPEGs and PDFs are already compressed, and no library keeps the app
+   working offline. */
+function purchRcptBytes(url) {
+  const bin = atob(url.split(',')[1]);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+function purchRcptFileName(p, url) {
+  const ext = purchRcptIsPdf(url) ? 'pdf' : (url.indexOf('data:image/png') === 0 ? 'png' : 'jpg');
+  const base = `${p.date} ${String(p.item || 'receipt')}`.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+  return `${base} $${(parseFloat(p.amount) || 0).toFixed(2)}.${ext}`;
+}
+function purchTriggerDownload(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch {} }, 30000);
+}
+function purchDownloadReceipt() {
+  if (!purchRcptOpenId) return;
+  const url = purchLoadRcpt(purchRcptOpenId);
+  const p = loadPurchases().find(x => x.id === purchRcptOpenId);
+  if (!url || !p) return;
+  const type = purchRcptIsPdf(url) ? 'application/pdf' : (url.indexOf('data:image/png') === 0 ? 'image/png' : 'image/jpeg');
+  purchTriggerDownload(new Blob([purchRcptBytes(url)], { type }), purchRcptFileName(p, url));
+}
+function purchCRC32(bytes) {
+  let t = purchCRC32._t;
+  if (!t) {
+    t = purchCRC32._t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+  }
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) crc = t[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function purchBuildZip(files) {   // files: [{ name, bytes: Uint8Array }]
+  const enc = new TextEncoder();
+  const u16 = v => new Uint8Array([v & 255, (v >> 8) & 255]);
+  const u32 = v => new Uint8Array([v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]);
+  const d = new Date();
+  const dosTime = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF;
+  const dosDate = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+  const parts = [], central = [];
+  let offset = 0;
+  const push = arr => arr.forEach(p => { parts.push(p); offset += p.length; });
+  files.forEach(f => {
+    const nameB = enc.encode(f.name);
+    const crc = purchCRC32(f.bytes);
+    central.push({ nameB, crc, size: f.bytes.length, offset });
+    // flag 0x0800 = UTF-8 name, method 0 = stored
+    push([u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(dosTime), u16(dosDate),
+      u32(crc), u32(f.bytes.length), u32(f.bytes.length), u16(nameB.length), u16(0), nameB, f.bytes]);
+  });
+  const cdStart = offset;
+  central.forEach(c => push([u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(dosTime), u16(dosDate),
+    u32(c.crc), u32(c.size), u32(c.size), u16(c.nameB.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.offset), c.nameB]));
+  const cdSize = offset - cdStart;
+  push([u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cdSize), u32(cdStart), u16(0)]);
+  return new Blob(parts, { type: 'application/zip' });
+}
+function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (year)
+  const all = loadPurchases().filter(p => p.date && p.date.startsWith(prefix))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
+  const files = [], used = {};
+  const csvRows = [['Date', 'Item / supplier', 'Category', 'Amount', 'Logged by', 'Receipt file']];
+  let missing = 0;
+  all.forEach(p => {
+    const url = p.rcpt ? purchLoadRcpt(p.id) : null;
+    let name = '';
+    if (url) {
+      name = purchRcptFileName(p, url);
+      let n = 2;
+      while (used[name]) name = purchRcptFileName(p, url).replace(/(\.\w+)$/, ` (${n++})$1`);
+      used[name] = 1;
+      files.push({ name, bytes: purchRcptBytes(url) });
+    } else if (p.rcpt) { missing++; name = '(not synced to this device yet)'; }
+    csvRows.push([p.date, p.item || '', catName(p.cat), (parseFloat(p.amount) || 0).toFixed(2), p.by || '', name]);
+  });
+  return { files, csvRows, purchases: all.length, receipts: files.length, missing };
+}
+function exportReceiptsZip() {
+  const sel = document.getElementById('exp-receipts-period');
+  const v = sel && sel.value;
+  if (!v) { alert('No purchases logged yet, so there’s nothing to export.'); return; }
+  const b = purchReceiptBundle(v);
+  if (!b.purchases) { alert('No purchases logged for that period.'); return; }
+  const csv = b.csvRows.map(r => r.map(cell => {
+    const s = String(cell == null ? '' : cell);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  }).join(',')).join('\n');
+  b.files.unshift({ name: 'purchases.csv', bytes: new TextEncoder().encode(csv) });
+  let label = v;
+  if (v.length === 7) {
+    const mi = parseInt(v.slice(5), 10) - 1;
+    label = `${(typeof MONTH_FULL !== 'undefined' && MONTH_FULL[mi]) || MONTH_NAMES[mi]} ${v.slice(0, 4)}`;
+  }
+  purchTriggerDownload(purchBuildZip(b.files), `receipts ${label}.zip`);
+  if (b.missing) alert(`${b.missing} receipt${b.missing === 1 ? ' was' : 's were'} added on another device and ha${b.missing === 1 ? 'sn’t' : 'ven’t'} synced here yet, so ${b.missing === 1 ? 'it’s' : 'they’re'} not in the zip (listed in purchases.csv). Open the tracker on that device to sync, then export again.`);
+}
+function purchFillExportSelect() {
+  const sel = document.getElementById('exp-receipts-period');
+  const card = document.getElementById('export-receipts-card');
+  const allowed = pinSessionUser === 'admin' || pinSessionUser === 'manager';
+  if (card) card.hidden = !allowed;
+  if (!sel || !allowed) return;
+  const byMonth = {}, byYear = {};
+  loadPurchases().forEach(p => {
+    if (!p.date) return;
+    const m = p.date.slice(0, 7), y = p.date.slice(0, 4);
+    (byMonth[m] = byMonth[m] || { p: 0, r: 0 }).p++; if (p.rcpt) byMonth[m].r++;
+    (byYear[y] = byYear[y] || { p: 0, r: 0 }).p++; if (p.rcpt) byYear[y].r++;
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+  const years = Object.keys(byYear).sort().reverse();
+  const rc = n => `${n} receipt${n === 1 ? '' : 's'}`;
+  sel.innerHTML = months.map(m => {
+    const mi = parseInt(m.slice(5), 10) - 1;
+    const nm = (typeof MONTH_FULL !== 'undefined' && MONTH_FULL[mi]) || MONTH_NAMES[mi];
+    return `<option value="${m}">${nm} ${m.slice(0, 4)} · ${rc(byMonth[m].r)}</option>`;
+  }).join('') + years.map(y => `<option value="${y}">All of ${y} · ${rc(byYear[y].r)}</option>`).join('');
+  if (!months.length) sel.innerHTML = '<option value="">No purchases logged yet</option>';
+}
+
 function addPurchase() {
   const dateEl = document.getElementById('purch-date');
   const itemEl = document.getElementById('purch-item');
@@ -14106,7 +14773,13 @@ function addPurchase() {
   if (!(amount > 0)) { amtEl?.focus(); return; }
   const by = pinSessionUser === 'admin' ? 'Owner' : pinSessionUser === 'manager' ? 'Manager' : (pinSessionUser || '');
   const list = loadPurchases();
-  list.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by });
+  const rec = { id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by };
+  if (purchPendingRcpt) {
+    if (purchSaveRcpt(rec.id, purchPendingRcpt)) rec.rcpt = 1;
+    purchPendingRcpt = purchRcptQueue.shift() || null;   // next dropped receipt steps up
+    purchRenderRcptBtn();
+  }
+  list.push(rec);
   savePurchases(list);
   itemEl.value = ''; amtEl.value = '';
   // Show the month the purchase went into, so the new row is visibly there
@@ -14116,6 +14789,7 @@ function addPurchase() {
   itemEl.focus();
 }
 function deletePurchase(id) {
+  try { localStorage.removeItem(purchRcptKey(id)); } catch {}
   savePurchases(loadPurchases().filter(p => p.id !== id));
   renderPurchases();
   if (document.getElementById('page-pl')?.classList.contains('active')) renderPLMonth(activePLMonth);
@@ -14129,6 +14803,7 @@ function renderPurchases() {
   if (dEl && !dEl.value) dEl.value = toLocalISO(new Date());
   const sel = document.getElementById('purch-cat');
   if (sel && !sel.options.length) sel.innerHTML = PURCHASE_CATS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  purchRenderRcptBtn();
 
   const now = new Date();
   const m = new Date(now.getFullYear(), now.getMonth() - purchMonthOffset, 1);
@@ -14150,12 +14825,20 @@ function renderPurchases() {
 
   const el = document.getElementById('purch-list');
   if (!el) return;
+  const rcptCell = p => {
+    if (!p.rcpt) return `<button class="purch-rcpt-view add" onclick="purchAttachReceipt('${p.id}')" aria-label="Attach receipt" title="Attach a receipt photo or PDF">📎</button>`;
+    const stored = purchLoadRcpt(p.id);
+    if (!stored) return `<span class="purch-rcpt-view pending" title="Receipt was added on another device and hasn’t synced here yet">🧾</span>`;
+    const icon = purchRcptIsPdf(stored) ? '📄' : '🧾';
+    return `<button class="purch-rcpt-view" onclick="purchViewReceipt('${p.id}')" aria-label="View receipt" title="View receipt${purchRcptIsPdf(stored) ? ' (PDF)' : ''}">${icon}</button>`;
+  };
   el.innerHTML = list.length ? list.map(p => `
-    <div class="purch-row">
+    <div class="purch-row" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchRowDrop(event,'${p.id}')">
       <div class="purch-date">${new Date(p.date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
       <div class="purch-item">${String(p.item || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}${p.by ? `<span class="purch-by">logged by ${p.by}</span>` : ''}</div>
       <span class="purch-cat-badge">${catName(p.cat)}</span>
       <div class="purch-amount">$${purchFmt(p.amount)}</div>
+      ${rcptCell(p)}
       <button class="ts-clear-btn" onclick="deletePurchase('${p.id}')" aria-label="Delete purchase" title="Delete purchase">✕</button>
     </div>`).join('')
     : `<div class="chart-empty" style="min-height:120px">No purchases logged for ${monthName} ${year} yet.</div>`;
@@ -17338,10 +18021,218 @@ function toggleGoalsSettings() {
   if (!panel) return;
   if (panel.style.display === 'none' || !panel.style.display) {
     panel.style.display = 'block';
+    _goalsCapCache = null;   // recompute capacity from current data
     renderGoalsSettings();
+    goalsSuggestPreview();
+    goalsRefreshBreaks();
+    goalsCapacityCheck();
   } else {
     panel.style.display = 'none';
   }
+}
+
+/* ── Month → week → day equivalents for targets ──
+   Targets are stored monthly (single source of truth); the weekly and
+   per-day lines are derived views: weekly = monthly × 12/52, daily =
+   weekly ÷ the studio's configured working days per week. ── */
+function goalsWorkingDaysPerWeek() {
+  try {
+    const wd = getWorkingDays();
+    const n = wd.size !== undefined ? wd.size : wd.length;
+    return Math.max(1, n || 6);
+  } catch { return 6; }
+}
+function goalsBreakdownText(v, money) {
+  if (!(v > 0)) return '';
+  const wk = v * 12 / 52;
+  const day = wk / goalsWorkingDaysPerWeek();
+  const f = money
+    ? (n => '$' + Math.round(n).toLocaleString())
+    : (n => (Math.round(n * 10) / 10).toLocaleString());
+  return '≈ ' + f(wk) + '/week · ' + f(day) + '/day';
+}
+function goalsBreakLine(inp) {
+  const el = document.getElementById(inp.id + '-break');
+  if (el) el.textContent = goalsBreakdownText(parseFloat(inp.value) || 0, inp.dataset.money === '1');
+  // Revenue edits move the capacity picture too
+  if (inp.id.endsWith('-revenue')) { try { goalsCapacityCheck(); } catch (e) {} }
+}
+function goalsRefreshBreaks() {
+  document.querySelectorAll('input[data-break="1"]').forEach(i => goalsBreakLine(i));
+}
+
+/* ── Suggested targets: prior months × a growth % ──
+   Picks a base period from real history, applies the growth figure to the
+   dollar and count targets, and fills the target inputs for review. Rebook
+   rates copy across unscaled (a % of a % misleads); per-stylist rebook
+   targets stay manual. Nothing is saved until Save Targets is pressed. */
+function goalsBaseMonths(baseId) {
+  const MONTHLY = buildMONTHLY();
+  const withData = MONTH_NAMES.filter(m => MONTHLY[m] && (MONTHLY[m].total || 0) > 0);
+  if (!withData.length) return [];
+  if (baseId === 'best') {
+    return [withData.reduce((a, b) => ((MONTHLY[a].total || 0) >= (MONTHLY[b].total || 0) ? a : b))];
+  }
+  // Exclude the current, unfinished month whenever there's older history
+  let pool = withData;
+  const curName = MONTH_NAMES[new Date().getMonth()];
+  if (pool.length > 1 && pool[pool.length - 1] === curName) pool = pool.slice(0, -1);
+  const n = baseId === 'avg6' ? 6 : baseId === 'avg3' ? 3 : 1;
+  return pool.slice(-n);
+}
+
+function goalsBaseFigures(baseId) {
+  const months = goalsBaseMonths(baseId);
+  if (!months.length) return null;
+  const MONTHLY = buildMONTHLY();
+  const t = { revenue: 0, productRev: 0, ret: 0, retR: 0, newC: 0, newR: 0 };
+  months.forEach(m => {
+    const d = MONTHLY[m];
+    t.revenue += d.total || 0; t.productRev += d.prod || 0;
+    t.ret += d.ret || 0; t.retR += d.retR || 0;
+    t.newC += d.newC || 0; t.newR += d.newR || 0;
+  });
+  const n = months.length;
+  return {
+    months,
+    revenue: t.revenue / n,
+    clients: (t.ret + t.newC) / n,
+    productRev: t.productRev / n,
+    retRebookPct: t.ret > 0 ? t.retR / t.ret * 100 : 0,
+    newRebookPct: t.newC > 0 ? t.newR / t.newC * 100 : 0,
+  };
+}
+
+function goalsGrowthPct() {
+  const v = parseFloat(document.getElementById('goals-growth')?.value);
+  return isFinite(v) ? Math.max(-50, Math.min(200, v)) : 0;
+}
+
+function goalsSuggestPreview(extra) {
+  const el = document.getElementById('goals-suggest-preview');
+  if (!el) return;
+  const base = goalsBaseFigures(document.getElementById('goals-base')?.value || 'last');
+  if (!base) { el.textContent = 'No monthly history yet - add some daily entries first.'; return; }
+  const g = goalsGrowthPct();
+  const f = 1 + g / 100;
+  el.innerHTML = `Based on <strong>${base.months.join(' + ')}</strong> at ${g >= 0 ? '+' : ''}${g}% growth: ` +
+    `revenue $${Math.round(base.revenue).toLocaleString()} → <strong>$${Math.round(base.revenue * f).toLocaleString()}</strong> <span style="white-space:nowrap">(${goalsBreakdownText(base.revenue * f, true)})</span> · ` +
+    `clients ${Math.round(base.clients)} → <strong>${Math.round(base.clients * f)}</strong> · ` +
+    `product $${Math.round(base.productRev).toLocaleString()} → <strong>$${Math.round(base.productRev * f).toLocaleString()}</strong>. ` +
+    `Rebook rates copy across as-is (${base.retRebookPct.toFixed(0)}% / ${base.newRebookPct.toFixed(0)}%).` +
+    (extra ? ` <strong style="color:var(--green)">${extra}</strong>` : '');
+}
+
+function goalsSuggestApply() {
+  const baseId = document.getElementById('goals-base')?.value || 'last';
+  const base = goalsBaseFigures(baseId);
+  if (!base) return;
+  const gGlobal = goalsGrowthPct();
+  const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  // Per-stylist first: each stylist's own history × their own growth
+  // (their Growth box, falling back to the global figure). The studio
+  // targets then become the SUM of the stylist targets, so mixed growth
+  // rates always stay consistent with the studio total.
+  const perMonth = base.months.map(m => dashStaffAggregates(dashDescriptor(m)));
+  const n = base.months.length;
+  let sumRev = 0, sumCl = 0, sumProd = 0, anySty = false;
+  STYLISTS.forEach(s => {
+    let rev = 0, cl = 0, prod = 0, any = false;
+    perMonth.forEach(agg => {
+      const d = agg[s.name];
+      if (!d || !d.hasData) return;
+      any = true; rev += d.svc + d.prod; cl += d.clients; prod += d.prod;
+    });
+    if (!any) return;
+    anySty = true;
+    const safe = s.name.replace(/\s+/g, '_');
+    const own = parseFloat(document.getElementById('goal-growth-' + safe)?.value);
+    const g = isFinite(own) ? Math.max(-50, Math.min(200, own)) : gGlobal;
+    const f = 1 + g / 100;
+    const tRev = Math.round(rev / n * f), tCl = Math.round(cl / n * f), tProd = Math.round(prod / n * f);
+    setV(`goal-stylist-${safe}-revenue`, tRev);
+    setV(`goal-stylist-${safe}-clients`, tCl);
+    setV(`goal-stylist-${safe}-productRev`, tProd);
+    sumRev += tRev; sumCl += tCl; sumProd += tProd;
+  });
+  const fG = 1 + gGlobal / 100;
+  setV('goal-studio-revenue', anySty ? sumRev : Math.round(base.revenue * fG));
+  setV('goal-studio-clients', anySty ? sumCl : Math.round(base.clients * fG));
+  setV('goal-studio-productRev', anySty ? sumProd : Math.round(base.productRev * fG));
+  setV('goal-studio-retRebookPct', Math.min(100, Math.round(base.retRebookPct)));
+  setV('goal-studio-newRebookPct', Math.min(100, Math.round(base.newRebookPct)));
+  goalsSuggestPreview('Filled - review below, then press Save Targets.');
+  goalsRefreshBreaks();
+  goalsCapacityCheck();
+}
+
+/* ── Capacity: how much each stylist can physically produce a month ──
+   Estimated as the LARGER of: best month they've ever done + 10% stretch,
+   and (when timesheets exist) an hours-based ceiling: weekly hours ×
+   appointments-per-hour × 85% occupancy × their average sale. Rolled up
+   to a team figure, this is the "when to hire" signal. ── */
+let _goalsCapCache = null;
+function goalsStylistStats() {
+  if (_goalsCapCache) return _goalsCapCache;
+  const map = {};
+  STYLISTS.forEach(s => { map[s.name] = { best: 0, rev: 0, clients: 0 }; });
+  MONTH_NAMES.forEach(m => {
+    const agg = dashStaffAggregates(dashDescriptor(m));
+    STYLISTS.forEach(s => {
+      const d = agg[s.name];
+      if (!d || !d.hasData) return;
+      const rev = d.svc + d.prod;
+      const e = map[s.name];
+      e.best = Math.max(e.best, rev);
+      e.rev += rev; e.clients += d.clients;
+    });
+  });
+  STYLISTS.forEach(s => {
+    const e = map[s.name];
+    let weeklyH = null;
+    try {
+      const a = sroiAggregates(s.name, 8);
+      if (a.tsHours != null && a.tsWeeks > 0) weeklyH = a.tsHours / a.tsWeeks;
+    } catch (err) {}
+    e.weeklyH = weeklyH;
+    e.avgSale = e.clients > 0 ? e.rev / e.clients : null;
+    e.theoretical = (weeklyH && e.avgSale)
+      ? weeklyH * (60 / SROI_FALLBACK.avgServiceMins) * 0.85 * e.avgSale * 52 / 12
+      : null;
+    e.capacity = Math.max(e.best * 1.1, e.theoretical || 0) || null;
+  });
+  _goalsCapCache = map;
+  return map;
+}
+
+function goalsCapacityCheck() {
+  const el = document.getElementById('goals-capacity');
+  if (!el) return;
+  const stats = goalsStylistStats();
+  const money = n => '$' + Math.round(n).toLocaleString();
+  let teamCap = 0, lines = [];
+  STYLISTS.forEach(s => {
+    const e = stats[s.name];
+    if (!e || !e.capacity) return;
+    teamCap += e.capacity;
+    const t = parseFloat(document.getElementById('goal-stylist-' + s.name.replace(/\s+/g, '_') + '-revenue')?.value) || 0;
+    if (t > e.capacity) {
+      lines.push(`<div style="font-size:13px;color:var(--red);line-height:1.5">▲ <strong>${s.name}</strong>: target ${money(t)} is above their estimated capacity of ${money(e.capacity)} (best month ${money(e.best)}${e.weeklyH ? ', ~' + Math.round(e.weeklyH) + ' hrs/wk on timesheets' : ''}). More hours, higher prices, or another pair of hands.</div>`);
+    }
+  });
+  const studioT = parseFloat(document.getElementById('goal-studio-revenue')?.value) || 0;
+  let teamLine = '';
+  if (teamCap > 0 && studioT > 0) {
+    const pct = studioT / teamCap * 100;
+    const tone = pct > 100 ? 'var(--red)' : pct >= 90 ? '#a06428' : 'var(--green)';
+    const word = pct > 100
+      ? 'Above what the current team can produce - time to hire or add hours.'
+      : pct >= 90
+        ? 'Nearly at full team capacity - little headroom, start planning the next hire.'
+        : 'Comfortable headroom with the current team.';
+    teamLine = `<div style="font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;line-height:1.6">Team capacity ≈ <strong>${money(teamCap)}/month</strong>. Studio target ${money(studioT)} = <strong style="color:${tone}">${pct.toFixed(0)}%</strong> of capacity. <span style="color:${tone}">${word}</span></div>`;
+  }
+  el.innerHTML = teamLine + (lines.length ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">${lines.join('')}</div>` : '');
 }
 
 function renderGoalsSettings() {
@@ -17349,13 +18240,16 @@ function renderGoalsSettings() {
   const studioG = g.studio || {};
   const stylistG = g.stylists || {};
 
-  // Studio targets
+  // Studio targets. Dollar/count metrics carry a live "per week / per day"
+  // line under the monthly figure; rates don't divide.
+  const goalBreakable = id => id === 'revenue' || id === 'clients' || id === 'productRev';
   const sgrid = document.getElementById('goals-studio-grid');
   if (sgrid) {
     sgrid.innerHTML = GOAL_METRICS.map(m => `
       <div class="fixed-expense-item">
         <div class="fixed-expense-label">${m.label}</div>
-        <input class="fixed-expense-input" id="goal-studio-${m.id}" type="number" min="0" placeholder="${m.default}" value="${studioG[m.id] !== undefined ? studioG[m.id] : ''}">
+        <input class="fixed-expense-input" id="goal-studio-${m.id}" type="number" min="0" placeholder="${m.default}" value="${studioG[m.id] !== undefined ? studioG[m.id] : ''}"${goalBreakable(m.id) ? ` data-break="1" data-money="${m.prefix === '$' ? '1' : ''}" oninput="goalsBreakLine(this)"` : ''}>
+        ${goalBreakable(m.id) ? `<div class="goal-break" id="goal-studio-${m.id}-break"></div>` : ''}
       </div>`).join('');
   }
 
@@ -17369,12 +18263,20 @@ function renderGoalsSettings() {
         const sg = stylistG[s.name] || {};
         return `
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px">
-            <div style="font-size:15px;font-weight:600;margin-bottom:10px;color:var(--accent)">${s.name}${s.isContractor ? ' <span style="font-size:12px;color:var(--muted);font-weight:400">· Contractor</span>' : ''}</div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+              <div style="font-size:15px;font-weight:600;color:var(--accent);flex:1">${s.name}${s.isContractor ? ' <span style="font-size:12px;color:var(--muted);font-weight:400">· Contractor</span>' : ''}</div>
+              <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)">Growth
+                <input id="goal-growth-${s.name.replace(/\s+/g,'_')}" type="number" step="1" min="-50" max="200" placeholder="—"
+                  title="This stylist's own growth % for the history fill. Leave blank to use the growth figure above."
+                  style="width:64px;background:var(--surface);border:1.5px solid var(--border2);border-radius:7px;padding:5px 7px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--text);outline:none;text-align:right"> %
+              </label>
+            </div>
             <div class="fixed-expense-grid">
               ${GOAL_METRICS.map(m => `
                 <div class="fixed-expense-item">
                   <div class="fixed-expense-label">${m.label}</div>
-                  <input class="fixed-expense-input" id="goal-stylist-${s.name.replace(/\s+/g,'_')}-${m.id}" type="number" min="0" placeholder="${Math.round(m.default / 4)}" value="${sg[m.id] !== undefined ? sg[m.id] : ''}">
+                  <input class="fixed-expense-input" id="goal-stylist-${s.name.replace(/\s+/g,'_')}-${m.id}" type="number" min="0" placeholder="${Math.round(m.default / 4)}" value="${sg[m.id] !== undefined ? sg[m.id] : ''}"${goalBreakable(m.id) ? ` data-break="1" data-money="${m.prefix === '$' ? '1' : ''}" oninput="goalsBreakLine(this)"` : ''}>
+                  ${goalBreakable(m.id) ? `<div class="goal-break" id="goal-stylist-${s.name.replace(/\s+/g,'_')}-${m.id}-break"></div>` : ''}
                 </div>`).join('')}
             </div>
           </div>`;
@@ -17400,6 +18302,7 @@ function saveGoalsTargets() {
     if (Object.keys(sg).length) g.stylists[s.name] = sg;
   });
   saveGoals(g);
+  _capBanner = null;   // targets feed the capacity banner
   alert('Targets saved.');
   renderGoals();
 }
@@ -17471,6 +18374,26 @@ function getStylistActualsForPeriod(name, period, month) {
     combined.newNR     += sm.newNR || 0;
     combined.productRev += sm.prod || 0;
   });
+  // Layer in the per-stylist figures from daily entries (e.sd) - the base
+  // STYLIST_MONTHLY only covers historical pre-tracker months, so without
+  // this every tracked month reads as zero. Same merge the Stylist
+  // Performance page and dashboard Staff tab do.
+  const monthSet = new Set(months);
+  const yrPrefix = String(activeYear || BASE_YEAR);
+  allEntries().forEach(e => {
+    if (!e.sd || !e.date || !e.date.startsWith(yrPrefix)) return;
+    const mName = MONTH_NAMES[new Date(e.date + 'T00:00:00').getMonth()];
+    if (!monthSet.has(mName)) return;
+    const d = e.sd[name];
+    if (!d) return;
+    combined.revenue    += (d.svc || 0) + (d.prod || 0);
+    combined.clients    += d.c || 0;
+    combined.retR       += d.rr || 0;
+    combined.retNR      += d.rnr || 0;
+    combined.newR       += d.nrr || 0;
+    combined.newNR      += d.nnr || 0;
+    combined.productRev += d.prod || 0;
+  });
   const retTotal = combined.retR + combined.retNR;
   const newTotal = combined.newR + combined.newNR;
   combined.retRebookPct = retTotal > 0 ? Math.round((combined.retR / retTotal) * 100) : 0;
@@ -17492,12 +18415,14 @@ function getMonthsForPeriod(period, monthSel) {
   return availMonths;
 }
 
-function progressBar(actual, target, isPercent) {
+function progressBar(actual, target, isPercent, prefix) {
   if (!target || target <= 0) return `<div style="font-size:13px;color:var(--muted);font-style:italic">No target set</div>`;
   const pct = Math.min(200, (actual / target) * 100);
   const displayPct = Math.round(pct);
   const color = pct >= 100 ? 'var(--green)' : pct >= 75 ? 'var(--accent)' : pct >= 50 ? 'var(--blue)' : 'var(--red)';
-  const fmt = isPercent ? (n => n + '%') : (n => '$' + Math.round(n).toLocaleString('en-AU'));
+  // Counts (clients) carry no prefix; money metrics pass '$'
+  const p = prefix === undefined ? '$' : prefix;
+  const fmt = isPercent ? (n => n + '%') : (n => p + Math.round(n).toLocaleString('en-AU'));
   return `
     <div style="margin-top:6px">
       <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px">
@@ -17555,7 +18480,7 @@ function renderGoals() {
             <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px">
               <div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">${m.label}</div>
               <div style="font-family:var(--mono);font-size:22px;font-weight:700;margin-top:6px">${isPct ? actual + '%' : (m.prefix + Math.round(actual).toLocaleString('en-AU') + m.suffix)}</div>
-              ${progressBar(actual, target, isPct)}
+              ${progressBar(actual, target, isPct, m.prefix)}
             </div>`;
         }).join('')}
       </div>
@@ -17580,7 +18505,7 @@ function renderGoals() {
               <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
                 <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">${m.label}</div>
                 <div style="font-family:var(--mono);font-size:18px;font-weight:700;margin-top:4px">${isPct ? actual + '%' : (m.prefix + Math.round(actual).toLocaleString('en-AU') + m.suffix)}</div>
-                ${progressBar(actual, target, isPct)}
+                ${progressBar(actual, target, isPct, m.prefix)}
               </div>`;
           }).join('')}
         </div>
