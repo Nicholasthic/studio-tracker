@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.18-1333">
-<meta name="lumin-build" content="2026.09.18-1333"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.09.19-1404">
+<meta name="lumin-build" content="2026.09.19-1404"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3122,9 +3122,12 @@ body.manager-view .owner-only { display: none !important; }
   .invoice-control-group:nth-child(1) .invoice-select,
   .invoice-control-group:nth-child(2) .invoice-select { width: 100%; }
 
-  /* Invoice action buttons go full width so they're easy to hit */
-  .inv-actions-btns { width: 100%; }
+  /* Invoice action buttons: Preview full width, PDF + CSV split a second
+     row (the container is display:flex inline, so without wrap the ghost
+     buttons were pushed off the right edge of the phone screen) */
+  .inv-actions-btns { width: 100%; flex-wrap: wrap; }
   .inv-actions-btns > .btn-primary { width: 100%; }
+  .inv-actions-btns > .btn-ghost { flex: 1 1 0; }
 
   /* Timesheet toolbar wraps to multiple lines instead of overflowing sideways */
   .ts-week-nav { padding: 12px 14px; }
@@ -4143,31 +4146,34 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
   font-variant-numeric: tabular-nums;
 }
 .chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 150px); min-height: 380px; max-width: 860px; }
-.chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-.chat-sub { font-size: 13px; color: var(--muted); }
+.chat-cap {
+  font-size: 12px; color: var(--muted2);
+  text-align: center; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
 .chat-scroll {
   flex: 1; overflow-y: auto; min-height: 0;
-  display: flex; flex-direction: column; gap: 4px;
-  padding: 6px 4px; margin-bottom: 12px;
-  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 10px 4px; margin-bottom: 12px;
 }
 .chat-day {
   align-self: center;
-  font-size: 11.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--muted2); background: var(--surface2);
-  border-radius: 999px; padding: 3px 12px; margin: 14px 0 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--muted2);
+  padding: 3px 12px; margin: 16px 0 10px;
 }
-.chat-msg { max-width: 78%; display: flex; flex-direction: column; }
+.chat-msg { max-width: 78%; display: flex; flex-direction: column; margin-bottom: 2px; }
+.chat-msg.group-end { margin-bottom: 14px; }
 .chat-msg.mine { align-self: flex-end; align-items: flex-end; }
 .chat-msg.theirs { align-self: flex-start; align-items: flex-start; }
 .chat-bubble {
-  padding: 9px 13px; border-radius: 14px;
+  padding: 9px 13px; border-radius: 16px;
   font-size: 14.5px; line-height: 1.45;
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
-.chat-msg.mine .chat-bubble { background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 5px; }
-.chat-msg.theirs .chat-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 5px; }
-.chat-meta { font-size: 11.5px; color: var(--muted2); margin: 3px 4px 6px; }
+.chat-msg.mine .chat-bubble { background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 6px; box-shadow: var(--shadow-1); }
+.chat-msg.theirs .chat-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 6px; }
+.chat-meta { font-size: 11px; color: var(--muted2); margin: 4px 6px 0; }
 .chat-meta .chat-pending { color: var(--red); }
 .chat-inputbar { display: flex; gap: 10px; align-items: flex-end; }
 .chat-input {
@@ -5263,15 +5269,10 @@ try {
   <!-- ======================== CHAT (owner + manager) ======================== -->
   <div class="page" id="page-chat">
     <div class="form-section chat-wrap">
-      <div class="chat-head">
-        <div>
-          <div class="form-section-title" style="margin-bottom:2px">Studio chat</div>
-          <div class="chat-sub" id="chat-sub">Private to the owner and manager. Messages appear live on other open devices.</div>
-        </div>
-      </div>
+      <div class="chat-cap" id="chat-sub">Private to the owner and manager · messages appear live on other open devices</div>
       <div class="chat-scroll" id="chat-scroll"></div>
       <div class="chat-inputbar">
-        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type a message… (Enter to send, Shift+Enter for a new line)" onkeydown="chatKeydown(event)" oninput="chatAutosize(this)"></textarea>
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type a message…" title="Enter to send · Shift+Enter for a new line" onkeydown="chatKeydown(event)" oninput="chatAutosize(this)"></textarea>
         <button class="btn btn-primary chat-send" onclick="chatSend()">Send</button>
       </div>
     </div>
@@ -6897,7 +6898,7 @@ function avatarHTML(st, idx, size=34, editable=false) {
   </div>`;
 }
 
-function uploadStylistPhoto(name, idx) {
+function photoPickAndResize(cb) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -6915,9 +6916,7 @@ function uploadStylistPhoto(name, idx) {
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        saveStylistPhoto(name, canvas.toDataURL('image/jpeg', 0.85));
-        renderStylistRoster();
-        renderStylistPage();
+        cb(canvas.toDataURL('image/jpeg', 0.85));
       };
       img.src = ev.target.result;
     };
@@ -6925,11 +6924,29 @@ function uploadStylistPhoto(name, idx) {
   };
   input.click();
 }
-
+function photoRefreshSurfaces() {
+  try { renderStylistRoster(); } catch (e) {}
+  try { renderStylistPage(); } catch (e) {}
+  try { pinRenderWhoGrid(); } catch (e) {}
+  try { if (document.getElementById('page-pinmgmt')?.classList.contains('active')) renderPINManagement(); } catch (e) {}
+}
+function uploadStylistPhoto(name, idx) {
+  photoPickAndResize(url => { saveStylistPhoto(name, url); photoRefreshSurfaces(); });
+}
 function removeStylistPhoto(name) {
   deleteStylistPhoto(name);
-  renderStylistRoster();
-  renderStylistPage();
+  photoRefreshSurfaces();
+}
+
+// Owner and Manager aren't stylists, so their profile photos live under
+// reserved pseudo-names in the same synced ejPhoto_ store
+function loadRolePhoto(role) { return loadStylistPhoto('rolephoto_' + role); }
+function uploadRolePhoto(role) {
+  photoPickAndResize(url => { saveStylistPhoto('rolephoto_' + role, url); photoRefreshSurfaces(); });
+}
+function removeRolePhoto(role) {
+  deleteStylistPhoto('rolephoto_' + role);
+  photoRefreshSurfaces();
 }
 
 /* ── STUDIO LOGO (owner-set, per studio) ──
@@ -14962,14 +14979,14 @@ function chatAutosize(el) {
 // Called by the realtime fast-path when a message row arrives from the cloud
 function chatOnIncoming() {
   chatUpdateBadge();
-  const onChat = document.getElementById('page-chat')?.classList.contains('active');
-  if (onChat && chatRole()) { chatMarkSeen(); renderChat(); return; }
   const role = chatRole();
-  if (role) {
-    const msgs = loadChatMessages();
-    const last = msgs[msgs.length - 1];
-    if (last && last.s !== role && typeof cloudToast === 'function') cloudToast(`💬 ${last.n || 'New message'}: ${String(last.b).slice(0, 40)}${String(last.b).length > 40 ? '…' : ''}`);
-  }
+  const msgs = role ? loadChatMessages() : [];
+  const last = msgs[msgs.length - 1];
+  const fromOther = !!(last && last.s !== role);
+  if (fromOther && typeof playChatDing === 'function') playChatDing();
+  const onChat = document.getElementById('page-chat')?.classList.contains('active');
+  if (onChat && role) { chatMarkSeen(); renderChat(); return; }
+  if (fromOther && typeof cloudToast === 'function') cloudToast(`💬 ${last.n || 'New message'}: ${String(last.b).slice(0, 40)}${String(last.b).length > 40 ? '…' : ''}`);
 }
 const chatEsc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 function renderChat(keepScroll) {
@@ -14983,18 +15000,24 @@ function renderChat(keepScroll) {
     scroll.innerHTML = '<div class="chat-empty">No messages yet.<br>Say hello: whatever you type here shows up live for the ' + (role === 'admin' ? 'manager' : 'owner') + ' on any device with the tracker open.</div>';
     return;
   }
+  const dayOf = t => new Date(t).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
   let lastDay = '';
-  scroll.innerHTML = msgs.map(m => {
-    const d = new Date(m.t);
-    const day = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+  scroll.innerHTML = msgs.map((m, i) => {
+    const day = dayOf(m.t);
     const daySep = day !== lastDay ? `<div class="chat-day">${day}</div>` : '';
     lastDay = day;
     const mine = m.s === role;
-    const time = d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' });
-    const pending = unsent.has(m._key) ? ' · <span class="chat-pending">waiting to send</span>' : '';
-    return `${daySep}<div class="chat-msg ${mine ? 'mine' : 'theirs'}">
+    // Consecutive messages from the same sender within a few minutes read as
+    // one run: tight spacing, one timestamp at the end of the run
+    const next = msgs[i + 1];
+    const groupEnd = !(next && next.s === m.s && next.t - m.t < 5 * 60000 && dayOf(next.t) === day);
+    const pending = unsent.has(m._key) ? `${groupEnd ? ' · ' : ''}<span class="chat-pending">waiting to send</span>` : '';
+    const meta = (groupEnd || pending)
+      ? `<div class="chat-meta">${groupEnd ? new Date(m.t).toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' }) : ''}${pending}</div>`
+      : '';
+    return `${daySep}<div class="chat-msg ${mine ? 'mine' : 'theirs'}${groupEnd ? ' group-end' : ''}">
       <div class="chat-bubble">${chatEsc(m.b)}</div>
-      <div class="chat-meta">${mine ? '' : chatEsc(m.n || (m.s === 'admin' ? 'Owner' : 'Manager')) + ' · '}${time}${pending}</div>
+      ${meta}
     </div>`;
   }).join('');
   if (!keepScroll || nearBottom) scroll.scrollTop = scroll.scrollHeight;
@@ -15972,8 +15995,14 @@ function pinRenderWhoGrid() {
 
   grid.innerHTML = people.map(p => {
     const initials = p.label.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const photo = p.id === 'admin' ? loadRolePhoto('owner')
+                : p.id === 'manager' ? loadRolePhoto('manager')
+                : loadStylistPhoto(p.id);
+    const avatar = photo
+      ? `<div class="pin-who-avatar" style="background:${p.color};overflow:hidden"><img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>`
+      : `<div class="pin-who-avatar" style="background:${p.color}">${initials}</div>`;
     return `<button class="pin-who-btn" onclick="pinSelectWho('${p.id}')" id="pwho-${p.id.replace(/\s/g,'_')}">
-      <div class="pin-who-avatar" style="background:${p.color}">${initials}</div>
+      ${avatar}
       <span>${p.label}</span>
     </button>`;
   }).join('');
@@ -16361,6 +16390,24 @@ function renderPINManagement() {
         </div>`;
       }).join('')}
     </div>
+    <div style="margin-top:20px">
+      <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Profile photos</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Shown on the login screen, leaderboard, timesheets and stylist pages.</div>
+      ${(() => {
+        let ownerNm = ''; try { ownerNm = localStorage.getItem('ejOwnerName') || ''; } catch (e) {}
+        const photoRow = (label, photo, up, rm, color, initial) => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          ${photo
+            ? `<img src="${photo}" alt="${label}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+            : `<div style="width:34px;height:34px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${initial}</div>`}
+          <div style="flex:1;font-size:15px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</div>
+          <button class="btn btn-ghost" style="font-size:14px;padding:6px 12px" onclick="${up}">${photo ? 'Change' : 'Add photo'}</button>
+          ${photo ? `<button class="btn btn-ghost" style="font-size:14px;padding:6px 12px;color:var(--red);border-color:rgba(158,74,58,.3)" onclick="${rm}">Remove</button>` : ''}
+        </div>`;
+        return photoRow('Owner' + (ownerNm ? ' · ' + ownerNm : ''), loadRolePhoto('owner'), "uploadRolePhoto('owner')", "removeRolePhoto('owner')", '#000000', 'O')
+          + photoRow('Manager', loadRolePhoto('manager'), "uploadRolePhoto('manager')", "removeRolePhoto('manager')", '#6e5c7e', 'M')
+          + stylists.map((st, i) => photoRow(st.name, loadStylistPhoto(st.name), `uploadStylistPhoto('${st.name}',${i})`, `removeStylistPhoto('${st.name}')`, avatarColor(i), st.name[0])).join('');
+      })()}
+    </div>
     ${integrationsBlock}`;
   renderAccountSection();
   renderIntegrationKey();
@@ -16699,6 +16746,38 @@ function playClickSound() {
     g.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
     o.connect(g); g.connect(ctx.destination);
     o.start(now); o.stop(now + 0.06);
+  } catch (e) {}
+}
+
+// Soft bell chime for an incoming chat message: three ascending notes
+// (C6-E6-G6), each with a quiet octave shimmer and a long fade. Shares the
+// app's AudioContext and respects the same per-device mute flag as the
+// save tick.
+function playChatDing() {
+  if (!clickSoundEnabled()) return;
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!lbAudioCtx) lbAudioCtx = new AC();
+    const ctx = lbAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const note = (freq, dt, gain, decay) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'triangle';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, now + dt);
+      g.gain.exponentialRampToValueAtTime(gain, now + dt + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dt + decay);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + dt); o.stop(now + dt + decay + 0.05);
+    };
+    [[1046.5, 0], [1318.5, 0.11], [1568.0, 0.22]].forEach(([f, dt]) => {
+      note(f, dt, 0.055, 0.8);        // the bell note itself
+      note(f * 2, dt, 0.012, 0.5);    // faint octave shimmer on top
+    });
   } catch (e) {}
 }
 
