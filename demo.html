@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums. - Live Demo</title>
-<meta name="sums-build" content="2026.09.18-1303">
-<meta name="lumin-build" content="2026.09.18-1303"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.10.13-1521">
+<meta name="lumin-build" content="2026.10.13-1521"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- demo build: no cloud library -->
@@ -3122,9 +3122,12 @@ body.manager-view .owner-only { display: none !important; }
   .invoice-control-group:nth-child(1) .invoice-select,
   .invoice-control-group:nth-child(2) .invoice-select { width: 100%; }
 
-  /* Invoice action buttons go full width so they're easy to hit */
-  .inv-actions-btns { width: 100%; }
+  /* Invoice action buttons: Preview full width, PDF + CSV split a second
+     row (the container is display:flex inline, so without wrap the ghost
+     buttons were pushed off the right edge of the phone screen) */
+  .inv-actions-btns { width: 100%; flex-wrap: wrap; }
   .inv-actions-btns > .btn-primary { width: 100%; }
+  .inv-actions-btns > .btn-ghost { flex: 1 1 0; }
 
   /* Timesheet toolbar wraps to multiple lines instead of overflowing sideways */
   .ts-week-nav { padding: 12px 14px; }
@@ -4133,6 +4136,61 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
 .purch-rcpt-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 
 /* ═══════════════════════════════════════════════════════════
+   CHAT (2026-09) — owner ↔ manager live messages
+   ═══════════════════════════════════════════════════════════ */
+.nav-badge {
+  margin-left: auto;
+  background: var(--red); color: #fff;
+  font-size: 11px; font-weight: 700; line-height: 1;
+  border-radius: 999px; padding: 3px 7px;
+  font-variant-numeric: tabular-nums;
+}
+.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 150px); min-height: 380px; max-width: 860px; }
+.chat-cap {
+  font-size: 12px; color: var(--muted2);
+  text-align: center; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.chat-scroll {
+  flex: 1; overflow-y: auto; min-height: 0;
+  display: flex; flex-direction: column;
+  padding: 10px 4px; margin-bottom: 12px;
+}
+.chat-day {
+  align-self: center;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--muted2);
+  padding: 3px 12px; margin: 16px 0 10px;
+}
+.chat-msg { max-width: 78%; display: flex; flex-direction: column; margin-bottom: 2px; }
+.chat-msg.group-end { margin-bottom: 14px; }
+.chat-msg.mine { align-self: flex-end; align-items: flex-end; }
+.chat-msg.theirs { align-self: flex-start; align-items: flex-start; }
+.chat-bubble {
+  padding: 9px 13px; border-radius: 16px;
+  font-size: 14.5px; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.chat-msg.mine .chat-bubble { background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 6px; box-shadow: var(--shadow-1); }
+.chat-msg.theirs .chat-bubble { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 6px; }
+.chat-meta { font-size: 11px; color: var(--muted2); margin: 4px 6px 0; }
+.chat-meta .chat-pending { color: var(--red); }
+.chat-inputbar { display: flex; gap: 10px; align-items: flex-end; }
+.chat-input {
+  flex: 1; resize: none; min-height: 42px; max-height: 130px;
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 10px 14px; font-family: var(--font); font-size: 14.5px; color: var(--text);
+  outline: none; line-height: 1.4;
+}
+.chat-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.chat-send { padding-top: 11px; padding-bottom: 11px; }
+.chat-empty { margin: auto; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.6; }
+@media (max-width: 760px) {
+  .chat-wrap { height: calc(100vh - 190px); }
+  .chat-msg { max-width: 90%; }
+}
+
+/* ═══════════════════════════════════════════════════════════
    YEARLY OVERVIEW (2026-09): modern-pass polish
    ═══════════════════════════════════════════════════════════ */
 /* Year tabs read as pills, matching the period filter row below them */
@@ -4733,6 +4791,11 @@ try {
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 1v2M11 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><path d="M4 10h3M9 10h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Roster Planner
     </button>
+    <button class="nav-item" onclick="showPage('chat')">
+      <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M2 3.5A1.5 1.5 0 013.5 2h9A1.5 1.5 0 0114 3.5v6a1.5 1.5 0 01-1.5 1.5H6l-3.2 2.6c-.4.3-.8 0-.8-.4V3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M5 5.5h6M5 8h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Chat
+      <span class="nav-badge" id="chat-nav-badge" hidden></span>
+    </button>
     <div class="nav-section-label">Finance</div>
     <button class="nav-item" onclick="showPage('purchases')">
       <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M3 5h10l-1 9H4L3 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 7V4a2 2 0 014 0v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -5199,6 +5262,18 @@ try {
           </div>
           <button class="btn btn-primary" onclick="purchCloseReceipt()">Close</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== CHAT (owner + manager) ======================== -->
+  <div class="page" id="page-chat">
+    <div class="form-section chat-wrap">
+      <div class="chat-cap" id="chat-sub">Private to the owner and manager · messages appear live on other open devices</div>
+      <div class="chat-scroll" id="chat-scroll"></div>
+      <div class="chat-inputbar">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type a message…" title="Enter to send · Shift+Enter for a new line" onkeydown="chatKeydown(event)" oninput="chatAutosize(this)"></textarea>
+        <button class="btn btn-primary chat-send" onclick="chatSend()">Send</button>
       </div>
     </div>
   </div>
@@ -5882,6 +5957,11 @@ try {
           <div style="font-size:14px;color:var(--muted);margin-bottom:12px">Same every month: rent, wages, subscriptions. Auto-fill each month, override per-month below.</div>
           <div class="fixed-expense-grid" id="fixed-expense-grid"></div>
           <button class="btn btn-ghost" style="font-size:14px" onclick="saveFixedExpenses()">Save Fixed Amounts</button>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);margin-top:14px;cursor:pointer">
+            <input type="checkbox" id="pl-auto-wages" onchange="plSetAutoWages(this.checked)">
+            Auto-fill Staff Wages from timesheets
+          </label>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5">Each month's timesheet hours × the hourly rates in Account &amp; Settings, plus super at the Tax &amp; BAS rate. Months with no timesheet hours keep the manual wages figure. Worked hours only: leave days aren't costed.</div>
         </div>
       </div>
 
@@ -6417,6 +6497,19 @@ try {
         </div>
       </details>
 
+      <details class="help-acc">
+        <summary>Chat (owner &amp; manager)</summary>
+        <div class="help-acc-body">
+          <ul>
+            <li>A private message thread between the owner and the manager, under <strong>Staff</strong> in the left menu. Stylists can't see it.</li>
+            <li>Messages appear <strong>live</strong> on any device with the tracker open, and a red badge on the Chat menu item shows how many you haven't read yet.</li>
+            <li>Press <strong>Enter</strong> to send, <strong>Shift+Enter</strong> for a new line. History is saved and syncs like everything else, so you can scroll back anytime.</li>
+            <li>If a message is typed while offline it shows <em>waiting to send</em> and goes through by itself once the connection is back.</li>
+          </ul>
+          <div class="help-tip">There are no phone notifications when the tracker is closed: chat is live while the app is open and catches up when it's reopened. For anything urgent, still text or call.</div>
+        </div>
+      </details>
+
       
 
       <div class="help-group-title">Staff pages</div>
@@ -6486,12 +6579,14 @@ try {
           <div class="help-h">P&amp;L</div>
           <ul>
             <li>A monthly profit and loss built from your daily entries, so revenue is always up to date.</li>
-            <li>Enter your <strong>fixed monthly expenses</strong> once (rent, wages, software, insurance and so on) and adjust the variable costs month by month.</li>
+            <li>Enter your <strong>fixed monthly expenses</strong> once (rent, software, insurance and so on) and adjust the variable costs month by month.</li>
+            <li><strong>Staff Wages fills itself from timesheets</strong>: the month's worked hours × each person's hourly rate (set in Account &amp; Settings), plus super at your Tax &amp; BAS rate, shown as read-only rows. Under the gross figure it also splits out the estimated <strong>net pay to staff vs PAYG withheld for the ATO</strong>, so you can see where the wage money actually goes. Months with no timesheet hours keep the manual figure, and you can switch the whole thing off in the Fixed Recurring Expenses panel.</li>
             <li>Instantly see each month's profit and how the margin is trending.</li>
           </ul>
           <div class="help-h">Tax &amp; BAS</div>
           <ul>
             <li>Running totals from your entries and expenses to make BAS time painless.</li>
+            <li>Gross wages and PAYG withheld now pre-fill from the timesheet wages too (the PAYG figure is an estimate; type over it with the exact payroll number if yours differs).</li>
             <li>Use it as a guide for what to set aside, and hand the summary to your bookkeeper.</li>
           </ul>
         </div>
@@ -6803,7 +6898,7 @@ function avatarHTML(st, idx, size=34, editable=false) {
   </div>`;
 }
 
-function uploadStylistPhoto(name, idx) {
+function photoPickAndResize(cb) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -6821,9 +6916,7 @@ function uploadStylistPhoto(name, idx) {
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        saveStylistPhoto(name, canvas.toDataURL('image/jpeg', 0.85));
-        renderStylistRoster();
-        renderStylistPage();
+        cb(canvas.toDataURL('image/jpeg', 0.85));
       };
       img.src = ev.target.result;
     };
@@ -6831,11 +6924,29 @@ function uploadStylistPhoto(name, idx) {
   };
   input.click();
 }
-
+function photoRefreshSurfaces() {
+  try { renderStylistRoster(); } catch (e) {}
+  try { renderStylistPage(); } catch (e) {}
+  try { pinRenderWhoGrid(); } catch (e) {}
+  try { if (document.getElementById('page-pinmgmt')?.classList.contains('active')) renderPINManagement(); } catch (e) {}
+}
+function uploadStylistPhoto(name, idx) {
+  photoPickAndResize(url => { saveStylistPhoto(name, url); photoRefreshSurfaces(); });
+}
 function removeStylistPhoto(name) {
   deleteStylistPhoto(name);
-  renderStylistRoster();
-  renderStylistPage();
+  photoRefreshSurfaces();
+}
+
+// Owner and Manager aren't stylists, so their profile photos live under
+// reserved pseudo-names in the same synced ejPhoto_ store
+function loadRolePhoto(role) { return loadStylistPhoto('rolephoto_' + role); }
+function uploadRolePhoto(role) {
+  photoPickAndResize(url => { saveStylistPhoto('rolephoto_' + role, url); photoRefreshSurfaces(); });
+}
+function removeRolePhoto(role) {
+  deleteStylistPhoto('rolephoto_' + role);
+  photoRefreshSurfaces();
 }
 
 /* ── STUDIO LOGO (owner-set, per studio) ──
@@ -7184,6 +7295,8 @@ function showPage(id) {
   if ((id === 'pl' || id === 'taxbas' || id === 'staffroi') && pinSessionUser !== 'admin') id = 'dashboard';
   // Purchases log is for the owner and manager, never stylists
   if (id === 'purchases' && pinSessionUser !== 'admin' && pinSessionUser !== 'manager') id = 'dashboard';
+  // Chat is a private owner ↔ manager channel
+  if (id === 'chat' && pinSessionUser !== 'admin' && pinSessionUser !== 'manager') id = 'dashboard';
   // Tier soft gates — Solo plan blocks team-only pages with an upgrade prompt
   if (id === 'leaderboard' && typeof canUseLeaderboard === 'function' && !canUseLeaderboard()) {
     showPricingModal('The Leaderboard ranks your whole team. Upgrade to Studio to unlock it, plus unlimited stylists, contractor invoicing, and more.');
@@ -7203,7 +7316,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) { n.classList.add('active'); n.setAttribute('aria-current', 'page'); }
   });
-  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', purchases:'Purchases', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup' };
+  const titles = { dashboard:'Dashboard', weekly:'Weekly View', yearly:'Yearly Overview', entry:'Add Daily Entry', stylists:'Stylist Performance', compare:'Compare Months', stylistperf:'Stylist Performance', clientlog:'New Client Tracker', purchases:'Purchases', invoice:'Contractor Invoice', export:'Export Reports', pl:'P&L', taxbas:'Tax & BAS', staffroi:'Staff ROI', goals:'Goals & Targets', timesheets:'Timesheets', roster:'Roster Planner', leaderboard:'Leaderboard', luckybreak:'Lucky Break', pinmgmt:'Account & Settings', help:'Help & Setup', chat:'Chat' };
   document.getElementById('page-title').textContent = titles[id] || id;
 
   if (id === 'dashboard') renderDashboard();
@@ -7215,6 +7328,7 @@ function showPage(id) {
   if (id === 'stylistperf') renderStylistPerf();
   if (id === 'clientlog') renderClientLog();
   if (id === 'purchases') renderPurchases();
+  if (id === 'chat') { renderChat(); chatMarkSeen(); chatFlushUnsent(); setTimeout(() => document.getElementById('chat-input')?.focus(), 50); }
   if (id === 'invoice') { renderBizDetails(); renderInvoice(); }
   if (id === 'export') renderExportPage();
   if (id === 'pl') renderPL();
@@ -14438,15 +14552,120 @@ function purchasesMonthTotal(year, monthName) {
 }
 const purchFmt = n => (n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/* Receipt photos: one compressed JPEG per purchase, stored under the existing
-   ejPhoto_* keys so they ride the photo backup sync (kept out of the
-   per-keystroke state sync because they're big). The purchase row carries a
-   tiny `rcpt` flag so other devices know a receipt exists even before the
-   photo itself has synced across. */
+/* Receipt photos: one compressed JPEG (or small PDF) per purchase. They live
+   in IndexedDB, not localStorage: localStorage is capped around 5MB for the
+   whole app, so a dozen receipts used to fill it ("storage is full").
+   IndexedDB allows hundreds of MB. Keys keep the old ejPhoto_rcpt_<id>_<studio>
+   names so the cloud rows in app_state are unchanged; each receipt is pushed
+   as its own row when saved. The purchase row carries a tiny `rcpt` flag so
+   other devices know a receipt exists even before the file has synced across.
+   purchRcptKinds is a small in-memory index (key -> 'pdf' | 'img') so the
+   purchase list can render without waiting on the database. */
 let purchPendingRcpt = null;
 let purchRcptOpenId = null;
 const purchRcptKey = id => getPhotoKey('rcpt_' + id);
-function purchLoadRcpt(id) { try { return localStorage.getItem(purchRcptKey(id)) || null; } catch { return null; } }
+let purchRcptKinds = {};
+let _rcptDbP = null;
+function rcptDb() {
+  if (!_rcptDbP) _rcptDbP = new Promise((res, rej) => {
+    const rq = indexedDB.open('demo_ejReceipts', 1);
+    rq.onupgradeneeded = () => { rq.result.createObjectStore('rcpt'); rq.result.createObjectStore('kind'); };
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => rej(rq.error);
+  });
+  return _rcptDbP;
+}
+// Runs fn(tx) in one transaction; resolves with fn's return value once committed
+function rcptTx(mode, fn) {
+  return rcptDb().then(db => new Promise((res, rej) => {
+    const tx = db.transaction(['rcpt', 'kind'], mode);
+    const out = fn(tx);
+    tx.oncomplete = () => res(out);
+    tx.onerror = tx.onabort = () => rej(tx.error || new Error('receipt store failed'));
+  }));
+}
+const purchRcptKindOf = url => purchRcptIsPdf(url) ? 'pdf' : 'img';
+function rcptIdbPut(k, url) {
+  return rcptTx('readwrite', tx => { tx.objectStore('rcpt').put(url, k); tx.objectStore('kind').put(purchRcptKindOf(url), k); });
+}
+function rcptIdbDel(k) {
+  return rcptTx('readwrite', tx => { tx.objectStore('rcpt').delete(k); tx.objectStore('kind').delete(k); });
+}
+async function purchLoadRcpt(id) {
+  try { return (await rcptTx('readonly', tx => tx.objectStore('rcpt').get(purchRcptKey(id)))).result || null; } catch { return null; }
+}
+const purchRcptKind = id => purchRcptKinds[purchRcptKey(id)] || null;
+function purchRcptRefresh() {
+  if (document.getElementById('page-purchases')?.classList.contains('active')) renderPurchases();
+}
+// Load the index, and move any receipts left in localStorage (from before the
+// switch) into IndexedDB so they stop taking up the 5MB.
+const purchRcptReady = (async () => {
+  try {
+    const [keys, vals] = await rcptTx('readonly', tx => [tx.objectStore('kind').getAllKeys(), tx.objectStore('kind').getAll()]);
+    keys.result.forEach((k, i) => { purchRcptKinds[k] = vals.result[i]; });
+    const old = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf('demo_ejPhoto_rcpt_') === 0) old.push(k);
+    }
+    for (const k of old) {
+      const v = localStorage.getItem(k);
+      if (v) { await rcptIdbPut(k, v); purchRcptKinds[k] = purchRcptKindOf(v); purchRcptMarkUnsent(k); }
+      localStorage.removeItem(k);
+    }
+    if (old.length) setTimeout(purchRcptFlushUnsent, 3000);
+  } catch (e) { console.warn('receipt store unavailable', e); }
+  purchRcptRefresh();
+})();
+
+/* Cloud: each receipt is upserted as its own app_state row (same row shape as
+   before). Keys waiting to upload are listed in ejRcptUnsent so a save made
+   offline, or a page closed mid-upload, still goes up later. */
+function purchRcptUnsentList() { try { return JSON.parse(localStorage.getItem('ejRcptUnsent') || '[]'); } catch { return []; } }
+function purchRcptSetUnsent(list) { try { localStorage.setItem('ejRcptUnsent', JSON.stringify(list)); } catch {} }
+function purchRcptMarkUnsent(k) { const l = purchRcptUnsentList(); if (l.indexOf(k) === -1) { l.push(k); purchRcptSetUnsent(l); } }
+function purchRcptClearUnsent(k) { purchRcptSetUnsent(purchRcptUnsentList().filter(x => x !== k)); }
+function purchRcptSplitKey(lsKey) {
+  const st = (Array.isArray(STUDIOS) ? STUDIOS : []).find(s => lsKey.length > s.id.length + 1 && lsKey.slice(-(s.id.length + 1)) === '_' + s.id);
+  return st ? { sid: st.id, k: lsKey.slice(0, lsKey.length - (st.id.length + 1)) } : null;
+}
+async function purchRcptPush(lsKey) {
+  if (!cloudReady || !sbClient) return;
+  const parts = purchRcptSplitKey(lsKey);
+  let value = null;
+  try { value = (await rcptTx('readonly', tx => tx.objectStore('rcpt').get(lsKey))).result; } catch {}
+  if (!parts || value == null) { purchRcptClearUnsent(lsKey); return; }
+  try {
+    const r = await sbClient.from('app_state').upsert(
+      { studio_id: parts.sid, k: parts.k, value, updated_at: new Date().toISOString() },
+      { onConflict: 'studio_id,k' });
+    if (r.error) throw r.error;
+    _cloudLastPush = Date.now();   // don't echo-pull our own upload
+    purchRcptClearUnsent(lsKey);
+  } catch (e) { /* stays listed, retried below */ }
+}
+function purchRcptFlushUnsent() { purchRcptUnsentList().forEach(k => purchRcptPush(k)); }
+setInterval(() => { try { if (cloudReady && purchRcptUnsentList().length) purchRcptFlushUnsent(); } catch (e) {} }, 20000);
+// A receipt row pulled from the cloud goes into IndexedDB, never localStorage
+function purchRcptFromCloud(lsKey, value) {
+  if (!value) return;
+  purchRcptReady.then(() => {
+    if (purchRcptKinds[lsKey]) return;
+    purchRcptKinds[lsKey] = purchRcptKindOf(value);
+    rcptIdbPut(lsKey, value).catch(() => { delete purchRcptKinds[lsKey]; });
+    clearTimeout(purchRcptFromCloud._t);
+    purchRcptFromCloud._t = setTimeout(purchRcptRefresh, 400);
+  });
+}
+function purchRcptDelete(id) {
+  const k = purchRcptKey(id);
+  delete purchRcptKinds[k];
+  rcptIdbDel(k).catch(() => {});
+  purchRcptClearUnsent(k);
+  const parts = purchRcptSplitKey(k);
+  if (cloudReady && sbClient && parts) sbClient.from('app_state').delete().eq('studio_id', parts.sid).eq('k', parts.k).then(() => {}, () => {});
+}
 function purchCompressReceipt(file, cb) {
   const reader = new FileReader();
   reader.onload = ev => {
@@ -14527,13 +14746,7 @@ function purchRowDrop(e, id) {
   e.currentTarget.classList.remove('dropping');
   const files = [...(e.dataTransfer.files || [])];
   if (!files.length) return;
-  purchIngestFile(files[0], url => {
-    if (!url || !purchSaveRcpt(id, url)) return;
-    const list = loadPurchases();
-    const p = list.find(x => x.id === id);
-    if (p) { p.rcpt = 1; savePurchases(list); }
-    renderPurchases();
-  });
+  purchIngestFile(files[0], url => { if (url) purchAttachTo(id, url); });
   if (files.length > 1) purchTakeFiles(files.slice(1));   // extras queue in the form
 }
 // A drop that misses its target must not navigate the whole app to the file
@@ -14566,26 +14779,31 @@ function purchRenderRcptBtn() {
     ? (purchRcptQueue.length ? 'Skip this receipt and move to the next dropped one' : 'Remove the attached receipt')
     : 'Attach photos or PDFs of receipts (you can pick or drag in several at once)';
 }
-function purchSaveRcpt(id, url) {
-  try { localStorage.setItem(purchRcptKey(id), url); } catch (e) {
-    alert('The receipt photo could not be saved because this device’s storage is full. The purchase itself is still logged.');
+async function purchSaveRcpt(id, url) {
+  const k = purchRcptKey(id);
+  purchRcptKinds[k] = purchRcptKindOf(url);
+  try { await rcptIdbPut(k, url); } catch (e) {
+    delete purchRcptKinds[k];
+    alert('The receipt could not be saved on this device (its storage may be full). The purchase itself is still logged.');
     return false;
   }
-  if (typeof cloudPushPhotosSoon === 'function') cloudPushPhotosSoon();
+  purchRcptMarkUnsent(k);
+  purchRcptPush(k);
   return true;
 }
+async function purchAttachTo(id, url) {
+  if (!(await purchSaveRcpt(id, url))) return;
+  const list = loadPurchases();
+  const p = list.find(x => x.id === id);
+  if (p) { p.rcpt = 1; savePurchases(list); }
+  renderPurchases();
+}
 function purchAttachReceipt(id) {
-  purchPickFile(url => {
-    if (!purchSaveRcpt(id, url)) return;
-    const list = loadPurchases();
-    const p = list.find(x => x.id === id);
-    if (p) { p.rcpt = 1; savePurchases(list); }
-    renderPurchases();
-  });
+  purchPickFile(url => purchAttachTo(id, url));
 }
 let purchRcptBlobUrl = null;
-function purchViewReceipt(id) {
-  const url = purchLoadRcpt(id);
+async function purchViewReceipt(id) {
+  const url = await purchLoadRcpt(id);
   if (!url) return;
   purchRcptOpenId = id;
   const img = document.getElementById('purch-rcpt-img');
@@ -14618,7 +14836,7 @@ function purchCloseReceipt() {
 function purchRemoveReceipt() {
   if (!purchRcptOpenId) return;
   if (!confirm('Remove this receipt photo? The purchase itself stays logged.')) return;
-  try { localStorage.removeItem(purchRcptKey(purchRcptOpenId)); } catch {}
+  purchRcptDelete(purchRcptOpenId);
   const list = loadPurchases();
   const p = list.find(x => x.id === purchRcptOpenId);
   if (p) { delete p.rcpt; savePurchases(list); }
@@ -14649,9 +14867,9 @@ function purchTriggerDownload(blob, filename) {
   a.click();
   setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch {} }, 30000);
 }
-function purchDownloadReceipt() {
+async function purchDownloadReceipt() {
   if (!purchRcptOpenId) return;
-  const url = purchLoadRcpt(purchRcptOpenId);
+  const url = await purchLoadRcpt(purchRcptOpenId);
   const p = loadPurchases().find(x => x.id === purchRcptOpenId);
   if (!url || !p) return;
   const type = purchRcptIsPdf(url) ? 'application/pdf' : (url.indexOf('data:image/png') === 0 ? 'image/png' : 'image/jpeg');
@@ -14696,15 +14914,15 @@ function purchBuildZip(files) {   // files: [{ name, bytes: Uint8Array }]
   push([u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cdSize), u32(cdStart), u16(0)]);
   return new Blob(parts, { type: 'application/zip' });
 }
-function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (year)
+async function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (year)
   const all = loadPurchases().filter(p => p.date && p.date.startsWith(prefix))
     .sort((a, b) => a.date.localeCompare(b.date));
   const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
   const files = [], used = {};
   const csvRows = [['Date', 'Item / supplier', 'Category', 'Amount', 'Logged by', 'Receipt file']];
   let missing = 0;
-  all.forEach(p => {
-    const url = p.rcpt ? purchLoadRcpt(p.id) : null;
+  for (const p of all) {
+    const url = p.rcpt ? await purchLoadRcpt(p.id) : null;
     let name = '';
     if (url) {
       name = purchRcptFileName(p, url);
@@ -14714,14 +14932,14 @@ function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (y
       files.push({ name, bytes: purchRcptBytes(url) });
     } else if (p.rcpt) { missing++; name = '(not synced to this device yet)'; }
     csvRows.push([p.date, p.item || '', catName(p.cat), (parseFloat(p.amount) || 0).toFixed(2), p.by || '', name]);
-  });
+  }
   return { files, csvRows, purchases: all.length, receipts: files.length, missing };
 }
-function exportReceiptsZip() {
+async function exportReceiptsZip() {
   const sel = document.getElementById('exp-receipts-period');
   const v = sel && sel.value;
   if (!v) { alert('No purchases logged yet, so there’s nothing to export.'); return; }
-  const b = purchReceiptBundle(v);
+  const b = await purchReceiptBundle(v);
   if (!b.purchases) { alert('No purchases logged for that period.'); return; }
   const csv = b.csvRows.map(r => r.map(cell => {
     const s = String(cell == null ? '' : cell);
@@ -14760,6 +14978,156 @@ function purchFillExportSelect() {
   if (!months.length) sel.innerHTML = '<option value="">No purchases logged yet</option>';
 }
 
+/* ── CHAT (owner ↔ manager) ──
+   One app_state row per message (k = ejChatMsg_<t36>_<rand>, value = JSON
+   {s: role, n: name, b: body, t: ms}). Appends never conflict, pulls write
+   the rows into localStorage automatically, and the realtime channel's
+   payload lets an incoming message apply instantly without a full pull.
+   Sending upserts the row directly (chat keys aren't in the KV allowlist);
+   unsent messages queue in a device-local list and retry.
+   The "seen" stamp and unsent list deliberately do NOT start with `ej` so
+   they stay device-local and skip the save-sound hook. */
+const CHAT_MSG_PREFIX = 'ejChatMsg_';
+function chatRole() { return pinSessionUser === 'admin' ? 'admin' : pinSessionUser === 'manager' ? 'manager' : null; }
+function chatMyName() {
+  if (chatRole() === 'manager') return 'Manager';
+  try { return localStorage.getItem('demo_ejOwnerName') || 'Owner'; } catch { return 'Owner'; }
+}
+function loadChatMessages() {
+  const suffix = '_' + activeStudio;
+  const out = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || key.indexOf(CHAT_MSG_PREFIX) !== 0 || key.slice(-suffix.length) !== suffix) continue;
+      try {
+        const m = JSON.parse(localStorage.getItem(key));
+        if (m && m.b != null && m.t) out.push({ ...m, _key: key });
+      } catch {}
+    }
+  } catch {}
+  return out.sort((a, b) => a.t - b.t);
+}
+function chatSeenKey() { return 'chatSeen_' + chatRole() + '_' + activeStudio; }
+function chatMarkSeen() {
+  if (!chatRole()) return;
+  try { localStorage.setItem(chatSeenKey(), String(Date.now())); } catch {}
+  chatUpdateBadge();
+}
+function chatUnreadCount() {
+  const role = chatRole();
+  if (!role) return 0;
+  let seen = 0;
+  try { seen = parseInt(localStorage.getItem(chatSeenKey()) || '0', 10) || 0; } catch {}
+  return loadChatMessages().filter(m => m.t > seen && m.s !== role).length;
+}
+function chatUpdateBadge() {
+  const b = document.getElementById('chat-nav-badge');
+  if (!b) return;
+  const n = chatRole() ? chatUnreadCount() : 0;
+  b.hidden = !n;
+  b.textContent = n > 99 ? '99+' : String(n);
+}
+function chatUnsentKey() { return 'chatUnsent_' + activeStudio; }
+function chatUnsentList() { try { return JSON.parse(localStorage.getItem(chatUnsentKey()) || '[]') || []; } catch { return []; } }
+function chatMarkUnsent(lsKey) {
+  const list = chatUnsentList();
+  if (list.indexOf(lsKey) === -1) { list.push(lsKey); try { localStorage.setItem(chatUnsentKey(), JSON.stringify(list)); } catch {} }
+}
+function chatClearUnsent(lsKey) {
+  const list = chatUnsentList().filter(k => k !== lsKey);
+  try { localStorage.setItem(chatUnsentKey(), JSON.stringify(list)); } catch {}
+}
+async function chatPushMsg(lsKey) {
+  if (!cloudReady || !sbClient) { chatMarkUnsent(lsKey); renderChat(true); return; }
+  const k = lsKey.slice(0, lsKey.length - ('_' + activeStudio).length);
+  const value = localStorage.getItem(lsKey);
+  if (value == null) { chatClearUnsent(lsKey); return; }
+  try {
+    const r = await sbClient.from('app_state').upsert(
+      { studio_id: activeStudio, k, value, updated_at: new Date().toISOString() },
+      { onConflict: 'studio_id,k' });
+    if (r.error) throw r.error;
+    _cloudLastPush = Date.now();   // don't echo-pull our own message
+    chatClearUnsent(lsKey);
+  } catch (e) { chatMarkUnsent(lsKey); }
+  renderChat(true);
+}
+function chatFlushUnsent() { chatUnsentList().forEach(k => chatPushMsg(k)); }
+function chatSend() {
+  const inp = document.getElementById('chat-input');
+  const body = (inp && inp.value || '').trim();
+  const role = chatRole();
+  if (!body || !role) return;
+  const t = Date.now();
+  const k = CHAT_MSG_PREFIX + t.toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+  const lsKey = k + '_' + activeStudio;
+  const wasApplying = cloudApplying;
+  cloudApplying = true;   // a chat row is not a KV-allowlist edit; we push it ourselves
+  try { localStorage.setItem(lsKey, JSON.stringify({ s: role, n: chatMyName(), b: body, t })); } catch {}
+  cloudApplying = wasApplying;
+  inp.value = '';
+  chatAutosize(inp);
+  chatMarkSeen();
+  renderChat();
+  chatPushMsg(lsKey);
+}
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatSend(); }
+}
+function chatAutosize(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+}
+// Called by the realtime fast-path when a message row arrives from the cloud
+function chatOnIncoming() {
+  chatUpdateBadge();
+  const role = chatRole();
+  const msgs = role ? loadChatMessages() : [];
+  const last = msgs[msgs.length - 1];
+  const fromOther = !!(last && last.s !== role);
+  if (fromOther && typeof playChatDing === 'function') playChatDing();
+  const onChat = document.getElementById('page-chat')?.classList.contains('active');
+  if (onChat && role) { chatMarkSeen(); renderChat(); return; }
+  if (fromOther && typeof cloudToast === 'function') cloudToast(`💬 ${last.n || 'New message'}: ${String(last.b).slice(0, 40)}${String(last.b).length > 40 ? '…' : ''}`);
+}
+const chatEsc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+function renderChat(keepScroll) {
+  const scroll = document.getElementById('chat-scroll');
+  if (!scroll) return;
+  const role = chatRole();
+  const msgs = loadChatMessages().slice(-300);
+  const unsent = new Set(chatUnsentList());
+  const nearBottom = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 80;
+  if (!msgs.length) {
+    scroll.innerHTML = '<div class="chat-empty">No messages yet.<br>Say hello: whatever you type here shows up live for the ' + (role === 'admin' ? 'manager' : 'owner') + ' on any device with the tracker open.</div>';
+    return;
+  }
+  const dayOf = t => new Date(t).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+  let lastDay = '';
+  scroll.innerHTML = msgs.map((m, i) => {
+    const day = dayOf(m.t);
+    const daySep = day !== lastDay ? `<div class="chat-day">${day}</div>` : '';
+    lastDay = day;
+    const mine = m.s === role;
+    // Consecutive messages from the same sender within a few minutes read as
+    // one run: tight spacing, one timestamp at the end of the run
+    const next = msgs[i + 1];
+    const groupEnd = !(next && next.s === m.s && next.t - m.t < 5 * 60000 && dayOf(next.t) === day);
+    const pending = unsent.has(m._key) ? `${groupEnd ? ' · ' : ''}<span class="chat-pending">waiting to send</span>` : '';
+    const meta = (groupEnd || pending)
+      ? `<div class="chat-meta">${groupEnd ? new Date(m.t).toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' }) : ''}${pending}</div>`
+      : '';
+    return `${daySep}<div class="chat-msg ${mine ? 'mine' : 'theirs'}${groupEnd ? ' group-end' : ''}">
+      <div class="chat-bubble">${chatEsc(m.b)}</div>
+      ${meta}
+    </div>`;
+  }).join('');
+  if (!keepScroll || nearBottom) scroll.scrollTop = scroll.scrollHeight;
+}
+setInterval(() => { try { if (cloudReady && chatUnsentList().length) chatFlushUnsent(); } catch (e) {} }, 20000);
+
 function addPurchase() {
   const dateEl = document.getElementById('purch-date');
   const itemEl = document.getElementById('purch-item');
@@ -14775,7 +15143,13 @@ function addPurchase() {
   const list = loadPurchases();
   const rec = { id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by };
   if (purchPendingRcpt) {
-    if (purchSaveRcpt(rec.id, purchPendingRcpt)) rec.rcpt = 1;
+    // Flag it now so the row shows its receipt straight away; undone if the save fails
+    rec.rcpt = 1;
+    purchSaveRcpt(rec.id, purchPendingRcpt).then(ok => {
+      if (ok) return;
+      const l = loadPurchases(), p = l.find(x => x.id === rec.id);
+      if (p) { delete p.rcpt; savePurchases(l); renderPurchases(); }
+    });
     purchPendingRcpt = purchRcptQueue.shift() || null;   // next dropped receipt steps up
     purchRenderRcptBtn();
   }
@@ -14789,7 +15163,7 @@ function addPurchase() {
   itemEl.focus();
 }
 function deletePurchase(id) {
-  try { localStorage.removeItem(purchRcptKey(id)); } catch {}
+  purchRcptDelete(id);
   savePurchases(loadPurchases().filter(p => p.id !== id));
   renderPurchases();
   if (document.getElementById('page-pl')?.classList.contains('active')) renderPLMonth(activePLMonth);
@@ -14827,10 +15201,10 @@ function renderPurchases() {
   if (!el) return;
   const rcptCell = p => {
     if (!p.rcpt) return `<button class="purch-rcpt-view add" onclick="purchAttachReceipt('${p.id}')" aria-label="Attach receipt" title="Attach a receipt photo or PDF">📎</button>`;
-    const stored = purchLoadRcpt(p.id);
-    if (!stored) return `<span class="purch-rcpt-view pending" title="Receipt was added on another device and hasn’t synced here yet">🧾</span>`;
-    const icon = purchRcptIsPdf(stored) ? '📄' : '🧾';
-    return `<button class="purch-rcpt-view" onclick="purchViewReceipt('${p.id}')" aria-label="View receipt" title="View receipt${purchRcptIsPdf(stored) ? ' (PDF)' : ''}">${icon}</button>`;
+    const kind = purchRcptKind(p.id);
+    if (!kind) return `<span class="purch-rcpt-view pending" title="Receipt was added on another device and hasn’t synced here yet">🧾</span>`;
+    const icon = kind === 'pdf' ? '📄' : '🧾';
+    return `<button class="purch-rcpt-view" onclick="purchViewReceipt('${p.id}')" aria-label="View receipt" title="View receipt${kind === 'pdf' ? ' (PDF)' : ''}">${icon}</button>`;
   };
   el.innerHTML = list.length ? list.map(p => `
     <div class="purch-row" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchRowDrop(event,'${p.id}')">
@@ -14855,6 +15229,62 @@ function renderPL() {
   renderFixedExpenseSettings();
   renderVariableDefaultSettings();
   renderPLMonth(activePLMonth);
+}
+
+/* ── Auto wages from timesheets ──
+   Staff Wages in the P&L can fill itself: the month's timesheet hours ×
+   each person's hourly rate (Account & Settings), plus super at the Tax &
+   BAS guarantee rate. Worked hours only — leave days carry no hours so they
+   aren't costed. Months with no timesheet hours fall back to the manual
+   wages figure, so history from before timesheets stays intact. */
+function plAutoWagesOn() { return getStudioPref('plAutoWages', 'on') !== 'off'; }
+function plSetAutoWages(on) { setStudioPref('plAutoWages', on ? 'on' : 'off'); renderPLMonth(activePLMonth); }
+// PAYG withholding estimate: annualise each person's month, apply the
+// resident tax brackets (2025-26, tax-free threshold claimed) plus the 2%
+// Medicare levy, then take the month's share. Close to the ATO tables for
+// steady earners; marked "est." wherever it shows.
+function plEstAnnualTax(annual) {
+  let tax = 0;
+  if (annual > 190000) tax = 51638 + (annual - 190000) * 0.45;
+  else if (annual > 135000) tax = 31288 + (annual - 135000) * 0.37;
+  else if (annual > 45000) tax = 4288 + (annual - 45000) * 0.30;
+  else if (annual > 18200) tax = (annual - 18200) * 0.16;
+  if (annual > 27222) tax += annual * 0.02;   // Medicare levy
+  return tax;
+}
+function plWagesForMonth(year, monthName) {
+  const mi = MONTH_NAMES.indexOf(monthName) + 1;
+  if (!mi) return null;
+  const pref = `${year}-${String(mi).padStart(2, '0')}`;
+  const data = loadTSData();
+  const byStaff = {};
+  Object.keys(data).forEach(k => {
+    const sep = k.indexOf('__');
+    if (sep < 0) return;
+    const date = k.slice(sep + 2);
+    if (date.indexOf(pref) !== 0) return;
+    const e = data[k];
+    if (!e || !e.start || !e.end) return;
+    const h = calcHours(e.start, e.end, e.break || 0) || 0;
+    if (h > 0) { const name = k.slice(0, sep); byStaff[name] = (byStaff[name] || 0) + h; }
+  });
+  let hours = 0, base = 0, payg = 0;
+  const staff = [], missingRates = [];
+  Object.keys(byStaff).sort().forEach(name => {
+    const h = byStaff[name], rate = getPayRate(name);
+    hours += h;
+    if (rate > 0) {
+      const cost = h * rate;
+      const p = plEstAnnualTax(cost * 12) / 12;   // per person, so the tax-free threshold applies individually
+      base += cost; payg += p;
+      staff.push({ name, hours: h, rate, cost, payg: p });
+    }
+    else missingRates.push(name);
+  });
+  let superPct = 12;
+  try { const v = parseFloat(sroiSuperRate()); if (isFinite(v) && v >= 0) superPct = v; } catch (e) {}
+  const superAmt = base * superPct / 100;
+  return { hours, base, payg, net: base - payg, superPct, superAmt, total: base + superAmt, staff, missingRates };
 }
 
 function renderPLMonth(month) {
@@ -14882,7 +15312,24 @@ function renderPLMonth(month) {
   const expTotal = document.getElementById('pl-expense-total');
   const customFixed = monthData.custom || [];
   let totalFixed = 0;
+  const autoWagesCb = document.getElementById('pl-auto-wages');
+  if (autoWagesCb) autoWagesCb.checked = plAutoWagesOn();
+  const wagesTS = plAutoWagesOn() ? plWagesForMonth(activeYear||BASE_YEAR, month) : null;
   const fixedCatRows = EXPENSE_CATEGORIES.map(cat => {
+    // Staff Wages fills itself from timesheet hours × pay rates when the
+    // month has hours; otherwise the normal manual input stays
+    if (cat.id === 'wages' && wagesTS && wagesTS.hours > 0) {
+      totalFixed += wagesTS.base + wagesTS.superAmt;
+      const viewBtn = `<button onclick="showPage('timesheets')" aria-label="Open timesheets" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:0 4px;font-family:var(--font);text-decoration:underline;text-underline-offset:2px">view</button>`;
+      const missing = wagesTS.missingRates.length
+        ? `<div class="pl-row" style="border-top:none;padding-top:0"><div style="font-size:12.5px;color:var(--red);line-height:1.5">No hourly rate set for ${wagesTS.missingRates.join(', ')}, so their hours aren't costed yet. Set rates in Account &amp; Settings.</div></div>`
+        : '';
+      const paygSplit = wagesTS.payg > 0.005
+        ? `<div class="pl-row" style="border-top:none;padding-top:0"><div style="font-size:12.5px;color:var(--muted);line-height:1.5">Of the gross: <strong style="color:var(--text)">$${fmt(wagesTS.net)}</strong> net pay to staff, <strong style="color:var(--text)">$${fmt(wagesTS.payg)}</strong> PAYG withheld for the ATO <span style="color:var(--muted2)">(est., tax-free threshold claimed)</span></div></div>`
+        : '';
+      return `<div class="pl-row"><div class="pl-row-label">Staff Wages <span style="color:var(--muted);font-weight:400">· ${fmtHours(wagesTS.hours)} gross</span></div><div class="pl-row-fixed">timesheets</div><div class="pl-row-value">$${fmt(wagesTS.base)}</div>${viewBtn}</div>` + paygSplit +
+        `<div class="pl-row"><div class="pl-row-label">Superannuation <span style="color:var(--muted);font-weight:400">· ${wagesTS.superPct}% of wages</span></div><div class="pl-row-fixed">auto</div><div class="pl-row-value">$${fmt(wagesTS.superAmt)}</div></div>` + missing;
+    }
     const savedVal=monthData[cat.id]; const fixedVal=fixed[cat.id];
     const displayVal=savedVal!==undefined?savedVal:(fixedVal||'');
     const isFixed=fixedVal>0&&savedVal===undefined;
@@ -14978,7 +15425,10 @@ function getTotalFixedExpenses(month) {
   const fixed=loadFixedExpenses(); const varDefs=loadVariableDefaults();
   const plData=loadPLData(); const monthKey=`${activeYear||BASE_YEAR}-${month}`;
   const monthData=plData[monthKey]||{}; let total=0;
-  EXPENSE_CATEGORIES.forEach(cat=>{ const val=monthData[cat.id]!==undefined?monthData[cat.id]:(fixed[cat.id]||0); total+=parseFloat(val)||0; });
+  const wagesTS = plAutoWagesOn() ? plWagesForMonth(activeYear||BASE_YEAR, month) : null;
+  EXPENSE_CATEGORIES.forEach(cat=>{
+    if (cat.id === 'wages' && wagesTS && wagesTS.hours > 0) { total += wagesTS.total; return; }
+    const val=monthData[cat.id]!==undefined?monthData[cat.id]:(fixed[cat.id]||0); total+=parseFloat(val)||0; });
   (monthData.custom||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
   VARIABLE_CATEGORIES.forEach(cat=>{ const val=monthData[cat.id]!==undefined?monthData[cat.id]:(varDefs[cat.id]||0); total+=parseFloat(val)||0; });
   (monthData.customVar||[]).forEach(l=>{total+=parseFloat(l.amount)||0;});
@@ -15655,8 +16105,14 @@ function pinRenderWhoGrid() {
 
   grid.innerHTML = people.map(p => {
     const initials = p.label.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const photo = p.id === 'admin' ? loadRolePhoto('owner')
+                : p.id === 'manager' ? loadRolePhoto('manager')
+                : loadStylistPhoto(p.id);
+    const avatar = photo
+      ? `<div class="pin-who-avatar" style="background:${p.color};overflow:hidden"><img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>`
+      : `<div class="pin-who-avatar" style="background:${p.color}">${initials}</div>`;
     return `<button class="pin-who-btn" onclick="pinSelectWho('${p.id}')" id="pwho-${p.id.replace(/\s/g,'_')}">
-      <div class="pin-who-avatar" style="background:${p.color}">${initials}</div>
+      ${avatar}
       <span>${p.label}</span>
     </button>`;
   }).join('');
@@ -15782,6 +16238,7 @@ function pinLoginSuccess(who) {
     if (staffLogout) staffLogout.style.display = 'none';
     renderSidebarStudios();
     renderDashboard();
+    try { chatUpdateBadge(); chatFlushUnsent(); } catch (e) {}
     try { maybeShowIntegrationSetup(); } catch (e) {}
   } else {
     document.body.classList.remove('manager-view');
@@ -16042,6 +16499,24 @@ function renderPINManagement() {
           ${hasPIN ? `<button class="btn btn-ghost" style="font-size:14px;padding:6px 12px;color:var(--red);border-color:rgba(158,74,58,.3)" onclick="clearStaffPIN('${st.name}')">Reset</button>` : ''}
         </div>`;
       }).join('')}
+    </div>
+    <div style="margin-top:20px">
+      <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Profile photos</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Shown on the login screen, leaderboard, timesheets and stylist pages.</div>
+      ${(() => {
+        let ownerNm = ''; try { ownerNm = localStorage.getItem('demo_ejOwnerName') || ''; } catch (e) {}
+        const photoRow = (label, photo, up, rm, color, initial) => `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          ${photo
+            ? `<img src="${photo}" alt="${label}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+            : `<div style="width:34px;height:34px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">${initial}</div>`}
+          <div style="flex:1;font-size:15px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</div>
+          <button class="btn btn-ghost" style="font-size:14px;padding:6px 12px" onclick="${up}">${photo ? 'Change' : 'Add photo'}</button>
+          ${photo ? `<button class="btn btn-ghost" style="font-size:14px;padding:6px 12px;color:var(--red);border-color:rgba(158,74,58,.3)" onclick="${rm}">Remove</button>` : ''}
+        </div>`;
+        return photoRow('Owner' + (ownerNm ? ' · ' + ownerNm : ''), loadRolePhoto('owner'), "uploadRolePhoto('owner')", "removeRolePhoto('owner')", '#000000', 'O')
+          + photoRow('Manager', loadRolePhoto('manager'), "uploadRolePhoto('manager')", "removeRolePhoto('manager')", '#6e5c7e', 'M')
+          + stylists.map((st, i) => photoRow(st.name, loadStylistPhoto(st.name), `uploadStylistPhoto('${st.name}',${i})`, `removeStylistPhoto('${st.name}')`, avatarColor(i), st.name[0])).join('');
+      })()}
     </div>
     ${integrationsBlock}`;
   renderAccountSection();
@@ -16381,6 +16856,38 @@ function playClickSound() {
     g.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
     o.connect(g); g.connect(ctx.destination);
     o.start(now); o.stop(now + 0.06);
+  } catch (e) {}
+}
+
+// Soft bell chime for an incoming chat message: three ascending notes
+// (C6-E6-G6), each with a quiet octave shimmer and a long fade. Shares the
+// app's AudioContext and respects the same per-device mute flag as the
+// save tick.
+function playChatDing() {
+  if (!clickSoundEnabled()) return;
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!lbAudioCtx) lbAudioCtx = new AC();
+    const ctx = lbAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const note = (freq, dt, gain, decay) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'triangle';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, now + dt);
+      g.gain.exponentialRampToValueAtTime(gain, now + dt + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dt + decay);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + dt); o.stop(now + dt + decay + 0.05);
+    };
+    [[1046.5, 0], [1318.5, 0.11], [1568.0, 0.22]].forEach(([f, dt]) => {
+      note(f, dt, 0.055, 0.8);        // the bell note itself
+      note(f * 2, dt, 0.012, 0.5);    // faint octave shimmer on top
+    });
   } catch (e) {}
 }
 
@@ -17671,12 +18178,21 @@ function getTaxBASAutoValues(startISO, endISO) {
     d.setDate(1);
   }
 
-  let wages = 0, expenses = 0;
+  let wages = 0, expenses = 0, payg = 0;
   monthsInRange.forEach(mKey => {
     const md = plData[mKey] || {};
-    // Wages
-    const wagesVal = md.wages !== undefined ? md.wages : (fixed.wages || 0);
-    wages += parseFloat(wagesVal) || 0;
+    // Wages: when auto-wages is on and the month has timesheet hours, use the
+    // same gross + estimated PAYG the P&L shows; otherwise the manual figure
+    const dash = mKey.indexOf('-');
+    const wAuto = (typeof plAutoWagesOn === 'function' && plAutoWagesOn())
+      ? plWagesForMonth(parseInt(mKey.slice(0, dash), 10), mKey.slice(dash + 1)) : null;
+    if (wAuto && wAuto.hours > 0) {
+      wages += wAuto.base;
+      payg += wAuto.payg;
+    } else {
+      const wagesVal = md.wages !== undefined ? md.wages : (fixed.wages || 0);
+      wages += parseFloat(wagesVal) || 0;
+    }
     // Other fixed expense categories (excluding wages)
     EXPENSE_CATEGORIES.forEach(cat => {
       if (cat.id === 'wages') return;
@@ -17695,7 +18211,7 @@ function getTaxBASAutoValues(startISO, endISO) {
   return {
     revenue:  Math.round(revenueIncGST * 100) / 100,
     wages:    Math.round(wages * 100) / 100,
-    payg:     0, // tracker doesn't capture PAYG — user enters manually
+    payg:     Math.round(payg * 100) / 100,   // estimated from timesheet wages; override on the page for the exact payroll figure
     expenses: Math.round(expenses * 100) / 100,
   };
 }
@@ -18775,7 +19291,24 @@ function cloudStopRealtime() {
   _rtChannel = null;
   clearTimeout(_rtRetryTimer);
 }
-function cloudOnRemoteChange() {
+function cloudOnRemoteChange(payload) {
+  // Chat fast-path: a message row carries its own payload, so apply it
+  // instantly instead of waiting out the debounced full pull. Our own sends
+  // are already in localStorage, so their echo is skipped by the getItem check.
+  try {
+    const row = payload && payload.new;
+    if (row && typeof row.k === 'string' && row.k.indexOf('ejChatMsg_') === 0 && row.value != null) {
+      const lsKey = row.k + '_' + row.studio_id;
+      if (localStorage.getItem(lsKey) == null) {
+        const was = cloudApplying;
+        cloudApplying = true;
+        try { localStorage.setItem(lsKey, row.value); } catch (e) {}
+        cloudApplying = was;
+        if (row.studio_id === activeStudio && typeof chatOnIncoming === 'function') chatOnIncoming();
+      }
+      return;   // handled in full — no pull needed for a chat row
+    }
+  } catch (e) {}
   if (Date.now() - _cloudLastPush < 4000) return;   // ignore the echo of our own recent save
   clearTimeout(_rtTimer);
   _rtTimer = setTimeout(() => cloudSchedulePull(false), 1200);   // debounce bursts into a single pull
@@ -19068,6 +19601,7 @@ async function cloudPullState() {
     if (error || !data) return;
     data.forEach(r => {
       const lsKey = (r.studio_id === '__global__') ? r.k : (r.k + '_' + r.studio_id);
+      if (typeof r.k === 'string' && r.k.indexOf('ejPhoto_rcpt_') === 0) { purchRcptFromCloud(lsKey, r.value); return; }
       // Client log: merge row-by-row instead of overwriting (safe even with
       // local unpushed edits — they carry newer _t stamps and win the merge).
       // If the merge holds anything the cloud copy is missing, push it back.
@@ -19182,6 +19716,7 @@ function reloadActiveStudioData() {
   } catch { STYLISTS = activeStudio === 'ej' ? DEFAULT_STYLISTS.map(x => ({ ...x })) : []; }
   try { if (typeof pinRenderWhoGrid === 'function') pinRenderWhoGrid(); } catch (e) {}
   renderSidebarStudios();
+  try { if (typeof chatUpdateBadge === 'function') chatUpdateBadge(); } catch (e) {}
   const ap = document.querySelector('.page.active');
   const pid = ap ? ap.id.replace('page-', '') : 'dashboard';
   try { showPage(pid); } catch {}

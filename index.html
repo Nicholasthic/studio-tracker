@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.09.19-1404">
-<meta name="lumin-build" content="2026.09.19-1404"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.10.13-1521">
+<meta name="lumin-build" content="2026.10.13-1521"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14552,15 +14552,120 @@ function purchasesMonthTotal(year, monthName) {
 }
 const purchFmt = n => (n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/* Receipt photos: one compressed JPEG per purchase, stored under the existing
-   ejPhoto_* keys so they ride the photo backup sync (kept out of the
-   per-keystroke state sync because they're big). The purchase row carries a
-   tiny `rcpt` flag so other devices know a receipt exists even before the
-   photo itself has synced across. */
+/* Receipt photos: one compressed JPEG (or small PDF) per purchase. They live
+   in IndexedDB, not localStorage: localStorage is capped around 5MB for the
+   whole app, so a dozen receipts used to fill it ("storage is full").
+   IndexedDB allows hundreds of MB. Keys keep the old ejPhoto_rcpt_<id>_<studio>
+   names so the cloud rows in app_state are unchanged; each receipt is pushed
+   as its own row when saved. The purchase row carries a tiny `rcpt` flag so
+   other devices know a receipt exists even before the file has synced across.
+   purchRcptKinds is a small in-memory index (key -> 'pdf' | 'img') so the
+   purchase list can render without waiting on the database. */
 let purchPendingRcpt = null;
 let purchRcptOpenId = null;
 const purchRcptKey = id => getPhotoKey('rcpt_' + id);
-function purchLoadRcpt(id) { try { return localStorage.getItem(purchRcptKey(id)) || null; } catch { return null; } }
+let purchRcptKinds = {};
+let _rcptDbP = null;
+function rcptDb() {
+  if (!_rcptDbP) _rcptDbP = new Promise((res, rej) => {
+    const rq = indexedDB.open('ejReceipts', 1);
+    rq.onupgradeneeded = () => { rq.result.createObjectStore('rcpt'); rq.result.createObjectStore('kind'); };
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => rej(rq.error);
+  });
+  return _rcptDbP;
+}
+// Runs fn(tx) in one transaction; resolves with fn's return value once committed
+function rcptTx(mode, fn) {
+  return rcptDb().then(db => new Promise((res, rej) => {
+    const tx = db.transaction(['rcpt', 'kind'], mode);
+    const out = fn(tx);
+    tx.oncomplete = () => res(out);
+    tx.onerror = tx.onabort = () => rej(tx.error || new Error('receipt store failed'));
+  }));
+}
+const purchRcptKindOf = url => purchRcptIsPdf(url) ? 'pdf' : 'img';
+function rcptIdbPut(k, url) {
+  return rcptTx('readwrite', tx => { tx.objectStore('rcpt').put(url, k); tx.objectStore('kind').put(purchRcptKindOf(url), k); });
+}
+function rcptIdbDel(k) {
+  return rcptTx('readwrite', tx => { tx.objectStore('rcpt').delete(k); tx.objectStore('kind').delete(k); });
+}
+async function purchLoadRcpt(id) {
+  try { return (await rcptTx('readonly', tx => tx.objectStore('rcpt').get(purchRcptKey(id)))).result || null; } catch { return null; }
+}
+const purchRcptKind = id => purchRcptKinds[purchRcptKey(id)] || null;
+function purchRcptRefresh() {
+  if (document.getElementById('page-purchases')?.classList.contains('active')) renderPurchases();
+}
+// Load the index, and move any receipts left in localStorage (from before the
+// switch) into IndexedDB so they stop taking up the 5MB.
+const purchRcptReady = (async () => {
+  try {
+    const [keys, vals] = await rcptTx('readonly', tx => [tx.objectStore('kind').getAllKeys(), tx.objectStore('kind').getAll()]);
+    keys.result.forEach((k, i) => { purchRcptKinds[k] = vals.result[i]; });
+    const old = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf('ejPhoto_rcpt_') === 0) old.push(k);
+    }
+    for (const k of old) {
+      const v = localStorage.getItem(k);
+      if (v) { await rcptIdbPut(k, v); purchRcptKinds[k] = purchRcptKindOf(v); purchRcptMarkUnsent(k); }
+      localStorage.removeItem(k);
+    }
+    if (old.length) setTimeout(purchRcptFlushUnsent, 3000);
+  } catch (e) { console.warn('receipt store unavailable', e); }
+  purchRcptRefresh();
+})();
+
+/* Cloud: each receipt is upserted as its own app_state row (same row shape as
+   before). Keys waiting to upload are listed in ejRcptUnsent so a save made
+   offline, or a page closed mid-upload, still goes up later. */
+function purchRcptUnsentList() { try { return JSON.parse(localStorage.getItem('ejRcptUnsent') || '[]'); } catch { return []; } }
+function purchRcptSetUnsent(list) { try { localStorage.setItem('ejRcptUnsent', JSON.stringify(list)); } catch {} }
+function purchRcptMarkUnsent(k) { const l = purchRcptUnsentList(); if (l.indexOf(k) === -1) { l.push(k); purchRcptSetUnsent(l); } }
+function purchRcptClearUnsent(k) { purchRcptSetUnsent(purchRcptUnsentList().filter(x => x !== k)); }
+function purchRcptSplitKey(lsKey) {
+  const st = (Array.isArray(STUDIOS) ? STUDIOS : []).find(s => lsKey.length > s.id.length + 1 && lsKey.slice(-(s.id.length + 1)) === '_' + s.id);
+  return st ? { sid: st.id, k: lsKey.slice(0, lsKey.length - (st.id.length + 1)) } : null;
+}
+async function purchRcptPush(lsKey) {
+  if (!cloudReady || !sbClient) return;
+  const parts = purchRcptSplitKey(lsKey);
+  let value = null;
+  try { value = (await rcptTx('readonly', tx => tx.objectStore('rcpt').get(lsKey))).result; } catch {}
+  if (!parts || value == null) { purchRcptClearUnsent(lsKey); return; }
+  try {
+    const r = await sbClient.from('app_state').upsert(
+      { studio_id: parts.sid, k: parts.k, value, updated_at: new Date().toISOString() },
+      { onConflict: 'studio_id,k' });
+    if (r.error) throw r.error;
+    _cloudLastPush = Date.now();   // don't echo-pull our own upload
+    purchRcptClearUnsent(lsKey);
+  } catch (e) { /* stays listed, retried below */ }
+}
+function purchRcptFlushUnsent() { purchRcptUnsentList().forEach(k => purchRcptPush(k)); }
+setInterval(() => { try { if (cloudReady && purchRcptUnsentList().length) purchRcptFlushUnsent(); } catch (e) {} }, 20000);
+// A receipt row pulled from the cloud goes into IndexedDB, never localStorage
+function purchRcptFromCloud(lsKey, value) {
+  if (!value) return;
+  purchRcptReady.then(() => {
+    if (purchRcptKinds[lsKey]) return;
+    purchRcptKinds[lsKey] = purchRcptKindOf(value);
+    rcptIdbPut(lsKey, value).catch(() => { delete purchRcptKinds[lsKey]; });
+    clearTimeout(purchRcptFromCloud._t);
+    purchRcptFromCloud._t = setTimeout(purchRcptRefresh, 400);
+  });
+}
+function purchRcptDelete(id) {
+  const k = purchRcptKey(id);
+  delete purchRcptKinds[k];
+  rcptIdbDel(k).catch(() => {});
+  purchRcptClearUnsent(k);
+  const parts = purchRcptSplitKey(k);
+  if (cloudReady && sbClient && parts) sbClient.from('app_state').delete().eq('studio_id', parts.sid).eq('k', parts.k).then(() => {}, () => {});
+}
 function purchCompressReceipt(file, cb) {
   const reader = new FileReader();
   reader.onload = ev => {
@@ -14641,13 +14746,7 @@ function purchRowDrop(e, id) {
   e.currentTarget.classList.remove('dropping');
   const files = [...(e.dataTransfer.files || [])];
   if (!files.length) return;
-  purchIngestFile(files[0], url => {
-    if (!url || !purchSaveRcpt(id, url)) return;
-    const list = loadPurchases();
-    const p = list.find(x => x.id === id);
-    if (p) { p.rcpt = 1; savePurchases(list); }
-    renderPurchases();
-  });
+  purchIngestFile(files[0], url => { if (url) purchAttachTo(id, url); });
   if (files.length > 1) purchTakeFiles(files.slice(1));   // extras queue in the form
 }
 // A drop that misses its target must not navigate the whole app to the file
@@ -14680,26 +14779,31 @@ function purchRenderRcptBtn() {
     ? (purchRcptQueue.length ? 'Skip this receipt and move to the next dropped one' : 'Remove the attached receipt')
     : 'Attach photos or PDFs of receipts (you can pick or drag in several at once)';
 }
-function purchSaveRcpt(id, url) {
-  try { localStorage.setItem(purchRcptKey(id), url); } catch (e) {
-    alert('The receipt photo could not be saved because this device’s storage is full. The purchase itself is still logged.');
+async function purchSaveRcpt(id, url) {
+  const k = purchRcptKey(id);
+  purchRcptKinds[k] = purchRcptKindOf(url);
+  try { await rcptIdbPut(k, url); } catch (e) {
+    delete purchRcptKinds[k];
+    alert('The receipt could not be saved on this device (its storage may be full). The purchase itself is still logged.');
     return false;
   }
-  if (typeof cloudPushPhotosSoon === 'function') cloudPushPhotosSoon();
+  purchRcptMarkUnsent(k);
+  purchRcptPush(k);
   return true;
 }
+async function purchAttachTo(id, url) {
+  if (!(await purchSaveRcpt(id, url))) return;
+  const list = loadPurchases();
+  const p = list.find(x => x.id === id);
+  if (p) { p.rcpt = 1; savePurchases(list); }
+  renderPurchases();
+}
 function purchAttachReceipt(id) {
-  purchPickFile(url => {
-    if (!purchSaveRcpt(id, url)) return;
-    const list = loadPurchases();
-    const p = list.find(x => x.id === id);
-    if (p) { p.rcpt = 1; savePurchases(list); }
-    renderPurchases();
-  });
+  purchPickFile(url => purchAttachTo(id, url));
 }
 let purchRcptBlobUrl = null;
-function purchViewReceipt(id) {
-  const url = purchLoadRcpt(id);
+async function purchViewReceipt(id) {
+  const url = await purchLoadRcpt(id);
   if (!url) return;
   purchRcptOpenId = id;
   const img = document.getElementById('purch-rcpt-img');
@@ -14732,7 +14836,7 @@ function purchCloseReceipt() {
 function purchRemoveReceipt() {
   if (!purchRcptOpenId) return;
   if (!confirm('Remove this receipt photo? The purchase itself stays logged.')) return;
-  try { localStorage.removeItem(purchRcptKey(purchRcptOpenId)); } catch {}
+  purchRcptDelete(purchRcptOpenId);
   const list = loadPurchases();
   const p = list.find(x => x.id === purchRcptOpenId);
   if (p) { delete p.rcpt; savePurchases(list); }
@@ -14763,9 +14867,9 @@ function purchTriggerDownload(blob, filename) {
   a.click();
   setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch {} }, 30000);
 }
-function purchDownloadReceipt() {
+async function purchDownloadReceipt() {
   if (!purchRcptOpenId) return;
-  const url = purchLoadRcpt(purchRcptOpenId);
+  const url = await purchLoadRcpt(purchRcptOpenId);
   const p = loadPurchases().find(x => x.id === purchRcptOpenId);
   if (!url || !p) return;
   const type = purchRcptIsPdf(url) ? 'application/pdf' : (url.indexOf('data:image/png') === 0 ? 'image/png' : 'image/jpeg');
@@ -14810,15 +14914,15 @@ function purchBuildZip(files) {   // files: [{ name, bytes: Uint8Array }]
   push([u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cdSize), u32(cdStart), u16(0)]);
   return new Blob(parts, { type: 'application/zip' });
 }
-function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (year)
+async function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (year)
   const all = loadPurchases().filter(p => p.date && p.date.startsWith(prefix))
     .sort((a, b) => a.date.localeCompare(b.date));
   const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
   const files = [], used = {};
   const csvRows = [['Date', 'Item / supplier', 'Category', 'Amount', 'Logged by', 'Receipt file']];
   let missing = 0;
-  all.forEach(p => {
-    const url = p.rcpt ? purchLoadRcpt(p.id) : null;
+  for (const p of all) {
+    const url = p.rcpt ? await purchLoadRcpt(p.id) : null;
     let name = '';
     if (url) {
       name = purchRcptFileName(p, url);
@@ -14828,14 +14932,14 @@ function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YYYY' (y
       files.push({ name, bytes: purchRcptBytes(url) });
     } else if (p.rcpt) { missing++; name = '(not synced to this device yet)'; }
     csvRows.push([p.date, p.item || '', catName(p.cat), (parseFloat(p.amount) || 0).toFixed(2), p.by || '', name]);
-  });
+  }
   return { files, csvRows, purchases: all.length, receipts: files.length, missing };
 }
-function exportReceiptsZip() {
+async function exportReceiptsZip() {
   const sel = document.getElementById('exp-receipts-period');
   const v = sel && sel.value;
   if (!v) { alert('No purchases logged yet, so there’s nothing to export.'); return; }
-  const b = purchReceiptBundle(v);
+  const b = await purchReceiptBundle(v);
   if (!b.purchases) { alert('No purchases logged for that period.'); return; }
   const csv = b.csvRows.map(r => r.map(cell => {
     const s = String(cell == null ? '' : cell);
@@ -15039,7 +15143,13 @@ function addPurchase() {
   const list = loadPurchases();
   const rec = { id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by };
   if (purchPendingRcpt) {
-    if (purchSaveRcpt(rec.id, purchPendingRcpt)) rec.rcpt = 1;
+    // Flag it now so the row shows its receipt straight away; undone if the save fails
+    rec.rcpt = 1;
+    purchSaveRcpt(rec.id, purchPendingRcpt).then(ok => {
+      if (ok) return;
+      const l = loadPurchases(), p = l.find(x => x.id === rec.id);
+      if (p) { delete p.rcpt; savePurchases(l); renderPurchases(); }
+    });
     purchPendingRcpt = purchRcptQueue.shift() || null;   // next dropped receipt steps up
     purchRenderRcptBtn();
   }
@@ -15053,7 +15163,7 @@ function addPurchase() {
   itemEl.focus();
 }
 function deletePurchase(id) {
-  try { localStorage.removeItem(purchRcptKey(id)); } catch {}
+  purchRcptDelete(id);
   savePurchases(loadPurchases().filter(p => p.id !== id));
   renderPurchases();
   if (document.getElementById('page-pl')?.classList.contains('active')) renderPLMonth(activePLMonth);
@@ -15091,10 +15201,10 @@ function renderPurchases() {
   if (!el) return;
   const rcptCell = p => {
     if (!p.rcpt) return `<button class="purch-rcpt-view add" onclick="purchAttachReceipt('${p.id}')" aria-label="Attach receipt" title="Attach a receipt photo or PDF">📎</button>`;
-    const stored = purchLoadRcpt(p.id);
-    if (!stored) return `<span class="purch-rcpt-view pending" title="Receipt was added on another device and hasn’t synced here yet">🧾</span>`;
-    const icon = purchRcptIsPdf(stored) ? '📄' : '🧾';
-    return `<button class="purch-rcpt-view" onclick="purchViewReceipt('${p.id}')" aria-label="View receipt" title="View receipt${purchRcptIsPdf(stored) ? ' (PDF)' : ''}">${icon}</button>`;
+    const kind = purchRcptKind(p.id);
+    if (!kind) return `<span class="purch-rcpt-view pending" title="Receipt was added on another device and hasn’t synced here yet">🧾</span>`;
+    const icon = kind === 'pdf' ? '📄' : '🧾';
+    return `<button class="purch-rcpt-view" onclick="purchViewReceipt('${p.id}')" aria-label="View receipt" title="View receipt${kind === 'pdf' ? ' (PDF)' : ''}">${icon}</button>`;
   };
   el.innerHTML = list.length ? list.map(p => `
     <div class="purch-row" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchRowDrop(event,'${p.id}')">
@@ -19491,6 +19601,7 @@ async function cloudPullState() {
     if (error || !data) return;
     data.forEach(r => {
       const lsKey = (r.studio_id === '__global__') ? r.k : (r.k + '_' + r.studio_id);
+      if (typeof r.k === 'string' && r.k.indexOf('ejPhoto_rcpt_') === 0) { purchRcptFromCloud(lsKey, r.value); return; }
       // Client log: merge row-by-row instead of overwriting (safe even with
       // local unpushed edits — they carry newer _t stamps and win the merge).
       // If the merge holds anything the cloud copy is missing, push it back.
