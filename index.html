@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.10.13-1521">
-<meta name="lumin-build" content="2026.10.13-1521"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.10.15-2139">
+<meta name="lumin-build" content="2026.10.15-2139"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4042,12 +4042,23 @@ html[data-theme="money"]   { --bg: #edf3ec; --surface2: #f5f9f3; --surface3: #e6
    ═══════════════════════════════════════════════════════════ */
 .purch-form {
   display: grid;
-  grid-template-columns: 150px minmax(180px, 1fr) 200px 120px auto auto;
+  grid-template-columns: 150px 180px minmax(160px, 1fr) 200px 120px auto auto;
   gap: 14px;
   align-items: end;
 }
 .purch-form .form-input { min-width: 0; width: 100%; }
 .purch-form .btn { white-space: nowrap; padding-top: 11px; padding-bottom: 11px; }
+.purch-sups { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.purch-sups-label { font-size: 13px; color: var(--muted); margin-right: 2px; }
+.purch-sup-chip {
+  display: inline-flex; align-items: center;
+  border-radius: 999px; background: var(--surface2); border: 1px solid var(--border);
+  font-size: 13px; color: var(--text); overflow: hidden;
+}
+.purch-sup-chip button { background: none; border: none; color: inherit; font: inherit; cursor: pointer; padding: 5px 4px 5px 12px; }
+.purch-sup-chip button.x { padding: 5px 10px 5px 6px; color: var(--muted2); }
+.purch-sup-chip button.x:hover { color: var(--red); }
+.purch-sup-chip button:first-child:hover { color: var(--accent); }
 .purch-list-head {
   display: flex;
   align-items: center;
@@ -4451,8 +4462,7 @@ html[data-mode="dark"] .cap-banner.warn { color: #e0b184; }
 .cmp-swap:hover { color: var(--text); border-color: var(--muted); transform: rotate(180deg); }
 .cmp-preset { font-size: 14px; align-self: end; margin-left: 6px; }
 @media (max-width: 1200px) {
-  .purch-form { grid-template-columns: 150px 1fr 1fr; }
-  .purch-form-item { grid-column: 2 / -1; }
+  .purch-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .purch-form-btn .btn { width: 100%; }
 }
 @media (max-width: 760px) {
@@ -4555,6 +4565,8 @@ html[data-mode="dark"] .cap-banner.warn { color: #e0b184; }
 .roi .sroi-fld-i input{width:70px;border:0;background:transparent;text-align:right;font-size:15px;
  font-weight:700;color:var(--sroi-ink);padding:7px 0;-moz-appearance:textfield;font-family:var(--mono)}
 .roi .sroi-fld-i input:focus{outline:none}
+.roi .sroi-fld-i select{border:0;background:transparent;font-size:14px;font-weight:600;color:var(--sroi-ink);padding:7px 0;max-width:190px;cursor:pointer}
+.roi .sroi-fld-i select:focus{outline:none}
 .roi .sroi-fld-i input::-webkit-outer-spin-button,.roi .sroi-fld-i input::-webkit-inner-spin-button{
  -webkit-appearance:none;margin:0}
 
@@ -5215,9 +5227,14 @@ try {
           <label class="form-label" for="purch-date">Date</label>
           <input type="date" class="form-input" id="purch-date">
         </div>
+        <div class="form-group">
+          <label class="form-label" for="purch-sup">Supplier</label>
+          <input type="text" class="form-input" id="purch-sup" list="purch-sup-list" autocomplete="off" placeholder="e.g. BeautyPro" oninput="purchSupPicked()" onkeydown="if(event.key==='Enter')addPurchase()">
+          <datalist id="purch-sup-list"></datalist>
+        </div>
         <div class="form-group purch-form-item">
-          <label class="form-label" for="purch-item">Item / supplier</label>
-          <input type="text" class="form-input" id="purch-item" placeholder="e.g. Brow wax refills, BeautyPro" onkeydown="if(event.key==='Enter')addPurchase()">
+          <label class="form-label" for="purch-item">Item</label>
+          <input type="text" class="form-input" id="purch-item" placeholder="e.g. Brow wax refills" onkeydown="if(event.key==='Enter')addPurchase()">
         </div>
         <div class="form-group">
           <label class="form-label" for="purch-cat">Category</label>
@@ -5235,7 +5252,8 @@ try {
           <button class="btn btn-primary" onclick="addPurchase()">+ Add purchase</button>
         </div>
       </div>
-      <div style="font-size:13px;color:var(--muted);margin-top:10px">Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page. Tip: drag receipt photos or PDFs from Finder straight onto this card. Drop a handful at once and they queue up, attaching one by one as you add each purchase. You can also drop a file onto a purchase below to attach it there.</div>
+      <div class="purch-sups" id="purch-sups" hidden></div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px">Suppliers are saved the first time you use one, along with their usual category, so next time just tap or start typing the name. Everything logged here lands in that month's P&amp;L automatically, under variable expenses. Managers can log purchases without needing the P&amp;L page. Tip: drag receipt photos or PDFs from Finder straight onto this card. Drop a handful at once and they queue up, attaching one by one as you add each purchase. You can also drop a file onto a purchase below to attach it there.</div>
     </div>
 
     <div class="form-section">
@@ -14000,12 +14018,27 @@ function exportInvoicePDF() {
 const SROI_OWNER_ROLE = 'admin'; // the owner PIN's pinSessionUser value
 
 const SROI_FALLBACK = {
-  hourlyRate: 34, paidHours: 30, leaveLoading: 13, superRate: 12,
+  hourlyRate: 34, satRate: 0, paidHours: 30, satHours: 0, leaveLoading: 13, superRate: 12,
   workCover: 1, payrollTax: 0, commission: 0,
   bookableHours: 28, utilisation: 65, avgServicePrice: 95, avgServiceMins: 45,
   consumables: 6, retailAttach: 20, avgRetailSale: 45, retailMargin: 55,
   targetProfit: 400,
 };
+
+// Employment type sets whether paid leave is costed. Permanent staff (full or
+// part time) accrue annual + sick leave, which the leave % covers; casuals get
+// no paid leave (their casual loading is already in their hourly rate).
+const SROI_EMP_TYPES = [
+  { id: 'ft', label: 'Full-time' },
+  { id: 'pt', label: 'Part-time' },
+  { id: 'casual', label: 'Casual' },
+];
+function sroiEmployment(name, overridesAll) {
+  const o = (overridesAll || sroiLoadOverrides())[name] || {};
+  const type = SROI_EMP_TYPES.some(t => t.id === o.empType) ? o.empType : 'ft';
+  const leave = typeof o.leave === 'boolean' ? o.leave : type !== 'casual';
+  return { type, leave, label: SROI_EMP_TYPES.find(t => t.id === type).label };
+}
 
 const SROI_PERIODS = [
   { id: '4w',  label: 'Last 4 weeks', weeks: 4 },
@@ -14050,7 +14083,7 @@ function sroiAggregates(name, weeks) {
     retailTx  += sd.prodQty || 0;
   });
 
-  let tsHours = 0, hasTS = false;
+  let tsHours = 0, satHours = 0, hasTS = false;
   const tsDates = new Set(), tsWeekSet = new Set();
   const ts = loadTSData();
   Object.keys(ts).forEach(k => {
@@ -14063,6 +14096,7 @@ function sroiAggregates(name, weeks) {
       : calcHours(row.start || '', row.end || '', parseFloat(row.break) || 0);
     if (h != null && isFinite(h) && h > 0) {
       tsHours += h; hasTS = true;
+      if (new Date(date + 'T00:00:00').getDay() === 6) satHours += h;
       tsDates.add(date);
       tsWeekSet.add(toLocalISO(getMondayOfWeek(date)));
     }
@@ -14084,6 +14118,7 @@ function sroiAggregates(name, weeks) {
   return {
     services, svcRev, retailRev, retailTx,
     tsHours: hasTS ? tsHours : undefined,
+    satHours: hasTS ? satHours : undefined,
     tsWeeks: tsWeekSet.size,
     servicesTS,
   };
@@ -14125,11 +14160,14 @@ function sroiDeriveInputs(name, period) {
     ? (t.servicesTS > 0 ? t.servicesTS / t.tsWeeks : undefined)
     : (t.services > 0 ? t.services / w : undefined);
   const rate = getPayRate(name);
+  const emp = sroiEmployment(name);
 
-  return sroiPack({
+  const out = sroiPack({
     hourlyRate: rate > 0 ? rate : undefined,
+    satRate: undefined,            // Saturday rate is set here; blank = same as weekday
     paidHours,
-    leaveLoading: undefined,       // employment type (casual vs permanent) not tracked
+    satHours: (t.satHours != null && t.tsWeeks > 0) ? t.satHours / t.tsWeeks : undefined,
+    leaveLoading: undefined,       // set from employment type below
     superRate: sroiSuperRate(),    // Tax & BAS super guarantee rate
     workCover: undefined,          // not tracked
     payrollTax: undefined,         // not tracked
@@ -14151,6 +14189,8 @@ function sroiDeriveInputs(name, period) {
 
     targetProfit: undefined,
   });
+  out.leaveLoading = { value: emp.leave ? SROI_FALLBACK.leaveLoading : 0, source: 'emp' };
+  return out;
 }
 
 function sroiPack(raw) {
@@ -14169,8 +14209,13 @@ function sroiCalculate(v) {
   const loadFactor =
     (1 + pct(v.leaveLoading)) *
     (1 + pct(v.superRate) + pct(v.workCover) + pct(v.payrollTax));
-  const loadedRate = (Number(v.hourlyRate) || 0) * loadFactor;
-  const wageCost = loadedRate * (Number(v.paidHours) || 0);
+  // Saturday hours are paid at the Saturday rate, the rest at the weekday rate
+  const baseRate = Number(v.hourlyRate) || 0;
+  const satRate = Number(v.satRate) > 0 ? Number(v.satRate) : baseRate;
+  const paidHrs = Number(v.paidHours) || 0;
+  const satHrs = Math.min(paidHrs, Math.max(0, Number(v.satHours) || 0));
+  const wageCost = (baseRate * (paidHrs - satHrs) + satRate * satHrs) * loadFactor;
+  const loadedRate = paidHrs > 0 ? wageCost / paidHrs : baseRate * loadFactor;
 
   const productiveHours = (Number(v.bookableHours) || 0) * pct(v.utilisation);
   const mins = Number(v.avgServiceMins) || 1;
@@ -14208,7 +14253,10 @@ function sroiCalculate(v) {
     (Number(v.paidHours) || 0) > 0
       ? (grossReturn - commissionCost - (Number(v.targetProfit) || 0)) / v.paidHours
       : 0;
-  const maxRate = maxLoadedRate / loadFactor;
+  // Equivalent weekday base rate, keeping the same Saturday premium
+  const satRatio = baseRate > 0 ? satRate / baseRate : 1;
+  const weightedHrs = (paidHrs - satHrs) + satHrs * satRatio;
+  const maxRate = weightedHrs > 0 ? (maxLoadedRate * paidHrs / loadFactor) / weightedHrs : maxLoadedRate / loadFactor;
 
   return {
     loadedRate, wageCost, staffCost, services, grossReturn, profit,
@@ -14227,9 +14275,11 @@ const sroiNum = (n, dp = 1) => (isFinite(n) ? n.toFixed(dp) : '-');
 
 const SROI_GROUPS = [
   { title: 'What you pay them', fields: [
-    ['hourlyRate', 'Hourly rate', '$', '/hr', 0.5],
+    ['hourlyRate', 'Hourly rate (weekdays)', '$', '/hr', 0.5],
+    ['satRate', 'Saturday rate', '$', '/hr', 0.5],
     ['paidHours', 'Paid hours', '', 'hrs/wk', 1],
-    ['leaveLoading', 'Leave and absence', '', '%', 0.5],
+    ['satHours', 'Of those, on Saturdays', '', 'hrs/wk', 1],
+    ['leaveLoading', 'Annual and sick leave', '', '%', 0.5],
     ['superRate', 'Super', '', '%', 0.5],
     ['workCover', 'WorkCover', '', '%', 0.1],
     ['payrollTax', 'Payroll tax', '', '%', 0.1],
@@ -14259,6 +14309,7 @@ function sroiResolve(name, derived, overridesAll) {
   for (const k of Object.keys(SROI_FALLBACK)) {
     out[k] = (o[k] != null) ? o[k] : (d[k] ? d[k].value : SROI_FALLBACK[k]);
   }
+  if (!(Number(out.satRate) > 0)) out.satRate = out.hourlyRate;
   return out;
 }
 
@@ -14281,10 +14332,27 @@ function sroiSetField(k, val) {
   renderStaffROI();
 }
 
+// Employment type / leave choice. Changing either drops a typed-in leave %, so
+// the figure follows the new choice.
+function sroiSetEmployment(field, val) {
+  if (!sroiActiveName) return;
+  const all = sroiLoadOverrides();
+  const o = all[sroiActiveName] = all[sroiActiveName] || {};
+  if (field === 'type') { o.empType = val; delete o.leave; }
+  else o.leave = val === 'yes';
+  delete o.leaveLoading;
+  sroiSaveOverrides(all);
+  renderStaffROI();
+}
+
 function sroiClearOverrides() {
   if (!sroiActiveName) return;
   const all = sroiLoadOverrides();
-  delete all[sroiActiveName];
+  const o = all[sroiActiveName] || {};
+  const keep = {};
+  if (o.empType) keep.empType = o.empType;
+  if (typeof o.leave === 'boolean') keep.leave = o.leave;
+  if (Object.keys(keep).length) all[sroiActiveName] = keep; else delete all[sroiActiveName];
   sroiSaveOverrides(all);
   renderStaffROI();
 }
@@ -14326,15 +14394,17 @@ function renderStaffROI() {
   const be = r.breakEvenUtil;
   const beClamped = Math.max(0, Math.min(100, isFinite(be) ? be : 100));
   const ovhd = sroiWeeklyOverheadPerHead(); // shown for context only, never counted
-  const activeOverrides = overridesAll[sroiActiveName] || {};
+  const activeOverrides = {};
+  Object.keys(overridesAll[sroiActiveName] || {}).forEach(k => { if (k in SROI_FALLBACK) activeOverrides[k] = overridesAll[sroiActiveName][k]; });
   const dirty = Object.keys(activeOverrides).length > 0;
+  const emp = sroiEmployment(sroiActiveName, overridesAll);
   const excluded = STYLISTS.length - staff.length;
 
   const boardHTML = ranked.map(x =>
     '<button class="sroi-card' + (x.s.name === sroiActiveName ? ' on' : '') + '" onclick="sroiSelect(' + x.i + ')">' +
       '<span class="nm">' + x.s.name + '</span>' +
       '<span class="pf ' + (x.r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(x.r.profit) + '</span>' +
-      '<span class="sub">' + sroiNum(x.r.returnMultiple, 2) + 'x wage · ' + sroiNum(x.r.breakEvenUtil, 0) + '% to break even</span>' +
+      '<span class="sub">' + sroiEmployment(x.s.name, overridesAll).label + ' · ' + sroiNum(x.r.returnMultiple, 2) + 'x wage · ' + sroiNum(x.r.breakEvenUtil, 0) + '% to break even</span>' +
     '</button>').join('');
 
   const rowHTML = (label, v, key1) =>
@@ -14343,16 +14413,33 @@ function renderStaffROI() {
   const assumpBody = !sroiOpen ? '' :
     '<div class="sroi-ass-b">' +
       (dirty ? '<button class="sroi-reset" onclick="sroiClearOverrides()">Reset to tracker figures</button>' : '') +
+      '<div class="sroi-grp"><h3>Employment</h3>' +
+        '<label class="sroi-fld"><span class="sroi-fld-l">Employment type<em>casuals default to no paid leave</em></span>' +
+          '<span class="sroi-fld-i"><select onchange="sroiSetEmployment(\'type\', this.value)" aria-label="Employment type">' +
+            SROI_EMP_TYPES.map(t => '<option value="' + t.id + '"' + (t.id === emp.type ? ' selected' : '') + '>' + t.label + '</option>').join('') +
+          '</select></span></label>' +
+        '<label class="sroi-fld"><span class="sroi-fld-l">Paid leave<em>sets the leave % below</em></span>' +
+          '<span class="sroi-fld-i"><select onchange="sroiSetEmployment(\'leave\', this.value)" aria-label="Paid leave">' +
+            '<option value="yes"' + (emp.leave ? ' selected' : '') + '>Annual and sick leave</option>' +
+            '<option value="no"' + (!emp.leave ? ' selected' : '') + '>No paid leave</option>' +
+          '</select></span></label>' +
+      '</div>' +
       SROI_GROUPS.map(g =>
         '<div class="sroi-grp"><h3>' + g.title + '</h3>' +
         g.fields.map(f => {
           const k = f[0], label = f[1], prefix = f[2], suffix = f[3], step = f[4];
           const isOver = activeOverrides[k] != null;
           const src = derived[sroiActiveName] && derived[sroiActiveName][k] ? derived[sroiActiveName][k].source : 'default';
+          const note = isOver ? 'edited'
+            : k === 'satRate' ? 'blank or 0 = same as weekdays'
+            : src === 'emp' ? (emp.leave ? 'from employment type' : 'no paid leave')
+            : src === 'tracker' ? 'from tracker'
+            : k === 'satHours' ? 'from timesheets when tracked'
+            : 'not tracked, using default';
           const shown = Math.round((Number(inputs[k]) || 0) * 100) / 100;
           return '<label class="sroi-fld">' +
             '<span class="sroi-fld-l">' + label +
-              '<em>' + (isOver ? 'edited' : src === 'tracker' ? 'from tracker' : 'not tracked, using default') + '</em>' +
+              '<em>' + note + '</em>' +
             '</span>' +
             '<span class="sroi-fld-i' + (isOver ? ' edited' : '') + '">' +
               (prefix ? '<b>' + prefix + '</b>' : '') +
@@ -14378,7 +14465,7 @@ function renderStaffROI() {
 
     '<div class="sroi-panel">' +
       '<div class="sroi-verdict">' +
-        '<small>' + sroiActiveName + ' · weekly profit after wages and on-costs</small>' +
+        '<small>' + sroiActiveName + ' · ' + emp.label + (emp.leave ? '' : ', no paid leave') + ' · weekly profit after wages and on-costs</small>' +
         '<div class="sroi-big ' + (r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(r.profit) + '</div>' +
         '<div class="sroi-yr">' + sroiMoney(r.profit * 52) + ' a year at this rate</div>' +
         (ovhd != null
@@ -14396,7 +14483,7 @@ function renderStaffROI() {
         '<div class="sroi-scale"><span>0%</span><span>50%</span><span>100%</span></div>' +
       '</div>' +
       '<div class="sroi-rows">' +
-        rowHTML('True cost per paid hour', sroiMoney(r.loadedRate, 2), true) +
+        rowHTML('True cost per paid hour' + (Number(inputs.satHours) > 0 && inputs.satRate !== inputs.hourlyRate ? ' (Saturdays blended in)' : ''), sroiMoney(r.loadedRate, 2), true) +
         rowHTML('Real weekly cost', sroiMoney(r.staffCost)) +
         rowHTML('Gross return', sroiMoney(r.grossReturn)) +
         rowHTML('Return per $1 of wage', sroiNum(r.returnMultiple, 2) + 'x') +
@@ -14404,7 +14491,7 @@ function renderStaffROI() {
         rowHTML('Appointments to break even', isFinite(r.breakEvenServices) ? sroiNum(r.breakEvenServices, 1) : '-') +
         rowHTML('Profit per appointment', sroiMoney(r.profitPerService, 2)) +
         rowHTML('Max hourly cost you can afford (incl. super, leave, WorkCover)', sroiMoney(r.maxLoadedRate, 2), true) +
-        rowHTML('That equals a base wage of', sroiMoney(r.maxRate, 2) + '/hr') +
+        rowHTML('That equals a weekday base wage of', sroiMoney(r.maxRate, 2) + '/hr') +
       '</div>' +
     '</div>' +
 
@@ -14532,6 +14619,54 @@ function loadPurchases() { try { return JSON.parse(localStorage.getItem(studioKe
 function savePurchases(list) {
   localStorage.setItem(studioKey('ejPurchases'), JSON.stringify(list));
   if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejPurchases'));
+}
+/* Saved suppliers: [{ name, cat }]. Added automatically when a purchase uses
+   a new supplier; picking one fills in its usual category. */
+function loadSuppliers() { try { const l = JSON.parse(localStorage.getItem(studioKey('ejSuppliers')) || '[]'); return Array.isArray(l) ? l : []; } catch { return []; } }
+function saveSuppliers(list) {
+  localStorage.setItem(studioKey('ejSuppliers'), JSON.stringify(list));
+  if (typeof cloudNoteLocalEdit === 'function') cloudNoteLocalEdit(studioKey('ejSuppliers'));
+}
+const purchSupFind = name => loadSuppliers().find(x => x.name.toLowerCase() === String(name || '').trim().toLowerCase());
+function purchSupRemember(name, cat) {
+  name = String(name || '').trim();
+  if (!name) return;
+  const list = loadSuppliers();
+  const ex = list.find(x => x.name.toLowerCase() === name.toLowerCase());
+  if (ex) { if (ex.cat === cat) return; ex.cat = cat; } else list.push({ name, cat });
+  list.sort((a, b) => a.name.localeCompare(b.name));
+  saveSuppliers(list);
+}
+function purchSupPicked() {
+  const sup = purchSupFind(document.getElementById('purch-sup')?.value);
+  const sel = document.getElementById('purch-cat');
+  if (sup && sel && PURCHASE_CATS.some(c => c.id === sup.cat)) sel.value = sup.cat;
+}
+function purchSupUse(i) {
+  const sup = loadSuppliers()[i];
+  const el = document.getElementById('purch-sup');
+  if (!sup || !el) return;
+  el.value = sup.name;
+  purchSupPicked();
+  document.getElementById('purch-item')?.focus();
+}
+function purchSupRemove(i) {
+  const list = loadSuppliers();
+  if (!list[i] || !confirm(`Remove ${list[i].name} from saved suppliers? Purchases already logged keep it.`)) return;
+  list.splice(i, 1);
+  saveSuppliers(list);
+  purchRenderSuppliers();
+}
+const purchEsc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+function purchRenderSuppliers() {
+  const list = loadSuppliers();
+  const dl = document.getElementById('purch-sup-list');
+  if (dl) dl.innerHTML = list.map(x => `<option value="${purchEsc(x.name)}"></option>`).join('');
+  const box = document.getElementById('purch-sups');
+  if (!box) return;
+  box.hidden = !list.length;
+  box.innerHTML = list.length ? `<span class="purch-sups-label">Suppliers</span>` + list.map((x, i) =>
+    `<span class="purch-sup-chip"><button type="button" onclick="purchSupUse(${i})" title="Use ${purchEsc(x.name)}">${purchEsc(x.name)}</button><button type="button" class="x" onclick="purchSupRemove(${i})" aria-label="Remove ${purchEsc(x.name)}" title="Remove from saved suppliers">×</button></span>`).join('') : '';
 }
 function purchasesFor(year, monthName) {
   const mi = MONTH_NAMES.indexOf(monthName) + 1;
@@ -14857,7 +14992,7 @@ function purchRcptBytes(url) {
 }
 function purchRcptFileName(p, url) {
   const ext = purchRcptIsPdf(url) ? 'pdf' : (url.indexOf('data:image/png') === 0 ? 'png' : 'jpg');
-  const base = `${p.date} ${String(p.item || 'receipt')}`.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+  const base = `${p.date} ${[p.sup, p.item].filter(Boolean).join(' ') || 'receipt'}`.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
   return `${base} $${(parseFloat(p.amount) || 0).toFixed(2)}.${ext}`;
 }
 function purchTriggerDownload(blob, filename) {
@@ -14919,7 +15054,7 @@ async function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YY
     .sort((a, b) => a.date.localeCompare(b.date));
   const catName = id => (PURCHASE_CATS.find(c => c.id === id) || { label: 'Other' }).label;
   const files = [], used = {};
-  const csvRows = [['Date', 'Item / supplier', 'Category', 'Amount', 'Logged by', 'Receipt file']];
+  const csvRows = [['Date', 'Supplier', 'Item', 'Category', 'Amount', 'Logged by', 'Receipt file']];
   let missing = 0;
   for (const p of all) {
     const url = p.rcpt ? await purchLoadRcpt(p.id) : null;
@@ -14931,7 +15066,7 @@ async function purchReceiptBundle(prefix) {   // prefix 'YYYY-MM' (month) or 'YY
       used[name] = 1;
       files.push({ name, bytes: purchRcptBytes(url) });
     } else if (p.rcpt) { missing++; name = '(not synced to this device yet)'; }
-    csvRows.push([p.date, p.item || '', catName(p.cat), (parseFloat(p.amount) || 0).toFixed(2), p.by || '', name]);
+    csvRows.push([p.date, p.sup || '', p.item || '', catName(p.cat), (parseFloat(p.amount) || 0).toFixed(2), p.by || '', name]);
   }
   return { files, csvRows, purchases: all.length, receipts: files.length, missing };
 }
@@ -15134,14 +15269,17 @@ function addPurchase() {
   const amtEl = document.getElementById('purch-amount');
   const date = dateEl?.value;
   const item = itemEl?.value.trim();
+  const supEl = document.getElementById('purch-sup');
+  const sup = supEl?.value.trim() || '';
   const cat = document.getElementById('purch-cat')?.value || 'other';
   const amount = parseFloat(amtEl?.value);
   if (!date) { dateEl?.focus(); return; }
-  if (!item) { itemEl?.focus(); return; }
+  if (!item && !sup) { (supEl || itemEl)?.focus(); return; }   // either one is enough
   if (!(amount > 0)) { amtEl?.focus(); return; }
   const by = pinSessionUser === 'admin' ? 'Owner' : pinSessionUser === 'manager' ? 'Manager' : (pinSessionUser || '');
   const list = loadPurchases();
   const rec = { id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), date, item, cat, amount: Math.round(amount * 100) / 100, by };
+  if (sup) { rec.sup = (purchSupFind(sup) || { name: sup }).name; purchSupRemember(rec.sup, cat); }
   if (purchPendingRcpt) {
     // Flag it now so the row shows its receipt straight away; undone if the save fails
     rec.rcpt = 1;
@@ -15155,12 +15293,12 @@ function addPurchase() {
   }
   list.push(rec);
   savePurchases(list);
-  itemEl.value = ''; amtEl.value = '';
+  itemEl.value = ''; amtEl.value = ''; if (supEl) supEl.value = '';
   // Show the month the purchase went into, so the new row is visibly there
   const d = new Date(date + 'T00:00:00'), now = new Date();
   purchMonthOffset = Math.max(0, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()));
   renderPurchases();
-  itemEl.focus();
+  (supEl || itemEl).focus();
 }
 function deletePurchase(id) {
   purchRcptDelete(id);
@@ -15178,6 +15316,7 @@ function renderPurchases() {
   const sel = document.getElementById('purch-cat');
   if (sel && !sel.options.length) sel.innerHTML = PURCHASE_CATS.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
   purchRenderRcptBtn();
+  purchRenderSuppliers();
 
   const now = new Date();
   const m = new Date(now.getFullYear(), now.getMonth() - purchMonthOffset, 1);
@@ -15209,7 +15348,7 @@ function renderPurchases() {
   el.innerHTML = list.length ? list.map(p => `
     <div class="purch-row" ondragover="purchDragOver(event)" ondragleave="purchDragLeave(event)" ondrop="purchRowDrop(event,'${p.id}')">
       <div class="purch-date">${new Date(p.date + 'T00:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
-      <div class="purch-item">${String(p.item || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}${p.by ? `<span class="purch-by">logged by ${p.by}</span>` : ''}</div>
+      <div class="purch-item">${purchEsc(p.item || p.sup)}${(p.item && p.sup) || p.by ? `<span class="purch-by">${[p.item && p.sup ? purchEsc(p.sup) : '', p.by ? `logged by ${p.by}` : ''].filter(Boolean).join(' · ')}</span>` : ''}</div>
       <span class="purch-cat-badge">${catName(p.cat)}</span>
       <div class="purch-amount">$${purchFmt(p.amount)}</div>
       ${rcptCell(p)}
@@ -19497,7 +19636,7 @@ async function cloudPushKind(kind) {
 const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
-  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI','ejPurchases','ejStudioLogo','ejTSStaffOrder',
+  'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI','ejPurchases','ejSuppliers','ejStudioLogo','ejTSStaffOrder',
   'ejGoals','ejLapsedCadences','ejStock','ejStockMovements',
   'ejLeaderboardMetric','ejLeaderboardPeriod','ejStylistPagePeriod','ejStylistLBPrefs',
   'ejYears','ejRoster_staff','ejRoster_rooms','ejRoster_weekA','ejRoster_weekB','ejIntegrationSetup'
