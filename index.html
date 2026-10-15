@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sums.</title>
-<meta name="sums-build" content="2026.10.15-2139">
-<meta name="lumin-build" content="2026.10.15-2139"><!-- legacy tag so pre-rebrand clients still see the update banner -->
+<meta name="sums-build" content="2026.10.15-2155">
+<meta name="lumin-build" content="2026.10.15-2155"><!-- legacy tag so pre-rebrand clients still see the update banner -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232B2320'/%3E%3Ctext x='60' y='82' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='62' fill='%23F4EFE8'%3Es.%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4548,6 +4548,11 @@ html[data-mode="dark"] .cap-banner.warn { color: #e0b184; }
  background:none;border:0;padding:12px 14px;cursor:pointer;font-size:13px;font-weight:700;color:var(--sroi-ink)}
 .roi .sroi-toggle em{font-style:normal;font-weight:500;color:var(--sroi-muted);font-size:12.5px}
 .roi .sroi-ass-b{padding:0 14px 12px;border-top:1px solid var(--sroi-rule)}
+.roi .sroi-studio{margin:0 auto 16px}
+.roi .sroi-studio .sroi-toggle{cursor:default}
+.roi .sroi-sum{margin:12px 0 0;font-size:14px;line-height:1.55;color:var(--text)}
+.roi .sroi-sum b{font-variant-numeric:tabular-nums}
+.roi .sroi-sum .dn{color:var(--red)}
 .roi .sroi-reset{margin:12px 0 0;background:none;border:1px solid var(--sroi-rule);border-radius:2px;
  padding:6px 10px;font-size:12.5px;font-weight:700;color:var(--sroi-muted);cursor:pointer}
 .roi .sroi-grp{margin-top:14px}
@@ -14022,7 +14027,7 @@ const SROI_FALLBACK = {
   workCover: 1, payrollTax: 0, commission: 0,
   bookableHours: 28, utilisation: 65, avgServicePrice: 95, avgServiceMins: 45,
   consumables: 6, retailAttach: 20, avgRetailSale: 45, retailMargin: 55,
-  targetProfit: 400,
+  targetPct: 60,
 };
 
 // Employment type sets whether paid leave is costed. Permanent staff (full or
@@ -14038,6 +14043,35 @@ function sroiEmployment(name, overridesAll) {
   const type = SROI_EMP_TYPES.some(t => t.id === o.empType) ? o.empType : 'ft';
   const leave = typeof o.leave === 'boolean' ? o.leave : type !== 'casual';
   return { type, leave, label: SROI_EMP_TYPES.find(t => t.id === type).label };
+}
+
+// Studio-wide settings, stored alongside the per-stylist overrides under a
+// reserved key: the default profit target (% of what each stylist brings in
+// that's left after their wage and on-costs) and fixed overheads per month
+// (blank = use the P&L fixed expenses).
+const SROI_STUDIO_KEY = '__studio';
+const SROI_DEFAULT_TARGET_PCT = 60;
+function sroiStudioSettings(overridesAll) {
+  const o = (overridesAll || sroiLoadOverrides())[SROI_STUDIO_KEY] || {};
+  const targetPct = isFinite(o.targetPct) ? o.targetPct : SROI_DEFAULT_TARGET_PCT;
+  let overheads = isFinite(o.overheads) ? o.overheads : undefined, overheadsSrc = 'edited';
+  if (overheads == null) {
+    try {
+      const m = Object.values(loadFixedExpenses()).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+      if (m > 0) { overheads = m; overheadsSrc = 'pl'; }
+    } catch {}
+  }
+  if (overheads == null) { overheads = 0; overheadsSrc = 'none'; }
+  return { targetPct, overheads, overheadsSrc };
+}
+function sroiSetStudio(k, val) {
+  const all = sroiLoadOverrides();
+  const o = all[SROI_STUDIO_KEY] = all[SROI_STUDIO_KEY] || {};
+  const n = parseFloat(val);
+  if (val === '' || !isFinite(n)) delete o[k]; else o[k] = n;
+  if (!Object.keys(o).length) delete all[SROI_STUDIO_KEY];
+  sroiSaveOverrides(all);
+  renderStaffROI();
 }
 
 const SROI_PERIODS = [
@@ -14135,9 +14169,8 @@ function sroiSuperRate() {
 // Weekly share of P&L fixed expenses per employed head
 function sroiWeeklyOverheadPerHead() {
   try {
-    const fixed = loadFixedExpenses();
-    const monthly = Object.values(fixed).reduce((s, v) => s + (parseFloat(v) || 0), 0);
-    if (monthly <= 0) return undefined;
+    const monthly = sroiStudioSettings().overheads;
+    if (!(monthly > 0)) return undefined;
     return (monthly * 12 / 52) / Math.max(1, sroiStaff().length);
   } catch { return undefined; }
 }
@@ -14187,7 +14220,7 @@ function sroiDeriveInputs(name, period) {
     avgRetailSale: t.retailTx && t.retailRev ? t.retailRev / t.retailTx : undefined,
     retailMargin: undefined,       // product cost prices not tracked
 
-    targetProfit: undefined,
+    targetPct: undefined,
   });
   out.leaveLoading = { value: emp.leave ? SROI_FALLBACK.leaveLoading : 0, source: 'emp' };
   return out;
@@ -14249,9 +14282,11 @@ function sroiCalculate(v) {
   // target profit. maxLoadedRate is the ALL-IN hourly figure (wage + super +
   // leave loading + WorkCover + payroll tax) - directly comparable to
   // "True cost per paid hour". maxRate is the equivalent base wage.
+  // Target profit is a % of what they bring in (their gross return)
+  const targetProfit = grossReturn * pct(v.targetPct);
   const maxLoadedRate =
     (Number(v.paidHours) || 0) > 0
-      ? (grossReturn - commissionCost - (Number(v.targetProfit) || 0)) / v.paidHours
+      ? (grossReturn - commissionCost - targetProfit) / v.paidHours
       : 0;
   // Equivalent weekday base rate, keeping the same Saturday premium
   const satRatio = baseRate > 0 ? satRate / baseRate : 1;
@@ -14259,7 +14294,8 @@ function sroiCalculate(v) {
   const maxRate = weightedHrs > 0 ? (maxLoadedRate * paidHrs / loadFactor) / weightedHrs : maxLoadedRate / loadFactor;
 
   return {
-    loadedRate, wageCost, staffCost, services, grossReturn, profit,
+    loadedRate, wageCost, staffCost, services, grossReturn, profit, targetProfit,
+    keptPct: grossReturn > 0 ? (profit / grossReturn) * 100 : 0,
     returnMultiple: staffCost > 0 ? grossReturn / staffCost : 0,
     breakEvenServices, breakEvenUtil, maxRate, maxLoadedRate,
     profitPerService: services > 0 ? profit / services : 0,
@@ -14298,7 +14334,7 @@ const SROI_GROUPS = [
     ['retailMargin', 'Your margin on it', '', '%', 5],
   ]},
   { title: 'Target', fields: [
-    ['targetProfit', 'Profit you want from them', '$', '/wk', 50],
+    ['targetPct', 'Profit you want from them', '', '% of takings', 1],
   ]},
 ];
 
@@ -14310,6 +14346,7 @@ function sroiResolve(name, derived, overridesAll) {
     out[k] = (o[k] != null) ? o[k] : (d[k] ? d[k].value : SROI_FALLBACK[k]);
   }
   if (!(Number(out.satRate) > 0)) out.satRate = out.hourlyRate;
+  if (o.targetPct == null) out.targetPct = sroiStudioSettings(overridesAll).targetPct;
   return out;
 }
 
@@ -14398,14 +14435,45 @@ function renderStaffROI() {
   Object.keys(overridesAll[sroiActiveName] || {}).forEach(k => { if (k in SROI_FALLBACK) activeOverrides[k] = overridesAll[sroiActiveName][k]; });
   const dirty = Object.keys(activeOverrides).length > 0;
   const emp = sroiEmployment(sroiActiveName, overridesAll);
+  const studio = sroiStudioSettings(overridesAll);
   const excluded = STYLISTS.length - staff.length;
 
   const boardHTML = ranked.map(x =>
     '<button class="sroi-card' + (x.s.name === sroiActiveName ? ' on' : '') + '" onclick="sroiSelect(' + x.i + ')">' +
       '<span class="nm">' + x.s.name + '</span>' +
       '<span class="pf ' + (x.r.profit > 0 ? 'up' : 'dn') + '">' + sroiMoney(x.r.profit) + '</span>' +
-      '<span class="sub">' + sroiEmployment(x.s.name, overridesAll).label + ' · ' + sroiNum(x.r.returnMultiple, 2) + 'x wage · ' + sroiNum(x.r.breakEvenUtil, 0) + '% to break even</span>' +
+      '<span class="sub">' + sroiEmployment(x.s.name, overridesAll).label + ' · ' + sroiNum(x.r.keptPct, 0) + '% kept · ' + sroiNum(x.r.breakEvenUtil, 0) + '% to break even</span>' +
     '</button>').join('');
+
+  // Team view: what everyone keeps after wages vs the studio's fixed overheads
+  const teamGross = ranked.reduce((s, x) => s + x.r.grossReturn, 0);
+  const teamKept = ranked.reduce((s, x) => s + x.r.profit, 0);
+  const ovhdWeek = studio.overheads * 12 / 52;
+  const ovhdPct = teamGross > 0 ? ovhdWeek / teamGross * 100 : 0;
+  const clear = teamKept - ovhdWeek;
+  const studioFld = (k, label, note, prefix, suffix, step, val, edited) =>
+    '<label class="sroi-fld"><span class="sroi-fld-l">' + label + '<em>' + note + '</em></span>' +
+      '<span class="sroi-fld-i' + (edited ? ' edited' : '') + '">' + (prefix ? '<b>' + prefix + '</b>' : '') +
+        '<input type="number" step="' + step + '" value="' + val + '" onchange="sroiSetStudio(\'' + k + '\', this.value)">' +
+        (suffix ? '<b>' + suffix + '</b>' : '') + '</span></label>';
+  const studioHTML =
+    '<div class="sroi-assump sroi-studio">' +
+      '<div class="sroi-toggle"><span>Studio overheads and target</span><em>applies to every stylist</em></div>' +
+      '<div class="sroi-ass-b"><div class="sroi-grp">' +
+        studioFld('overheads', 'Fixed overheads',
+          studio.overheadsSrc === 'pl' ? 'from P&amp;L fixed expenses' : studio.overheadsSrc === 'none' ? 'rent, power, software, insurance, etc.' : 'edited, blank = use P&amp;L',
+          '$', '/month', 50, Math.round(studio.overheads), studio.overheadsSrc === 'edited') +
+        studioFld('targetPct', 'Profit target',
+          'kept from what each stylist brings in, after their wage', '', '%', 1, studio.targetPct, studio.targetPct !== SROI_DEFAULT_TARGET_PCT) +
+      '</div>' +
+      '<p class="sroi-sum">' + (studio.overheads > 0 && teamGross > 0
+        ? 'Your overheads come to <b>' + sroiMoney(ovhdWeek) + '</b> a week, which is <b>' + sroiNum(ovhdPct, 0) + '%</b> of what the team brings in. ' +
+          'The team keeps <b>' + sroiNum(teamGross > 0 ? teamKept / teamGross * 100 : 0, 0) + '%</b> after wages (' + sroiMoney(teamKept) + ' a week), so after overheads the studio clears ' +
+          '<b' + (clear < 0 ? ' class="dn"' : '') + '>' + sroiMoney(clear) + '</b> a week (' + sroiMoney(clear * 52) + ' a year). ' +
+          'At a ' + sroiNum(studio.targetPct, 0) + '% target you would keep about <b>' + sroiNum(studio.targetPct - ovhdPct, 0) + ' cents</b> in every dollar as profit.'
+        : 'Enter your monthly fixed overheads to see what the studio clears after them.') + '</p>' +
+      '</div>' +
+    '</div>';
 
   const rowHTML = (label, v, key1) =>
     '<div class="sroi-row' + (key1 ? ' key' : '') + '"><span>' + label + '</span><b>' + v + '</b></div>';
@@ -14435,6 +14503,7 @@ function renderStaffROI() {
             : src === 'emp' ? (emp.leave ? 'from employment type' : 'no paid leave')
             : src === 'tracker' ? 'from tracker'
             : k === 'satHours' ? 'from timesheets when tracked'
+            : k === 'targetPct' ? 'studio target, change for this stylist only'
             : 'not tracked, using default';
           const shown = Math.round((Number(inputs[k]) || 0) * 100) / 100;
           return '<label class="sroi-fld">' +
@@ -14461,6 +14530,7 @@ function renderStaffROI() {
       '</select>' +
     '</header>' +
 
+    studioHTML +
     '<div class="sroi-board">' + boardHTML + '</div>' +
 
     '<div class="sroi-panel">' +
@@ -14486,11 +14556,12 @@ function renderStaffROI() {
         rowHTML('True cost per paid hour' + (Number(inputs.satHours) > 0 && inputs.satRate !== inputs.hourlyRate ? ' (Saturdays blended in)' : ''), sroiMoney(r.loadedRate, 2), true) +
         rowHTML('Real weekly cost', sroiMoney(r.staffCost)) +
         rowHTML('Gross return', sroiMoney(r.grossReturn)) +
+        rowHTML('Kept after wages (target ' + sroiNum(Number(inputs.targetPct) || 0, 0) + '%)', sroiNum(r.keptPct, 0) + '%', true) +
         rowHTML('Return per $1 of wage', sroiNum(r.returnMultiple, 2) + 'x') +
         rowHTML('Appointments a week', sroiNum(r.services, 1)) +
         rowHTML('Appointments to break even', isFinite(r.breakEvenServices) ? sroiNum(r.breakEvenServices, 1) : '-') +
         rowHTML('Profit per appointment', sroiMoney(r.profitPerService, 2)) +
-        rowHTML('Max hourly cost you can afford (incl. super, leave, WorkCover)', sroiMoney(r.maxLoadedRate, 2), true) +
+        rowHTML('Max hourly cost to hit ' + sroiNum(Number(inputs.targetPct) || 0, 0) + '% (incl. super, leave, WorkCover)', sroiMoney(r.maxLoadedRate, 2), true) +
         rowHTML('That equals a weekday base wage of', sroiMoney(r.maxRate, 2) + '/hr') +
       '</div>' +
     '</div>' +
@@ -16351,7 +16422,38 @@ function pinSubmit() {
   }
 }
 
+// Page each role lands on after the PIN screen. The manager defaults to
+// Timesheets (no dollar figures for them there) so the dashboard's money
+// isn't on screen while a stylist is sitting alongside. Global + synced.
+const PIN_START_PAGES = [
+  ['dashboard', 'Dashboard'], ['weekly', 'Weekly'], ['entry', 'Add Entry'],
+  ['timesheets', 'Timesheets'], ['roster', 'Roster Planner'], ['clientlog', 'New Client Tracker'],
+  ['purchases', 'Purchases'], ['chat', 'Chat'], ['help', 'Help & Setup'],
+];
+const PIN_START_DEFAULTS = { admin: 'dashboard', manager: 'timesheets' };
+function getStartPage(role) {
+  let all = {};
+  try { all = JSON.parse(localStorage.getItem('ejStartPages') || '{}') || {}; } catch {}
+  const v = all[role];
+  return PIN_START_PAGES.some(p => p[0] === v) ? v : PIN_START_DEFAULTS[role];
+}
+function setStartPage(role, page) {
+  let all = {};
+  try { all = JSON.parse(localStorage.getItem('ejStartPages') || '{}') || {}; } catch {}
+  all[role] = page;
+  try { localStorage.setItem('ejStartPages', JSON.stringify(all)); } catch {}
+}
+// Plan-gated pages pop an upgrade prompt instead of opening, so skip those
+function pinStartPageUsable(id) {
+  if (id === 'timesheets' && typeof canUseTimesheets === 'function' && !canUseTimesheets()) return false;
+  return true;
+}
+let _pinLastUser = null;
 function pinLoginSuccess(who) {
+  // Fresh open or a different person: go to their start page. The same person
+  // unlocking after auto-lock stays where they were.
+  const goStart = _pinLastUser !== who;
+  _pinLastUser = who;
   pinSessionUser = who;
   const screen = document.getElementById('pin-lock-screen');
   if (screen) screen.style.display = 'none';
@@ -16377,6 +16479,10 @@ function pinLoginSuccess(who) {
     if (staffLogout) staffLogout.style.display = 'none';
     renderSidebarStudios();
     renderDashboard();
+    if (goStart) {
+      const start = getStartPage(who);
+      try { showPage(pinStartPageUsable(start) ? start : 'dashboard'); } catch (e) {}
+    }
     try { chatUpdateBadge(); chatFlushUnsent(); } catch (e) {}
     try { maybeShowIntegrationSetup(); } catch (e) {}
   } else {
@@ -16605,8 +16711,19 @@ function renderPINManagement() {
       <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Account</div>
       <div id="account-box" style="font-size:14px;color:var(--muted)">Loading...</div>
     </div>`;
+  const startSel = role => `<select aria-label="${role === 'admin' ? 'Owner' : 'Manager'} start page" onchange="setStartPage('${role}', this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:15px;color:var(--text);outline:none">
+      ${PIN_START_PAGES.map(p => `<option value="${p[0]}" ${getStartPage(role) === p[0] ? 'selected' : ''}>${p[1]}</option>`).join('')}
+    </select>`;
+  const startPageBlock = `
+    <div style="margin-bottom:16px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+      <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Opens to</div>
+      ${isManager ? '' : `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px"><span style="font-size:15px;color:var(--text);min-width:150px">Owner opens to</span>${startSel('admin')}</div>`}
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:15px;color:var(--text);min-width:150px">Manager opens to</span>${startSel('manager')}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5">The page shown straight after the PIN screen, so studio figures aren't on display if a stylist is nearby. Unlocking again after auto-lock goes back to where you were. Applies across all devices.</div>
+    </div>`;
   el.innerHTML = `
     ${accountBlock}
+    ${startPageBlock}
     ${ownerPinBlock}
     <div style="margin-bottom:16px">
       <div style="font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Manager PIN</div>
@@ -19633,7 +19750,7 @@ async function cloudPushKind(kind) {
 }
 
 // ── Key-value sync for everything else (timesheets, PINs, P&L, Tax/BAS, stock, goals, roster, prefs…) ──
-const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName'];
+const CLOUD_GLOBAL_KEYS = ['ejAdminPIN', 'ejManagerPIN', 'ejStaffPINs', 'ejAutoLockMins', 'ejOwnerName', 'ejStartPages'];
 const CLOUD_STUDIO_BASES = [
   'ejStudioRate','ejContractorName','ejClientServiceLog','ejTimesheets','ejTSStaff','ejStudioPrefs','ejPayRates',
   'ejBizDetails','ejPLData','ejFixedExpenses','ejVariableDefaults','ejTaxBAS','ejStaffROI','ejPurchases','ejSuppliers','ejStudioLogo','ejTSStaffOrder',
